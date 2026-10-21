@@ -1,0 +1,10 @@
+/* Source theme styles are loaded in their measured cascade order per page. */
+:root {
+  --background: #ffffff;
+  --foreground: #777777;
+  --primary: #bcbcbc;
+  --primary-foreground: #ffffff;
+  --muted: #b3b3b1;
+  --border: #eeeeee;
+  --brand-gold: #e9c95d;
+}
