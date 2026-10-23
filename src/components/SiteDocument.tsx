@@ -2,6 +2,7 @@ import { createElement, type CSSProperties, type ReactNode } from "react";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 import { contentAdaptations } from "@/data/content-adaptations";
 import { adaptSiteDocument } from "@/lib/content-adapter";
+import { adaptHomepageBackgrounds } from "@/lib/homepage-backgrounds";
 import { SiteRuntime } from "./SiteRuntime";
 
 const attributeNames: Record<string, string> = {
@@ -69,7 +70,7 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
-  const document = adaptSiteDocument(original, contentAdaptations);
+  const document = adaptHomepageBackgrounds(adaptSiteDocument(original, contentAdaptations));
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />
