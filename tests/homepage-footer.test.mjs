@@ -28,11 +28,11 @@ test('three informational footers are identical; homepage receives one independe
   assert.notStrictEqual(main.children[2], source.nodes[1].children[3]);
 });
 
-test('copied footer preserves hierarchy, classes, inline styles, icon assets and canvas while sanitizing content', () => {
+test('copied footer preserves hierarchy and design with only the approved control offset and safe content changes', () => {
   const footer = addHomepageFooter(sitePages['/'], source).nodes[1].children[2];
   const nodes = all([footer]), original = all([source.nodes[1].children[3]]);
   assert.equal(nodes.length, original.length);
-  nodes.forEach((node, i) => { assert.equal(node.tag, original[i].tag); assert.equal(node.attrs.class, original[i].attrs.class); assert.equal(node.attrs.style, original[i].attrs.style); assert.equal(node.attrs.id, original[i].attrs.id); });
+  nodes.forEach((node, i) => { assert.equal(node.tag, original[i].tag); assert.equal(node.attrs.class, original[i].attrs.class); assert.equal(node.attrs.style, node.attrs.class === 'scroll-to-top' ? 'right:75px;' : original[i].attrs.style); assert.equal(node.attrs.id, original[i].attrs.id); });
   const serialized = JSON.stringify(footer);
   assert.ok(!/Br[ıi]dal.?Vanesa|bridalvanesa|bridal_vanesa|vanesabridal|TATLI|gmail|\+90|Vienna|Denizli/i.test(serialized));
   assert.match(serialized, /Redcarpert Wedding Dresses/);
