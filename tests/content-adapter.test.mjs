@@ -29,8 +29,9 @@ const rule = (changes, target = { tag: "a", attrs: { id: "hero" } }, extra = {})
 });
 const text = { kind: "text", childIndex: 0, expected: "Original", value: "Replacement" };
 
-test("all 143 captured routes use the empty registry without any content or reference change", () => {
-  assert.equal(contentAdaptations.length, 0, "Implementation 03 must not enable substitutions");
+test("all 143 source documents remain immutable; only the homepage has applicable rules", () => {
+  assert.equal(contentAdaptations.length, 2, "Only the two approved homepage text rules are enabled");
+  assert.ok(contentAdaptations.every((adaptation) => adaptation.route === "/"));
   assert.equal(Object.keys(sitePages).length, 143);
   for (const adaptation of contentAdaptations) assert.ok(Object.hasOwn(sitePages, adaptation.route), "unknown configured route");
   const digest = () => createHash("sha256").update(JSON.stringify(sitePages)).digest("hex");
@@ -38,9 +39,31 @@ test("all 143 captured routes use the empty registry without any content or refe
   freeze(sitePages);
   for (const [route, original] of Object.entries(sitePages)) {
     assert.equal(original.route, route);
-    assert.strictEqual(adaptSiteDocument(original, contentAdaptations), original, route);
+    assert.strictEqual(adaptSiteDocument(original, []), original, route);
+    const result = adaptSiteDocument(original, contentAdaptations);
+    if (route !== "/") assert.strictEqual(result, original, route);
   }
   assert.equal(digest(), before);
+});
+
+test("homepage changes exactly the approved brand and hero CTA text, retaining every attribute and other child", () => {
+  const nodeAt = (document, path) => path.reduce((nodes, index, i) => i === path.length - 1 ? nodes[index] : nodes[index].children, document.nodes);
+  const brandPath = [1, 1, 4, 1, 1, 2, 0, 0];
+  const ctaPath = [1, 1, 4, 1, 1, 0, 0, 2];
+  const original = sitePages["/"];
+  const expected = structuredClone(original);
+  assert.equal(nodeAt(expected, brandPath).children[0], "VANESA BRIDAL");
+  assert.equal(nodeAt(expected, ctaPath).children[0], "EXPLORE COLLECTION");
+  nodeAt(expected, brandPath).children[0] = "Redcarpert Wedding Dresses";
+  nodeAt(expected, ctaPath).children[0] = "Explore Wedding Dresses";
+  const result = adaptSiteDocument(original, contentAdaptations);
+  assert.deepEqual(result, expected);
+  for (const field of Object.keys(original).filter((field) => field !== "nodes")) assert.strictEqual(result[field], original[field], field);
+  assert.strictEqual(nodeAt(result, [1, 1, 2]), nodeAt(original, [1, 1, 2]), "Header/logo/navigation subtree is unchanged");
+  assert.equal(nodeAt(result, ctaPath).attrs.href, "/product/");
+  assert.ok(Object.hasOwn(sitePages, "/product"), "Existing catalogue destination remains available");
+  assert.equal(nodeAt(original, brandPath).children[0], "VANESA BRIDAL");
+  assert.equal(nodeAt(original, ctaPath).children[0], "EXPLORE COLLECTION");
 });
 
 test("only a guarded text slot and href change; nested markup and all runtime/design fields survive", () => {
