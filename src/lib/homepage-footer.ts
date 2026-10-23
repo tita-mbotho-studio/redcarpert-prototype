@@ -26,11 +26,10 @@ export function addHomepageFooter(document: SiteDocumentData, source: SiteDocume
     const matches = nodes.filter(predicate);
     return matches.length === 1 ? matches[0] : fail();
   };
-  // Keep the copied control left of the unchanged 50px WhatsApp control:
-  // 15px viewport inset + 50px control + 10px clear gap. Theme breakpoints still apply.
+  // Remove only the copied homepage control; canonical informational footers stay intact.
   const scrollToTop = one((node) => node.attrs.class === "scroll-to-top");
-  if (scrollToTop.attrs.style !== undefined) return fail();
-  scrollToTop.attrs.style = "right:75px;";
+  if (!footer.children.includes(scrollToTop)) return fail();
+  footer.children = footer.children.filter((node) => node !== scrollToTop);
   const text = (id: string, expected: string, replacement: string) => {
     const widget = one((node) => node.attrs.id === id);
     const paragraph = elements(widget.children).find((node) => node.tag === "p");
