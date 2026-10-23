@@ -48,7 +48,8 @@ export function HomepageFooterScroll() {
         event.preventDefault();
         event.stopImmediatePropagation();
         enter();
-        window.scrollBy(0, event.deltaY);
+        // Consume the boundary gesture so its full delta cannot skip straight
+        // into the footer. The next gesture scrolls the native tail normally.
       }
     };
     const scroll = () => {
@@ -73,7 +74,8 @@ export function HomepageFooterScroll() {
       else if (nativeTail && (down || up)) event.stopImmediatePropagation();
       else if (down && ready()) {
         enter();
-        event.stopImmediatePropagation(); // Keep the browser's normal keyboard scrolling.
+        event.preventDefault(); // Consume the boundary key, as with wheel input.
+        event.stopImmediatePropagation();
       }
     };
     const click = (event: MouseEvent) => {

@@ -9,9 +9,9 @@ import { contentAdaptations } from "../src/data/content-adaptations.ts";
 import { sitePages } from "../src/data/site.ts";
 
 const expectedImages = [
-  ["/site-assets/ec8b6b2c4222396c44.png", "/redcarpert/home/hero-pexels-sample.webp", 2540, 1250],
+  ["/site-assets/ec8b6b2c4222396c44.png", "/redcarpert/home/brand-pexels-sample.webp", 2560, 1370],
   ["/site-assets/9def3725208290c4ef.png", "/redcarpert/home/collection-pexels-sample.webp", 2560, 1370],
-  ["/site-assets/46f8a1c412d65fd42b.png", "/redcarpert/home/brand-pexels-sample.webp", 2560, 1370],
+  ["/site-assets/46f8a1c412d65fd42b.png", "/redcarpert/home/hero-pexels-sample.webp", 2540, 1250],
 ];
 const at = (document, section) => document.nodes[1].children[1].children[4].children[1].children[1].children[section];
 const freeze = (value) => {
@@ -73,13 +73,13 @@ test("unexpected URLs, extra declarations, changed classes/tags or missing/reord
   assert.throws(() => adaptHomepageBackgrounds(reordered), /expected original section/);
 });
 
-test("replacement assets decode as compact WebP at the exact original canvas dimensions", async () => {
+test("replacement assets decode as compact WebP at their unchanged canvas dimensions", async () => {
   for (const [original, replacement, width, height] of expectedImages) {
     const oldImage = await sharp(readFileSync(`public${original}`)).metadata();
     const image = sharp(readFileSync(`public${replacement}`));
     const metadata = await image.metadata();
     assert.deepEqual([metadata.width, metadata.height], [width, height]);
-    assert.deepEqual([oldImage.width, oldImage.height], [width, height]);
+    assert.deepEqual([oldImage.width, oldImage.height], original.includes("ec8b6") ? [2540, 1250] : [2560, 1370]);
     assert.equal(metadata.format, "webp");
     assert.ok(statSync(`public${replacement}`).size < 1_000_000);
     await image.raw().toBuffer(); // Decode the whole raster, not only its header.

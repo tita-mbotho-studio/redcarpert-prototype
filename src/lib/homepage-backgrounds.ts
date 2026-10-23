@@ -2,9 +2,9 @@ import type { DocumentNode, SiteDocumentData } from "@/types/site";
 
 // Closed list of approved homepage backgrounds, not a general style-editing API.
 export const homepageBackgrounds = [
-  { section: 0, original: "/site-assets/ec8b6b2c4222396c44.png", replacement: "/redcarpert/home/hero-pexels-sample.webp" },
+  { section: 0, original: "/site-assets/ec8b6b2c4222396c44.png", replacement: "/redcarpert/home/brand-pexels-sample.webp" },
   { section: 1, original: "/site-assets/9def3725208290c4ef.png", replacement: "/redcarpert/home/collection-pexels-sample.webp" },
-  { section: 2, original: "/site-assets/46f8a1c412d65fd42b.png", replacement: "/redcarpert/home/brand-pexels-sample.webp" },
+  { section: 2, original: "/site-assets/46f8a1c412d65fd42b.png", replacement: "/redcarpert/home/hero-pexels-sample.webp" },
 ] as const;
 
 export function adaptHomepageBackgrounds(document: SiteDocumentData): SiteDocumentData {
