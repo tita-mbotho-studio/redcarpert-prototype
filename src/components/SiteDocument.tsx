@@ -3,6 +3,9 @@ import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/si
 import { contentAdaptations } from "@/data/content-adaptations";
 import { adaptSiteDocument } from "@/lib/content-adapter";
 import { adaptHomepageBackgrounds } from "@/lib/homepage-backgrounds";
+import { sitePages } from "@/data/site";
+import { addHomepageFooter } from "@/lib/homepage-footer";
+import { HomepageFooterScroll } from "./HomepageFooterScroll";
 import { SiteRuntime } from "./SiteRuntime";
 
 const attributeNames: Record<string, string> = {
@@ -70,12 +73,13 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
-  const document = adaptHomepageBackgrounds(adaptSiteDocument(original, contentAdaptations));
+  const document = addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(original, contentAdaptations)), sitePages["/about-us"]);
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />
       : <style key={index} dangerouslySetInnerHTML={{ __html: style.css ?? "" }} />)}
     <SemanticTree nodes={document.nodes} />
+    {document.route === "/" && <HomepageFooterScroll />}
     <SiteRuntime document={{ bodyClass: document.bodyClass, htmlClass: document.htmlClass, scripts: document.scripts, themeConfig: document.themeConfig, postScripts: document.postScripts }} />
   </>;
 }
