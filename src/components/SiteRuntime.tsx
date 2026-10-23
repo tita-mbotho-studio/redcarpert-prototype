@@ -3,6 +3,7 @@
 import { useLayoutEffect } from "react";
 import type { SiteDocumentData } from "@/types/site";
 import { runtimeContent } from "@/data/runtime";
+import { EnquiryPreview } from "./EnquiryPreview";
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -83,24 +84,15 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     document.addEventListener("submit", preventSubmission, true);
     document.addEventListener("click", preventLegacySubmission, true);
     const chat = document.getElementById("ht-ctc-chat");
-    const settingsElement = document.querySelector<HTMLElement>("[data-settings]");
-    let chatUrl: string | undefined;
-    if (chat && settingsElement?.dataset.settings) {
-      try {
-        const settings = JSON.parse(settingsElement.dataset.settings) as { number?: string; pre_filled?: string };
-        if (settings.number) chatUrl = `https://wa.me/${settings.number.replace(/\D/g, "")}?text=${encodeURIComponent(settings.pre_filled ?? "")}`;
-      } catch (error) { console.error("Could not read WhatsApp contact settings", error); }
+    if (chat) {
       chat.style.display = "block";
       chat.style.zIndex = "99999999";
       chat.style.cursor = "pointer";
-      chat.setAttribute("role", "link");
+      chat.setAttribute("role", "button");
+      chat.setAttribute("aria-haspopup", "dialog");
       chat.setAttribute("tabindex", "0");
       chat.setAttribute("aria-label", runtimeContent.whatsAppLabel);
     }
-    const openChat = () => { if (chatUrl) window.open(chatUrl, "_blank", "noopener,noreferrer"); };
-    const onChatKey = (event: KeyboardEvent) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openChat(); } };
-    chat?.addEventListener("click", openChat);
-    chat?.addEventListener("keydown", onChatKey);
     void (async () => {
       for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
         if (cancelled) return;
@@ -117,9 +109,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
       document.removeEventListener("submit", preventSubmission, true);
       document.removeEventListener("click", preventLegacySubmission, true);
       orderSelect?.removeEventListener("change", onCatalogChange);
-      chat?.removeEventListener("click", openChat);
-      chat?.removeEventListener("keydown", onChatKey);
     };
   }, [data]);
-  return null;
+  return <EnquiryPreview />;
 }

@@ -40,6 +40,8 @@ function renderNode(node: DocumentNode, key: number): ReactNode {
   if (["script", "noscript"].includes(node.tag)) return null;
   const props: Record<string, unknown> = { key };
   for (const [name, value] of Object.entries(node.attrs)) {
+    // Keep the captured tree intact, but never expose its chat recipient/configuration.
+    if (name === "data-settings" && node.attrs.class?.split(/\s+/).includes("ht_ctc_chat_data")) continue;
     if (/^on/i.test(name) || name === "selected") continue;
     if (name === "src" && !value) continue;
     const mapped = attributeNames[name] ?? (name.startsWith("data-") || name.startsWith("aria-") ? name : name.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase()));
