@@ -4,6 +4,7 @@ import { contentAdaptations } from "@/data/content-adaptations";
 import { adaptSiteDocument } from "@/lib/content-adapter";
 import { adaptHomepageBackgrounds } from "@/lib/homepage-backgrounds";
 import { sitePages } from "@/data/site";
+import { adaptNavigation } from "@/lib/navigation-adapter";
 import { addHomepageFooter } from "@/lib/homepage-footer";
 import { HomepageFooterScroll } from "./HomepageFooterScroll";
 import { SiteRuntime } from "./SiteRuntime";
@@ -73,7 +74,7 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
-  const document = addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(original, contentAdaptations)), sitePages["/about-us"]);
+  const document = adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(original, contentAdaptations)), sitePages["/about-us"]));
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />
