@@ -2,6 +2,7 @@
 
 import { useLayoutEffect } from "react";
 import type { SiteDocumentData } from "@/types/site";
+import { preserveHomepageHeader } from "@/lib/homepage-header";
 import { runtimeContent } from "@/data/runtime";
 import { captureHomepageFullscreen } from "./HomepageFooterScroll";
 import { EnquiryPreview } from "./EnquiryPreview";
@@ -25,6 +26,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     document.documentElement.className = data.htmlClass;
     let cancelled = false;
     let releaseHomepageFullscreen: (() => void) | undefined;
+    let releaseHomepageHeader: (() => void) | undefined;
     const grids = [...document.querySelectorAll<HTMLElement>(".woocommerce-ordering ~ ul.products")];
     const catalogItems = new Map(grids.map((grid) => [grid, [...grid.querySelectorAll<HTMLElement>(":scope > li.product")]]));
     const orderSelect = document.querySelector<HTMLSelectElement>(".woocommerce-ordering select.orderby");
@@ -98,7 +100,10 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     void (async () => {
       for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
         if (cancelled) return;
-        if (src === data.themeConfig && document.querySelector("footer[data-homepage-footer]")) releaseHomepageFullscreen = captureHomepageFullscreen();
+        if (src === data.themeConfig && document.querySelector("footer[data-homepage-footer]")) {
+          releaseHomepageHeader = preserveHomepageHeader();
+          releaseHomepageFullscreen = captureHomepageFullscreen();
+        }
         await loadScript(src);
       }
       // The chat plugin normally mounts its control after the fullscreen wrapper.
@@ -110,6 +115,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     return () => {
       cancelled = true;
       releaseHomepageFullscreen?.();
+      releaseHomepageHeader?.();
       document.removeEventListener("submit", preventSubmission, true);
       document.removeEventListener("click", preventLegacySubmission, true);
       orderSelect?.removeEventListener("change", onCatalogChange);
