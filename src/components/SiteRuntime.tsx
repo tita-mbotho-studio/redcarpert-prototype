@@ -3,6 +3,7 @@
 import { useLayoutEffect } from "react";
 import type { SiteDocumentData } from "@/types/site";
 import { runtimeContent } from "@/data/runtime";
+import { captureHomepageFullscreen } from "./HomepageFooterScroll";
 import { EnquiryPreview } from "./EnquiryPreview";
 
 function loadScript(src: string): Promise<void> {
@@ -23,6 +24,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     document.body.className = data.bodyClass;
     document.documentElement.className = data.htmlClass;
     let cancelled = false;
+    let releaseHomepageFullscreen: (() => void) | undefined;
     const grids = [...document.querySelectorAll<HTMLElement>(".woocommerce-ordering ~ ul.products")];
     const catalogItems = new Map(grids.map((grid) => [grid, [...grid.querySelectorAll<HTMLElement>(":scope > li.product")]]));
     const orderSelect = document.querySelector<HTMLSelectElement>(".woocommerce-ordering select.orderby");
@@ -96,6 +98,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     void (async () => {
       for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
         if (cancelled) return;
+        if (src === data.themeConfig && document.querySelector("footer[data-homepage-footer]")) releaseHomepageFullscreen = captureHomepageFullscreen();
         await loadScript(src);
       }
       // The chat plugin normally mounts its control after the fullscreen wrapper.
@@ -106,6 +109,7 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
     })().catch((error: unknown) => console.error("Site interactions failed to initialize", error));
     return () => {
       cancelled = true;
+      releaseHomepageFullscreen?.();
       document.removeEventListener("submit", preventSubmission, true);
       document.removeEventListener("click", preventLegacySubmission, true);
       orderSelect?.removeEventListener("change", onCatalogChange);
