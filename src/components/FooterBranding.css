@@ -1,0 +1,168 @@
+/* Only the guarded 07F footer opts into this layout; captured theme files stay intact. */
+#footer[data-redcarpert-footer] {
+  overflow: visible;
+  text-align: left;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-columns,
+#footer[data-redcarpert-footer] .footer-bottom > .section-boxed {
+  box-sizing: border-box;
+  width: calc(100% - 64px);
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-columns {
+  display: grid;
+  grid-template-columns: 45% 25% 30%;
+  align-items: start;
+  overflow: visible;
+  padding: 44px 0;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-columns > .col {
+  box-sizing: border-box;
+  float: none;
+  clear: none;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0 24px 0 0;
+  text-align: left;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:first-child,
+#footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:last-child {
+  padding-right: 0;
+}
+#footer[data-redcarpert-footer] .footer-box,
+#footer[data-redcarpert-footer] figure {
+  margin: 0;
+}
+#footer[data-redcarpert-footer] .widget_media_image {
+  width: 360px;
+  max-width: calc(100% - 24px);
+  margin: 0 auto;
+  text-align: center;
+}
+#footer[data-redcarpert-footer] .wp-image-13926 {
+  display: block;
+  width: 360px;
+  max-width: 100%;
+  height: auto;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-heading {
+  margin: 0 0 12px;
+  padding: 0;
+  color: #f7f7f7;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  text-align: left;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-tagline,
+#footer[data-redcarpert-footer] .redcarpert-footer-items {
+  margin: 0;
+  padding: 0;
+  color: #c7c7c7;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-tagline {
+  margin-top: 12px;
+  text-align: center;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-items {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-items a,
+#footer[data-redcarpert-footer] .redcarpert-footer-items button {
+  display: inline-block;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  cursor: pointer;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-items a:hover,
+#footer[data-redcarpert-footer] .redcarpert-footer-items button:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+#footer[data-redcarpert-footer] .redcarpert-footer-items a:focus-visible,
+#footer[data-redcarpert-footer] .redcarpert-footer-items button:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 4px;
+}
+#footer[data-redcarpert-footer] .footer-bottom {
+  float: none;
+  width: 100%;
+  padding: 20px 0;
+  text-align: left;
+}
+#footer[data-redcarpert-footer] .copyrights,
+#footer[data-redcarpert-footer] .footer-nav {
+  display: block;
+  float: none;
+  margin: 0;
+  text-align: center;
+  line-height: 1.7;
+}
+#footer[data-redcarpert-footer] .widget_media_image .social-profiles {
+  display: block;
+  float: none;
+  margin: 16px 0 0;
+}
+#footer[data-redcarpert-footer] .widget_media_image .social-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+}
+#footer[data-redcarpert-footer] .widget_media_image .social-icons li {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  float: none;
+  margin: 0;
+}
+#footer[data-redcarpert-footer] .widget_media_image .social-icons img {
+  width: 32px;
+  height: 32px;
+  opacity: 0.7;
+  object-fit: contain;
+}
+@media (max-width: 640px) {
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns,
+  #footer[data-redcarpert-footer] .footer-bottom > .section-boxed {
+    width: calc(100% - 48px);
+  }
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 28px 0;
+  }
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col {
+    padding: 0;
+  }
+  #footer[data-redcarpert-footer] .widget_media_image {
+    width: 300px;
+    max-width: 100%;
+  }
+  #footer[data-redcarpert-footer] .wp-image-13926 {
+    width: 300px;
+  }
+}
