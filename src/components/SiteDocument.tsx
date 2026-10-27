@@ -10,6 +10,8 @@ import { adaptNavigation } from "@/lib/navigation-adapter";
 import { addHomepageFooter } from "@/lib/homepage-footer";
 import { HomepageFooterScroll } from "./HomepageFooterScroll";
 import { HeaderNavigationAlignment } from "./HeaderNavigationAlignment";
+import { correctFooterLinks } from "@/lib/footer-link-corrections";
+import { FooterScrollToTop } from "./FooterScrollToTop";
 import { SiteRuntime } from "./SiteRuntime";
 
 const attributeNames: Record<string, string> = {
@@ -77,13 +79,14 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
-  const document = adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptFooterSocials(original), contentAdaptations)), sitePages["/about-us"])));
+  const document = correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptFooterSocials(original), contentAdaptations)), sitePages["/about-us"]))));
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />
       : <style key={index} dangerouslySetInnerHTML={{ __html: style.css ?? "" }} />)}
     <SemanticTree nodes={document.nodes} />
     <HeaderNavigationAlignment />
+    {document.route !== "/" && <FooterScrollToTop />}
     {document.route === "/" && <HomepageFooterScroll />}
     <SiteRuntime document={{ bodyClass: document.bodyClass, htmlClass: document.htmlClass, scripts: document.scripts, themeConfig: document.themeConfig, postScripts: document.postScripts }} />
   </>;
