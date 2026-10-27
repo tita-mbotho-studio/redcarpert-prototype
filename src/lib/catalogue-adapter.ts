@@ -55,8 +55,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     return { ...card, attrs: { class: `product${index % 4 === 0 ? " first" : index % 4 === 3 ? " last" : ""}`, "data-catalogue-id": product.id }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
-      const attrs: Record<string, string> = { ...anchor.attrs, role: "link", "aria-disabled": "true", "aria-label": `${product.name}: sample image; dress details awaiting client information`, style: "cursor: pointer" };
-      delete attrs.href;
+      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${product.name}: view sample detail demonstration`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children.map(child => child === image ? { ...image, attrs: imageAttrs } : child === title ? { ...title, children: [product.name] } : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: ["Sample imagery"] } : child) }];
     }) };
   });

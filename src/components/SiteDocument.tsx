@@ -16,6 +16,7 @@ import { FooterScrollToTop } from "./FooterScrollToTop";
 import { SiteRuntime } from "./SiteRuntime";
 import "./FooterBranding.css";
 import "./CatalogueListing.css";
+import "./ProductDetailPreview.css";
 import { catalogueProducts } from "@/data/catalogue";
 import { adaptCatalogue } from "@/lib/catalogue-adapter";
 
@@ -83,7 +84,7 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
   return <>{nodes.map(renderNode)}</>;
 }
 
-export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
+export function SiteDocument({ document: original, enquiryMessage }: { document: SiteDocumentData; enquiryMessage?: string }) {
   const document = adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original), catalogueProducts), contentAdaptations)), sitePages["/about-us"])))));
   return <>
     {document.styles.map((style, index) => style.href
@@ -93,6 +94,6 @@ export function SiteDocument({ document: original }: { document: SiteDocumentDat
     <HeaderNavigationAlignment />
     {document.route !== "/" && <FooterScrollToTop />}
     {document.route === "/" && <HomepageFooterScroll />}
-    <SiteRuntime document={{ bodyClass: document.bodyClass, htmlClass: document.htmlClass, scripts: document.scripts, themeConfig: document.themeConfig, postScripts: document.postScripts }} />
+    <SiteRuntime enquiryMessage={enquiryMessage} document={{ bodyClass: document.bodyClass, htmlClass: document.htmlClass, scripts: document.scripts, themeConfig: document.themeConfig, postScripts: document.postScripts }} />
   </>;
 }

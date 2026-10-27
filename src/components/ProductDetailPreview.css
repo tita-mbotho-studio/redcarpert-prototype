@@ -1,0 +1,21 @@
+/* Keep the captured Arabella portrait frame for both clean sample photographs. */
+#main-container [data-detail-preview]::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+#main-container [data-detail-preview] .zoom[data-sample-frame] {
+  aspect-ratio: 848 / 1264;
+}
+#main-container [data-detail-preview] .zoom[data-sample-frame] > img:not(.zoomImg) {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* Reuse the former shipping paragraph's footprint and typography for honest disclosure. */
+#main-container [data-detail-preview] .sample-detail-notice {
+  font-size: 1.25em;
+  margin: 7px 0;
+}

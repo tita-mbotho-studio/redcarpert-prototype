@@ -20,7 +20,7 @@ function loadScript(src: string): Promise<void> {
 
 export type SiteRuntimeData = Pick<SiteDocumentData, "bodyClass" | "htmlClass" | "scripts" | "themeConfig" | "postScripts">;
 
-export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
+export function SiteRuntime({ document: data, enquiryMessage }: { document: SiteRuntimeData; enquiryMessage?: string }) {
   useLayoutEffect(() => {
     document.body.className = data.bodyClass;
     document.documentElement.className = data.htmlClass;
@@ -121,5 +121,5 @@ export function SiteRuntime({ document: data }: { document: SiteRuntimeData }) {
       orderSelect?.removeEventListener("change", onCatalogChange);
     };
   }, [data]);
-  return <EnquiryPreview />;
+  return <EnquiryPreview message={enquiryMessage} />;
 }
