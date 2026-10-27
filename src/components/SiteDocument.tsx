@@ -15,6 +15,9 @@ import { correctFooterLinks } from "@/lib/footer-link-corrections";
 import { FooterScrollToTop } from "./FooterScrollToTop";
 import { SiteRuntime } from "./SiteRuntime";
 import "./FooterBranding.css";
+import "./CatalogueListing.css";
+import { catalogueProducts } from "@/data/catalogue";
+import { adaptCatalogue } from "@/lib/catalogue-adapter";
 
 const attributeNames: Record<string, string> = {
   class: "className", for: "htmlFor", tabindex: "tabIndex", readonly: "readOnly",
@@ -81,7 +84,7 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original }: { document: SiteDocumentData }) {
-  const document = adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptFooterSocials(original), contentAdaptations)), sitePages["/about-us"])))));
+  const document = adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original), catalogueProducts), contentAdaptations)), sitePages["/about-us"])))));
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />

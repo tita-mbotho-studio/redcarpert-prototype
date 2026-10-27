@@ -1,0 +1,17 @@
+/* Preserve the captured shipping-line footprint as a non-commerce sample caption. */
+.woocommerce ul.products[data-catalogue-preview] li.product .catalogue-sample-note,
+.woocommerce-page ul.products[data-catalogue-preview] li.product .catalogue-sample-note {
+  display: block;
+  font-weight: normal;
+  margin-bottom: .5em;
+  border-top: 2px solid rgba(0, 0, 0, .1);
+  padding-top: 16px;
+  font-size: 15px;
+}
+
+/* Fit the longer catalogue title within the captured narrow-screen title box. */
+@media screen and (max-width: 768px) {
+  #main-container .page-title h1[data-catalogue-heading] {
+    font-size: min(38px, 9.9vw);
+  }
+}
