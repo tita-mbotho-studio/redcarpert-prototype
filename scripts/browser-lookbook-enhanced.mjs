@@ -64,11 +64,19 @@ try {
     assert.equal(position,1,'returned to front cover');
     assert.equal(await previous.isDisabled(),true);
     if (mobile) {
-      const bounds=await book.boundingBox();
-      assert(bounds,'book is visible on mobile');
-      const y=bounds.y+bounds.height*.5;
+      // Previous/Next controls sit below the book. After navigating with
+      // buttons, the book can be outside the viewport: touch coordinates
+      // would otherwise land on the page background rather than the book.
+      const livePage=book.locator('.stf__block');
+      await livePage.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(150);
+      const bounds=await livePage.boundingBox();
+      assert(bounds,'animated book is visible on mobile');
+      const y=Math.max(35,Math.min(865,bounds.y+bounds.height*.5));
       const x1=bounds.x+bounds.width*.82;
       const x2=bounds.x+bounds.width*.14;
+      const target=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.className??'none',{x:x1,y});
+      console.log('Mobile enhanced swipe target',JSON.stringify({bounds,x1,x2,y,target}));
       const session=await page.context().newCDPSession(page);
       await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x1,y}]});
       for(let i=1;i<=6;i++){
