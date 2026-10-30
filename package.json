@@ -21,7 +21,7 @@
     "check": "npm test && npm run lint && npm run typecheck && npm run build && npm run test:dist",
     "setup": "playwright install chromium",
     "test:dist": "node --test tests/static-build.test.mjs",
-    "test:browser": "node scripts/browser-check.mjs && node scripts/browser-interactions.mjs && node scripts/browser-touch.mjs && node scripts/browser-lookbook.mjs && node scripts/browser-lookbook-enhanced.mjs"
+    "test:browser": "node scripts/browser-lookbook-enhanced.mjs && node scripts/browser-check.mjs && node scripts/browser-interactions.mjs && node scripts/browser-touch.mjs && node scripts/browser-lookbook.mjs"
   },
   "devDependencies": {
     "@types/node": "^24",
