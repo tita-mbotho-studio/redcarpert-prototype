@@ -19,6 +19,9 @@ import "./CatalogueListing.css";
 import "./ProductDetailPreview.css";
 import { catalogueProducts } from "@/data/catalogue";
 import { adaptCatalogue } from "@/lib/catalogue-adapter";
+import { adaptEditorialDocument } from "@/lib/editorial-pages";
+import { DigitalLookbook } from "./DigitalLookbook";
+import "./EditorialPages.css";
 
 const attributeNames: Record<string, string> = {
   class: "className", for: "htmlFor", tabindex: "tabIndex", readonly: "readOnly",
@@ -55,6 +58,7 @@ function selectedValues(node: DocumentElement): string[] {
 
 function renderNode(node: DocumentNode, key: number): ReactNode {
   if (typeof node === "string") return node;
+  if (node.attrs["data-lookbook-viewer"] === "true") return <DigitalLookbook key={key} />;
   if (["script", "noscript"].includes(node.tag)) return null;
   const props: Record<string, unknown> = { key };
   for (const [name, value] of Object.entries(node.attrs)) {
@@ -85,7 +89,7 @@ export function SemanticTree({ nodes }: { nodes: DocumentNode[] }) {
 }
 
 export function SiteDocument({ document: original, enquiryMessage }: { document: SiteDocumentData; enquiryMessage?: string }) {
-  const document = adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original), catalogueProducts), contentAdaptations)), sitePages["/about-us"])))));
+  const document = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original), catalogueProducts), contentAdaptations)), sitePages["/about-us"]))))));
   return <>
     {document.styles.map((style, index) => style.href
       ? <link key={index} rel="stylesheet" href={style.href} media={style.media} />
