@@ -11,7 +11,11 @@ export function preserveHomepageHeader() {
   // The theme can initialize before this hook or add the compact class later.
   // Keep the homepage full-size even in those cases, without touching other pages.
   const body = document.body;
-  const preventCompact = () => body?.classList.remove("fixed-header-scroll");
+  const preventCompact = () => {
+    // Removing an absent token still mutates class in browsers. Avoid feeding
+    // the observer forever when the theme adds its mobile-device classes.
+    if (body?.classList.contains("fixed-header-scroll")) body.classList.remove("fixed-header-scroll");
+  };
   preventCompact();
   const compactObserver = body && typeof MutationObserver !== "undefined"
     ? new MutationObserver(preventCompact) : undefined;

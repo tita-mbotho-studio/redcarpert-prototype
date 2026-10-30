@@ -19,7 +19,7 @@ test("08C only generates approved Redcarpert and sample preview routes", () => {
   const generated = publicStaticRoutes(sitePages, previews);
   assert.deepEqual(generated, [...approvedCapturedRoutes.filter((route) => route !== "/"), ...authoredPrototypeRoutes, ...previews]);
   assert.equal(new Set(generated).size, generated.length);
-  assert(!generated.includes("/")); // Rendered by src/app/page.tsx.
+  assert(!generated.includes("/")); // Added explicitly by scripts/generate.ts.
   for (const route of generated) assert(route in sitePages || authoredPrototypeRoutes.includes(route) || previews.includes(route));
   for (const route of approvedCapturedRoutes) assert(isApprovedCapturedRoute(route));
   for (const route of previews) assert(!isApprovedCapturedRoute(route)); // Handled by explicit sample route lookup.

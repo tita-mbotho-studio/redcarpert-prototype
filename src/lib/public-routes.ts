@@ -3,7 +3,7 @@
  *
  * Do not generate every captured Bridal Vanesa URL: legacy products and archives
  * remain in sitePages only as immutable source material for the approved adapters.
- * The homepage is rendered separately by src/app/page.tsx.
+ * The homepage is added explicitly by scripts/generate.ts.
  */
 export const approvedCapturedRoutes = [
   "/",

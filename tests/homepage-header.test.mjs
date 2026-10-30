@@ -63,3 +63,21 @@ test('missing theme API is a harmless no-op', () => {
   try { globalThis.window = {}; assert.equal(preserveHomepageHeader(), undefined); }
   finally { f.restore(); }
 });
+
+test('mobile body-class changes do not feed the header observer when compact class is absent', () => {
+  const f = fixture();
+  const previous = globalThis.MutationObserver;
+  let notify;
+  let removals = 0;
+  const classes = new Set(['home','mobile','iphone']);
+  globalThis.document.body = {classList:{contains: value => classes.has(value), remove: value => {removals++;classes.delete(value);}}};
+  globalThis.MutationObserver = class {constructor(callback){notify=callback;}observe(){}disconnect(){}};
+  try {
+    const release = preserveHomepageHeader();
+    for(let i=0;i<5;i++)notify();
+    assert.equal(removals,0);
+    classes.add('fixed-header-scroll');notify();notify();
+    assert.equal(removals,1);
+    release();
+  } finally {globalThis.MutationObserver=previous;f.restore();}
+});
