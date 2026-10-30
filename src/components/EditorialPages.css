@@ -1,0 +1,32 @@
+/* New editorial content only. Original header/footer/page-title CSS remains authoritative. */
+.redcarpert-editorial { padding: 16px 0 42px; color: #636363; font-family: "Open Sans", sans-serif; font-size: 15px; line-height: 1.7; }
+.redcarpert-editorial > h2 { margin: 24px 0 14px; color: #ddb577; font-family: Montserrat, sans-serif; font-weight: 400; }
+.redcarpert-editorial > p { margin: 12px 0 24px; max-width: 850px; }
+.redcarpert-editorial a:not(.button) { color: #b99564; }
+.redcarpert-editorial .button { display: inline-block; margin: 8px 0 24px; cursor: pointer; }
+.redcarpert-inspiration-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 28px; margin: 24px 0; }
+.redcarpert-inspiration-grid figure { margin: 0; }
+.redcarpert-inspiration-grid img { width: 100%; height: auto; display: block; aspect-ratio: 53 / 79; object-fit: cover; }
+.redcarpert-inspiration-grid figcaption { padding: 14px 0; font-size: 13px; color: #666; }
+
+.redcarpert-lookbook { margin: 24px 0 38px; }
+.redcarpert-lookbook-frame { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); border: 1px solid #e5e5e5; background: #fff; min-width: 0; }
+.redcarpert-lookbook-image { min-width: 0; background: #f8f8f8; }
+.redcarpert-lookbook-image img { width: 100%; height: 100%; max-height: 690px; aspect-ratio: 53 / 79; object-fit: cover; display: block; }
+.redcarpert-lookbook-copy { padding: clamp(22px, 4vw, 58px); min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 15px; }
+.redcarpert-lookbook-eyebrow { font-size: 11px; letter-spacing: .16em; color: #999; }
+.redcarpert-lookbook-copy h3 { color: #ddb577; text-transform: uppercase; font-family: Montserrat, sans-serif; font-size: clamp(24px, 3vw, 36px); font-weight: 400; line-height: 1.3; margin: 0; }
+.redcarpert-lookbook-copy p { margin: 0; }
+.redcarpert-lookbook-note { color: #777; font-size: 13px; }
+.redcarpert-lookbook-controls { margin-top: 28px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.redcarpert-lookbook-controls button { cursor: pointer; border: 1px solid #b9b9b9; background: white; padding: 9px 13px; color: #333; }
+.redcarpert-lookbook-controls button:disabled { opacity: .35; cursor: not-allowed; }
+.redcarpert-lookbook-controls span { font-size: 12px; }
+.redcarpert-lookbook-download { margin-top: 22px; }
+.redcarpert-lookbook-download a { text-decoration: none; }
+@media (max-width: 768px) {
+  .redcarpert-inspiration-grid { grid-template-columns: 1fr; gap: 22px; }
+  .redcarpert-lookbook-frame { grid-template-columns: minmax(0,1fr); }
+  .redcarpert-lookbook-image img { max-height: none; height: auto; }
+  .redcarpert-lookbook-copy { padding: 24px; }
+}
