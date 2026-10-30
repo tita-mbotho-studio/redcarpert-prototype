@@ -15,6 +15,8 @@ export const approvedCapturedRoutes = [
   "/our-brides",
 ] as const;
 
+export const authoredPrototypeRoutes = ["/digital-lookbook"] as const;
+
 const approvedCapturedRouteSet: ReadonlySet<string> = new Set(approvedCapturedRoutes);
 
 export function isApprovedCapturedRoute(route: string): boolean {
@@ -33,7 +35,10 @@ export function publicStaticRoutes(
   }
 
   const publicCaptured = approvedCapturedRoutes.filter((route) => route !== "/");
-  const used = new Set<string>(publicCaptured);
+  for (const route of authoredPrototypeRoutes) {
+    if (Object.hasOwn(captures, route)) throw new Error(`Authored prototype route collides with capture: ${route}`);
+  }
+  const used = new Set<string>([...publicCaptured, ...authoredPrototypeRoutes]);
   for (const route of samplePreviewRoutes) {
     if (!/^\/product\/preview\/[a-z0-9-]+$/.test(route)
       || Object.hasOwn(captures, route) || used.has(route)) {
@@ -41,5 +46,5 @@ export function publicStaticRoutes(
     }
     used.add(route);
   }
-  return [...publicCaptured, ...samplePreviewRoutes];
+  return [...publicCaptured, ...authoredPrototypeRoutes, ...samplePreviewRoutes];
 }
