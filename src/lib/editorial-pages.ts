@@ -71,10 +71,10 @@ export function adaptEditorialDocument(document: SiteDocumentData): SiteDocument
   const footer = one(n => n.tag === "footer" && n.attrs.id === "footer", "footer");
   const header = one(n => n.tag === "header" && n.attrs.id === "header", "header");
   const box = one(n => n.attrs.class === "content-box" && n.tag === "div", "content box");
-  const title = one(n => n.tag === "h1" && n.attrs.class === undefined
-    && n.children.length === 1 && typeof n.children[0] === "string"
-    && elements(n.children).length === 0 && all([n]).length === 1
-    && (n.children[0] === "About Us" || n.children[0] === "Contact Us" || n.children[0] === "OUR BRIDES"), "page banner heading");
+  const pageTitle = one(n => n.tag === "div" && n.attrs.class === "page-title", "page title");
+  const title = all(pageTitle.children).find(n => n.tag === "h1"
+    && n.children.length === 1 && typeof n.children[0] === "string");
+  if (!title) throw new Error(`Editorial ${route}: missing page banner heading`);
   if (!all([main]).includes(footer) || !all([main]).includes(header) || !all([main]).includes(box)) throw new Error("Editorial: invalid shell");
   const replacement = new Map<DocumentElement, DocumentElement>([
     [title, { ...title, children: [route === "/digital-lookbook" ? "Digital Lookbook" : route === "/our-brides" ? "Our Brides" : route === "/about-us" ? "About Us" : "Contact Us"] }],
