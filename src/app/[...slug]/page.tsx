@@ -5,10 +5,11 @@ import { sitePages } from "@/data/site";
 import { siteMetadata } from "@/data/metadata";
 import { catalogueProducts } from "@/data/catalogue";
 import { createProductDetailPreview, sampleFittingMessage } from "@/lib/product-detail-preview";
+import { isApprovedCapturedRoute, publicStaticRoutes } from "@/lib/public-routes";
 
 function documentForRoute(route: string) {
   const product = catalogueProducts.find(p => p.previewRoute === route);
-  if (!product) return sitePages[route];
+  if (!product) return isApprovedCapturedRoute(route) ? sitePages[route] : undefined;
   if (sitePages[route]) throw new Error(`Sample preview route collides with capture: ${route}`);
   return createProductDetailPreview(sitePages["/product/arabella"], product);
 }
@@ -20,8 +21,7 @@ interface PageProps {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return [...Object.keys(sitePages), ...catalogueProducts.map(p => p.previewRoute)]
-    .filter((route) => route !== "/")
+  return publicStaticRoutes(sitePages, catalogueProducts.map(p => p.previewRoute))
     .map((route) => ({ slug: route.slice(1).split("/") }));
 }
 

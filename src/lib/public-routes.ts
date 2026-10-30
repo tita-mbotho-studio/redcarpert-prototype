@@ -1,0 +1,45 @@
+/**
+ * Public Redcarpert prototype routes.
+ *
+ * Do not generate every captured Bridal Vanesa URL: legacy products and archives
+ * remain in sitePages only as immutable source material for the approved adapters.
+ * The homepage is rendered separately by src/app/page.tsx.
+ */
+export const approvedCapturedRoutes = [
+  "/",
+  "/product",
+  "/product-category/mermaid",
+  "/product-category/ball_gown",
+  "/about-us",
+  "/contact-us",
+  "/our-brides",
+] as const;
+
+const approvedCapturedRouteSet: ReadonlySet<string> = new Set(approvedCapturedRoutes);
+
+export function isApprovedCapturedRoute(route: string): boolean {
+  return approvedCapturedRouteSet.has(route);
+}
+
+/** Fail closed if a preserved page disappears or a sample path collides. */
+export function publicStaticRoutes(
+  captures: Readonly<Record<string, unknown>>,
+  samplePreviewRoutes: readonly string[],
+): string[] {
+  for (const route of approvedCapturedRoutes) {
+    if (!Object.hasOwn(captures, route)) {
+      throw new Error(`Approved Redcarpert route missing from captures: ${route}`);
+    }
+  }
+
+  const publicCaptured = approvedCapturedRoutes.filter((route) => route !== "/");
+  const used = new Set<string>(publicCaptured);
+  for (const route of samplePreviewRoutes) {
+    if (!/^\/product\/preview\/[a-z0-9-]+$/.test(route)
+      || Object.hasOwn(captures, route) || used.has(route)) {
+      throw new Error(`Invalid or colliding Redcarpert preview route: ${route}`);
+    }
+    used.add(route);
+  }
+  return [...publicCaptured, ...samplePreviewRoutes];
+}
