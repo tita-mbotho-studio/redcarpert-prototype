@@ -1,11 +1,38 @@
 {
   "compilerOptions": {
-    "target": "ES2022", "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true, "checkJs": false, "skipLibCheck": true, "strict": true,
-    "noEmit": true, "esModuleInterop": true, "module": "esnext",
-    "moduleResolution": "bundler", "resolveJsonModule": true,
-    "isolatedModules": true, "paths": {"@/*": ["./src/*"]}
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "allowImportingTsExtensions": true
   },
-  "include": ["src/data/**/*.ts", "src/lib/**/*.ts", "src/types/**/*.ts", "scripts/**/*.ts", "vite.config.ts"],
-  "exclude": ["node_modules", "src/lib/utils.ts"]
+  "include": [
+    "src/config/**/*.ts",
+    "src/data/**/*.ts",
+    "src/lib/**/*.ts",
+    "src/types/**/*.ts",
+    "scripts/**/*.ts",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/lib/utils.ts"
+  ]
 }
