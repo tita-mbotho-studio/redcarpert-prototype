@@ -39,3 +39,9 @@ The fitting-enquiry interaction is a **non-sending preview**; no WhatsApp Busine
 - `tests/`: source, build and browser regression checks
 
 Third-party theme effects remain temporarily to preserve the approved interactions. Their replacement and structural refactoring belong to Implementation 12. The modern page-turn lookbook is Implementation 13. See [asset credits](docs/asset-credits.md).
+
+## Engineering notes
+
+The static generator is organized as `scripts/generate.ts` (entry point), `scripts/lib/prepare-page.ts` (approved content/adapters), `scripts/lib/markup.ts` (safe HTML serialization), and `scripts/lib/assets.ts` (local dependency collection and copying). The single repository subpath configuration is `src/config/site.ts`. Browser features have independent enquiry and lookbook-reader modules under `src/client/`. Keep the existing fullpage and gallery theme dependencies until their behaviour can be replaced and independently regression-tested.
+
+The `Verify static Redcarpert site` GitHub Actions workflow validates implementation branches and pull requests without deployment. Implementation 12 also checks generated HTML and PDF against the approved Implementation 11 baseline. See [the engineering hardening review](docs/implementation-12-hardening.md).
