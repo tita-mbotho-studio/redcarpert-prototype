@@ -16,7 +16,7 @@
 
 The book uses a version-pinned **StPageFlip 2.0.7** script from jsDelivr at runtime for page-curl animation. This is separate from Pexels photograph hosting. There is no new npm dependency. A native keyboard, click and touch-swipe fallback works when CDN fails or reduced motion is enabled. Both cover and individual pages remain available if images fail, with photo-unavailable feedback.
 
-New remote-image availability depends on visitor connectivity, Pexels CDN policy and permissions. The baseline browser regression checks fail on broken **local** resources, but remote image reachability is not considered a local build regression. The dedicated book browser test deliberately disables external resources to verify fallback navigation.
+New remote-image availability depends on visitor connectivity, Pexels CDN policy and permissions. The baseline browser regression checks fail on broken **local** resources, but remote image reachability is not considered a local build regression. The fallback browser test deliberately disables external resources to verify keyboard/click/swipe navigation. The enhanced browser regression loads the actual StPageFlip library from the pinned CDN, moves through every spread and back cover at 1440/768/390, checks keyboard arrows and mobile swipe, and fails if the library is unavailable.
 
 ## Guardrails
 
