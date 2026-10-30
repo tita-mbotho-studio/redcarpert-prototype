@@ -33,7 +33,8 @@ test('copied classic scripts remain valid JavaScript and the footer SVG decodes'
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
  const image=await sharp('dist/redcarpert/instagram.svg').png().toBuffer();assert(image.length>100);
 });
-\ntest('ten-page interactive book and eight shared Pexels products are published without local copies',{skip:!available},()=>{
+
+test('ten-page interactive book and eight shared Pexels products are published without local copies',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,10);
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
