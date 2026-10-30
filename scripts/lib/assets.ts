@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { REPOSITORY_BASE } from '../../src/config/site';
+import { REPOSITORY_BASE } from '../../src/config/site.ts';
 const base = REPOSITORY_BASE;
 // Rewrite known local URL namespaces only: a slash in JavaScript or SVG is not a path.
 export const prefix = (s: string) => s
