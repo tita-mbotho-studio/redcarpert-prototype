@@ -12,7 +12,7 @@ const digest=()=>createHash('sha256').update(JSON.stringify(sitePages)).digest('
 const header=d=>byId(d,'header');
 const icons=d=>find([header(d)],n=>n.attrs.class==='social-icons');
 
-test('all 143 canonical headers map exactly six items and two real categories; no header socials or invented destinations',()=>{
+test('all 8 canonical headers map exactly six items and two real categories; no header socials or invented destinations',()=>{
   for(const original of Object.values(sitePages)){
     const d=adaptNavigation(original);const menu=children(byId(d,'menu-blog-layouts'));
     assert.deepEqual(menu.map(n=>link(n).children.join('')),['Home','Wedding Dresses','Digital Lookbook','Our Brides','About Us','Contact Us']);
@@ -56,7 +56,7 @@ test('frozen captured sources never mutate; only changed nodes and ancestors are
 
 test('active classes and aria-current follow actual routes, with no guessed dress-detail category',()=>{
   for(const [route,id]of [['/','15418'],['/product','15821'],['/product/page/2','15821'],['/product-category/mermaid','15421'],['/product-category/ball_gown','15422'],['/about-us','15416'],['/our-brides','16080'],['/contact-us','15417']]){
-    const d=adaptNavigation(sitePages[route]);
+    const d=adaptNavigation(sitePages[route] ?? {...sitePages['/product'], route});
     assert.deepEqual(find([header(d)],n=>n.attrs['aria-current']==='page').map(n=>n.attrs.href),[link(byId(d,`menu-item-${id}`)).attrs.href]);
     assert.match(byId(d,`menu-item-${id}`).attrs.class,/current-menu-item/);
     if(id==='15421'||id==='15422')assert.match(byId(d,'menu-item-15821').attrs.class,/current-menu-parent/);
@@ -67,9 +67,9 @@ test('active classes and aria-current follow actual routes, with no guessed dres
     assert.equal(find([header(d)],n=>n.attrs['aria-current']).length,0);
     for(const id of ['15421','15422'])assert.doesNotMatch(byId(d,`menu-item-${id}`).attrs.class,/current[-_]/);
   }
-  for(const route of ['/atelier-2','/store'])assert.equal(find([header(adaptNavigation(sitePages[route]))],n=>/current[-_]/.test(n.attrs.class??'')).length,0);
+  for(const route of ['/atelier-2','/store'])assert.equal(find([header(adaptNavigation({...sitePages['/product/arabella'],route}))],n=>/current[-_]/.test(n.attrs.class??'')).length,0);
   // Captured current flags cannot leak from another route or onto the Lookbook donor.
-  const stale=structuredClone(sitePages['/atelier-2']);stale.route='/contact-us/';const d=adaptNavigation(stale);
+  const stale=structuredClone(sitePages['/product/arabella']);stale.route='/contact-us/';const d=adaptNavigation(stale);
   assert.equal(find([header(d)],n=>n.attrs['aria-current']==='page').length,1);
   assert.equal(link(byId(d,'menu-item-15417')).attrs['aria-current'],'page');assert.doesNotMatch(byId(d,'menu-item-16165').attrs.class,/current[-_]/);
 });

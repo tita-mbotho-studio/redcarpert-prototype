@@ -3,15 +3,9 @@
   "version": "0.3.0",
   "private": true,
   "description": "Static Redcarpert Wedding Dresses prototype",
-  "author": "Mahanaicoach",
-  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mahanaicoach/ai-site-cloner.git"
-  },
-  "homepage": "https://github.com/Mahanaicoach/ai-site-cloner#readme",
-  "bugs": {
-    "url": "https://github.com/Mahanaicoach/ai-site-cloner/issues"
+    "url": "git+https://github.com/tita-mbotho-studio/redcarpert-prototype.git"
   },
   "engines": {
     "node": ">=22.12.0"

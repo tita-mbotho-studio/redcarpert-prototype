@@ -14,8 +14,8 @@ const prepare=d=>correctFooterLinks(addHomepageFooter(adaptFooterSocials(d),site
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const text=n=>n.children.map(c=>typeof c==='string'?c:text(c)).join('');
 
-test('all 143 routes receive the guarded three-column design with functional categories and fitting hook',()=>{
- assert.equal(Object.keys(sitePages).length,143);
+test('all 8 routes receive the guarded three-column design with functional categories and fitting hook',()=>{
+ assert.equal(Object.keys(sitePages).length,8);
  let common;
  for(const source of Object.values(sitePages)){
   const input=freeze(prepare(source)),before=JSON.stringify(input),output=adaptFooterBranding(input);

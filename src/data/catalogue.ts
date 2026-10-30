@@ -24,7 +24,7 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     imageAlt: "Stock bridal photograph of a fitted gown — sample imagery, not Redcarpert inventory",
     detailReference: null,
     previewRoute: "/product/preview/sample-01-mermaid",
-    imageCredit: { photographer: "Trần Long", sourceUrl: "https://www.pexels.com/photo/elegant-asian-bride-on-path-in-countryside-5984238/", provenance: "codex-reports/05-homepage-imagery.md" },
+    imageCredit: { photographer: "Trần Long", sourceUrl: "https://www.pexels.com/photo/elegant-asian-bride-on-path-in-countryside-5984238/", provenance: "docs/asset-credits.md" },
   },
   {
     id: "sample-ball-gown", name: "Sample 02", category: "ball_gown", status: "sample",
@@ -32,6 +32,6 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     imageAlt: "Stock bridal photograph of a full gown — sample imagery, not Redcarpert inventory",
     detailReference: null,
     previewRoute: "/product/preview/sample-02-ball-gown",
-    imageCredit: { photographer: "Thalia villa", sourceUrl: "https://www.pexels.com/photo/woman-in-white-wedding-dress-4277970/", provenance: "codex-reports/05-homepage-imagery.md" },
+    imageCredit: { photographer: "Thalia villa", sourceUrl: "https://www.pexels.com/photo/woman-in-white-wedding-dress-4277970/", provenance: "docs/asset-credits.md" },
   },
 ];

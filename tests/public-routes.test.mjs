@@ -25,7 +25,7 @@ test("08C only generates approved Redcarpert and sample preview routes", () => {
   for (const route of previews) assert(!isApprovedCapturedRoute(route)); // Handled by explicit sample route lookup.
 
   const retired = Object.keys(sitePages).filter((route) => !isApprovedCapturedRoute(route));
-  assert(retired.length >= 100, "Legacy product and archive captures should remain source-only");
+  assert.deepEqual(retired, ["/product/arabella"], "Only the private sample-detail shell may remain outside public page captures");
   for (const route of retired) assert(!generated.includes(route));
   for (const route of [
     "/product/arabella", "/product/aventhera", "/product/page/2",
