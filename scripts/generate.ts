@@ -52,7 +52,7 @@ function render(node: DocumentNode): string {
  const a = Object.entries(attrs).filter(([k,v])=>!/^on/i.test(k) && !(k==='src'&&!v)).map(([k,v])=>` ${k}="${escape(v)}"`).join('');
  return `<${node.tag}${a}>`+(voids.has(node.tag)?'':node.children.map(render).join('')+`</${node.tag}>`);
 }
-const cssFiles = ['src/app/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css'];
+const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css'];
 const extraCss = (await Promise.all(cssFiles.map(f=>readFile(f,'utf8')))).join('\n')+'\nhtml:has(footer[data-homepage-footer]),body:has(footer[data-homepage-footer]){scrollbar-width:none}html:has(footer[data-homepage-footer])::-webkit-scrollbar,body:has(footer[data-homepage-footer])::-webkit-scrollbar{display:none}';
 const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 for(const route of routes) {

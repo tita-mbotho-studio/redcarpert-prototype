@@ -1,8 +1,8 @@
 /**
  * Public Redcarpert prototype routes.
  *
- * Do not generate every captured Bridal Vanesa URL: legacy products and archives
- * remain in sitePages only as immutable source material for the approved adapters.
+ * Only approved routes are exposed; sitePages contains seven retained presentation
+ * shells plus one private dress-detail template used for sample previews.
  * The homepage is added explicitly by scripts/generate.ts.
  */
 export const approvedCapturedRoutes = [
