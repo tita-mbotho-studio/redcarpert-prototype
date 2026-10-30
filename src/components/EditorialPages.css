@@ -30,3 +30,57 @@
   .redcarpert-lookbook-image img { max-height: none; height: auto; }
   .redcarpert-lookbook-copy { padding: 24px; }
 }
+
+
+/* Implementation 13 — luxury bridal editorial book, scoped to Digital Lookbook only. */
+.redcarpert-lookbook { --book-ink:#38332f; --book-paper:#fcfaf6; --book-gold:#b99564; margin:26px 0 42px; color:var(--book-ink); }
+.redcarpert-book-intro { max-width:850px; margin:0 auto 26px; text-align:center; font-size:14px; line-height:1.8; }
+.redcarpert-book-shell { max-width:1080px; padding:clamp(8px,2vw,22px); margin:auto; background:#ede7dd; border:1px solid #e3d7c6; box-shadow:0 20px 40px rgba(44,34,26,.09); min-width:0; overflow:hidden; }
+.redcarpert-book { position:relative; margin:0 auto; max-width:100%; min-width:0; }
+.redcarpert-book:not(.is-enhanced) { width:min(100%,430px); aspect-ratio:5/7; }
+.redcarpert-book:not(.is-enhanced) > .redcarpert-book-page {display:none;}
+.redcarpert-book:not(.is-enhanced) > .redcarpert-book-page.is-current {display:flex;}
+.redcarpert-book-page { box-sizing:border-box; flex-direction:column; width:100%; height:100%; overflow:hidden; background:var(--book-paper); border:1px solid #e0d7cd; box-shadow:inset 0 0 22px rgba(64,45,31,.045); color:var(--book-ink); }
+.redcarpert-book-page-inner { width:100%; height:100%; display:flex; flex-direction:column; position:relative; min-height:0; }
+.redcarpert-book-photo { height:72%; overflow:hidden; flex:0 0 72%; background:#e9e4dc; }
+.redcarpert-book-photo img {width:100%;height:100%;object-fit:cover;object-position:top center;display:block;}
+.redcarpert-book-copy { padding:clamp(12px,2vw,26px); min-height:0; display:flex; flex-direction:column; align-items:start; gap:clamp(3px,.5vw,8px); }
+.redcarpert-book-kicker {font:500 9px/1.3 Montserrat,sans-serif;letter-spacing:.17em;color:var(--book-gold);}
+.redcarpert-book-copy h3 {font:400 clamp(17px,2vw,27px)/1.18 Montserrat,sans-serif;color:#5e5348;margin:1px 0 0;}
+.redcarpert-book-copy p {margin:0;font-size:clamp(10px,.94vw,13px);line-height:1.35;}
+.redcarpert-book-copy a {color:#8d6845;text-decoration:underline;text-underline-offset:3px;font-size:clamp(10px,.95vw,13px);}
+.redcarpert-book-copy small {font:10px/1.35 "Open Sans",sans-serif;color:#766d66;}
+.redcarpert-book-folio {position:absolute;bottom:6px;right:13px;color:#8b8178;font:9px Montserrat,sans-serif;}
+.redcarpert-book-cover {background:#eae2d8;}
+.redcarpert-book-cover-inner,.redcarpert-book-back-inner {width:100%;height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:space-around;padding:clamp(16px,4vw,45px);overflow:hidden;}
+.redcarpert-book-logo {display:block;width:min(72%,260px);height:auto;max-height:80px;object-fit:contain;flex-shrink:1;}
+.redcarpert-book-cover h3 {margin:4px 0 0;font:400 clamp(35px,5vw,57px)/1.04 Georgia,serif;letter-spacing:-.03em;color:#493d33;}
+.redcarpert-book-cover-photo {width:100%;max-width:265px;max-height:45%;flex:1;overflow:hidden;border:6px solid #f7f3ee;box-shadow:0 6px 15px rgba(39,28,19,.15);background:#e2d7ca;}
+.redcarpert-book-cover-photo img {width:100%;height:100%;display:block;object-fit:cover;object-position:center 30%;}
+.redcarpert-book-cover-foot {font:500 11px Montserrat,sans-serif;letter-spacing:.13em;color:#776858;margin:8px 0 0;}
+.redcarpert-book-cover small,.redcarpert-book-back small {font:10px/1.4 "Open Sans",sans-serif;color:#786e63;}
+.redcarpert-book-back {background:linear-gradient(150deg,#f7f3ed,#e8ddcf);}
+.redcarpert-book-back-inner {justify-content:center;gap:clamp(14px,3vw,34px);}
+.redcarpert-book-back h3 {font:400 clamp(27px,4vw,44px)/1.1 Georgia,serif;margin:0;color:#4b3b31;}
+.redcarpert-book-back p {font:14px/1.7 "Open Sans",sans-serif;max-width:290px;margin:0;}
+.redcarpert-book-back-links {display:flex;flex-direction:column;gap:12px;}
+.redcarpert-book-back-links a {font:500 12px Montserrat,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:#8a684a;text-decoration:underline;text-underline-offset:4px;}
+.redcarpert-book-controls {display:flex;justify-content:center;align-items:center;gap:clamp(10px,3vw,25px);margin:22px auto 7px;flex-wrap:wrap;}
+.redcarpert-book-controls button {cursor:pointer;background:#fff;border:1px solid #b9ac9d;padding:11px 14px;min-width:108px;color:#44372c;font:500 12px Montserrat,sans-serif;}
+.redcarpert-book-controls button:disabled {opacity:.35;cursor:not-allowed;}
+.redcarpert-book-controls button:focus-visible,.redcarpert-book a:focus-visible {outline:2px solid #a47749;outline-offset:3px;}
+.redcarpert-book-controls [data-book-status] {font:500 12px Montserrat,sans-serif;min-width:86px;text-align:center;}
+.redcarpert-book-help {text-align:center;color:#776e66;font-size:12px;margin:8px auto 24px;}
+.redcarpert-lookbook-download {text-align:center;margin:24px 0 12px;}
+.redcarpert-lookbook-download p {font-size:12px;color:#777;margin:10px auto;}
+.redcarpert-photo-failed {position:relative;background:#eee6dd;}
+.redcarpert-photo-failed:after {content:"Photograph temporarily unavailable";display:grid;place-items:center;position:absolute;inset:0;font-size:13px;color:#716456;padding:20px;text-align:center;}
+.redcarpert-image-unavailable {visibility:hidden;}
+@media(max-width:768px){
+ .redcarpert-book-shell {padding:8px;}
+ .redcarpert-book:not(.is-enhanced) {width:min(100%,390px);}
+ .redcarpert-book-copy {padding:12px 14px;}
+ .redcarpert-book-photo {height:69%;flex-basis:69%;}
+ .redcarpert-book-copy small {font-size:9px;}
+ .redcarpert-book-cover-inner,.redcarpert-book-back-inner{padding:17px;}
+}
