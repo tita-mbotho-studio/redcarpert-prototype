@@ -8,16 +8,20 @@ import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview';
 import { siteMetadata } from '../src/data/metadata';
 import { REPOSITORY_BASE } from '../src/config/site';
+import { validateCatalogue } from '../src/lib/validate-catalogue';
 import { escapeHtml, createNodeRenderer } from './lib/markup';
 import { assets, track, prefix, copyTrackedAssets } from './lib/assets';
 import { preparePage } from './lib/prepare-page';
 const base = REPOSITORY_BASE;
 const root = '.generated';
+// Validate all catalogue records and public routes before clearing prior generated files.
+validateCatalogue(catalogueProducts);
+const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
 const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css'];
 const extraCss = (await Promise.all(cssFiles.map(f=>readFile(f,'utf8')))).join('\n')+'\nhtml:has(footer[data-homepage-footer]),body:has(footer[data-homepage-footer]){scrollbar-width:none}html:has(footer[data-homepage-footer])::-webkit-scrollbar,body:has(footer[data-homepage-footer])::-webkit-scrollbar{display:none}';
-const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
+
 const render = createNodeRenderer(routes);
 for(const route of routes) {
  const {document,product} = preparePage(route);
