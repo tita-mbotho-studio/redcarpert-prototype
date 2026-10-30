@@ -7,11 +7,39 @@ import { catalogueProducts } from "@/data/catalogue";
 import { createProductDetailPreview, sampleFittingMessage } from "@/lib/product-detail-preview";
 import { isApprovedCapturedRoute, publicStaticRoutes } from "@/lib/public-routes";
 
+const editorialMeta: Record<string, { title: string; description: string }> = {
+  "/digital-lookbook": {
+    title: "Digital Lookbook | Redcarpert Wedding Dresses",
+    description: "Interactive sample bridal lookbook for Mermaid and Ball Gown dresses, with a downloadable PDF.",
+  },
+  "/our-brides": {
+    title: "Our Brides | Redcarpert Wedding Dresses",
+    description: "Bridal inspiration gallery using clearly labelled sample photography.",
+  },
+  "/about-us": {
+    title: "About Us | Redcarpert Wedding Dresses",
+    description: "Learn about Redcarpert's bridal collections and fitting enquiries.",
+  },
+  "/contact-us": {
+    title: "Contact Us | Redcarpert Wedding Dresses",
+    description: "Contact and fitting enquiry information for the Redcarpert prototype.",
+  },
+};
+
 function documentForRoute(route: string) {
   const product = catalogueProducts.find(p => p.previewRoute === route);
-  if (!product) return isApprovedCapturedRoute(route) ? sitePages[route] : undefined;
-  if (sitePages[route]) throw new Error(`Sample preview route collides with capture: ${route}`);
-  return createProductDetailPreview(sitePages["/product/arabella"], product);
+  if (product) {
+    if (sitePages[route]) throw new Error(`Sample preview route collides with capture: ${route}`);
+    return createProductDetailPreview(sitePages["/product/arabella"], product);
+  }
+  if (route === "/digital-lookbook") {
+    if (sitePages[route]) throw new Error("Lookbook route collides with capture");
+    return { ...sitePages["/about-us"], ...editorialMeta[route], route };
+  }
+  if (!isApprovedCapturedRoute(route)) return undefined;
+  const source = sitePages[route];
+  if (!source) return undefined;
+  return editorialMeta[route] ? { ...source, ...editorialMeta[route] } : source;
 }
 
 interface PageProps {

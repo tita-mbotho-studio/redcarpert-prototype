@@ -16,14 +16,14 @@ test('all 143 canonical headers map exactly six items and two real categories; n
   for(const original of Object.values(sitePages)){
     const d=adaptNavigation(original);const menu=children(byId(d,'menu-blog-layouts'));
     assert.deepEqual(menu.map(n=>link(n).children.join('')),['Home','Wedding Dresses','Digital Lookbook','Our Brides','About Us','Contact Us']);
-    assert.deepEqual(menu.map(n=>link(n).attrs.href),['/','/product/',undefined,'/our-brides/','/about-us/','/contact-us/']);
+    assert.deepEqual(menu.map(n=>link(n).attrs.href),['/','/product/','/digital-lookbook/','/our-brides/','/about-us/','/contact-us/']);
     assert.equal(menu[0].attrs.id,'menu-item-15418');
-    const disabled=link(menu[2]);assert.equal(disabled.attrs['aria-disabled'],'true');assert.equal(disabled.attrs.role,'link');assert.equal(disabled.attrs.tabindex,'0');
+    const lookbook=link(menu[2]);assert.equal(lookbook.attrs.href,'/digital-lookbook/');assert.equal(lookbook.attrs['aria-disabled'],undefined);
     const categories=children(children(menu[1])[1]);
     assert.deepEqual(categories.map(n=>[link(n).children[0],link(n).attrs.href]),[['Mermaid','/product-category/mermaid/'],['Ball Gown','/product-category/ball_gown/']]);
     assert.equal(icons(d).length,0);
     for(const a of find([header(d)],n=>n.tag==='a'&&n.attrs.href)){
-      assert.ok(['/', '/product/', '/product-category/mermaid/', '/product-category/ball_gown/', '/our-brides/', '/about-us/', '/contact-us/'].includes(a.attrs.href));
+      assert.ok(['/', '/product/', '/product-category/mermaid/', '/product-category/ball_gown/', '/digital-lookbook/', '/our-brides/', '/about-us/', '/contact-us/'].includes(a.attrs.href));
     }
     assert.ok(menu[1].attrs.class.includes('menu-item-has-children'));assert.equal(children(menu[1])[1].attrs.class,'sub-menu');
   }
@@ -68,10 +68,19 @@ test('active classes and aria-current follow actual routes, with no guessed dres
     for(const id of ['15421','15422'])assert.doesNotMatch(byId(d,`menu-item-${id}`).attrs.class,/current[-_]/);
   }
   for(const route of ['/atelier-2','/store'])assert.equal(find([header(adaptNavigation(sitePages[route]))],n=>/current[-_]/.test(n.attrs.class??'')).length,0);
-  // Captured current flags cannot leak from another route or onto the disabled donor.
+  // Captured current flags cannot leak from another route or onto the Lookbook donor.
   const stale=structuredClone(sitePages['/atelier-2']);stale.route='/contact-us/';const d=adaptNavigation(stale);
   assert.equal(find([header(d)],n=>n.attrs['aria-current']==='page').length,1);
   assert.equal(link(byId(d,'menu-item-15417')).attrs['aria-current'],'page');assert.doesNotMatch(byId(d,'menu-item-16165').attrs.class,/current[-_]/);
+});
+
+test('new Digital Lookbook route selects its existing donor menu item',()=>{
+  const source = { ...sitePages['/about-us'], route: '/digital-lookbook' };
+  const adapted = adaptNavigation(source);
+  const target = byId(adapted,'menu-item-16165');
+  assert.match(target.attrs.class,/current-menu-item/);
+  assert.equal(link(target).attrs.href,'/digital-lookbook/');
+  assert.equal(link(target).attrs['aria-current'],'page');
 });
 
 test('invalid or ambiguous source structure fails closed without partial mutation',()=>{
