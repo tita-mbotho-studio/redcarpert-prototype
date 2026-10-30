@@ -38,7 +38,7 @@ The fitting-enquiry interaction is a **non-sending preview**; no WhatsApp Busine
 - `public/`: only production-relevant visuals, fonts, scripts and theme dependencies
 - `tests/`: source, build and browser regression checks
 
-Third-party theme effects remain temporarily to preserve the approved interactions. Their replacement and structural refactoring belong to Implementation 12. The modern page-turn lookbook is Implementation 13. See [asset credits](docs/asset-credits.md).
+Third-party theme effects remain temporarily to preserve the approved interactions. Implementation 12 refactored the supporting code without replacing these dependencies. Theme replacement remains deferred until separately approved and regression-tested. The modern page-turn lookbook is Implementation 13. See [asset credits](docs/asset-credits.md).
 
 ## Engineering notes
 
