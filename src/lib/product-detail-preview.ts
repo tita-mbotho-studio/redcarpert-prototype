@@ -1,4 +1,4 @@
-import { catalogueProducts, type CatalogueProduct } from "@/data/catalogue";
+import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
 const elements = (nodes: DocumentNode[]) => nodes.filter((n): n is DocumentElement => typeof n !== "string");

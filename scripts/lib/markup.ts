@@ -1,4 +1,4 @@
-import { catalogueProducts } from '../../src/data/catalogue';
+import { catalogueProducts } from '../../src/data/catalogue.ts';
 import type { DocumentNode } from '../../src/types/site';
 
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

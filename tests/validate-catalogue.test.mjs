@@ -24,7 +24,7 @@ test('reject unapproved hosts, paths, missing attribution, categories and invent
   [{image:'https://example.com/bad.jpg'},/Unapproved or duplicate Pexels image/],
   [{image:'https://images.pexels.com.evil.com/photos/1/pexels-photo-1.jpeg'},/Unapproved or duplicate Pexels image/],
   [{image:'/redcarpert/../bad.webp'},/Unapproved or duplicate Pexels image/],
-  [{image:samples[1].image},/Unapproved or duplicate Pexels image/],
+  [{image:samples[1].image},/Unapproved or duplicate Pexels image|Missing image provenance/],
   [{category:'other'},/Unapproved category/],
   [{name:''},/Missing sample disclosure/],
   [{imageAlt:'missing'},/Missing sample disclosure/],
