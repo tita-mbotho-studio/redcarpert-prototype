@@ -14,7 +14,7 @@ export async function GET() {
   ];
   const photos = await Promise.all(images.map(async item => {
     const source = await readFile(path.join(process.cwd(), "public", "redcarpert", "gallery", item.src));
-    const { data, info } = await sharp(source).removeAlpha().toColourspace("rgb").jpeg({ quality: 90, progressive: false }).toBuffer({ resolveWithObject: true });
+    const { data, info } = await sharp(source).removeAlpha().jpeg({ quality: 90, progressive: false }).toBuffer({ resolveWithObject: true });
     return { jpeg: data, width: info.width, height: info.height, category: item.category, sample: item.sample, photographer: item.photographer };
   }));
   const pdf = createSampleLookbookPdf(photos);
