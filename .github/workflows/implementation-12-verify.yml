@@ -1,0 +1,41 @@
+name: Verify Implementation 12 without deployment
+on:
+  push:
+    branches: [implementation/12-engineering-hardening]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test:dist
+      - name: Checkout approved Implementation 11 baseline
+        uses: actions/checkout@v4
+        with:
+          ref: cd5b00215c2272785f31574c3fe39361bdb79957
+          path: _baseline
+      - name: Build reference output
+        working-directory: _baseline
+        run: |
+          npm ci
+          npm run build
+      - name: Verify HTML and PDF against approved baseline
+        run: node scripts/compare-page-html.mjs _baseline/dist dist
+      - run: npx playwright install --with-deps chromium
+      - name: Production browser checks
+        run: |
+          npm run preview -- --port 4173 > /tmp/redcarpert-preview.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid"' EXIT
+          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-prototype/ >/dev/null
+          npm run test:browser

@@ -5,6 +5,7 @@ import { sitePages } from '../src/data/site';
 import { catalogueProducts } from '../src/data/catalogue';
 import { publicStaticRoutes } from '../src/lib/public-routes';
 import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf';
+import { sampleFittingMessage } from '../src/lib/product-detail-preview';
 import { siteMetadata } from '../src/data/metadata';
 import { REPOSITORY_BASE } from '../src/config/site';
 import { escapeHtml, createNodeRenderer } from './lib/markup';
