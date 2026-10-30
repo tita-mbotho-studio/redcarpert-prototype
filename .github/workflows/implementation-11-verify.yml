@@ -1,0 +1,38 @@
+name: Verify implementation 11 cleanup (no deploy)
+on:
+  push:
+    branches:
+      - implementation/11-redcarpert-repository-cleanup
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test:dist
+      - name: Report deployment asset manifest
+        run: |
+          echo 'ASSET_MANIFEST_BEGIN'
+          find dist -type f | sed 's#^dist/##' | LC_ALL=C sort
+          echo 'ASSET_MANIFEST_END'
+          echo 'OUTPUT_SUMMARY'
+          du -sh dist public src/data
+          find public -type f | wc -l
+      - run: npx playwright install --with-deps chromium
+      - name: Browser regressions (no deployment)
+        run: |
+          npm run preview -- --port 4173 > /tmp/preview.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid"' EXIT
+          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-prototype/ > /dev/null
+          npm run test:browser
