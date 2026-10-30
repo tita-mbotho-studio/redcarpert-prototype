@@ -31,23 +31,25 @@ export function initializeLookbookReader() {
     next.disabled = index >= pages.length - 1;
     book.dataset.currentPage = String(index + 1);
   };
-  const goto = (target) => {
-    const page = Math.max(0, Math.min(pages.length - 1, target));
+  // StPageFlip advances by spread on desktop, not by individual leaf.
+  // engine.flip(index +/- 1) can target the already-visible spread and stall.
+  const turn = (direction) => {
     if (engine) {
-      engine.flip(page);
-    } else {
-      index = page;
-      pages.forEach((node, i) => node.classList.toggle('is-current', i === index));
-      announce();
+      if (direction > 0) engine.flipNext();
+      else engine.flipPrev();
+      return;
     }
+    index = Math.max(0, Math.min(pages.length - 1, index + direction));
+    pages.forEach((node, i) => node.classList.toggle('is-current', i === index));
+    announce();
   };
-  previous.addEventListener('click', () => goto(index - 1));
-  next.addEventListener('click', () => goto(index + 1));
+  previous.addEventListener('click', () => turn(-1));
+  next.addEventListener('click', () => turn(1));
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
-    if (event.target.closest('a,button,input,textarea,select')) return;
+    if (event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
     event.preventDefault();
-    goto(index + (event.key === 'ArrowRight' ? 1 : -1));
+    turn(event.key === 'ArrowRight' ? 1 : -1);
   });
   let touchX = null;
   book.addEventListener('touchstart', event => {
@@ -56,7 +58,7 @@ export function initializeLookbookReader() {
   book.addEventListener('touchend', event => {
     if (engine || touchX == null || !event.changedTouches.length) return;
     const delta = event.changedTouches[0].clientX - touchX;
-    if (Math.abs(delta) > 45) goto(index + (delta < 0 ? 1 : -1));
+    if (Math.abs(delta) > 45) turn(delta < 0 ? 1 : -1);
     touchX = null;
   }, {passive: true});
   for (const img of book.querySelectorAll('img')) {
