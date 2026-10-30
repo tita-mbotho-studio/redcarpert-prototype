@@ -1,0 +1,25 @@
+import { sitePages } from '../../src/data/site';
+import { catalogueProducts } from '../../src/data/catalogue';
+import { contentAdaptations } from '../../src/data/content-adaptations';
+import { adaptSiteDocument } from '../../src/lib/content-adapter';
+import { adaptHomepageBackgrounds } from '../../src/lib/homepage-backgrounds';
+import { adaptFooterSocials } from '../../src/lib/footer-social-adapter';
+import { adaptLogo } from '../../src/lib/logo-adapter';
+import { adaptNavigation } from '../../src/lib/navigation-adapter';
+import { addHomepageFooter } from '../../src/lib/homepage-footer';
+import { adaptFooterBranding } from '../../src/lib/footer-branding-adapter';
+import { correctFooterLinks } from '../../src/lib/footer-link-corrections';
+import { adaptCatalogue } from '../../src/lib/catalogue-adapter';
+import { adaptEditorialDocument } from '../../src/lib/editorial-pages';
+import { createProductDetailPreview } from '../../src/lib/product-detail-preview';
+import { siteMetadata } from '../../src/data/metadata';
+
+/** Produce the existing approved page tree without touching its structure. */
+export function preparePage(route: string) {
+ const product = catalogueProducts.find(p=>p.previewRoute===route);
+ let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Interactive sample bridal lookbook for Mermaid and Ball Gown dresses, with a downloadable PDF.'} : sitePages[route];
+ if(route === '/') original = {...original, title:siteMetadata.title, description:siteMetadata.description};
+ if(['/about-us','/contact-us','/our-brides'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Our Brides | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about Redcarpert's bridal collections and fitting enquiries.":route==='/contact-us'?'Contact and fitting enquiry information for the Redcarpert prototype.':'Bridal inspiration gallery using clearly labelled sample photography.'};
+ const document = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations)),sitePages['/about-us']))))));
+ return {document, product};
+}

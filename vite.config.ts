@@ -1,4 +1,5 @@
 import { defineConfig, type ViteDevServer, type PreviewServer } from 'vite';
+import { REPOSITORY_BASE } from './src/config/site';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 const routes: string[] = JSON.parse(readFileSync('.generated/routes.json','utf8'));
@@ -15,7 +16,7 @@ function fallback(server: ViteDevServer | PreviewServer) {
 export default defineConfig({
  plugins: [{name:'repository-base',transformIndexHtml:{order:'post',handler:html=>html.replaceAll('/redcarpert-prototype/redcarpert-prototype/','/redcarpert-prototype/')}}, {name:'static-404',configureServer:fallback,configurePreviewServer:fallback}],
  root: '.generated',
- base: '/redcarpert-prototype/',
+ base: REPOSITORY_BASE,
  publicDir: 'static',
  appType: 'mpa',
  resolve: {alias: {'/src': path.resolve('src')}},
