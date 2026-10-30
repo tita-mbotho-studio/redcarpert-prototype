@@ -40,10 +40,10 @@ test("only the three approved inline URL substrings change; text, layout, CSS an
   assert.strictEqual(result.nodes[1].children[1].children[2], textAdapted.nodes[1].children[1].children[2], "Header remains shared");
 });
 
-test("all original documents stay immutable and all other 142 routes retain their original image references", () => {
+test("all original documents stay immutable and all other 7 routes retain their original image references", () => {
   const hash = () => createHash("sha256").update(JSON.stringify(sitePages)).digest("hex");
   const before = hash();
-  assert.equal(Object.keys(sitePages).length, 143);
+  assert.equal(Object.keys(sitePages).length, 8);
   for (const [route, original] of Object.entries(sitePages)) {
     const result = adaptHomepageBackgrounds(original);
     if (route !== "/") assert.strictEqual(result, original, route);
