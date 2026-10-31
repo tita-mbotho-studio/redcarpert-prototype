@@ -11,7 +11,6 @@ const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/our-b
 const p = (text: string) => node("p", {}, [text]);
 const h = (text: string) => node("h2", {}, [text]);
 const link = (href: string, label: string) => node("a", { href }, [label]);
-const image = (src: string, alt: string) => node("img", { src, alt, loading: "lazy", decoding: "async" }, []);
 const fitting = () => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Enquire about a fitting"]);
 
 function editorialContent(route: EditorialRoute): DocumentNode[] {
