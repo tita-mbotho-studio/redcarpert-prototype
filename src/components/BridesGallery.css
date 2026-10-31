@@ -1,0 +1,64 @@
+/* Our Brides: same 370/444 photograph ratio as the Wedding Dresses listing. */
+.redcarpert-inspiration-grid[data-brides-gallery] {
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,26px);
+ align-items:start;width:100%;margin:26px 0 30px;
+}
+.redcarpert-inspiration-grid[data-brides-gallery] > * {margin:0;min-width:0;box-sizing:border-box;}
+.redcarpert-bride-card button {
+ display:block;position:relative;box-sizing:border-box;width:100%;padding:0;border:0;
+ background:#e7ded4;aspect-ratio:370/444;overflow:hidden;cursor:zoom-in;appearance:none;
+}
+.redcarpert-bride-card button img {
+ width:100%;height:100%;display:block;aspect-ratio:370/444;object-fit:cover;object-position:center 26%;
+ transition:transform .4s ease;
+}
+.redcarpert-bride-card button:hover img {transform:scale(1.035);}
+.redcarpert-bride-card button:after {
+ content:"+";position:absolute;right:12px;bottom:12px;width:30px;height:30px;
+ display:grid;place-items:center;background:rgba(250,248,243,.92);color:#675442;
+ font:400 21px/1 Georgia,serif;opacity:0;transition:opacity .2s ease;
+}
+.redcarpert-bride-card button:hover:after,.redcarpert-bride-card button:focus-visible:after{opacity:1;}
+.redcarpert-bride-card button:focus-visible {outline:2px solid #9f744a;outline-offset:3px;}
+.redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption {
+ display:block;box-sizing:border-box;min-height:44px;padding:11px 0 2px;
+ color:#756b61;text-align:center;font:400 13px/1.4 Montserrat,sans-serif;
+}
+.redcarpert-bride-accent-art {
+ box-sizing:border-box;width:100%;aspect-ratio:370/444;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:clamp(7px,1.3vw,17px);padding:clamp(12px,2vw,28px);
+ text-align:center;color:#776451;border:1px solid rgba(119,95,72,.09);
+}
+.redcarpert-bride-accent.accent-1 .redcarpert-bride-accent-art{background:linear-gradient(145deg,#eee2d5,#f8f2e9);}
+.redcarpert-bride-accent.accent-2 .redcarpert-bride-accent-art{background:linear-gradient(150deg,#e6d8c8,#f4e9de);}
+.redcarpert-bride-accent.accent-3 .redcarpert-bride-accent-art{background:linear-gradient(145deg,#f4efe7,#e4d8c9);}
+.redcarpert-bride-accent-mark {font:400 clamp(18px,2.2vw,30px) Georgia,serif;opacity:.6;}
+.redcarpert-bride-accent-eyebrow {font:500 clamp(8px,.8vw,11px)/1.4 Montserrat,sans-serif;letter-spacing:.14em;color:#9b876f;}
+.redcarpert-bride-accent-title {font:400 clamp(18px,2.3vw,32px)/1.25 Georgia,serif;color:#776350;}
+.redcarpert-bride-accent-rule{width:32px;height:1px;background:#baa48e;}
+.redcarpert-bride-dialog {
+ box-sizing:border-box;width:max-content;max-width:90vw;max-height:88dvh;
+ padding:0;border:0;overflow:visible;background:transparent;color:#584b40;
+}
+.redcarpert-bride-dialog::backdrop{background:rgba(25,20,16,.48);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+.redcarpert-bride-dialog-inner{box-sizing:border-box;position:relative;display:flex;flex-direction:column;
+ max-height:88dvh;max-width:90vw;padding:8px;background:#fbf8f3;box-shadow:0 22px 70px rgba(25,18,12,.26);}
+.redcarpert-bride-dialog img{display:block;width:auto;height:auto;max-width:min(830px,calc(90vw - 16px));max-height:calc(88dvh - 90px);object-fit:contain;background:#e8dfd3;}
+.redcarpert-bride-dialog figcaption{padding:12px 10px 4px;text-align:center;font:400 13px/1.4 Montserrat,sans-serif;}
+.redcarpert-bride-dialog figcaption small{display:block;margin-top:2px;font:400 11px/1.4 "Open Sans",sans-serif;color:#8a7c70;}
+.redcarpert-bride-dialog-close{position:absolute;z-index:1;top:12px;right:12px;display:grid;place-items:center;
+ width:35px;height:35px;padding:0;border:0;background:rgba(250,248,244,.94);color:#564739;
+ font:400 25px/1 sans-serif;cursor:pointer;}
+.redcarpert-bride-dialog-close:focus-visible{outline:2px solid #a58055;outline-offset:2px;}
+@media(max-width:900px){.redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}}
+@media(max-width:480px){
+ .redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+ .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption{min-height:41px;padding:8px 0 1px;font-size:11px;}
+ .redcarpert-bride-accent-art{padding:10px;gap:7px;}
+ .redcarpert-bride-accent-title{font-size:clamp(13px,4vw,21px);}
+ .redcarpert-bride-dialog,.redcarpert-bride-dialog-inner{max-width:94vw;}
+ .redcarpert-bride-dialog-inner{padding:5px;}
+ .redcarpert-bride-dialog img{max-width:calc(94vw - 10px);}
+}
+@media(prefers-reduced-motion:reduce){.redcarpert-bride-card button img{transition:none;}}
