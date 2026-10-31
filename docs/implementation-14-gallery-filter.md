@@ -37,3 +37,6 @@ All photos are illustrative, not confirmed Redcarpert customers. Pexels imagery 
 - Our Brides now uses the same full-width content-container shell and four-column content box as Wedding Dresses. Removes the unused inherited empty right sidebar without changing the shared header or footer.
 - Photographs keep their original fixed order; only six shade tiles move among five curated compositions.
 - The image preview is a wider bridal editorial card with adjacent typography and photo on desktop, stacked on mobile, constrained within the viewport, preserving the blurred backdrop and Escape/close behavior.
+
+### Exact catalogue geometry
+The original page had a 4% inset on each side of its generic content box. The catalogue removes that inset. The Our Brides shell now does the same using a page-specific class, alongside the same 20.1% desktop / 45.7% mobile image widths and matching gutter percentages (using 1cqw per tile side). Chromium checks compare the actual rendered widths at 1440, 768 and 390px.

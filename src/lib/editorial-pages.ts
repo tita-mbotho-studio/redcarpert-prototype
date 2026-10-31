@@ -123,7 +123,7 @@ export function adaptEditorialDocument(document: SiteDocumentData): SiteDocument
     replacements.set(content, { ...content, attrs: { ...content.attrs, id: "full-width" } });
   }
   replacements.set(title, { ...title, children: [route === "/digital-lookbook" ? "Digital Lookbook" : route === "/our-brides" ? "Our Brides" : route === "/about-us" ? "About Us" : "Contact Us"] });
-  replacements.set(box, { ...box, attrs: { ...box.attrs, class: route === "/our-brides" ? "content-box pexeto-woo-columns-4" : box.attrs.class }, children: [node("div", { class: "redcarpert-editorial", "data-editorial-route": route }, editorialContent(route))] });
+  replacements.set(box, { ...box, attrs: { ...box.attrs, class: route === "/our-brides" ? "content-box pexeto-woo-columns-4 redcarpert-brides-content-box" : box.attrs.class }, children: [node("div", { class: "redcarpert-editorial", "data-editorial-route": route }, editorialContent(route))] });
   const visit = (current: DocumentNode): DocumentNode => {
     if (typeof current === "string") return current;
     const chosen = replacements.get(current) ?? current;

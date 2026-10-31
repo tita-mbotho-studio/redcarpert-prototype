@@ -1,13 +1,19 @@
+/* Mirror the catalogue's full-width WooCommerce content box on Our Brides. */
+#content-container.layout-full .redcarpert-brides-content-box {
+ background:transparent;box-shadow:none;padding:0;width:100%;min-height:400px;
+}
 /* Our Brides: same 370/444 photograph ratio as the Wedding Dresses listing. */
 .redcarpert-inspiration-grid[data-brides-gallery] {
  display:grid;grid-template-columns:repeat(4,minmax(0,22.1%));
  column-gap:3.8%;row-gap:clamp(20px,3vw,36px);
  align-items:start;width:100%;margin:26px 0 30px;
+ container-type:inline-size;
 }
 /* Catalogue cards use 20.1% image width + 1% inset each side at desktop. */
 .redcarpert-inspiration-grid[data-brides-gallery] > * {
  margin:0;min-width:0;box-sizing:border-box;
- padding:0 1%;
+ /* 1% of the full gallery width per side, matching WooCommerce's 1% inset. */
+ padding:0 1cqw;
 }
 .redcarpert-bride-card button {
  display:block;position:relative;box-sizing:border-box;width:100%;padding:0;border:0;

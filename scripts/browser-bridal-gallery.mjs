@@ -55,7 +55,9 @@ try{
     const galleryContainerWidth=await gallery.evaluate(element=>element.getBoundingClientRect().width);
     console.log('Gallery/catalogue dimensions',width,
       JSON.stringify({productImageWidth,measured,productGridWidth,galleryContainerWidth}));
-    assert(Math.abs(productImageWidth-measured)<=8,
+    assert(Math.abs(productGridWidth-galleryContainerWidth)<=3,
+      'gallery must use same full-width content container as Wedding Dresses');
+    assert(Math.abs(productImageWidth-measured)<=3,
       'gallery image width must closely match Wedding Dresses card image width');
 
     // Photographs must retain their authored order as shade tiles vary by pattern.

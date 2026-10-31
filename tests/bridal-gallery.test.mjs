@@ -38,7 +38,7 @@ test('Our Brides retains the site shell and renders all 18 preview buttons plus 
   assert.equal(container.attrs.class,'content-boxed layout-full');
   assert.equal(inner.filter(n=>n.attrs.id==='sidebar').length,0,'remove unused sidebar for product-width page');
   assert.equal(inner.filter(n=>n.attrs.id==='full-width').length,1,'match catalogue full-width shell');
-  assert(inner.some(n=>n.attrs.class==='content-box pexeto-woo-columns-4'),'reuse product content box');
+  assert(inner.some(n=>n.attrs.class==='content-box pexeto-woo-columns-4 redcarpert-brides-content-box'),'reuse product content box');
   const grid=inner.find(n=>n.attrs['data-brides-gallery']==='true');
   assert(grid);
   assert.equal(descendants(grid.children).filter(n=>n.attrs['data-bride-card']).length,18);
