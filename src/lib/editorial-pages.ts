@@ -1,4 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
+import { bridalGalleryPhotos } from "@/data/bridal-gallery";
 
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[]): DocumentElement => ({ tag, attrs, children });
 const elements = (list: DocumentNode[]) => list.filter((x): x is DocumentElement => typeof x !== "string");
@@ -21,18 +22,36 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
   ];
   if (route === "/our-brides") return [
     h("Bridal Inspiration"),
-    p("A preview of how Redcarpert's bridal gallery will look. These are stock photographs, not photographs of Redcarpert clients or completed fittings."),
-    node("div", { class: "redcarpert-inspiration-grid" }, [
-      node("figure", {}, [
-        image("/redcarpert/gallery/sample-01-mermaid-pexels.webp", "Sample bridal inspiration photograph for the Mermaid collection"),
-        node("figcaption", {}, ["Mermaid — sample photography"]),
-      ]),
-      node("figure", {}, [
-        image("/redcarpert/gallery/sample-02-ball-gown-pexels.webp", "Sample bridal inspiration photograph for the Ball Gown collection"),
-        node("figcaption", {}, ["Ball Gown — sample photography"]),
+    p("An editorial gallery of bridal moments and silhouettes. These are sample Pexels photographs, not pictures of Redcarpert clients or completed fittings."),
+    node("div", { class: "redcarpert-inspiration-grid", "data-brides-gallery": "true", "aria-label": "Sample bridal inspiration photographs" }, bridalGalleryPhotos.map((photo, index) =>
+      node("figure", { class: "redcarpert-bride-card", "data-bride-card": photo.id }, [
+        node("button", {
+          type: "button", "data-bride-preview": photo.id, "data-bridal-caption": photo.caption,
+          "data-bridal-photographer": photo.photographer, "aria-haspopup": "dialog",
+          "aria-label": "Enlarge " + photo.caption + " (sample photograph)"
+        }, [
+          node("img", {
+            src: photo.image, alt: photo.alt, width: "370", height: "444",
+            loading: index < 4 ? "eager" : "lazy", decoding: "async"
+          }, []),
+        ]),
+        node("figcaption", {}, [photo.caption]),
+      ])
+    )),
+    p("Gallery inspiration only. Client-approved photographs will replace these samples when available."),
+    node("dialog", {
+      id: "redcarpert-bride-preview", class: "redcarpert-bride-dialog",
+      "aria-label": "Enlarged bridal inspiration photograph"
+    }, [
+      node("figure", { class: "redcarpert-bride-dialog-inner" }, [
+        node("button", { class: "redcarpert-bride-dialog-close", type: "button", "data-bride-preview-close": "", "aria-label": "Close photo preview" }, ["×"]),
+        node("img", { "data-bride-preview-image": "", alt: "Enlarged bridal inspiration photograph", decoding: "async" }, []),
+        node("figcaption", {}, [
+          node("span", { "data-bride-preview-caption": "" }, ["Bridal inspiration"]),
+          node("small", { "data-bride-preview-credit": "" }, ["Sample photography"]),
+        ]),
       ]),
     ]),
-    p("Client-approved bridal photographs will replace these samples when available."),
   ];
   if (route === "/about-us") return [
     h("Redcarpert Wedding Dresses"),
