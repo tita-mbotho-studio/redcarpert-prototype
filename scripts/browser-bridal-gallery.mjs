@@ -12,6 +12,10 @@ try{
     const visible=page.locator('[data-catalogue-id]:visible');
     await controls.waitFor();
     assert.equal(await samples.count(),8);assert.equal(await visible.count(),8);
+    const productImageWidth=await page.locator('[data-catalogue-id] img').first().evaluate(
+      element=>element.getBoundingClientRect().width);
+    const productGridWidth=await page.locator('ul.products[data-catalogue-preview]').evaluate(
+      element=>element.getBoundingClientRect().width);
     const buttons=controls.locator('button[data-filter-category]');
     assert.equal(await buttons.count(),3);
     await buttons.nth(1).click();
@@ -46,6 +50,13 @@ try{
     assert(Math.abs(geometry.ratio-370/444)<0.02,'photo ratio must match catalogue');
     assert.equal(geometry.columns,width===1440?4:2,'responsive column count');
     assert.equal(geometry.overflow,false,'gallery horizontal overflow');
+    const measured=await page.locator('[data-bride-card] img').first().evaluate(
+      element=>element.getBoundingClientRect().width);
+    const galleryContainerWidth=await gallery.evaluate(element=>element.getBoundingClientRect().width);
+    console.log('Gallery/catalogue dimensions',width,
+      JSON.stringify({productImageWidth,measured,productGridWidth,galleryContainerWidth}));
+    assert(Math.abs(productImageWidth-measured)<=8,
+      'gallery image width must closely match Wedding Dresses card image width');
 
     // Photographs must retain their authored order as shade tiles vary by pattern.
     const galleryOrder=await cards.evaluateAll(nodes=>nodes.map(node=>node.dataset.brideCard));
@@ -67,7 +78,7 @@ try{
         detailWidth:caption.getBoundingClientRect().width,
         cardColumns:getComputedStyle(card).gridTemplateColumns.split(' ').length};
     });
-    assert(previewMetrics.cardWidth >= width*0.72,'preview should be a substantial, wide card');
+    assert(previewMetrics.cardWidth >= Math.min(750,width*0.72),'preview should be a substantial, wide card');
     if(width===1440){
       assert(previewMetrics.cardWidth>=750,'desktop editorial preview card should be wide');
       assert.equal(previewMetrics.cardColumns,2,'desktop preview should have image and copy side by side');

@@ -1,9 +1,14 @@
 /* Our Brides: same 370/444 photograph ratio as the Wedding Dresses listing. */
 .redcarpert-inspiration-grid[data-brides-gallery] {
- display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,2vw,26px);
+ display:grid;grid-template-columns:repeat(4,minmax(0,22.1%));
+ column-gap:3.8%;row-gap:clamp(20px,3vw,36px);
  align-items:start;width:100%;margin:26px 0 30px;
 }
-.redcarpert-inspiration-grid[data-brides-gallery] > * {margin:0;min-width:0;box-sizing:border-box;}
+/* Catalogue cards use 20.1% image width + 1% inset each side at desktop. */
+.redcarpert-inspiration-grid[data-brides-gallery] > * {
+ margin:0;min-width:0;box-sizing:border-box;
+ padding:0 1%;
+}
 .redcarpert-bride-card button {
  display:block;position:relative;box-sizing:border-box;width:100%;padding:0;border:0;
  background:#e7ded4;aspect-ratio:370/444;overflow:hidden;cursor:zoom-in;appearance:none;
@@ -84,8 +89,11 @@
  display:block;font:400 12px/1.6 "Open Sans",sans-serif;color:#87796b;
 }
 .redcarpert-bride-preview-disclosure{max-width:250px;}
-@media(max-width:900px){
- .redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+@media(max-width:768px){
+ .redcarpert-inspiration-grid[data-brides-gallery]{
+  grid-template-columns:repeat(2,minmax(0,47.7%));
+  column-gap:4.6%;row-gap:clamp(14px,3vw,25px);
+ }
 }
 @media(max-width:600px){
  .redcarpert-bride-dialog{width:min(500px,94vw);max-width:94vw;}
@@ -103,7 +111,7 @@
  .redcarpert-bride-preview-disclosure{max-width:none;}
 }
 @media(max-width:480px){
- .redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+ .redcarpert-inspiration-grid[data-brides-gallery]{row-gap:16px;}
  .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption{
   min-height:41px;padding:8px 0 1px;font-size:11px;
  }
