@@ -47,6 +47,9 @@ try{
     assert.equal(geometry.columns,width===1440?4:2,'responsive column count');
     assert.equal(geometry.overflow,false,'gallery horizontal overflow');
 
+    // Photographs must retain their authored order as shade tiles vary by pattern.
+    const galleryOrder=await cards.evaluateAll(nodes=>nodes.map(node=>node.dataset.brideCard));
+    assert.deepEqual(galleryOrder,Array.from({length:18},(_,i)=>'inspiration-'+String(i+1).padStart(2,'0')));
     const first=cards.first().locator('button[data-bride-preview]');
     await first.click();
     const dialog=page.locator('#redcarpert-bride-preview');
@@ -54,6 +57,22 @@ try{
     assert.equal(await dialog.evaluate(e=>getComputedStyle(e,'::backdrop').backdropFilter.includes('blur')),true,'blurred overlay');
     const bounds=await dialog.boundingBox();
     assert(bounds && bounds.width<width && bounds.height<=900,'preview stays inside viewport');
+    const previewMetrics=await page.evaluate(()=>{
+      const card=document.querySelector('#redcarpert-bride-preview .redcarpert-bride-dialog-inner');
+      const img=card.querySelector('img[data-bride-preview-image]');
+      const caption=card.querySelector('.redcarpert-bride-preview-details');
+      return {cardWidth:card.getBoundingClientRect().width,
+        imgWidth:img.getBoundingClientRect().width,
+        imageHeight:img.getBoundingClientRect().height,
+        detailWidth:caption.getBoundingClientRect().width,
+        cardColumns:getComputedStyle(card).gridTemplateColumns.split(' ').length};
+    });
+    assert(previewMetrics.cardWidth >= width*0.72,'preview should be a substantial, wide card');
+    if(width===1440){
+      assert(previewMetrics.cardWidth>=750,'desktop editorial preview card should be wide');
+      assert.equal(previewMetrics.cardColumns,2,'desktop preview should have image and copy side by side');
+      assert(previewMetrics.detailWidth>=210,'desktop caption panel must be useful and readable');
+    }
     await page.keyboard.press('Escape');
     assert.equal(await dialog.evaluate(e=>e.open),false,'Escape closes');
     await first.click();
@@ -63,6 +82,8 @@ try{
     const next=Number(await gallery.getAttribute('data-gallery-pattern'));
     assert(next>=1&&next<=5&&next!==id,'refresh chooses different pattern');
     assert.equal(await cards.count(),18);
+    assert.deepEqual(await cards.evaluateAll(nodes=>nodes.map(node=>node.dataset.brideCard)),galleryOrder,
+      'photo order stays fixed when the shade-card arrangement changes');
     assert.deepEqual(errors,[],'no runtime JavaScript failures at '+width);
     await page.close();
     console.log('Catalogue filter and Our Brides PASS',width,'px; patterns',id,'→',next);

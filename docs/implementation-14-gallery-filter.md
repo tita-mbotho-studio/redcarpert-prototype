@@ -5,7 +5,7 @@ Branch: implementation/14-catalogue-filter-brides-gallery. Implementation 13 mai
 ## Approved changes
 - On /product/, three working category filters: All Dresses / Mermaid / Ball Gown, preserving sample counts, card geometry and category routes.
 - On /our-brides/, 18 independent, credited Pexels sample photographs displayed as the same 370:444 image ratio as the catalogue, plus six complementary shade tiles in one of five predesigned layouts.
-- Four cards per desktop row, responsive two columns on tablet/mobile. Pattern and photo ordering randomize on page load; sessionStorage prevents immediately repeating the pattern in the same tab. Stable during browsing.
+- Four cards per desktop row, responsive two columns on tablet/mobile. Only the six shade positions randomize between five patterns on each visit; the 18 photograph positions retain their original sequence, including after refresh. sessionStorage prevents immediately repeating the pattern in the same tab. Stable during browsing.
 - Centered constrained image-card preview in native modal dialog, blurred and darkened backdrop, Escape, close button and outside click.
 - Source assets strictly remote; no downloaded photos and no claims about real Redcarpert clients.
 
@@ -32,3 +32,8 @@ All photos are illustrative, not confirmed Redcarpert customers. Pexels imagery 
 | 16 | Danik Prihodko | https://www.pexels.com/photo/bride-in-wedding-dress-and-hat-15865463/ |
 | 17 | Uday Ahir | https://www.pexels.com/photo/bride-in-wedding-dress-under-serene-tree-39980506/ |
 | 18 | Alexander Mass | https://www.pexels.com/photo/elegant-outdoor-wedding-bride-with-bouquet-39837863/ |
+
+## Refinements after the first gallery review
+- Our Brides now uses the same full-width content-container shell and four-column content box as Wedding Dresses. Removes the unused inherited empty right sidebar without changing the shared header or footer.
+- Photographs keep their original fixed order; only six shade tiles move among five curated compositions.
+- The image preview is a wider bridal editorial card with adjacent typography and photo on desktop, stacked on mobile, constrained within the viewport, preserving the blurred backdrop and Escape/close behavior.

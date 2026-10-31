@@ -43,11 +43,18 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       "aria-label": "Enlarged bridal inspiration photograph"
     }, [
       node("figure", { class: "redcarpert-bride-dialog-inner" }, [
-        node("button", { class: "redcarpert-bride-dialog-close", type: "button", "data-bride-preview-close": "", "aria-label": "Close photo preview" }, ["×"]),
-        node("img", { "data-bride-preview-image": "", alt: "Enlarged bridal inspiration photograph", decoding: "async" }, []),
-        node("figcaption", {}, [
-          node("span", { "data-bride-preview-caption": "" }, ["Bridal inspiration"]),
-          node("small", { "data-bride-preview-credit": "" }, ["Sample photography"]),
+        node("div", { class: "redcarpert-bride-preview-media" }, [
+          node("img", { "data-bride-preview-image": "", alt: "Enlarged bridal inspiration photograph", decoding: "async" }, []),
+        ]),
+        node("div", { class: "redcarpert-bride-preview-details" }, [
+          node("button", { class: "redcarpert-bride-dialog-close", type: "button", "data-bride-preview-close": "", "aria-label": "Close photo preview" }, ["×"]),
+          node("figcaption", {}, [
+            node("span", { class: "redcarpert-bride-preview-eyebrow" }, ["REDCARPERT / THE BRIDAL EDIT"]),
+            node("span", { class: "redcarpert-bride-preview-title", "data-bride-preview-caption": "" }, ["Bridal inspiration"]),
+            node("span", { class: "redcarpert-bride-preview-rule", "aria-hidden": "true" }, []),
+            node("small", { "data-bride-preview-credit": "" }, ["Sample photography"]),
+            node("small", { class: "redcarpert-bride-preview-disclosure" }, ["Editorial inspiration only — not photographs of Redcarpert clients."]),
+          ]),
         ]),
       ]),
     ]),
@@ -94,13 +101,34 @@ export function adaptEditorialDocument(document: SiteDocumentData): SiteDocument
     && n.children.length === 1 && typeof n.children[0] === "string");
   if (!title) throw new Error(`Editorial ${route}: missing page banner heading`);
   if (!all([main]).includes(footer) || !all([main]).includes(header) || !all([main]).includes(box)) throw new Error("Editorial: invalid shell");
-  const replacement = new Map<DocumentElement, DocumentElement>([
+  // The captured Our Brides shell uses an unused right sidebar, while the
+  // Wedding Dresses page uses a full-width four-column catalogue shell.
+  // Adopt its content geometry without altering the shared header/footer.
+  const replacements = new Map<DocumentElement, DocumentElement>();
+  if (route === "/our-brides") {
+    const container = one(n => n.attrs.id === "content-container", "page layout");
+    const content = one(n => n.attrs.id === "content" && n.attrs.class === "content", "main content column");
+    const sidebar = one(n => n.attrs.id === "sidebar" && n.attrs.class === "sidebar", "unused sidebar");
+    if (container.attrs.class !== "content-boxed layout-right"
+      || !elements(container.children).includes(content)
+      || !elements(container.children).includes(sidebar)
+      || elements(sidebar.children).length !== 0) {
+      throw new Error("Editorial /our-brides: incompatible original sidebar layout");
+    }
+    replacements.set(container, {
+      ...container,
+      attrs: { ...container.attrs, class: "content-boxed layout-full" },
+      children: container.children.filter(child => child !== sidebar),
+    });
+    replacements.set(content, { ...content, attrs: { ...content.attrs, id: "full-width" } });
+  }
+  for (const [source, target] of [
     [title, { ...title, children: [route === "/digital-lookbook" ? "Digital Lookbook" : route === "/our-brides" ? "Our Brides" : route === "/about-us" ? "About Us" : "Contact Us"] }],
-    [box, { ...box, children: [node("div", { class: "redcarpert-editorial", "data-editorial-route": route }, editorialContent(route))] }],
-  ]);
+    [box, { ...box, attrs: { ...box.attrs, class: route === "/our-brides" ? "content-box pexeto-woo-columns-4" : box.attrs.class }, children: [node("div", { class: "redcarpert-editorial", "data-editorial-route": route }, editorialContent(route))] }],
+  ] as const) replacements.set(source, target);
   const visit = (current: DocumentNode): DocumentNode => {
     if (typeof current === "string") return current;
-    const chosen = replacement.get(current) ?? current;
+    const chosen = replacements.get(current) ?? current;
     const mapped = chosen.children.map(visit);
     return mapped.some((n, i) => n !== chosen.children[i]) ? { ...chosen, children: mapped } : chosen;
   };

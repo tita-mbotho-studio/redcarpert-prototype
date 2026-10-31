@@ -37,28 +37,77 @@
 .redcarpert-bride-accent-eyebrow {font:500 clamp(8px,.8vw,11px)/1.4 Montserrat,sans-serif;letter-spacing:.14em;color:#9b876f;}
 .redcarpert-bride-accent-title {font:400 clamp(18px,2.3vw,32px)/1.25 Georgia,serif;color:#776350;}
 .redcarpert-bride-accent-rule{width:32px;height:1px;background:#baa48e;}
+/* Wide editorial preview card: substantial at desktop, compact on phones. */
 .redcarpert-bride-dialog {
- box-sizing:border-box;width:max-content;max-width:90vw;max-height:88dvh;
+ box-sizing:border-box;width:min(860px,90vw);max-width:90vw;max-height:88dvh;
  padding:0;border:0;overflow:visible;background:transparent;color:#584b40;
 }
-.redcarpert-bride-dialog::backdrop{background:rgba(25,20,16,.48);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
-.redcarpert-bride-dialog-inner{box-sizing:border-box;position:relative;display:flex;flex-direction:column;
- max-height:88dvh;max-width:90vw;padding:8px;background:#fbf8f3;box-shadow:0 22px 70px rgba(25,18,12,.26);}
-.redcarpert-bride-dialog img{display:block;width:auto;height:auto;max-width:min(830px,calc(90vw - 16px));max-height:calc(88dvh - 135px);object-fit:contain;background:#e8dfd3;pointer-events:none;}
-.redcarpert-bride-dialog figcaption{padding:12px 10px 4px;text-align:center;font:400 13px/1.4 Montserrat,sans-serif;}
-.redcarpert-bride-dialog figcaption small{display:block;margin-top:2px;font:400 11px/1.4 "Open Sans",sans-serif;color:#8a7c70;}
-.redcarpert-bride-dialog-close{position:relative;z-index:1;align-self:flex-end;flex:0 0 auto;margin:0 0 6px;display:grid;place-items:center;
- width:35px;height:35px;padding:0;border:0;background:rgba(250,248,244,.94);color:#564739;
- font:400 25px/1 sans-serif;cursor:pointer;}
+.redcarpert-bride-dialog::backdrop{
+ background:rgba(25,20,16,.48);
+ backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.redcarpert-bride-dialog-inner{
+ box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr);
+ width:100%;min-width:0;margin:0;padding:10px;background:#fbf8f3;
+ box-shadow:0 22px 70px rgba(25,18,12,.26);
+}
+.redcarpert-bride-preview-media{
+ display:flex;align-items:center;justify-content:center;min-width:0;
+ height:min(66dvh,650px);overflow:hidden;background:#e9dfd4;
+}
+.redcarpert-bride-dialog img{
+ display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;
+ background:#e8dfd3;pointer-events:none;
+}
+.redcarpert-bride-preview-details{
+ display:flex;flex-direction:column;min-width:0;min-height:0;
+ padding:16px clamp(18px,2.3vw,34px) 25px;
+}
+.redcarpert-bride-dialog-close{
+ position:relative;align-self:flex-end;display:grid;place-items:center;flex:0 0 auto;
+ width:38px;height:38px;padding:0;border:1px solid #d9cbb9;
+ background:#faf6ef;color:#574738;cursor:pointer;font:400 25px/1 sans-serif;
+}
 .redcarpert-bride-dialog-close:focus-visible{outline:2px solid #a58055;outline-offset:2px;}
-@media(max-width:900px){.redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}}
+.redcarpert-bride-dialog figcaption{
+ display:flex;flex:1;justify-content:center;flex-direction:column;gap:clamp(12px,2.1vw,22px);
+ min-height:0;margin:0;padding:8px 0;text-align:left;
+}
+.redcarpert-bride-preview-eyebrow{
+ color:#a68c6d;font:500 10px/1.5 Montserrat,sans-serif;letter-spacing:.13em;
+}
+.redcarpert-bride-preview-title{
+ color:#5f4e3d;font:400 clamp(24px,2.4vw,34px)/1.24 Georgia,serif;
+}
+.redcarpert-bride-preview-rule{width:44px;height:1px;background:#c5ad8f;}
+.redcarpert-bride-dialog figcaption small{
+ display:block;font:400 12px/1.6 "Open Sans",sans-serif;color:#87796b;
+}
+.redcarpert-bride-preview-disclosure{max-width:250px;}
+@media(max-width:900px){
+ .redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+}
+@media(max-width:600px){
+ .redcarpert-bride-dialog{width:min(500px,94vw);max-width:94vw;}
+ .redcarpert-bride-dialog-inner{
+  display:flex;flex-direction:column;padding:6px;width:100%;
+ }
+ .redcarpert-bride-preview-media{height:min(51dvh,490px);}
+ .redcarpert-bride-preview-details{padding:8px 16px 13px;}
+ .redcarpert-bride-dialog-close{order:2;margin-left:auto;width:34px;height:34px;}
+ .redcarpert-bride-dialog figcaption{gap:7px;padding:4px 0 0;}
+ .redcarpert-bride-preview-eyebrow{font-size:9px;}
+ .redcarpert-bride-preview-title{font-size:clamp(21px,5vw,26px);}
+ .redcarpert-bride-preview-rule{display:none;}
+ .redcarpert-bride-dialog figcaption small{font-size:10px;line-height:1.4;}
+ .redcarpert-bride-preview-disclosure{max-width:none;}
+}
 @media(max-width:480px){
  .redcarpert-inspiration-grid[data-brides-gallery]{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
- .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption{min-height:41px;padding:8px 0 1px;font-size:11px;}
+ .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption{
+  min-height:41px;padding:8px 0 1px;font-size:11px;
+ }
  .redcarpert-bride-accent-art{padding:10px;gap:7px;}
  .redcarpert-bride-accent-title{font-size:clamp(13px,4vw,21px);}
- .redcarpert-bride-dialog,.redcarpert-bride-dialog-inner{max-width:94vw;}
- .redcarpert-bride-dialog-inner{padding:5px;}
- .redcarpert-bride-dialog img{max-width:calc(94vw - 10px);}
 }
 @media(prefers-reduced-motion:reduce){.redcarpert-bride-card button img{transition:none;}}

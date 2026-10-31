@@ -14,14 +14,6 @@ function randomIndex(max) {
   }
   return Math.floor(Math.random()*max);
 }
-function shuffle(nodes) {
-  const arr=[...nodes];
-  for(let i=arr.length-1;i>0;i--){
-    const j=randomIndex(i+1);
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-  return arr;
-}
 /** Progressive enhancement: static images work even if this module cannot run. */
 export function initializeBridesGallery() {
   const grid=document.querySelector('[data-brides-gallery]');
@@ -45,7 +37,9 @@ export function initializeBridesGallery() {
     ['REDCARPERT','Love in every detail'],
   ];
   const shadeSlots=new Set(BRIDES_PATTERNS[chosen]);
-  const images=shuffle(photos);
+  // Preserve the supplied gallery order on every visit. Only the six shade
+  // positions vary between the five curated arrangements.
+  const images=photos;
   const arranged=[];
   let pi=0,si=0;
   for(let i=0;i<images.length+shadeSlots.size;i++){
