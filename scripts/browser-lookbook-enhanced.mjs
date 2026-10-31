@@ -79,10 +79,16 @@ try {
       console.log('Mobile enhanced swipe target',JSON.stringify({bounds,x1,x2,y,target}));
       const session=await page.context().newCDPSession(page);
       await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x1,y}]});
-      for(let i=1;i<=6;i++){
-        await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x1+(x2-x1)*i/6,y}]});
-        await page.waitForTimeout(55);
+      // StPageFlip treats a gesture as a swipe only when it finishes within
+      // 250 ms. Six 55-ms pauses were intentionally producing a drag, not a
+      // swipe; dispatch continuous motion without artificial slow delays.
+      const started=Date.now();
+      for(let i=1;i<=5;i++){
+        await session.send('Input.dispatchTouchEvent',{
+          type:'touchMove',touchPoints:[{x:x1+(x2-x1)*i/5,y}]
+        });
       }
+      console.log('Mobile swipe gesture dispatch duration',Date.now()-started,'ms');
       await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
       position=await progresses(1,1);
     }
