@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import { bridalGalleryPhotos } from "@/data/bridal-gallery";
+import { bridalGalleryPhotos } from "../data/bridal-gallery.ts";
 
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[]): DocumentElement => ({ tag, attrs, children });
 const elements = (list: DocumentNode[]) => list.filter((x): x is DocumentElement => typeof x !== "string");
