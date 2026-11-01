@@ -12,7 +12,7 @@ if(route==='/digital-lookbook'){
  await page.waitForTimeout(1100);
  assert.match(await page.locator('[data-book-status]').textContent(),/Page 1 of 10/);
 }
-await page.locator('#ht-ctc-chat').click();assert(await page.locator('dialog').evaluate(d=>d.open));await page.keyboard.press('Escape');assert(!(await page.locator('dialog').evaluate(d=>d.open)));
+await page.locator('#ht-ctc-chat').click();assert(await page.locator('#enquiry-preview').evaluate(d=>d.open));await page.keyboard.press('Escape');assert(!(await page.locator('#enquiry-preview').evaluate(d=>d.open)));
 await page.reload({waitUntil:'domcontentloaded'});await page.waitForTimeout(2200);
 
 assert.deepEqual(errors,[],route+' JavaScript errors');assert.deepEqual(failed,[],route+' failed resources');assert.deepEqual(metrics.broken,[],route+' broken images');assert(metrics.bodyWidth<=width+1,route+' horizontal overflow');results.push({width,route,...metrics,errors,failed});await page.close();}
