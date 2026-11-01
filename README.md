@@ -26,7 +26,7 @@ Run `npm run setup` to install Chromium, then `npm run test:browser` against the
 
 The repository GitHub Pages workflow validates pushes to `main`, but **does not deploy automatically**. Deployment requires an explicitly approved manual workflow dispatch on `main`; configure environment protection separately. The Implementation 11 verification workflow checks its implementation branch only and never deploys.
 
-The fitting-enquiry interaction is a **non-sending preview**; no WhatsApp Business recipient, booking service, payments, confirmed product inventory, studio address or opening hours have been configured. Do not publish such information without client approval.
+The fitting-enquiry interaction now opens a **live WhatsApp chat at +27 68 045 8811** only after a visitor reviews the prefilled message and selects Continue to WhatsApp; no message is sent automatically. Sample-detail messages name their selected demonstration dress. No booking backend, payments, confirmed inventory, studio address or opening hours have been configured. The owner reports having obtained permission to use the retained reference-derived design/theme assets; independent licensing documentation has not been inspected.
 
 ## Project layout
 
@@ -49,4 +49,4 @@ The `Verify static Redcarpert site` GitHub Actions workflow validates implementa
 
 ## Final MVP launch checklist
 
-Implementation 15 prepares this static prototype for a controlled GitHub Pages launch without publishing it. See [final release readiness and outstanding approvals](docs/implementation-15-release-readiness.md). CI now verifies Redcarpert browser-tab metadata on all routes, guards against inherited third-party outbound links, and ensures WhatsApp remains non-sending and deployment explicitly manual. A green CI result does not constitute client publishing approval, image/theme licensing clearance or real-device Safari/Firefox signoff.
+Implementation 15 prepares this static prototype for a controlled GitHub Pages launch without publishing it. See [final release readiness and outstanding approvals](docs/implementation-15-release-readiness.md). CI now verifies Redcarpert browser-tab metadata on all routes, guards against inherited third-party outbound links, and ensures the approved, prefilled live WhatsApp destination is the only allowed messaging target and deployment remains explicitly manual. A green CI result does not constitute separate public deployment approval, independent verification of rights, or real-device Safari/Firefox signoff.
