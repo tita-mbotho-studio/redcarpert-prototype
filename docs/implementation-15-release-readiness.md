@@ -11,13 +11,13 @@
 - **Wedding Dresses:** eight remote Pexels demonstration photographs, square card thumbnails, category filter.
 - **Our Brides:** 18 remote sample photographs in fixed order with six complementary shade cards randomized between five curated patterns; square cards and full-photo preview.
 - **Digital Lookbook:** ten-page online reader with a PDF containing the original two sample pictures.
-- **Fitting enquiry:** explicit non-sending WhatsApp preview. No verified recipient number, booking backend, prices, sizes or inventory.
+- **Fitting enquiry:** live WhatsApp destination **+27 68 045 8811** (South Africa; `https://wa.me/27680458811`). Each existing sample-dress preview has its own prefilled fitting enquiry. The review dialog requires a deliberate **Continue to WhatsApp** action; the visitor must still press Send in WhatsApp. No backend, checkout, prices, sizes or verified inventory.
 
 ## Automated release checks
 
 - Source tests, ESLint, TypeScript, Vite production build and static artifact integrity.
 - All public pages have Redcarpert-branded page titles/descriptions, not inherited Bridal Vanesa catalogue titles.
-- No active external WhatsApp destination or unapproved external outbound links appear in the generated HTML.
+- The only approved external enquiry destination is `https://wa.me/27680458811?text=...` with the full, URL-encoded, route-specific message; no other outbound links or captured WhatsApp numbers are allowed.
 - No captured reference-site image, script or stylesheet `src`/`href` points to the reference site's host.
 - GitHub Pages deploy action is guarded by a manual `workflow_dispatch` with `approve_deployment` defaulting to `false`.
 - Browser regressions cover the catalogue, filters, pages, 1440/768/390 viewports, mobile simulation, ten-page lookbook and preview interactions.
@@ -27,8 +27,8 @@
 ## Manual gates not yet confirmed
 
 - [ ] Client approves whether the sample-content prototype may be published or whether real photographs and text must be supplied first.
-- [ ] Client supplies and approves WhatsApp Business number, address, hours, and fitting information before enabling *real* enquiries. Keep preview-only if this is a demo release.
-- [ ] Confirm rights to use the **retained WordPress-derived theme scripts/styles/fonts and reference-inspired design** before public release. The original captured source belongs to a third party; do not infer a publishing licence from technical success.
+- [x] Client supplied a live WhatsApp contact, local number `0680458811`, formatted as `+27 68 045 8811` for display and `27680458811` for wa.me. Real prefilled chats open only after the visitor reviews the message and selects Continue to WhatsApp. Confirm registration and delivery with an actual device before publication.\n- [ ] Confirm any studio address, opening hours and fitting policies the client wants shown. Do not invent details.
+- [x] User reports obtaining permission for the retained **reference-derived design/theme assets** on 1 November 2026. This is an owner attestation; the written permission or licence scope has not been independently inspected. Keep the permission documentation with the business records and check it covers all third-party assets intended for public publication.
 - [ ] Verify external Pexels URL availability, appropriateness and usage terms in a connected browser. Browser regressions may stub remote images.
 - [ ] Test on a real iOS Safari device and Firefox, particularly gallery previews, mobile menu, scroll handoff and page turns. Existing Playwright coverage uses Chromium.
 - [ ] Obtain final client and developer visual signoff at 1440px, 768px and 390px.
@@ -43,4 +43,4 @@
 4. After client readiness and explicit publishing approval, manually run the workflow on **main** with `approve_deployment=true`. Never modify the guard to deploy automatically.
 5. Confirm the actual published Pages URL, page titles, image loading, catalogue categories, gallery modal, mobile navigation, sample enquiry, lookbook and PDF.
 
-**Release state:** candidate for testing and review. **Do not deploy until the manual gates are settled.**
+**Release state:** owner-confirmed permission and live WhatsApp destination supplied; readiness code remains a candidate for final review and real-device verification. **Do not deploy until explicit publishing authorization and remaining manual gates are settled.**
