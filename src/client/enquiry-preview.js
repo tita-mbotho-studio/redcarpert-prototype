@@ -1,4 +1,4 @@
-/** Accessible non-sending fitting enquiry preview. */
+/** Accessible fitting enquiry review. External WhatsApp opens only on explicit user click. */
 export function initializeEnquiryPreview() {
 const dialog = document.querySelector('#enquiry-preview');
 if (!dialog) return;
@@ -13,9 +13,10 @@ window.addEventListener('keydown', event => {
   if (dialog.open) {
     event.stopImmediatePropagation();
     if (event.key === 'Escape') { event.preventDefault(); dialog.close(); }
-    const buttons = [...dialog.querySelectorAll('button')];
-    if (event.key === 'Tab' && event.shiftKey && document.activeElement === buttons[0]) { event.preventDefault(); buttons.at(-1).focus(); }
-    else if (event.key === 'Tab' && !event.shiftKey && document.activeElement === buttons.at(-1)) { event.preventDefault(); buttons[0].focus(); }
+    // The real WhatsApp handoff is an anchor; include it in the dialog tab order.
+    const controls = [...dialog.querySelectorAll('a[href], button')];
+    if (event.key === 'Tab' && event.shiftKey && document.activeElement === controls[0]) { event.preventDefault(); controls.at(-1).focus(); }
+    else if (event.key === 'Tab' && !event.shiftKey && document.activeElement === controls.at(-1)) { event.preventDefault(); controls[0].focus(); }
     return;
   }
   const control = event.target.closest?.('#ht-ctc-chat, [data-whatsapp-preview]');
