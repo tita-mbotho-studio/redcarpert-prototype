@@ -70,17 +70,17 @@ export function initializeBridesGallery() {
   const dialog=document.querySelector('#redcarpert-bride-preview');
   if(!(dialog instanceof HTMLDialogElement))return;
   const preview=dialog.querySelector('[data-bride-preview-image]');
-  const caption=dialog.querySelector('[data-bride-preview-caption]');
-  const credit=dialog.querySelector('[data-bride-preview-credit]');
+
   let opener=null;
   grid.addEventListener('click',event=>{
     const button=event.target.closest('button[data-bride-preview]');
     if(!button || !grid.contains(button))return;
     const img=button.querySelector('img');if(!img)return;
     opener=button;
-    preview.src=img.currentSrc||img.src;preview.alt=img.alt;
-    caption.textContent=button.dataset.bridalCaption||'Bridal inspiration';
-    credit.textContent='Sample photography · '+(button.dataset.bridalPhotographer||'Pexels');
+    // Use the original remote image, not a cropped canvas or thumbnail.
+    // The dialog preserves its natural aspect ratio with object-fit: contain.
+    preview.src=img.currentSrc||img.src;
+    preview.alt=img.alt;
     dialog.showModal();
   });
   dialog.querySelector('[data-bride-preview-close]').addEventListener('click',()=>dialog.close());

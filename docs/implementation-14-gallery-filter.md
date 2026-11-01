@@ -43,3 +43,9 @@ The original page had a 4% inset on each side of its generic content box. The ca
 
 ### Final square-card refinement
 Wedding Dresses (including the Mermaid and Ball Gown category listing pages) and Our Brides use square 1:1 photo frames with the same card widths at 1440px, 768px and 390px. All shade-card artwork is also square. Images crop with `object-fit: cover`, never stretch; photo captions remain below their frames. The expanded Our Brides modal stays a wide editorial preview, and product-detail zoom frames stay portrait. The existing five curated shade arrangements and fixed 18-photo sequence are unchanged.
+
+### Final screenshot-based gallery refinement
+- Make the visible gallery tiles identical in square image dimensions and edge treatment to the catalogue, eliminating inherited button rounding and padding. The photo caption remains outside the square surface.
+- Keep the 18 images in order while randomized shade cards shift positions.
+- Centre the bridal introduction (heading and description) and the closing sample-photo disclaimer.
+- The expanded photo preview is image-only (plus accessible close button). Show the complete, uncropped remote image at its native aspect ratio, constrained within the viewport; backdrop blur and Escape/outside-click dismissal remain.

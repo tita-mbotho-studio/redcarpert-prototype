@@ -48,80 +48,145 @@
 .redcarpert-bride-accent-eyebrow {font:500 clamp(8px,.8vw,11px)/1.4 Montserrat,sans-serif;letter-spacing:.14em;color:#9b876f;}
 .redcarpert-bride-accent-title {font:400 clamp(18px,2.3vw,32px)/1.25 Georgia,serif;color:#776350;}
 .redcarpert-bride-accent-rule{width:32px;height:1px;background:#baa48e;}
-/* Wide editorial preview card: substantial at desktop, compact on phones. */
+/* Our Brides introduction and disclaimer are centered within the catalogue shell. */
+.redcarpert-editorial[data-editorial-route="/our-brides"] .redcarpert-brides-intro {
+  text-align:center;
+  max-width:850px;
+  margin:18px auto 32px;
+}
+.redcarpert-brides-intro h2 {
+  text-align:center;
+  margin:0 auto 14px;
+  color:#ddb577;
+  font:400 clamp(23px,2.5vw,31px)/1.35 Montserrat,sans-serif;
+}
+.redcarpert-brides-intro p {
+  text-align:center;
+  max-width:850px;
+  margin:0 auto;
+}
+.redcarpert-editorial[data-editorial-route="/our-brides"] > .redcarpert-brides-disclosure {
+  text-align:center;
+  max-width:850px;
+  margin:25px auto 30px;
+}
+/* The visible photographic tile mirrors the catalogue's square image surface.
+   Text is a separate caption below the square, just as product titles are. */
+.redcarpert-inspiration-grid[data-brides-gallery] .redcarpert-bride-card > button[data-bride-preview] {
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:1 / 1;
+  box-sizing:border-box;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  overflow:hidden;
+  line-height:0;
+  background:#fff;
+}
+.redcarpert-inspiration-grid[data-brides-gallery] .redcarpert-bride-card > button[data-bride-preview] > img {
+  display:block;
+  width:100% !important;
+  height:100% !important;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+  object-position:center 26%;
+  margin:0 !important;
+  border-radius:0 !important;
+}
+.redcarpert-inspiration-grid[data-brides-gallery] .redcarpert-bride-accent-art {
+  aspect-ratio:1 / 1;
+  border-radius:0;
+}
+/* Photo-only modal: native dimensions, zero cropping, no copy panel.
+   The image scales down to the viewport but never stretches. */
 .redcarpert-bride-dialog {
- box-sizing:border-box;width:min(860px,90vw);max-width:90vw;max-height:88dvh;
- padding:0;border:0;overflow:visible;background:transparent;color:#584b40;
+  position:fixed;
+  box-sizing:border-box;
+  width:max-content;
+  max-width:calc(100vw - 32px);
+  max-height:calc(100dvh - 32px);
+  padding:0;
+  margin:auto;
+  border:0;
+  overflow:visible;
+  background:transparent;
+  color:#584b40;
 }
-.redcarpert-bride-dialog::backdrop{
- background:rgba(25,20,16,.48);
- backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+.redcarpert-bride-dialog::backdrop {
+  background:rgba(25,20,16,.52);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
 }
-.redcarpert-bride-dialog-inner{
- box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.8fr);
- width:100%;min-width:0;margin:0;padding:10px;background:#fbf8f3;
- box-shadow:0 22px 70px rgba(25,18,12,.26);
+.redcarpert-bride-dialog-inner {
+  position:relative;
+  display:block;
+  box-sizing:border-box;
+  width:max-content;
+  max-width:100%;
+  margin:0;
+  padding:clamp(5px,1vw,10px);
+  background:#fbf8f3;
+  box-shadow:0 22px 70px rgba(25,18,12,.26);
 }
-.redcarpert-bride-preview-media{
- display:flex;align-items:center;justify-content:center;min-width:0;
- height:min(66dvh,650px);overflow:hidden;background:#e9dfd4;
+.redcarpert-bride-dialog .redcarpert-bride-preview-image {
+  display:block;
+  box-sizing:content-box;
+  width:auto !important;
+  height:auto !important;
+  max-width:min(960px,calc(100vw - 52px)) !important;
+  max-height:calc(100dvh - 52px) !important;
+  min-width:0;
+  object-fit:contain !important;
+  object-position:center center;
+  background:#ece5dc;
+  border:0;
+  border-radius:0;
+  pointer-events:none;
 }
-.redcarpert-bride-dialog img{
- display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%;
- background:#e8dfd3;pointer-events:none;
+.redcarpert-bride-dialog .redcarpert-bride-dialog-close {
+  position:absolute;
+  z-index:5;
+  top:clamp(11px,1.8vw,19px);
+  right:clamp(11px,1.8vw,19px);
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  padding:0;
+  margin:0;
+  border:1px solid #d9cbb9;
+  border-radius:0;
+  background:rgba(251,248,242,.95);
+  color:#574738;
+  cursor:pointer;
+  font:400 25px/1 sans-serif;
 }
-.redcarpert-bride-preview-details{
- display:flex;flex-direction:column;min-width:0;min-height:0;
- padding:16px clamp(18px,2.3vw,34px) 25px;
+.redcarpert-bride-dialog-close:focus-visible {
+  outline:2px solid #a58055;
+  outline-offset:2px;
 }
-.redcarpert-bride-dialog-close{
- position:relative;align-self:flex-end;display:grid;place-items:center;flex:0 0 auto;
- width:38px;height:38px;padding:0;border:1px solid #d9cbb9;
- background:#faf6ef;color:#574738;cursor:pointer;font:400 25px/1 sans-serif;
+@media(max-width:768px) {
+  .redcarpert-inspiration-grid[data-brides-gallery] {
+    grid-template-columns:repeat(2,minmax(0,47.7%));
+    column-gap:4.6%;
+    row-gap:clamp(14px,3vw,25px);
+  }
 }
-.redcarpert-bride-dialog-close:focus-visible{outline:2px solid #a58055;outline-offset:2px;}
-.redcarpert-bride-dialog figcaption{
- display:flex;flex:1;justify-content:center;flex-direction:column;gap:clamp(12px,2.1vw,22px);
- min-height:0;margin:0;padding:8px 0;text-align:left;
-}
-.redcarpert-bride-preview-eyebrow{
- color:#a68c6d;font:500 10px/1.5 Montserrat,sans-serif;letter-spacing:.13em;
-}
-.redcarpert-bride-preview-title{
- color:#5f4e3d;font:400 clamp(24px,2.4vw,34px)/1.24 Georgia,serif;
-}
-.redcarpert-bride-preview-rule{width:44px;height:1px;background:#c5ad8f;}
-.redcarpert-bride-dialog figcaption small{
- display:block;font:400 12px/1.6 "Open Sans",sans-serif;color:#87796b;
-}
-.redcarpert-bride-preview-disclosure{max-width:250px;}
-@media(max-width:768px){
- .redcarpert-inspiration-grid[data-brides-gallery]{
-  grid-template-columns:repeat(2,minmax(0,47.7%));
-  column-gap:4.6%;row-gap:clamp(14px,3vw,25px);
- }
-}
-@media(max-width:600px){
- .redcarpert-bride-dialog{width:min(500px,94vw);max-width:94vw;}
- .redcarpert-bride-dialog-inner{
-  display:flex;flex-direction:column;padding:6px;width:100%;
- }
- .redcarpert-bride-preview-media{height:min(51dvh,490px);}
- .redcarpert-bride-preview-details{padding:8px 16px 13px;}
- .redcarpert-bride-dialog-close{order:2;margin-left:auto;width:34px;height:34px;}
- .redcarpert-bride-dialog figcaption{gap:7px;padding:4px 0 0;}
- .redcarpert-bride-preview-eyebrow{font-size:9px;}
- .redcarpert-bride-preview-title{font-size:clamp(21px,5vw,26px);}
- .redcarpert-bride-preview-rule{display:none;}
- .redcarpert-bride-dialog figcaption small{font-size:10px;line-height:1.4;}
- .redcarpert-bride-preview-disclosure{max-width:none;}
-}
-@media(max-width:480px){
- .redcarpert-inspiration-grid[data-brides-gallery]{row-gap:16px;}
- .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption{
-  min-height:41px;padding:8px 0 1px;font-size:11px;
- }
- .redcarpert-bride-accent-art{padding:10px;gap:7px;}
- .redcarpert-bride-accent-title{font-size:clamp(13px,4vw,21px);}
+@media(max-width:480px) {
+  .redcarpert-inspiration-grid[data-brides-gallery] {row-gap:16px;}
+  .redcarpert-bride-card figcaption,.redcarpert-bride-accent-caption {
+    min-height:41px;
+    padding:8px 0 1px;
+    font-size:11px;
+  }
+  .redcarpert-bride-accent-art {padding:10px;gap:7px;}
+  .redcarpert-bride-accent-title {font-size:clamp(13px,4vw,21px);}
+  .redcarpert-bride-dialog .redcarpert-bride-dialog-close {
+    top:10px;right:10px;width:34px;height:34px;
+  }
 }
 @media(prefers-reduced-motion:reduce){.redcarpert-bride-card button img{transition:none;}}

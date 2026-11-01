@@ -20,8 +20,10 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
   if (route === "/our-brides") return [
-    h("Bridal Inspiration"),
-    p("An editorial gallery of bridal moments and silhouettes. These are sample Pexels photographs, not pictures of Redcarpert clients or completed fittings."),
+    node("div", { class: "redcarpert-brides-intro" }, [
+      h("Bridal Inspiration"),
+      p("An editorial gallery of bridal moments and silhouettes. These are sample Pexels photographs, not pictures of Redcarpert clients or completed fittings."),
+    ]),
     node("div", { class: "redcarpert-inspiration-grid", "data-brides-gallery": "true", "aria-label": "Sample bridal inspiration photographs" }, bridalGalleryPhotos.map((photo, index) =>
       node("figure", { class: "redcarpert-bride-card", "data-bride-card": photo.id }, [
         node("button", {
@@ -37,25 +39,17 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
         node("figcaption", {}, [photo.caption]),
       ])
     )),
-    p("Gallery inspiration only. Client-approved photographs will replace these samples when available."),
+    node("p", { class: "redcarpert-brides-disclosure" },
+      ["Gallery inspiration only. Client-approved photographs will replace these samples when available."]),
     node("dialog", {
       id: "redcarpert-bride-preview", class: "redcarpert-bride-dialog",
       "aria-label": "Enlarged bridal inspiration photograph"
     }, [
       node("figure", { class: "redcarpert-bride-dialog-inner" }, [
-        node("div", { class: "redcarpert-bride-preview-media" }, [
-          node("img", { "data-bride-preview-image": "", alt: "Enlarged bridal inspiration photograph", decoding: "async" }, []),
-        ]),
-        node("div", { class: "redcarpert-bride-preview-details" }, [
-          node("button", { class: "redcarpert-bride-dialog-close", type: "button", "data-bride-preview-close": "", "aria-label": "Close photo preview" }, ["×"]),
-          node("figcaption", {}, [
-            node("span", { class: "redcarpert-bride-preview-eyebrow" }, ["REDCARPERT / THE BRIDAL EDIT"]),
-            node("span", { class: "redcarpert-bride-preview-title", "data-bride-preview-caption": "" }, ["Bridal inspiration"]),
-            node("span", { class: "redcarpert-bride-preview-rule", "aria-hidden": "true" }, []),
-            node("small", { "data-bride-preview-credit": "" }, ["Sample photography"]),
-            node("small", { class: "redcarpert-bride-preview-disclosure" }, ["Editorial inspiration only — not photographs of Redcarpert clients."]),
-          ]),
-        ]),
+        node("img", { class: "redcarpert-bride-preview-image", "data-bride-preview-image": "",
+          alt: "Enlarged bridal inspiration photograph", decoding: "async" }, []),
+        node("button", { class: "redcarpert-bride-dialog-close", type: "button",
+          "data-bride-preview-close": "", "aria-label": "Close photo preview" }, ["×"]),
       ]),
     ]),
   ];

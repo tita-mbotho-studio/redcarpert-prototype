@@ -48,7 +48,17 @@ test('Our Brides retains the site shell and renders all 18 preview buttons plus 
     assert.equal(image.attrs.width,'370');
     assert.equal(image.attrs.height,'370','Our Brides source frames are square');
   }
-  assert.equal(inner.filter(n=>n.tag==='dialog'&&n.attrs.id==='redcarpert-bride-preview').length,1);
+  const modal=inner.find(n=>n.tag==='dialog'&&n.attrs.id==='redcarpert-bride-preview');
+  assert(modal);
+  const dialogNodes=descendants(modal.children);
+  assert.equal(dialogNodes.filter(n=>n.tag==='img').length,1,'modal has a single photo');
+  assert.equal(dialogNodes.filter(n=>n.tag==='button'&&n.attrs['data-bride-preview-close']!==undefined).length,1,
+    'modal has an accessible close control');
+  assert.equal(dialogNodes.filter(n=>n.tag==='figcaption'||n.attrs.class==='redcarpert-bride-preview-details').length,0,
+    'modal has no visible text panel');
+  const intro=inner.find(n=>n.attrs.class==='redcarpert-brides-intro');
+  const outro=inner.find(n=>n.attrs.class==='redcarpert-brides-disclosure');
+  assert(intro&&outro,'both editorial text blocks explicitly centered');
   for(const element of inner.filter(n=>n.attrs.id==='header'||n.attrs.id==='footer')){
     assert(descendants(original.nodes).includes(element),'shell identity preserved');
   }
