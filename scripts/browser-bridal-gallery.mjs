@@ -5,7 +5,19 @@ try{
   for(const width of [1440,768,390]){
     const page=await browser.newPage({viewport:{width,height:900}});
     const errors=[];page.on('pageerror',error=>errors.push(error.message));
-    await page.route('https://images.pexels.com/**',route=>route.abort());
+    // Deterministic remote-image stand-ins let us verify *actual* image
+    // containment for both portrait and landscape aspect ratios without
+    // depending on third-party CDN connectivity in CI.
+    await page.route('https://images.pexels.com/**',route=>{
+      const landscape=route.request().url().includes('/39980506/');
+      const w=landscape?900:600;
+      const h=landscape?600:900;
+      return route.fulfill({
+        status:200,contentType:'image/svg+xml',
+        body:'<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+
+          '" viewBox="0 0 '+w+' '+h+'"><rect width="100%" height="100%" fill="#e7dcd0"/></svg>',
+      });
+    });
     await page.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
     const controls=page.locator('[data-catalogue-filter]');
     const samples=page.locator('[data-catalogue-id]');
@@ -71,8 +83,25 @@ try{
     assert(Math.abs(geometry.ratio-1)<0.015,'Our Brides photographs must be square');
     assert.equal(geometry.columns,width===1440?4:2,'responsive column count');
     assert.equal(geometry.overflow,false,'gallery horizontal overflow');
+    const align=await page.evaluate(()=>{
+      const intro=document.querySelector('.redcarpert-brides-intro');
+      const footer=document.querySelector('.redcarpert-brides-disclosure');
+      const title=intro?.querySelector('h2');
+      const para=intro?.querySelector('p');
+      return {intro:getComputedStyle(intro).textAlign,
+        title:getComputedStyle(title).textAlign,
+        paragraph:getComputedStyle(para).textAlign,
+        closing:getComputedStyle(footer).textAlign};
+    });
+    assert.deepEqual(align,{intro:'center',title:'center',paragraph:'center',closing:'center'},
+      'intro, heading and closing disclaimer are centered');
     const brideRect=await getRect(page.locator('[data-bride-card] img'));
+    const brideButtonRect=await getRect(page.locator('[data-bride-card] button[data-bride-preview]'));
     expectSquare(brideRect,'Our Brides photograph');
+    expectSquare(brideButtonRect,'Our Brides complete clickable photo frame');
+    assert(Math.abs(brideRect.width-brideButtonRect.width)<1,'image fills the square photo frame');
+    assert.equal(await page.locator('[data-bride-card] button[data-bride-preview]').first().evaluate(
+      element=>getComputedStyle(element).borderRadius),'0px','frame has catalogue-style square corners');
     const measured=brideRect.width;
     const galleryContainerWidth=await gallery.evaluate(element=>element.getBoundingClientRect().width);
     console.log('Gallery/catalogue dimensions',width,
@@ -94,27 +123,45 @@ try{
     assert.equal(await dialog.evaluate(e=>getComputedStyle(e,'::backdrop').backdropFilter.includes('blur')),true,'blurred overlay');
     const bounds=await dialog.boundingBox();
     assert(bounds && bounds.width<width && bounds.height<=900,'preview stays inside viewport');
-    const previewMetrics=await page.evaluate(()=>{
-      const card=document.querySelector('#redcarpert-bride-preview .redcarpert-bride-dialog-inner');
-      const img=card.querySelector('img[data-bride-preview-image]');
-      const caption=card.querySelector('.redcarpert-bride-preview-details');
-      return {cardWidth:card.getBoundingClientRect().width,
-        imgWidth:img.getBoundingClientRect().width,
-        imageHeight:img.getBoundingClientRect().height,
-        detailWidth:caption.getBoundingClientRect().width,
-        cardColumns:getComputedStyle(card).gridTemplateColumns.split(' ').length};
-    });
-    assert(previewMetrics.cardWidth >= Math.min(750,width*0.72),'preview should be a substantial, wide card');
-    if(width===1440){
-      assert(previewMetrics.cardWidth>=750,'desktop editorial preview card should be wide');
-      assert.equal(previewMetrics.cardColumns,2,'desktop preview should have image and copy side by side');
-      assert(previewMetrics.detailWidth>=210,'desktop caption panel must be useful and readable');
-    }
+    assert.equal(await dialog.locator('figcaption,.redcarpert-bride-preview-details').count(),0,
+      'preview is image-only, without a copy panel');
+    const preview=dialog.locator('img[data-bride-preview-image]');
+    const ensureFullPreview=async (expected,format)=>{
+      await page.waitForFunction(()=>{
+        const image=document.querySelector('#redcarpert-bride-preview img[data-bride-preview-image]');
+        return image?.complete && image.naturalWidth>0 && image.naturalHeight>0;
+      });
+      const details=await preview.evaluate(image=>{
+        const rect=image.getBoundingClientRect();
+        const card=image.closest('.redcarpert-bride-dialog-inner').getBoundingClientRect();
+        const dialog=image.closest('dialog').getBoundingClientRect();
+        return {naturalRatio:image.naturalWidth/image.naturalHeight,
+          displayedRatio:rect.width/rect.height,objectFit:getComputedStyle(image).objectFit,
+          width:rect.width,height:rect.height,
+          cardWidth:card.width,cardHeight:card.height,
+          dialogWidth:dialog.width,dialogHeight:dialog.height};
+      });
+      assert(Math.abs(details.naturalRatio-expected)<0.01,format+' test asset ratio');
+      assert(Math.abs(details.displayedRatio-details.naturalRatio)<0.025,
+        format+' uncropped image keeps its natural width-to-height ratio');
+      assert.equal(details.objectFit,'contain',format+' uses object-fit contain');
+      assert(details.width>0&&details.height>0&&details.cardWidth<=width&&details.dialogWidth<=width,
+        format+' preview stays inside viewport width');
+      assert(details.cardHeight<=900&&details.dialogHeight<=900,
+        format+' preview stays inside viewport height');
+    };
+    await ensureFullPreview(600/900,'portrait');
     await page.keyboard.press('Escape');
     assert.equal(await dialog.evaluate(e=>e.open),false,'Escape closes');
     await first.click();
     await page.locator('[data-bride-preview-close]').click();
     assert.equal(await dialog.evaluate(e=>e.open),false,'close button works');
+    // Landscape photographs must also fit in full instead of cropping.
+    await page.locator('[data-bride-card="inspiration-17"] button[data-bride-preview]').click();
+    assert(await dialog.evaluate(e=>e.open),'landscape preview opens');
+    await ensureFullPreview(900/600,'landscape');
+    await page.locator('[data-bride-preview-close]').click();
+    assert.equal(await dialog.evaluate(e=>e.open),false,'landscape close works');
     await page.reload({waitUntil:'domcontentloaded'});
     const next=Number(await gallery.getAttribute('data-gallery-pattern'));
     assert(next>=1&&next<=5&&next!==id,'refresh chooses different pattern');
