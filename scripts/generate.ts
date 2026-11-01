@@ -8,6 +8,7 @@ import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview';
 import { siteMetadata } from '../src/data/metadata';
 import { REPOSITORY_BASE } from '../src/config/site';
+import { buildWhatsAppUrl, WHATSAPP_DISPLAY_NUMBER } from '../src/config/whatsapp';
 import { validateCatalogue } from '../src/lib/validate-catalogue';
 import { escapeHtml, createNodeRenderer } from './lib/markup';
 import { assets, track, prefix, copyTrackedAssets } from './lib/assets';
@@ -26,7 +27,8 @@ const render = createNodeRenderer(routes);
 for(const route of routes) {
  const {document,product} = preparePage(route);
  const message = product ? sampleFittingMessage(product) : 'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
- const modal = `<dialog id="enquiry-preview" class="dialog" aria-labelledby="enquiry-title" aria-describedby="enquiry-notice"><p class="demo">Demonstration</p><h2 id="enquiry-title" class="title">WhatsApp Enquiry Preview</h2><p id="enquiry-notice" class="notice">Preview only — WhatsApp Business number not yet confirmed. No message will be sent.</p><p class="message">${escapeHtml(message)}</p><div class="actions"><button type="button" data-copy>Copy Message</button><button type="button" data-close>Close</button></div><p class="status" role="status"></p></dialog>`;
+ const whatsappHref = buildWhatsAppUrl(message);
+ const modal = `<dialog id="enquiry-preview" class="dialog" aria-labelledby="enquiry-title" aria-describedby="enquiry-notice"><p class="demo">Fitting enquiry</p><h2 id="enquiry-title" class="title">WhatsApp Enquiry Preview</h2><p id="enquiry-notice" class="notice">Review your message, then continue to WhatsApp at ${escapeHtml(WHATSAPP_DISPLAY_NUMBER)}. Nothing is sent until you press Send in WhatsApp.</p><p class="message">${escapeHtml(message)}</p><div class="actions"><a class="whatsapp-send" data-whatsapp-send href="${escapeHtml(whatsappHref)}" target="_blank" rel="noopener noreferrer">Continue to WhatsApp</a><button type="button" data-copy>Copy Message</button><button type="button" data-close>Close</button></div><p class="status" role="status"></p></dialog>`;
  const runtime = {bodyClass:document.bodyClass,htmlClass:document.htmlClass,scripts:document.scripts,themeConfig:document.themeConfig,postScripts:document.postScripts};
  let html = `<!doctype html><html lang="en-US" class="${escapeHtml(document.htmlClass)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(document.title||siteMetadata.title)}</title><meta name="description" content="${escapeHtml(document.description||siteMetadata.description)}"><link rel="icon" href="/seo/cropped-logo-2-1-32x32.png"><link rel="apple-touch-icon" href="/seo/cropped-logo-2-1-180x180.png">${document.styles.map(s=>s.href?`<link rel="stylesheet" href="${escapeHtml(s.href)}"${s.media?` media="${escapeHtml(s.media)}"`:''}>`:`<style>${s.css??''}</style>`).join('')}<style>${extraCss}</style></head><body class="${escapeHtml(document.bodyClass)}">${document.nodes.map(render).join('')}${modal}<script id="page-runtime" type="application/json">${JSON.stringify(runtime).replace(/</g,'\\u003c')}</script><script type="module" src="/src/client/main.js"></script></body></html>`;
  html = html.replaceAll('/digital-lookbook/pdf/','/digital-lookbook/Redcarpert-Sample-Lookbook.pdf');
