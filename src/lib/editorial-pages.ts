@@ -30,7 +30,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
           "aria-label": "Enlarge " + photo.caption + " (sample photograph)"
         }, [
           node("img", {
-            src: photo.image, alt: photo.alt, width: "370", height: "444",
+            src: photo.image, alt: photo.alt, width: "370", height: "370",
             loading: index < 4 ? "eager" : "lazy", decoding: "async"
           }, []),
         ]),

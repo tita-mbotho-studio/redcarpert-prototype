@@ -12,8 +12,15 @@ try{
     const visible=page.locator('[data-catalogue-id]:visible');
     await controls.waitFor();
     assert.equal(await samples.count(),8);assert.equal(await visible.count(),8);
-    const productImageWidth=await page.locator('[data-catalogue-id] img').first().evaluate(
-      element=>element.getBoundingClientRect().width);
+    const getRect=async locator=>locator.first().evaluate(element=>{
+      const rect=element.getBoundingClientRect();
+      return {width:rect.width,height:rect.height};
+    });
+    const expectSquare=(rect,context)=>assert(Math.abs(rect.width-rect.height)<2,
+      context+' must render a true square at '+width+'px: '+JSON.stringify(rect));
+    const productRect=await getRect(page.locator('[data-catalogue-id] img'));
+    expectSquare(productRect,'Wedding Dresses photograph');
+    const productImageWidth=productRect.width;
     const productGridWidth=await page.locator('ul.products[data-catalogue-preview]').evaluate(
       element=>element.getBoundingClientRect().width);
     const buttons=controls.locator('button[data-filter-category]');
@@ -32,12 +39,26 @@ try{
     assert.equal(await visible.count(),8);
     assert.equal(new URL(page.url()).searchParams.has('category'),false);
 
+    for(const category of ['mermaid','ball_gown']){
+      await page.goto('http://localhost:4173/redcarpert-prototype/product-category/'+category+'/',{waitUntil:'domcontentloaded'});
+      const categoryPhotos=page.locator('ul.products[data-catalogue-preview] [data-catalogue-id] img');
+      assert.equal(await categoryPhotos.count(),4,category+' has four sample photos');
+      for(const rectangle of await categoryPhotos.evaluateAll(nodes=>nodes.map(el=>{
+        const r=el.getBoundingClientRect();return {width:r.width,height:r.height};
+      })))expectSquare(rectangle,category+' category photograph');
+    }
+
     await page.goto('http://localhost:4173/redcarpert-prototype/our-brides/',{waitUntil:'domcontentloaded'});
     const gallery=page.locator('[data-brides-gallery]');
     await gallery.waitFor();
     const cards=gallery.locator('[data-bride-card]');
     assert.equal(await cards.count(),18);
     assert.equal(await gallery.locator('.redcarpert-bride-accent').count(),6);
+    for(const rect of await gallery.locator('.redcarpert-bride-accent-art').evaluateAll(nodes=>nodes.map(el=>{
+      const r=el.getBoundingClientRect();return {width:r.width,height:r.height};
+    }))){
+      expectSquare(rect,'complementary shade tile');
+    }
     assert.equal(await gallery.locator(':scope > *').count(),24);
     const id=Number(await gallery.getAttribute('data-gallery-pattern'));
     assert(id>=1&&id<=5,'selected one of five layouts');
@@ -47,11 +68,12 @@ try{
       const container=document.querySelector('[data-brides-gallery]');
       return {ratio:img.width/img.height,columns:getComputedStyle(container).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth+1};
     });
-    assert(Math.abs(geometry.ratio-370/444)<0.02,'photo ratio must match catalogue');
+    assert(Math.abs(geometry.ratio-1)<0.015,'Our Brides photographs must be square');
     assert.equal(geometry.columns,width===1440?4:2,'responsive column count');
     assert.equal(geometry.overflow,false,'gallery horizontal overflow');
-    const measured=await page.locator('[data-bride-card] img').first().evaluate(
-      element=>element.getBoundingClientRect().width);
+    const brideRect=await getRect(page.locator('[data-bride-card] img'));
+    expectSquare(brideRect,'Our Brides photograph');
+    const measured=brideRect.width;
     const galleryContainerWidth=await gallery.evaluate(element=>element.getBoundingClientRect().width);
     console.log('Gallery/catalogue dimensions',width,
       JSON.stringify({productImageWidth,measured,productGridWidth,galleryContainerWidth}));
@@ -59,6 +81,8 @@ try{
       'gallery must use same full-width content container as Wedding Dresses');
     assert(Math.abs(productImageWidth-measured)<=3,
       'gallery image width must closely match Wedding Dresses card image width');
+    assert(Math.abs(productRect.height-brideRect.height)<=3,
+      'square gallery image height must match Wedding Dresses card image height');
 
     // Photographs must retain their authored order as shade tiles vary by pattern.
     const galleryOrder=await cards.evaluateAll(nodes=>nodes.map(node=>node.dataset.brideCard));

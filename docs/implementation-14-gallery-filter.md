@@ -3,8 +3,8 @@
 Branch: implementation/14-catalogue-filter-brides-gallery. Implementation 13 main baseline. No merge or deployment before visual approval.
 
 ## Approved changes
-- On /product/, three working category filters: All Dresses / Mermaid / Ball Gown, preserving sample counts, card geometry and category routes.
-- On /our-brides/, 18 independent, credited Pexels sample photographs displayed as the same 370:444 image ratio as the catalogue, plus six complementary shade tiles in one of five predesigned layouts.
+- On /product/, three working category filters: All Dresses / Mermaid / Ball Gown, preserving sample counts, category routes, and four-column responsive card widths; all catalogue photographs are now square (1:1).
+- On /our-brides/, 18 independent, credited Pexels sample photographs displayed as the same square (1:1) photograph ratio as the catalogue, plus six complementary shade tiles in one of five predesigned layouts.
 - Four cards per desktop row, responsive two columns on tablet/mobile. Only the six shade positions randomize between five patterns on each visit; the 18 photograph positions retain their original sequence, including after refresh. sessionStorage prevents immediately repeating the pattern in the same tab. Stable during browsing.
 - Centered constrained image-card preview in native modal dialog, blurred and darkened backdrop, Escape, close button and outside click.
 - Source assets strictly remote; no downloaded photos and no claims about real Redcarpert clients.
@@ -40,3 +40,6 @@ All photos are illustrative, not confirmed Redcarpert customers. Pexels imagery 
 
 ### Exact catalogue geometry
 The original page had a 4% inset on each side of its generic content box. The catalogue removes that inset. The Our Brides shell now does the same using a page-specific class, alongside the same 20.1% desktop / 45.7% mobile image widths and matching gutter percentages (using 1cqw per tile side). Chromium checks compare the actual rendered widths at 1440, 768 and 390px.
+
+### Final square-card refinement
+Wedding Dresses (including the Mermaid and Ball Gown category listing pages) and Our Brides use square 1:1 photo frames with the same card widths at 1440px, 768px and 390px. All shade-card artwork is also square. Images crop with `object-fit: cover`, never stretch; photo captions remain below their frames. The expanded Our Brides modal stays a wide editorial preview, and product-detail zoom frames stay portrait. The existing five curated shade arrangements and fixed 18-photo sequence are unchanged.

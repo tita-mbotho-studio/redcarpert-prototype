@@ -44,6 +44,10 @@ test('Our Brides retains the site shell and renders all 18 preview buttons plus 
   assert.equal(descendants(grid.children).filter(n=>n.attrs['data-bride-card']).length,18);
   assert.equal(descendants(grid.children).filter(n=>n.attrs['data-bride-preview']).length,18);
   assert.equal(descendants(grid.children).filter(n=>n.tag==='img').length,18);
+  for(const image of descendants(grid.children).filter(n=>n.tag==='img')){
+    assert.equal(image.attrs.width,'370');
+    assert.equal(image.attrs.height,'370','Our Brides source frames are square');
+  }
   assert.equal(inner.filter(n=>n.tag==='dialog'&&n.attrs.id==='redcarpert-bride-preview').length,1);
   for(const element of inner.filter(n=>n.attrs.id==='header'||n.attrs.id==='footer')){
     assert(descendants(original.nodes).includes(element),'shell identity preserved');
