@@ -38,3 +38,26 @@
 }
 .dialog .actions button:focus-visible { outline: 2px solid #333; outline-offset: 3px; }
 .dialog .status { margin: 12px 0 0; min-height: 1.6em; }
+
+/* The approved live WhatsApp handoff shares the original restrained dialog controls. */
+.dialog .actions a.whatsapp-send {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  margin: 0;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background: #faf7f2;
+  color: #333;
+  font: inherit;
+  text-decoration: none;
+  text-transform: none;
+  cursor: pointer;
+}
+.dialog .actions a.whatsapp-send:hover { background: #f0e9dd; color: #333; }
+.dialog .actions a.whatsapp-send:focus-visible {
+  outline: 2px solid #333;
+  outline-offset: 3px;
+}
