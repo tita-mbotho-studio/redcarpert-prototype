@@ -45,3 +45,8 @@ Third-party theme effects remain temporarily to preserve the approved interactio
 The static generator is organized as `scripts/generate.ts` (entry point), `scripts/lib/prepare-page.ts` (approved content/adapters), `scripts/lib/markup.ts` (safe HTML serialization), and `scripts/lib/assets.ts` (local dependency collection and copying). The single repository subpath configuration is `src/config/site.ts`. Browser features have independent enquiry and lookbook-reader modules under `src/client/`. Keep the existing fullpage and gallery theme dependencies until their behaviour can be replaced and independently regression-tested.
 
 The `Verify static Redcarpert site` GitHub Actions workflow validates implementation branches and pull requests without deployment. Implementation 12 also checks generated HTML and PDF against the approved Implementation 11 baseline. See [the engineering hardening review](docs/implementation-12-hardening.md).
+
+
+## Final MVP launch checklist
+
+Implementation 15 prepares this static prototype for a controlled GitHub Pages launch without publishing it. See [final release readiness and outstanding approvals](docs/implementation-15-release-readiness.md). CI now verifies Redcarpert browser-tab metadata on all routes, guards against inherited third-party outbound links, and ensures WhatsApp remains non-sending and deployment explicitly manual. A green CI result does not constitute client publishing approval, image/theme licensing clearance or real-device Safari/Firefox signoff.
