@@ -124,7 +124,7 @@ test('Redcarpert browser-tab and touch icons are generated from the current bran
   {size:180,name:'redcarpert-touch-icon-v1-180.png',rel:'apple-touch-icon'},
  ];
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- for(const {size,name} of output){
+ for(const {size,name,rel} of output){
   const target='dist/redcarpert/brand/'+name;
   assert(existsSync(target),'missing generated icon: '+target);
   const expected=await sharp(source)
