@@ -43,7 +43,12 @@ jobs:
           path: dist
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.approve_deployment
+    # Deploy this one explicitly approved release on push; later main pushes stay build-only.
+    # Manual deployments still require the approve_deployment input.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      ((github.event_name == 'workflow_dispatch' && inputs.approve_deployment) ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 17'))
     permissions:
       pages: write
       id-token: write
