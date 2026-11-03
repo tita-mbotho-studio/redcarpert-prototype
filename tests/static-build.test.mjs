@@ -116,3 +116,32 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.match(yaml,/github\.event_name == 'workflow_dispatch' && inputs\.approve_deployment/);
   assert.match(yaml,/actions\/deploy-pages@/);
 });
+
+test('Redcarpert browser-tab and touch icons are generated from the new bridal monogram on every page', {skip:!available}, async()=>{
+ const source='public/redcarpert/brand/redcarpert-bridal-monogram.svg';
+ const output=[
+  {size:32,name:'redcarpert-bridal-favicon-v2-32.png',rel:'icon'},
+  {size:180,name:'redcarpert-bridal-touch-v2-180.png',rel:'apple-touch-icon'},
+ ];
+ const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
+ for(const {size,name,rel} of output){
+  const target='dist/redcarpert/brand/'+name;
+  assert(existsSync(target),'missing generated icon: '+target);
+  const expected=await sharp(source)
+    .resize(size,size,{fit:'contain',background:{r:0,g:0,b:0,alpha:1}}).png().toBuffer();
+  const actual=readFileSync(target);
+  assert(actual.equals(expected),name+' must be derived from the approved current Redcarpert logo');
+  const info=await sharp(actual).metadata();
+  assert.equal(info.format,'png');
+  assert.equal(info.width,size);
+  assert.equal(info.height,size);
+  for(const route of routes){
+   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+   assert(html.includes('rel="'+rel+'"'),route+' must declare '+rel);
+   assert(html.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),route+' must point to current branded icon '+name);
+   assert(!html.includes('cropped-logo-2-1'),route+' must not reference the old reference-site tab icon');
+  }
+  const missing=readFileSync('dist/404.html','utf8');
+  assert(missing.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),'404 page must use the current '+rel);
+ }
+});
