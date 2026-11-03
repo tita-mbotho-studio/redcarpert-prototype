@@ -59,6 +59,6 @@ const photos = await Promise.all([
 ].map(async item=>{const {data,info}=await sharp('public/redcarpert/gallery/'+item.src).removeAlpha().jpeg({quality:90,progressive:false}).toBuffer({resolveWithObject:true});return {...item,jpeg:data,width:info.width,height:info.height};}));
 await mkdir(root+'/static/digital-lookbook',{recursive:true});
 await writeFile(root+'/static/digital-lookbook/Redcarpert-Sample-Lookbook.pdf',createSampleLookbookPdf(photos));
-await writeFile(root+'/404.html',`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found | Redcarpert</title></head><body><main><h1>Page not found</h1><p>This page is unavailable.</p><a href="${base}">Return to Redcarpert Wedding Dresses</a></main></body></html>`);
+await writeFile(root+'/404.html',`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found | Redcarpert</title><link rel="icon" type="image/png" sizes="32x32" href="${base}redcarpert/brand/redcarpert-favicon-v1-32.png"><link rel="apple-touch-icon" sizes="180x180" href="${base}redcarpert/brand/redcarpert-touch-icon-v1-180.png"></head><body><main><h1>Page not found</h1><p>This page is unavailable.</p><a href="${base}">Return to Redcarpert Wedding Dresses</a></main></body></html>`);
 await writeFile(root+'/routes.json',JSON.stringify(routes));
 console.log(`Generated ${routes.length} approved pages and ${assets.size} reachable assets.`);
