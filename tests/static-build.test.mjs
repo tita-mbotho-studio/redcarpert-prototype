@@ -117,11 +117,11 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.match(yaml,/actions\/deploy-pages@/);
 });
 
-test('Redcarpert browser-tab and touch icons are generated from the current brand logo on every page', {skip:!available}, async()=>{
- const source='public/redcarpert/brand/redcarpert-logo.png';
+test('Redcarpert browser-tab and touch icons are generated from the new bridal monogram on every page', {skip:!available}, async()=>{
+ const source='public/redcarpert/brand/redcarpert-bridal-monogram.svg';
  const output=[
-  {size:32,name:'redcarpert-favicon-v1-32.png',rel:'icon'},
-  {size:180,name:'redcarpert-touch-icon-v1-180.png',rel:'apple-touch-icon'},
+  {size:32,name:'redcarpert-bridal-favicon-v2-32.png',rel:'icon'},
+  {size:180,name:'redcarpert-bridal-touch-v2-180.png',rel:'apple-touch-icon'},
  ];
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  for(const {size,name,rel} of output){
