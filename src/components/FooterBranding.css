@@ -263,10 +263,10 @@
   }
 }
 
-/* With a 12px inter-column gutter, the long heading needs subtly tighter
- * tracking at 360–375px. Preserve the 12px font and the full logo dimensions. */
+/* Both headings use subtly tighter tracking at 360–375px, preserving
+ * their 12px font sizes, one-line text, proper gutters and full logo size. */
 @media (min-width: 360px) and (max-width: 375px) {
-  #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:last-child .redcarpert-footer-heading {
-    letter-spacing: -0.04em;
+  #footer[data-redcarpert-footer] .redcarpert-footer-heading {
+    letter-spacing: -0.05em;
   }
 }
