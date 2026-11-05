@@ -60,6 +60,10 @@
   line-height: 1.5;
   letter-spacing: 0.1em;
   text-align: left;
+  /* Both footer headings stay on a single line at every supported width. */
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 #footer[data-redcarpert-footer] .redcarpert-footer-tagline,
 #footer[data-redcarpert-footer] .redcarpert-footer-items {
@@ -186,8 +190,9 @@
     width: calc(100% - 32px);
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-columns {
-    /* Keep three columns but free width for the navigation headings. */
-    grid-template-columns: minmax(0, 40fr) minmax(0, 27fr) minmax(0, 33fr);
+    /* Balance all three columns without resizing the approved logo artwork.
+     * The third column has enough width for FITTING ENQUIRIES at 375px. */
+    grid-template-columns: minmax(0, 36fr) minmax(0, 28fr) minmax(0, 36fr);
     gap: 0;
     padding: 24px 0;
   }
@@ -225,10 +230,15 @@
   }
 }
 
-/* At the narrowest phone widths, give COLLECTIONS enough room to stay intact.
- * The first column keeps its approved logo size; its tagline can wrap naturally. */
-@media (max-width: 360px) {
+/* Below 341px, retain the three columns without overflowing either heading.
+ * Logo image styles are unchanged; only navigation heading type tightens slightly.
+ * The longer tagline is allowed to wrap naturally in its own column. */
+@media (max-width: 340px) {
   #footer[data-redcarpert-footer] .redcarpert-footer-columns {
-    grid-template-columns: minmax(0, 35fr) minmax(0, 32fr) minmax(0, 33fr);
+    grid-template-columns: minmax(0, 33fr) minmax(0, 29fr) minmax(0, 38fr);
+  }
+  #footer[data-redcarpert-footer] .redcarpert-footer-heading {
+    font-size: 10.5px;
+    letter-spacing: -0.01em;
   }
 }
