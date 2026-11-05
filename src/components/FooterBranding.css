@@ -186,13 +186,16 @@
     width: calc(100% - 32px);
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-columns {
-    /* Same three desktop columns and order, not a stacked mobile layout. */
-    grid-template-columns: minmax(0, 45fr) minmax(0, 25fr) minmax(0, 30fr);
+    /* Keep three columns but free width for the navigation headings. */
+    grid-template-columns: minmax(0, 40fr) minmax(0, 27fr) minmax(0, 33fr);
     gap: 0;
     padding: 24px 0;
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col {
     padding-right: 6px;
+    /* Avoid breaking a word such as COLLECTIONS into individual lines. */
+    overflow-wrap: normal;
+    word-break: normal;
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:first-child,
   #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:last-child {
@@ -219,5 +222,13 @@
   }
   #footer[data-redcarpert-footer] .footer-bottom {
     padding: 12px 0;
+  }
+}
+
+/* At the narrowest phone widths, give COLLECTIONS enough room to stay intact.
+ * The first column keeps its approved logo size; its tagline can wrap naturally. */
+@media (max-width: 360px) {
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns {
+    grid-template-columns: minmax(0, 35fr) minmax(0, 32fr) minmax(0, 33fr);
   }
 }
