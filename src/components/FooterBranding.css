@@ -258,7 +258,7 @@
     padding-right: 0;
   }
   #footer[data-redcarpert-footer] .widget_media_image {
-    width: max-content;
+    width: 100%;
     max-width: 100%;
   }
 }
