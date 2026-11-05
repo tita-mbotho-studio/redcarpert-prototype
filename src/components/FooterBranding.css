@@ -138,6 +138,28 @@
   line-height: 1.7;
   font-size: 12px;
 }
+/* Scale only the copyright typography with the viewport while keeping it
+ * consistent with the footer's 12px navigation text at desktop sizes. */
+#footer[data-redcarpert-footer] .copyrights {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  font-size: clamp(10px, calc(9px + 0.3vw), 12px);
+  font-weight: 400;
+  letter-spacing: clamp(0.02em, 0.07vw, 0.08em);
+  line-height: 1.6;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-wrap: balance;
+}
+/* The floating WhatsApp control occupies the bottom-right corner on phones.
+ * Reserve an unobstructed text region instead of letting copyright sit below it. */
+@media (max-width: 480px) {
+  #footer[data-redcarpert-footer] .footer-bottom > .section-boxed {
+    padding-right: clamp(60px, 18vw, 76px);
+  }
+}
 #footer[data-redcarpert-footer] .widget_media_image .social-profiles {
   display: block;
   float: none;
