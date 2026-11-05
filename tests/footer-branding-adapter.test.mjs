@@ -35,7 +35,11 @@ test('all 8 routes receive the guarded three-column design with functional categ
   for(const link of links)assert(sitePages[link.attrs.href.replace(/\/$/,'')]);
   const fitting=nodes.filter(n=>n.tag==='button');assert.equal(fitting.length,1);
   assert.deepEqual(fitting[0],{tag:'button',attrs:{type:'button','data-whatsapp-preview':'','aria-haspopup':'dialog'},children:['Book a fitting']});
-  assert.equal(nodes.find(n=>n.attrs.class==='copyrights').children[0],'\n© COPYRIGHT REDCARPERT WEDDING DRESSES');
+  assert.deepEqual(nodes.find(n=>n.attrs.class==='copyrights').children,[
+    '© ',
+    {tag:'span',attrs:{'data-copyright-year':''},children:[String(new Date().getFullYear())]},
+    ' Redcarpert Wedding Dresses',
+  ]);
   const logo=nodes.find(n=>n.attrs.class==='wp-image-13926');
   assert.deepEqual(logo.attrs,{loading:'lazy',decoding:'async',width:'1024',height:'322',src:'/redcarpert/brand/redcarpert-logo.png',alt:'Redcarpert Wedding Dresses',class:'wp-image-13926',style:'object-fit: contain; object-position: center'});
   const profiles=nodes.filter(n=>n.attrs.class==='social-profiles');assert.equal(profiles.length,1);
