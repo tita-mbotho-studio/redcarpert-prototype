@@ -44,6 +44,12 @@ try {
           range.selectNodeContents(el);
           return [...range.getClientRects()].filter(r=>r.width>0&&r.height>0).map(r=>({x:r.x,right:r.right,y:r.y,bottom:r.bottom,width:r.width}));
         });
+        const copyright=footer.querySelector('.copyrights');
+        const copyrightStyle=getComputedStyle(copyright);
+        const copyrightRange=document.createRange();
+        copyrightRange.selectNodeContents(copyright);
+        const copyrightBox=box(copyright);
+        const bottomBox=footer.querySelector('.footer-bottom > .section-boxed');
         return {
           headerLogo:box(logo),footerLogo:box(footerLogo),
           headerFont:parseFloat(getComputedStyle(nav).fontSize),
@@ -51,6 +57,17 @@ try {
           gridColumns:columns.map(box),
           textRectsByColumn:columns.map(textRects),
           taglineWhiteSpace:getComputedStyle(footer.querySelector('.redcarpert-footer-tagline')).whiteSpace,
+          copyright:{
+            text:copyright.textContent.trim().replace(/\s+/g,' '),
+            box:copyrightBox,
+            fontSize:parseFloat(copyrightStyle.fontSize),
+            lineHeight:parseFloat(copyrightStyle.lineHeight),
+            letterSpacing:parseFloat(copyrightStyle.letterSpacing),
+            whiteSpace:copyrightStyle.whiteSpace,
+            wordBreak:copyrightStyle.wordBreak,
+            reservedRight:parseFloat(getComputedStyle(bottomBox).paddingRight),
+            textRects:[...copyrightRange.getClientRects()].filter(r=>r.width>0&&r.height>0).map(r=>({x:r.x,right:r.right,y:r.y,bottom:r.bottom,width:r.width})),
+          },
           gridDisplay:getComputedStyle(columns[0].parentElement).display,
           headings:[...footer.querySelectorAll('.redcarpert-footer-heading')].map(heading=>({
             text:heading.textContent.trim().toUpperCase(),
@@ -89,8 +106,29 @@ try {
           width+'px '+route+' '+key+' must exactly track the header: '+JSON.stringify(metrics));
       }
       for(const type of metrics.fontSizes){
+        if (String(type.className).includes('copyrights')) continue;
         assert(Math.abs(type.size-metrics.headerFont)<=0.1,
           width+'px '+route+' footer '+type.className+' must retain header font-size: '+JSON.stringify(metrics));
+      }
+      // Copyright is deliberately fluid while headings, links and logo remain unchanged.
+      const copyright=metrics.copyright;
+      const expectedCopyrightSize=Math.max(10,Math.min(12,9+width*0.003));
+      assert(Math.abs(copyright.fontSize-expectedCopyrightSize)<=0.1,
+        width+'px '+route+' copyright must scale with viewport: '+JSON.stringify(copyright));
+      assert(copyright.text.includes('COPYRIGHT REDCARPERT WEDDING DRESSES'),
+        width+'px '+route+' copyright copy was unexpectedly changed');
+      assert.equal(copyright.whiteSpace,'normal',width+'px '+route+' copyright should wrap naturally');
+      assert.equal(copyright.wordBreak,'normal',width+'px '+route+' copyright must not break mid-word');
+      assert(copyright.letterSpacing>0 && copyright.letterSpacing<=1.1,
+        width+'px '+route+' copyright tracking is oversized: '+JSON.stringify(copyright));
+      assert(copyright.textRects.length>0,width+'px '+route+' empty copyright');
+      for (const rect of copyright.textRects) {
+        assert(rect.x>=copyright.box.x-1 && rect.right<=copyright.box.right+1,
+          width+'px '+route+' copyright text extends beyond its content area: '+JSON.stringify({copyright,rect}));
+      }
+      if (width<=480) {
+        assert(copyright.reservedRight>=60,
+          width+'px '+route+' copyright needs to clear the floating WhatsApp button: '+JSON.stringify(copyright));
       }
       assert(metrics.horizontalOverflow<=1.5,width+'px '+route+' horizontal overflow: '+metrics.horizontalOverflow);
       assert.equal(metrics.tagline,'Elegant bridal collections');
