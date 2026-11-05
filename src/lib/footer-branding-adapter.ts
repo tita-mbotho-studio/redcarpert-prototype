@@ -66,7 +66,14 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
   replacements.set(footer, { ...footer, attrs: { ...footer.attrs, "data-redcarpert-footer": "true" } });
   const copyright = unique(all(footer.children), node => node.attrs.class === "copyrights", "copyright");
   if (copyright.tag !== "span" || copyright.children.length !== 1 || copyright.children[0] !== (home ? "\n© COPYRIGHT Redcarpert Wedding Dresses" : "\n© COPYRIGHT Brıdal Vanesa")) fail("copyright text");
-  replacements.set(copyright, { ...copyright, children: ["\n© COPYRIGHT REDCARPERT WEDDING DRESSES"] });
+  // Supply a build-time fallback so the text exists before JavaScript runs.
+  // The browser replaces the year on each load; GitHub Pages does not require
+  // an annual redeployment for the copyright to stay current.
+  replacements.set(copyright, { ...copyright, children: [
+    "© ",
+    { tag: "span", attrs: { "data-copyright-year": "" }, children: [String(new Date().getFullYear())] },
+    " Redcarpert Wedding Dresses",
+  ] });
 
   const logo = slot(0, "block-9", "img");
   const placeholder = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="322" viewBox="0 0 1024 322"><text x="512" y="161" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="52" fill="white">Redcarpert Wedding Dresses</text></svg>';
