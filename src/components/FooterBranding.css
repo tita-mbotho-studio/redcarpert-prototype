@@ -16,6 +16,8 @@
 #footer[data-redcarpert-footer] .redcarpert-footer-columns {
   display: grid;
   grid-template-columns: minmax(0, 45fr) minmax(0, 25fr) minmax(0, 30fr);
+  /* A real gutter prevents neighbouring text columns from visually merging. */
+  column-gap: clamp(12px, 2vw, 24px);
   align-items: start;
   overflow: visible;
   padding: 44px 0;
@@ -76,8 +78,17 @@
   text-align: left;
 }
 #footer[data-redcarpert-footer] .redcarpert-footer-tagline {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   margin-top: 12px;
   text-align: center;
+  /* The tagline must wrap inside the logo track, not flow into Collections. */
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 #footer[data-redcarpert-footer] .redcarpert-footer-items {
   display: grid;
@@ -193,7 +204,8 @@
     /* Balance all three columns without resizing the approved logo artwork.
      * The third column has enough width for FITTING ENQUIRIES at 375px. */
     grid-template-columns: minmax(0, 36fr) minmax(0, 28fr) minmax(0, 36fr);
-    gap: 0;
+    column-gap: 12px;
+    row-gap: 0;
     padding: 24px 0;
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col {
@@ -230,15 +242,23 @@
   }
 }
 
-/* Below 341px, retain the three columns without overflowing either heading.
- * Logo image styles are unchanged; only navigation heading type tightens slightly.
- * The longer tagline is allowed to wrap naturally in its own column. */
-@media (max-width: 340px) {
+/* Below 360px, three equal-height columns cannot fit both full headings, a
+ * 109px brand logo and usable gutters without collisions or tiny typography.
+ * Keep the same three content blocks, placing branding above two nav columns. */
+@media (max-width: 359px) {
   #footer[data-redcarpert-footer] .redcarpert-footer-columns {
-    grid-template-columns: minmax(0, 33fr) minmax(0, 29fr) minmax(0, 38fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 20px;
+    row-gap: 20px;
   }
-  #footer[data-redcarpert-footer] .redcarpert-footer-heading {
-    font-size: 10.5px;
-    letter-spacing: -0.01em;
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:first-child {
+    grid-column: 1 / -1;
+  }
+  #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:nth-child(2) {
+    padding-right: 0;
+  }
+  #footer[data-redcarpert-footer] .widget_media_image {
+    width: max-content;
+    max-width: 100%;
   }
 }
