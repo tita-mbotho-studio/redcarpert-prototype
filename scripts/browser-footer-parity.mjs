@@ -35,6 +35,14 @@ try {
           fontSizes:typeElements.map(e=>({className:e.className,size:parseFloat(getComputedStyle(e).fontSize)})),
           gridColumns:columns.map(box),
           gridDisplay:getComputedStyle(columns[0].parentElement).display,
+          headings:[...footer.querySelectorAll('.redcarpert-footer-heading')].map(heading=>({
+            text:heading.textContent.trim().toUpperCase(),
+            height:heading.getBoundingClientRect().height,
+            lineHeight:parseFloat(getComputedStyle(heading).lineHeight),
+            clientWidth:heading.clientWidth,
+            scrollWidth:heading.scrollWidth,
+            overflowWrap:getComputedStyle(heading.closest('.col')).overflowWrap,
+          })),
           horizontalOverflow:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth,
           tagline:footer.querySelector('.redcarpert-footer-tagline')?.textContent?.trim(),
         };
@@ -54,6 +62,19 @@ try {
       }
       assert(metrics.horizontalOverflow<=1.5,width+'px '+route+' horizontal overflow: '+metrics.horizontalOverflow);
       assert.equal(metrics.tagline,'Elegant bridal collections');
+      if (width === 390) {
+        const collections=metrics.headings.find(h=>h.text==='COLLECTIONS');
+        assert(collections,route+' is missing the Collections heading');
+        assert(collections.height<=collections.lineHeight+1,
+          route+' COLLECTIONS must fit on one line: '+JSON.stringify(collections));
+        assert(collections.scrollWidth<=collections.clientWidth+1,
+          route+' COLLECTIONS must stay inside its grid column: '+JSON.stringify(collections));
+        assert(metrics.headings.every(h=>h.overflowWrap==='normal'),
+          route+' mobile headings must wrap only at word boundaries: '+JSON.stringify(metrics.headings));
+        const totalWidth=metrics.gridColumns.reduce((sum,c)=>sum+c.width,0);
+        assert(Math.abs(metrics.gridColumns[0].width/totalWidth-0.40)<0.01,
+          route+' mobile logo column must keep the approved balanced allocation');
+      }
       assert.deepEqual(errors,[],width+'px '+route+' page errors');
       console.log('Footer/header responsive parity PASS',width,route,
         'logo',Math.round(metrics.headerLogo.width)+'x'+Math.round(metrics.headerLogo.height),
