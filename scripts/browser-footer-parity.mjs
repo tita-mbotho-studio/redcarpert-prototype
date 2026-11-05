@@ -59,6 +59,7 @@ try {
           taglineWhiteSpace:getComputedStyle(footer.querySelector('.redcarpert-footer-tagline')).whiteSpace,
           copyright:{
             text:copyright.textContent.trim().replace(/\s+/g,' '),
+            year:copyright.querySelector('[data-copyright-year]')?.textContent,
             box:copyrightBox,
             fontSize:parseFloat(copyrightStyle.fontSize),
             lineHeight:parseFloat(copyrightStyle.lineHeight),
@@ -111,30 +112,36 @@ try {
         assert(Math.abs(type.size-metrics.headerFont)<=0.1,
           width+'px '+route+' footer '+type.className+' must retain header font-size: '+JSON.stringify(metrics));
       }
-      // The copyright should look like the desktop single centred line,
-      // only smaller on mobile, never pushed left by WhatsApp clearance.
+      // Copyright shares the footer links' typography at every screen size.
+      // Title case and normal spacing replace oversized all-capital tracking.
       const copyright=metrics.copyright;
-      const expectedCopyrightSize=Math.max(7.5,Math.min(12,width*0.0225));
-      assert(Math.abs(copyright.fontSize-expectedCopyrightSize)<=0.1,
-        width+'px '+route+' copyright must scale with viewport: '+JSON.stringify(copyright));
-      assert(copyright.text.includes('COPYRIGHT REDCARPERT WEDDING DRESSES'),
-        width+'px '+route+' copyright copy was unexpectedly changed');
+      const linksFont=metrics.fontSizes.find(t=>t.className.includes('redcarpert-footer-items'))?.size;
+      assert(Math.abs(copyright.fontSize-linksFont)<=0.1,
+        width+'px '+route+' copyright must match footer links: '+JSON.stringify(copyright));
+      assert.equal(copyright.year,String(new Date().getFullYear()),
+        width+'px '+route+' runtime copyright year must be current');
+      assert.equal(copyright.text,'© '+copyright.year+' Redcarpert Wedding Dresses',
+        width+'px '+route+' copyright wording was unexpectedly changed');
       assert.equal(copyright.whiteSpace,'nowrap',
-        width+'px '+route+' copyright must remain a single desktop-style line');
+        width+'px '+route+' copyright should stay on one desktop-style line');
       assert.equal(copyright.wordBreak,'normal',
-        width+'px '+route+' copyright must not break mid-word');
+        width+'px '+route+' copyright must not split words');
       assert(Math.abs(copyright.leftPadding-copyright.rightPadding)<=0.1,
-        width+'px '+route+' copyright parent has asymmetric horizontal padding: '+JSON.stringify(copyright));
-      assert.equal(copyright.textRects.length,1,
-        width+'px '+route+' copyright must paint on exactly one line: '+JSON.stringify(copyright));
+        width+'px '+route+' copyright parent has asymmetric padding');
+      assert(copyright.textRects.length>0,
+        width+'px '+route+' copyright text did not render');
       for (const rect of copyright.textRects) {
         assert(rect.x>=copyright.box.x-1 && rect.right<=copyright.box.right+1,
-          width+'px '+route+' copyright text extends beyond its content area: '+JSON.stringify({copyright,rect}));
-        const textCenter=(rect.x+rect.right)/2;
-        const boxCenter=(copyright.box.x+copyright.box.right)/2;
-        assert(Math.abs(textCenter-boxCenter)<=2,
-          width+'px '+route+' copyright text is not visually centred: '+JSON.stringify({copyright,rect,textCenter,boxCenter}));
+          width+'px '+route+' copyright extends outside its content area: '+JSON.stringify({copyright,rect}));
       }
+      const top=Math.min(...copyright.textRects.map(r=>r.y));
+      const bottom=Math.max(...copyright.textRects.map(r=>r.bottom));
+      assert(bottom-top<=copyright.lineHeight+2,
+        width+'px '+route+' copyright must remain one line');
+      const left=Math.min(...copyright.textRects.map(r=>r.x));
+      const right=Math.max(...copyright.textRects.map(r=>r.right));
+      assert(Math.abs((left+right)/2-(copyright.box.x+copyright.box.right)/2)<=2,
+        width+'px '+route+' copyright line must be centred in the footer');
       assert(metrics.horizontalOverflow<=1.5,width+'px '+route+' horizontal overflow: '+metrics.horizontalOverflow);
       assert.equal(metrics.tagline,'Elegant bridal collections');
       assert.equal(metrics.taglineWhiteSpace,'normal',
@@ -176,6 +183,18 @@ try {
         'tagline-lines',metrics.textRectsByColumn[0].length);
       await page.close();
     }
+  }
+  // Confirm year updates on the client without rebuilding or redeploying
+  // the static page, even when the year changes after its HTML was generated.
+  const future=await browser.newPage({viewport:{width:375,height:667}});
+  try {
+    await future.clock.setFixedTime(new Date('2035-02-01T12:00:00Z'));
+    await future.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
+    await future.waitForFunction(()=>document.querySelector('[data-copyright-year]')?.textContent==='2035');
+    assert.equal(await future.locator('#footer[data-redcarpert-footer] .copyrights').innerText(),
+      '© 2035 Redcarpert Wedding Dresses');
+  } finally {
+    await future.close();
   }
 } finally {
   await browser.close();
