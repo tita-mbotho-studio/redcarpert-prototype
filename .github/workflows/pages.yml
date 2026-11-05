@@ -43,12 +43,13 @@ jobs:
           path: dist
   deploy:
     needs: build
-    # Deploy this one explicitly approved release on push; later main pushes stay build-only.
+    # Publish the explicitly approved Implementation 18 release on this commit only.
+    # Regular future pushes remain build-only unless separately approved.
     # Manual deployments still require the approve_deployment input.
     if: >-
       github.ref == 'refs/heads/main' &&
       ((github.event_name == 'workflow_dispatch' && inputs.approve_deployment) ||
-      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 17'))
+      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 18'))
     permissions:
       pages: write
       id-token: write
