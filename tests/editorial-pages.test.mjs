@@ -23,6 +23,34 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     assert.equal(nodes(content.children).filter(n => n.tag === 'h2').length > 0, true);
     if (route === '/digital-lookbook') {
       assert.equal(nodes(content.children).filter(n => n.attrs['data-lookbook-viewer'] === 'true').length, 1);
+      assert(nodes(content.children).some(n => n.attrs.id === 'redcarpert-lookbook-title'));
+    }
+    if (route === '/about-us' || route === '/contact-us' || route === '/digital-lookbook') {
+      assert(rendered.some(n => n.attrs.class === 'page-title redcarpert-editorial-page-title'));
+      assert(nodes(content.children).some(n => n.attrs.class === 'redcarpert-editorial-hero'));
+    }
+    if (route === '/about-us') {
+      const team=nodes(content.children).filter(n => n.attrs.class === 'redcarpert-editorial-team-card');
+      assert.equal(team.length,3,'Meet the Team requires three placeholder cards');
+      for(const card of team){
+        const image=nodes(card.children).find(n=>n.tag==='img');
+        assert(image.attrs.src.startsWith('https://images.pexels.com/photos/'), 'team photographs must remain remote placeholders');
+        assert.match(JSON.stringify(card),/Not Redcarpert staff/);
+      }
+    }
+    if (route === '/contact-us') {
+      const container=rendered.find(n=>n.attrs.id==='content-container');
+      assert.equal(container.attrs.class,'content-boxed layout-full');
+      assert(!rendered.some(n=>n.attrs.id==='sidebar'),'empty sidebar must be removed from Contact Us');
+      assert(rendered.some(n=>n.attrs.id==='full-width'),'Contact Us must use About Us content width');
+      const map=nodes(content.children).find(n=>n.tag==='iframe');
+      assert(map,'Contact Us must include an embedded map');
+      assert.equal(map.attrs.src,'https://www.google.com/maps?q=Sunnyside%2C%20Pretoria%2C%20South%20Africa&output=embed');
+      assert.equal(map.attrs.loading,'lazy');
+      assert.match(JSON.stringify(content),/not a precise studio pin/);
+      const mapLink=nodes(content.children).find(n=>n.tag==='a' && n.attrs.href?.startsWith('https://www.google.com/maps/search/'));
+      assert(mapLink);
+      assert.equal(mapLink.attrs.rel,'noopener noreferrer');
     }
     assert.equal(JSON.stringify(capture), before);
   }
