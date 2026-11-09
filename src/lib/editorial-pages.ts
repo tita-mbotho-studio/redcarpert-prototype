@@ -10,7 +10,6 @@ const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/our-b
 
 const p = (text: string) => node("p", {}, [text]);
 const h = (text: string, id?: string) => node("h2", id ? { id } : {}, [text]);
-const link = (href: string, label: string) => node("a", { href }, [label]);
 const fitting = () => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Enquire about a fitting"]);
 
 function editorialContent(route: EditorialRoute): DocumentNode[] {
