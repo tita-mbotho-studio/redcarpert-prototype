@@ -322,6 +322,14 @@
     max-width: 520px;
   }
 }
+/* The third team placeholder should remain centred when tablets show two columns. */
+@media (min-width: 561px) and (max-width: 800px) {
+  .redcarpert-editorial-team-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: min(100%, 320px);
+    justify-self: center;
+  }
+}
 @media (max-width: 560px) {
   .redcarpert-editorial[data-editorial-route="/digital-lookbook"],
   .redcarpert-editorial[data-editorial-route="/about-us"],
