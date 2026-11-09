@@ -9,7 +9,7 @@ type EditorialRoute = "/digital-lookbook" | "/our-brides" | "/about-us" | "/cont
 const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/our-brides", "/about-us", "/contact-us"];
 
 const p = (text: string) => node("p", {}, [text]);
-const h = (text: string) => node("h2", {}, [text]);
+const h = (text: string, id?: string) => node("h2", id ? { id } : {}, [text]);
 const link = (href: string, label: string) => node("a", { href }, [label]);
 const fitting = () => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Enquire about a fitting"]);
 
@@ -66,7 +66,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       p("Redcarpert Wedding Dresses is creating a welcoming online space to explore bridal inspiration before enquiring about a fitting. Browse at your own pace, compare different shapes and share the styles you would like to discuss."),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-collections-title" }, [
-      h("Our Collections"),
+      h("Our Collections", "redcarpert-collections-title"),
       p("Every bride has her own sense of style. Explore the close-fitting lines of Mermaid dresses or the romantic fullness of Ball Gown silhouettes. Each sample listing provides a starting point for a conversation about what you are looking for."),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Explore bridal collections" }, [
         node("a", { href: "/product-category/mermaid/", class: "redcarpert-editorial-action" }, ["Explore Mermaid"]),
@@ -74,13 +74,13 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       ]),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-fitting-title" }, [
-      h("A Personal Fitting Conversation"),
+      h("A Personal Fitting Conversation", "redcarpert-fitting-title"),
       p("When a dress catches your eye, use its fitting enquiry option to review a prefilled WhatsApp message. You can ask about availability, preferences and the next steps before arranging a visit. Nothing is sent until you choose to continue in WhatsApp."),
       fitting(),
       node("p", { class: "redcarpert-editorial-disclosure" }, ["Styles shown on this prototype use illustrative photography. Actual dresses, fitting arrangements and business details are subject to confirmation."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
-      h("Meet the Team"),
+      h("Meet the Team", "redcarpert-team-title"),
       p("The people behind the bridal experience will be introduced here. Until official team portraits and names are supplied, the photographs below illustrate the kind of creative and personal work associated with bridal styling."),
       node("div", { class: "redcarpert-editorial-team-grid" }, [
         ...[
@@ -122,7 +122,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       fitting(),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
-      h("How to Enquire"),
+      h("How to Enquire", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
         node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the Mermaid or Ball Gown collections and open a dress you would like to ask about.")]),
         node("li", {}, [node("strong", {}, ["Review"]), p("Use the enquiry preview to check the dress details and your message before opening WhatsApp.")]),
@@ -133,12 +133,12 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       ]),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
-      h("Before Your Visit"),
+      h("Before Your Visit", "redcarpert-visiting-title"),
       p("Redcarpert is located in the Sunnyside area of Pretoria, South Africa. Please confirm the exact studio address, opening hours and fitting availability directly with the business before travelling."),
       p("Dress photographs on this website are illustrative samples. The business can confirm which styles are currently available when you enquire."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
-      h("Our Pretoria Location"),
+      h("Our Pretoria Location", "redcarpert-map-title"),
       node("p", { class: "redcarpert-editorial-lead" }, ["Sunnyside · Pretoria · South Africa"]),
       p("The map below shows the Sunnyside area for orientation. It is not a precise studio pin or confirmed street address."),
       node("div", { class: "redcarpert-editorial-map" }, [
