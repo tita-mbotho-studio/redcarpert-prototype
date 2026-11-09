@@ -52,6 +52,7 @@ try {
           mapLink: wrap.querySelector('a[href^="https://www.google.com/maps/search/"]')?.href ?? null,
           teamCount: team?.querySelectorAll('figure').length ?? 0,
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
+          teamLast: team ? box(team.lastElementChild) : null,
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           bookPages: wrap.querySelectorAll('#redcarpert-flipbook [data-book-page]').length,
           scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
@@ -70,6 +71,10 @@ try {
         assert.equal(metrics.teamCount, 3);
         assert(metrics.teamSources.every(s => s.startsWith('https://images.pexels.com/photos/')));
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
+        if (metrics.teamColumns===2) {
+          assert(Math.abs(metrics.teamLast.center - metrics.root.center)<=2,
+            width + 'px the last team card must be centred on tablet');
+        }
       } else if (route === '/contact-us/') {
         assert.equal(metrics.panelCount, 3);
         assert(metrics.map && metrics.map.width > 200, width + 'px map missing or collapsed');
