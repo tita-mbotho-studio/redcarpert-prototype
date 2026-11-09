@@ -92,7 +92,16 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
       assert(!/^(?:javascript:|data:|vbscript:)/i.test(href),route+' unsafe anchor '+href);
       if(/^https?:\/\//i.test(href)){
         const outbound=new URL(href.replaceAll('&amp;','&'));
-        assert(['images.pexels.com','wa.me'].includes(outbound.hostname.toLowerCase()),
+        const host=outbound.hostname.toLowerCase();
+        if (host==='www.google.com') {
+          assert.equal(route,'/contact-us','only the Contact page may link to an external map');
+          assert.equal(outbound.pathname,'/maps/search/','external Google link must be a Maps search only');
+          assert.equal(outbound.searchParams.get('api'),'1');
+          assert.equal(outbound.searchParams.get('query'),'Sunnyside, Pretoria, South Africa');
+          assert.equal(outbound.searchParams.size,2,'external map link must not contain tracking parameters');
+          continue;
+        }
+        assert(['images.pexels.com','wa.me'].includes(host),
           route+' links to an unapproved external site: '+href);
         if(outbound.hostname==='wa.me') {
           assert.equal(outbound.pathname,'/27680458811');
