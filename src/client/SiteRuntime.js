@@ -1,7 +1,6 @@
 import { installNavigation } from './navigation.js';
 import { preserveHomepageHeader } from "../lib/homepage-header";
 import { runtimeContent } from "../data/runtime";
-import { captureHomepageFullscreen } from "./HomepageFooterScroll.js";
 function loadScript(src) {
     return new Promise((resolve, reject) => {
         const script = window.document.createElement("script");
@@ -17,8 +16,12 @@ export function SiteRuntime({ document: data, }) {
         document.body.className = data.bodyClass;
         document.documentElement.className = data.htmlClass;
         let cancelled = false;
-        let releaseHomepageFullscreen;
         let releaseHomepageHeader;
+        const homepage = Boolean(document.querySelector('footer[data-homepage-footer]'));
+        if (homepage) {
+            document.body.classList.add('redcarpert-home-native');
+            document.querySelector('.fullpage-wrapper')?.classList.remove('loading');
+        }
         const grids = [...document.querySelectorAll(".woocommerce-ordering ~ ul.products")];
         const catalogItems = new Map(grids.map((grid) => [grid, [...grid.querySelectorAll(":scope > li.product")]]));
         const orderSelect = document.querySelector(".woocommerce-ordering select.orderby");
@@ -102,10 +105,17 @@ export function SiteRuntime({ document: data, }) {
             for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
                 if (cancelled)
                     return;
-                if (src === data.themeConfig) installNavigation();
-                if (src === data.themeConfig && document.querySelector("footer[data-homepage-footer]")) {
-                    releaseHomepageHeader = preserveHomepageHeader();
-                    releaseHomepageFullscreen = captureHomepageFullscreen();
+                if (src === data.themeConfig) {
+                    installNavigation();
+                    if (homepage) {
+                        // Keep the inherited header/menu setup but do not initialise
+                        // PEXETO.Fullpage. That plugin forces slide heights and takes
+                        // control of wheel, keyboard, and desktop-to-footer scrolling.
+                        releaseHomepageHeader = preserveHomepageHeader();
+                        window.PEXETO?.init?.initSite();
+                        window.PEXETO?.woocommerce?.init?.(true);
+                        continue;
+                    }
                 }
                 await loadScript(src);
             }
@@ -118,7 +128,6 @@ export function SiteRuntime({ document: data, }) {
         })().catch((error) => console.error("Site interactions failed to initialize", error));
         return () => {
             cancelled = true;
-            releaseHomepageFullscreen?.();
             releaseHomepageHeader?.();
             document.removeEventListener("submit", preventSubmission, true);
             document.removeEventListener("click", preventLegacySubmission, true);
