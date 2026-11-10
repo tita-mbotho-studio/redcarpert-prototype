@@ -100,6 +100,26 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
     ],
   });
 
+  // All editorial and dress-detail fitting CTAs share the same current
+  // WhatsApp glyph while preserving their existing visible text and handlers.
+  const footerDescendants = new Set(elements([footer]));
+  for (const n of all.filter(n =>
+    n.tag === "button" && n.attrs["data-whatsapp-preview"] === ""
+    && !footerDescendants.has(n)
+  )) {
+    if (n.children.length === 1 && typeof n.children[0] === "string") {
+      replacements.set(n, { ...n, children: [icon("brands", "whatsapp"), ...n.children] });
+    }
+  }
+
+  // The Products chevron is part of the desktop navigation affordance.
+  const products = one(all, n => n.tag === "li" && n.attrs.id === "menu-item-15821", "products menu item");
+  const productsLink = one(direct(products.children), n => n.tag === "a", "products menu link");
+  if (productsLink.children.length !== 1 || typeof productsLink.children[0] !== "string") fail("products menu label");
+  replacements.set(productsLink, {
+    ...productsLink, children: [...productsLink.children, icon("solid", "chevron-down")],
+  });
+
   const mobile = one(all, n => n.tag === "span" && hasClass(n, "mob-nav-btn"), "mobile menu");
   if (mobile.children.length !== 1 || typeof mobile.children[0] !== "string") fail("mobile menu text");
   replacements.set(mobile, {
