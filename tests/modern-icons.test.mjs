@@ -76,5 +76,5 @@ test('icon transformation refuses unexpected captured footer/WhatsApp structure'
   assert.throws(()=>modernizeSiteIcons(broken),/Modern icons .*floating icon shape/);
   const wrong=structuredClone(fixture('/'));
   find(wrong,n=>n.attrs.class==='redcarpert-footer-items')[1].children=[];
-  assert.throws(()=>modernizeSiteIcons(wrong),/Modern icons .*legacy fitting links/);
+  assert.throws(()=>modernizeSiteIcons(wrong),/Modern icons .*fitting links/);
 });
