@@ -6,7 +6,7 @@ const STORAGE_KEY = 'redcarpert-floating-whatsapp-dismissed';
  * across page navigation but not in a new tab/session.
  */
 export function initializeFloatingWhatsApp() {
-  const widget = document.querySelector('#ht-ctc-chat.redcarpert-whatsapp-float');
+  const widget = document.querySelector('#redcarpert-floating-whatsapp.redcarpert-whatsapp-float');
   if (!widget) return;
   const open = widget.querySelector('[data-whatsapp-preview]');
   const dismiss = widget.querySelector('[data-dismiss-whatsapp]');
