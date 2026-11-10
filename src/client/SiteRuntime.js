@@ -92,15 +92,9 @@ export function SiteRuntime({ document: data, }) {
         document.addEventListener("submit", preventSubmission, true);
         document.addEventListener("click", preventLegacySubmission, true);
         const chat = document.getElementById("ht-ctc-chat");
-        if (chat) {
-            chat.style.display = "block";
-            chat.style.zIndex = "99999999";
-            chat.style.cursor = "pointer";
-            chat.setAttribute("role", "button");
-            chat.setAttribute("aria-haspopup", "dialog");
-            chat.setAttribute("tabindex", "0");
-            chat.setAttribute("aria-label", runtimeContent.whatsAppLabel);
-        }
+        // The floating widget now contains two independent accessible buttons.
+        // Never turn the wrapper into a click target: the close control must
+        // dismiss the widget without opening the WhatsApp enquiry dialog.
         void (async () => {
             for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
                 if (cancelled)
