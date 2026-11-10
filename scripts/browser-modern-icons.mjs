@@ -18,7 +18,23 @@ try {
         const text=n=>n?.textContent.trim().replace(/\s+/g,' ');
         const bounds=n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
         const sample=footer.querySelector('.fa-brands.fa-whatsapp');
+        const menu=document.querySelector('#header .mob-nav-btn');
+        const menuStyle=getComputedStyle(menu);
+        const menuIcon=menu.querySelector('.fa-solid.fa-bars');
+        const menuBounds=bounds(menu);
+        const iconBounds=menuIcon?bounds(menuIcon):null;
         return {
+          menu:{
+            backgroundImage:menuStyle.backgroundImage,
+            paddingLeft:parseFloat(menuStyle.paddingLeft),
+            visible:menuStyle.display!=='none' && bounds(menu).width>0,
+            icons:menu.querySelectorAll('.fa-solid.fa-bars').length,
+            text:menu.textContent.trim(),
+            left:menuBounds.left,right:menuBounds.right,
+            iconLeft:iconBounds?.left??null,
+            iconRight:iconBounds?.right??null,
+            iconGlyph:menuIcon?getComputedStyle(menuIcon,'::before').content:null,
+          },
           fittingTitle:text(footer.querySelector('.redcarpert-footer-columns > .col:last-child .redcarpert-footer-heading')),
           fittingText:text(footer.querySelector('.redcarpert-footer-book')),
           socials:[...socials.querySelectorAll('li')].map(li=>li.querySelector('i')?.className),
@@ -33,6 +49,21 @@ try {
           width:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),
         };
       });
+      if(width<=1000){
+        assert.equal(metrics.menu.backgroundImage,'none',
+          width+'px original hamburger PNG must be removed');
+        assert.equal(metrics.menu.paddingLeft,0,
+          width+'px reserved legacy hamburger padding must be removed');
+        assert.equal(metrics.menu.icons,1,
+          width+'px menu must have exactly one Font Awesome hamburger');
+        assert.equal(metrics.menu.text.toLowerCase(),'menu');
+        assert(metrics.menu.visible,width+'px mobile menu should be visible');
+        assert(metrics.menu.iconLeft>=metrics.menu.left-1
+          && metrics.menu.iconRight<=metrics.menu.right+1,
+          width+'px modern hamburger must fit within Menu control');
+        assert(!['none','normal','""'].includes(metrics.menu.iconGlyph),
+          width+'px modern hamburger glyph missing');
+      }
       assert.equal(metrics.fittingTitle,'FITTINGS');
       assert.equal(metrics.fittingText,'Book a fitting');
       assert.deepEqual(metrics.socials,[
