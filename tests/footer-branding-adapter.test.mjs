@@ -24,17 +24,20 @@ test('all 8 routes receive the guarded three-column design with functional categ
   const widgets=nodes.find(n=>n.attrs.class==='cols-wrapper footer-widgets section-boxed redcarpert-footer-columns');
   const columns=widgets.children.filter(n=>typeof n!=='string');assert.equal(columns.length,3);
   assert(!nodes.some(n=>/\bcols-[34]\b/.test(n.attrs.class??'')));
-  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTING ENQUIRIES\n\nBook a fittingVia WhatsApp']);
+  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTINGS\\n\\nBook a fitting']);
   assert(!nodes.some(n=>n.attrs.id==='block-13'));
   assert.deepEqual(nodes.filter(n=>n.tag==='h2').map(n=>({attrs:n.attrs,text:text(n)})),[
    {attrs:{class:'redcarpert-footer-heading'},text:'COLLECTIONS'},
-   {attrs:{class:'redcarpert-footer-heading'},text:'FITTING ENQUIRIES'},
+   {attrs:{class:'redcarpert-footer-heading'},text:'FITTINGS'},
   ]);
   const links=nodes.filter(n=>n.tag==='a'&&n.attrs.href);
   assert.deepEqual(links.map(n=>[text(n),n.attrs.href]),[['Mermaid','/product-category/mermaid/'],['Ball Gown','/product-category/ball_gown/']]);
   for(const link of links)assert(sitePages[link.attrs.href.replace(/\/$/,'')]);
   const fitting=nodes.filter(n=>n.tag==='button');assert.equal(fitting.length,1);
-  assert.deepEqual(fitting[0],{tag:'button',attrs:{type:'button','data-whatsapp-preview':'','aria-haspopup':'dialog'},children:['Book a fitting']});
+  assert.deepEqual(fitting[0],{tag:'button',attrs:{type:'button',class:'redcarpert-footer-book','data-whatsapp-preview':'','aria-haspopup':'dialog','aria-label':'Book a fitting via WhatsApp'},children:[
+    {tag:'i',attrs:{class:'fa-brands fa-whatsapp','aria-hidden':'true'},children:[]},
+    {tag:'span',attrs:{},children:['Book a fitting']},
+  ]});
   assert.deepEqual(nodes.find(n=>n.attrs.class==='copyrights').children,[
     '© ',
     {tag:'span',attrs:{'data-copyright-year':''},children:[String(new Date().getFullYear())]},
