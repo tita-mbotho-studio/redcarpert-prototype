@@ -186,20 +186,21 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     padding-bottom: 60px;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-title {
-    font-size: clamp(27px, 4.2vw, 32px) !important;
+    /* About 30px at 768px, approaching 32px on larger tablets. */
+    font-size: clamp(26px, 3.90625vw, 32px) !important;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-desc {
     margin-top: 12px !important;
-    font-size: 13px !important;
+    font-size: clamp(12px, calc(0.431vw + 8.69px), 13px) !important;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-content > a.button {
     min-height: 46px;
     margin-top: 22px !important;
     padding: 10px 24px !important;
-    font-size: 13px !important;
+    font-size: clamp(12px, calc(0.431vw + 8.69px), 13px) !important;
   }
 }
-/* Phone portraits: shorter image panels, readable titles, properly sized
+/* Phone portraits: shorter second/third images, readable titles, properly sized
  * buttons and intentional photo focal positions. Image assets stay identical. */
 @media (max-width: 640px) {
   body.redcarpert-home-native .fullpage-wrapper > .section {
@@ -219,13 +220,15 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     background-position: 46% center !important;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-title {
-    font-size: clamp(24px, 6.7vw, 27px) !important;
+    /* 20px at 320px, 22px at 375px; readable without overwhelming the photo. */
+    font-size: clamp(20px, calc(3.636vw + 8.36px), 25px) !important;
     line-height: 1.25 !important;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-desc {
     max-width: 340px;
     margin-top: 10px !important;
-    font-size: 12px !important;
+    /* 10px at 320px, 11px at 375px; fluid until reaching 12px. */
+    font-size: clamp(10px, calc(1.818vw + 4.18px), 12px) !important;
     line-height: 1.6 !important;
     letter-spacing: .03em !important;
   }
@@ -233,9 +236,10 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     min-width: 0;
     min-height: 44px;
     max-width: min(100%, 280px);
-    margin-top: 20px !important;
-    padding: 10px 20px !important;
-    font-size: 12px !important;
+    margin-top: 18px !important;
+    padding: 10px 18px !important;
+    /* Match the subtitle's responsive font scale, retaining the 44px target. */
+    font-size: clamp(10px, calc(1.818vw + 4.18px), 12px) !important;
   }
   body.redcarpert-home-native .fullpage-scroll-arrow {
     bottom: 14px;
@@ -246,6 +250,13 @@ body.redcarpert-home-native footer[data-homepage-footer] {
   body.redcarpert-home-native .fullpage-wrapper > .section {
     --redcarpert-home-gutter: 16px;
   }
+}
+/* Hero always fills the initial viewport: no second photograph is visible
+ * until the visitor scrolls. The later photos retain their responsive heights.
+ * The minimum allows very short viewports to grow rather than clip text/CTA. */
+body.redcarpert-home-native .fullpage-wrapper > .section:first-child {
+  min-height: 100vh;
+  min-height: 100svh;
 }
 @media (prefers-reduced-motion: reduce) {
   body.redcarpert-home-native .fullpage-scroll-arrow {
