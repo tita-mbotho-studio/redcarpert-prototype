@@ -80,25 +80,28 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
   ]));
   replacements.set(socials, { ...socials, children: items });
 
-  const chat = one(all, n => n.attrs.id === "ht-ctc-chat", "original floating WhatsApp");
-  if (chat.tag !== "div" || !hasClass(chat, "ht-ctc") || !elements([chat]).some(n => n.tag === "svg")) fail("floating icon shape");
-  replacements.set(chat, {
-    ...chat,
-    attrs: { id: "ht-ctc-chat", class: "redcarpert-whatsapp-float" },
-    children: [
-      node("button", {
-        type: "button", class: "redcarpert-whatsapp-float-trigger",
-        "data-whatsapp-preview": "", "aria-haspopup": "dialog",
-        "aria-label": "Open WhatsApp fitting enquiry",
-        title: "WhatsApp fitting enquiry",
-      }, [icon("brands", "whatsapp")]),
-      node("button", {
-        type: "button", class: "redcarpert-whatsapp-float-dismiss",
-        "data-dismiss-whatsapp": "", "aria-label": "Hide floating WhatsApp button",
-        title: "Dismiss WhatsApp widget",
-      }, [icon("solid", "xmark")]),
-    ],
-  });
+  // The captured third-party plugin icon is inspected and then discarded.
+  // Publish a clean top-level modern widget instead of copying/remounting any
+  // of the original SVG, inline styles, event hooks or plugin wrappers.
+  const legacyChat = one(all, n => n.attrs.id === "ht-ctc-chat", "captured floating WhatsApp");
+  if (legacyChat.tag !== "div" || !hasClass(legacyChat, "ht-ctc")
+    || !elements([legacyChat]).some(n => n.tag === "svg")) fail("floating icon shape");
+  const floatingWidget = node("div", {
+    id: "redcarpert-floating-whatsapp",
+    class: "redcarpert-whatsapp-float",
+  }, [
+    node("button", {
+      type: "button", class: "redcarpert-whatsapp-float-trigger",
+      "data-whatsapp-preview": "", "aria-haspopup": "dialog",
+      "aria-label": "Open WhatsApp fitting enquiry",
+      title: "WhatsApp fitting enquiry",
+    }, [icon("brands", "whatsapp")]),
+    node("button", {
+      type: "button", class: "redcarpert-whatsapp-float-dismiss",
+      "data-dismiss-whatsapp": "", "aria-label": "Hide floating WhatsApp button",
+      title: "Dismiss WhatsApp widget",
+    }, [icon("solid", "xmark")]),
+  ]);
 
   // All editorial and dress-detail fitting CTAs share the same current
   // WhatsApp glyph while preserving their existing visible text and handlers.
@@ -161,12 +164,16 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
     replacements.set(n, { ...n, children: [icon("solid", "xmark")] });
   }
 
-  const visit = (n: DocumentNode): DocumentNode => {
+  const visit = (n: DocumentNode): DocumentNode | null => {
     if (typeof n === "string") return n;
+    if (n === legacyChat) return null;
     const replacement = replacements.get(n) ?? n;
-    const children = replacement.children.map(visit);
-    return children.some((child, i) => child !== replacement.children[i])
+    const visited = replacement.children.map(visit);
+    const children = visited.filter((child): child is DocumentNode => child !== null);
+    return children.length !== replacement.children.length
+      || children.some((child, i) => child !== replacement.children[i])
       ? { ...replacement, children } : replacement;
   };
-  return { ...document, nodes: document.nodes.map(visit) };
+  const nodes = document.nodes.map(visit).filter((n): n is DocumentNode => n !== null);
+  return { ...document, nodes: [...nodes, floatingWidget] };
 }
