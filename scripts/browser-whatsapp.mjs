@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 
-// Real user-click navigation test, with wa.me intercepted: this never sends a
-// message, depends on no external connectivity and checks popup target/URL.
+// Preview must always precede the wa.me handoff. No real message is sent.
+// The mobile floating control is hidden, but footer and dress enquiries remain.
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
-  for(const {route,width,name} of [
-    {route:'/',width:1440,name:'homepage enquiry'},
-    {route:'/product/preview/sample-01-mermaid/',width:390,name:'Mermaid dress fitting'},
-    {route:'/product/preview/sample-02-ball-gown/',width:768,name:'Ball Gown dress fitting'},
+  for(const {route,width,name,trigger} of [
+    {route:'/',width:1440,name:'homepage floating enquiry',trigger:'#ht-ctc-chat [data-whatsapp-preview]'},
+    {route:'/product/preview/sample-01-mermaid/',width:390,name:'Mermaid dress fitting',trigger:'[data-detail-preview] [data-whatsapp-preview]'},
+    {route:'/product/preview/sample-02-ball-gown/',width:768,name:'Ball Gown dress fitting',trigger:'[data-detail-preview] [data-whatsapp-preview]'},
+    {route:'/contact-us/',width:375,name:'mobile footer fitting',trigger:'#footer .redcarpert-footer-book'},
   ]){
     const context=await browser.newContext({viewport:{width,height:900}});
     await context.route('https://wa.me/**',requested=>requested.fulfill({
@@ -17,7 +18,9 @@ try {
     }));
     const page=await context.newPage();
     await page.goto('http://localhost:4173/redcarpert-prototype'+route,{waitUntil:'domcontentloaded'});
-    await page.locator('#ht-ctc-chat').click();
+    if(width<=640)assert.equal(await page.locator('#ht-ctc-chat').isHidden(),true,name+' hides the mobile floating widget');
+    else assert.equal(await page.locator('#ht-ctc-chat [data-whatsapp-preview]').isVisible(),true,name+' has floating CTA');
+    await page.locator(trigger).click();
     assert.equal(await page.locator('#enquiry-preview').evaluate(d=>d.open),true,name+' shows review first');
     const link=page.locator('#enquiry-preview [data-whatsapp-send]');
     assert.equal(await link.getAttribute('target'),'_blank',name+' opens WhatsApp in a new tab');
@@ -32,6 +35,19 @@ try {
     await popup.waitForLoadState('domcontentloaded');
     assert.equal(popup.url(),href.toString(),name+' opens the reviewed message URL');
     assert.equal(await popup.title(),'WhatsApp test handoff');
+
+    if(width===1440){
+      await page.keyboard.press('Escape');
+      const close=page.locator('#ht-ctc-chat [data-dismiss-whatsapp]');
+      assert.equal(await close.isVisible(),true,'desktop dismiss X must be visible');
+      await close.click();
+      assert.equal(await page.locator('#ht-ctc-chat').isHidden(),true,'floating widget should disappear');
+      assert.equal(await page.evaluate(()=>sessionStorage.getItem('redcarpert-floating-whatsapp-dismissed')),'1');
+      await page.goto('http://localhost:4173/redcarpert-prototype/about-us/',{waitUntil:'domcontentloaded'});
+      assert.equal(await page.locator('#ht-ctc-chat').isHidden(),true,'dismissal must persist across pages in same tab');
+      await page.locator('#footer .redcarpert-footer-social-whatsapp').click();
+      assert.equal(await page.locator('#enquiry-preview').evaluate(d=>d.open),true,'footer WhatsApp remains available');
+    }
     await context.close();
     console.log('WhatsApp handoff PASS',width,name);
   }
