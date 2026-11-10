@@ -31,25 +31,20 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
   const cols = direct(columns.children);
   if (cols.length !== 3) fail("expected three footer columns");
 
+  // The footer branding stage already emits current copy and icon markup.
+  // Validate it here without rebuilding a legacy intermediate link/button.
   const heading = one(elements([cols[2]]), n =>
     n.tag === "h2" && n.attrs.class === "redcarpert-footer-heading", "fittings heading");
-  if (heading.children.length !== 1 || heading.children[0] !== "FITTING ENQUIRIES") fail("fittings text");
-  replacements.set(heading, { ...heading, children: ["FITTINGS"] });
-
-  const fitList = one(elements([cols[2]]), n => n.attrs.class === "redcarpert-footer-items", "fitting links");
-  const controls = elements(fitList.children);
-  if (controls.length !== 2 || controls[0].tag !== "button"
+  if (heading.children.length !== 1 || heading.children[0] !== "FITTINGS") fail("fittings text");
+  const fitList = one(elements([cols[2]]), n =>
+    n.attrs.class === "redcarpert-footer-items", "fitting links");
+  const controls = direct(fitList.children);
+  if (controls.length !== 1 || controls[0].tag !== "button"
+    || controls[0].attrs.class !== "redcarpert-footer-book"
     || controls[0].attrs["data-whatsapp-preview"] !== ""
-    || controls[1].tag !== "span" || controls[1].children.join("") !== "Via WhatsApp") fail("legacy fitting links");
-  replacements.set(fitList, {
-    ...fitList, children: [
-      node("button", {
-        type: "button", class: "redcarpert-footer-book",
-        "data-whatsapp-preview": "", "aria-haspopup": "dialog",
-        "aria-label": "Book a fitting via WhatsApp",
-      }, [icon("brands", "whatsapp"), node("span", {}, ["Book a fitting"])]),
-    ],
-  });
+    || !elements([controls[0]]).some(n=>n.tag==="i" && n.attrs.class==="fa-brands fa-whatsapp")) {
+    fail("fitting links");
+  }
 
   const socials = one(elements([cols[0]]), n => n.tag === "ul" && n.attrs.class === "social-icons", "footer socials");
   const platforms = [
