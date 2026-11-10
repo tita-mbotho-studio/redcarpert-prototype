@@ -42,7 +42,7 @@ test('every approved editorial footer has modern Brands social icons, minimal fi
     assert.equal(active.length,2,'only fitting action and footer WhatsApp are live CTAs');
     assert(active.every(n=>n.tag==='button'&&n.attrs['aria-haspopup']==='dialog'));
     assert.equal(all([list]).filter(n=>n.tag==='a').length,0,'do not restore unconfirmed social links');
-    const floating=find(doc,n=>n.attrs.id==='ht-ctc-chat')[0];
+    const floating=find(doc,n=>n.attrs.id==='redcarpert-floating-whatsapp')[0];
     assert.equal(floating.attrs.class,'redcarpert-whatsapp-float');
     assert.equal(all([floating]).filter(n=>n.tag==='button').length,2);
     assert(all([floating]).some(n=>n.attrs['data-dismiss-whatsapp']===''));
@@ -70,7 +70,7 @@ test('all custom legacy image and glyph icons become modern FA icons',()=>{
 
 test('icon transformation refuses unexpected captured footer/WhatsApp structure',()=>{
   const broken=structuredClone(fixture('/about-us'));
-  find(broken,n=>n.attrs.id==='ht-ctc-chat')[0].children=[];
+  find(broken,n=>n.attrs.id==='redcarpert-floating-whatsapp')[0].children=[];
   assert.throws(()=>modernizeSiteIcons(broken),/Modern icons .*floating icon shape/);
   const wrong=structuredClone(fixture('/'));
   find(wrong,n=>n.attrs.class==='redcarpert-footer-items')[1].children=[];
