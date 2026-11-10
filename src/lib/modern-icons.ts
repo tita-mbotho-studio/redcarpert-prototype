@@ -1,7 +1,9 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
+const direct = (nodes: DocumentNode[]): DocumentElement[] =>
+  nodes.filter((n): n is DocumentElement => typeof n !== "string");
 const elements = (nodes: DocumentNode[]): DocumentElement[] =>
-  nodes.flatMap(n => typeof n === "string" ? [] : [n, ...elements(n.children)]);
+  direct(nodes).flatMap(n => [n, ...elements(n.children)]);
 const hasClass = (n: DocumentElement, name: string) =>
   (n.attrs.class ?? "").split(/\s+/).includes(name);
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[] = []): DocumentElement =>
@@ -26,7 +28,7 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
   const replacements = new Map<DocumentElement, DocumentElement>();
   const footer = one(all, n => n.tag === "footer" && n.attrs["data-redcarpert-footer"] === "true", "footer");
   const columns = one(elements(footer.children), n => hasClass(n, "redcarpert-footer-columns"), "footer grid");
-  const cols = elements(columns.children);
+  const cols = direct(columns.children);
   if (cols.length !== 3) fail("expected three footer columns");
 
   const heading = one(elements([cols[2]]), n =>
@@ -54,7 +56,7 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
     ["Instagram", "instagram"], ["YouTube", "youtube"], ["Twitter", "x-twitter"],
     ["Pinterest", "pinterest-p"], ["TikTok", "tiktok"],
   ] as const;
-  const previous = elements(socials.children);
+  const previous = direct(socials.children);
   if (previous.length !== platforms.length) fail("five original social placeholders");
   const items: DocumentNode[] = previous.map((item, index) => {
     const anchor = one(elements(item.children), n => n.tag === "a", "social placeholder anchor");
