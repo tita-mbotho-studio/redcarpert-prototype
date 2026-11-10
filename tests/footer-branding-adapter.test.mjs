@@ -47,7 +47,7 @@ test('all 8 routes receive the guarded three-column design with functional categ
   assert.equal(brand.children.at(-2).children[0],'Elegant bridal collections');
   assert(!all([nodes.find(n=>n.attrs.class==='footer-bottom')]).includes(profiles[0]));
   assert.equal(nodes.filter(n=>n.attrs.class==='social-icons').length,1);
-  assert.deepEqual(all([profiles[0]]).filter(n=>n.tag==='img').map(n=>n.attrs.src),['/redcarpert/instagram.svg','/site-assets/3d94819dd14ede1760.png','/site-assets/4600dc5b99e2f02b67.png','/site-assets/3b9a6e23cf5c478efd.png','/site-assets/54721da2e3bb14d829.png']);
+  assert.deepEqual(all([profiles[0]]).filter(n=>n.tag==='img').map(n=>n.attrs.src),['https://nirvanatakipcim.com/gelinlik/wp-content/themes/thestory/images/icons_white/instagram.png','/site-assets/3d94819dd14ede1760.png','/site-assets/4600dc5b99e2f02b67.png','/site-assets/3b9a6e23cf5c478efd.png','/site-assets/54721da2e3bb14d829.png']);
   // Approved social subtrees, local icons, scroll control and all non-footer nodes stay shared.
   for(const n of old.filter(n=>n.attrs.class==='social-profiles'||n.attrs.class==='scroll-to-top'||n.tag==='a'||n.tag==='img'&&n.attrs.class!=='wp-image-13926'))assert(nodes.includes(n));
   const compareOutside=(a,b)=>{if(typeof a==='string')return assert.equal(a,b);if(a.tag==='footer')return;if(!all([a]).some(n=>n.tag==='footer'))return assert.equal(a,b);assert.deepEqual(a.attrs,b.attrs);a.children.forEach((c,i)=>compareOutside(c,b.children[i]));};
