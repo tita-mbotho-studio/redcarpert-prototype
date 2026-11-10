@@ -226,7 +226,6 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
 }
 
 /* Existing bridal-gallery preview affordance, now an actual FA icon. */
-.redcarpert-bride-card button::after { content: none !important; }
 .redcarpert-bride-card .redcarpert-bride-zoom-badge {
   position: absolute;
   right: 12px;
