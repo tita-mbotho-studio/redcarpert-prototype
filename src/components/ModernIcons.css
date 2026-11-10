@@ -6,7 +6,7 @@
 
 /* Floating contact control: never show on phones, including 375 x 667.
  * Keep buttons independent: dismissing must never open the enquiry preview. */
-#ht-ctc-chat.redcarpert-whatsapp-float {
+#redcarpert-floating-whatsapp.redcarpert-whatsapp-float {
   box-sizing: border-box;
   display: none !important;
   position: fixed !important;
@@ -24,14 +24,14 @@
   background: transparent !important;
   transform: none !important;
 }
-#ht-ctc-chat.redcarpert-whatsapp-float[data-ready]:not([hidden]) {
+#redcarpert-floating-whatsapp.redcarpert-whatsapp-float[data-ready]:not([hidden]) {
   display: flex !important;
 }
-#ht-ctc-chat.redcarpert-whatsapp-float[hidden] {
+#redcarpert-floating-whatsapp.redcarpert-whatsapp-float[hidden] {
   display: none !important;
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-trigger,
-#ht-ctc-chat .redcarpert-whatsapp-float-dismiss {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger,
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss {
   appearance: none;
   display: grid;
   box-sizing: border-box;
@@ -44,7 +44,7 @@
   cursor: pointer;
   transition: transform .2s ease, background-color .2s ease;
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-trigger {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger {
   width: 54px;
   height: 54px;
   border: 1px solid #1cac59;
@@ -52,7 +52,7 @@
   color: #fff;
   font-size: 29px;
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-dismiss {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss {
   width: 27px;
   height: 27px;
   border: 1px solid #dfd9d2;
@@ -60,21 +60,21 @@
   color: #5f5852;
   font-size: 13px;
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-trigger:hover,
-#ht-ctc-chat .redcarpert-whatsapp-float-dismiss:hover {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger:hover,
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss:hover {
   transform: translateY(-2px);
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-trigger:hover {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger:hover {
   background: #1fb65a;
 }
-#ht-ctc-chat .redcarpert-whatsapp-float-trigger:focus-visible,
-#ht-ctc-chat .redcarpert-whatsapp-float-dismiss:focus-visible {
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger:focus-visible,
+#redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss:focus-visible {
   outline: 2px solid #3f3a34;
   outline-offset: 4px;
 }
 @media (max-width: 640px) {
-  #ht-ctc-chat.redcarpert-whatsapp-float,
-  #ht-ctc-chat.redcarpert-whatsapp-float[data-ready]:not([hidden]) {
+  #redcarpert-floating-whatsapp.redcarpert-whatsapp-float,
+  #redcarpert-floating-whatsapp.redcarpert-whatsapp-float[data-ready]:not([hidden]) {
     display: none !important;
   }
 }
@@ -258,8 +258,8 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
 .redcarpert-book-controls [data-book-next] .fa-arrow-right { margin-left: 8px; }
 
 @media (prefers-reduced-motion: reduce) {
-  #ht-ctc-chat .redcarpert-whatsapp-float-trigger,
-  #ht-ctc-chat .redcarpert-whatsapp-float-dismiss,
+  #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger,
+  #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss,
   .redcarpert-bride-card .redcarpert-bride-zoom-badge {
     transition: none;
   }
