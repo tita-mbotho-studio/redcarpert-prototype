@@ -47,6 +47,8 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
   assert.match(html,/fontawesome-free@7\.3\.1\/css\/all\.min\.css/);
   assert.match(html,/fa-brands fa-whatsapp/,route+' must contain branded WhatsApp icon');
+  assert.match(html,/id="redcarpert-floating-whatsapp"/,route+' must use modern widget');
+  assert.doesNotMatch(html,/id="ht-ctc-chat"|htwasqicona-chat|\/redcarpert\/instagram\.svg/,route+' must not ship old WhatsApp markup or social SVG');
   assert.match(html,/redcarpert-whatsapp-float-dismiss/,route+' missing accessible dismiss button');
   assert.match(html,/data-dismiss-whatsapp/,route+' missing close behaviour');
   assert.match(html,/class="redcarpert-footer-social-whatsapp"/,route+' must provide footer WhatsApp');
