@@ -40,9 +40,19 @@ test('static deployment contains complete approved pages, local paths and no app
  assert.match(readFileSync('dist/404.html','utf8'),/Page not found/);
  const pdf=readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf');assert.equal(pdf.subarray(0,8).toString(),'%PDF-1.4');assert.match(pdf.toString('latin1'),/\/Count 2/);
 });
-test('copied classic scripts remain valid JavaScript and the footer SVG decodes',{skip:!available},async()=>{
+test('copied classic scripts remain valid and every page uses modern Font Awesome controls',{skip:!available},()=>{
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
- const image=await sharp('dist/redcarpert/instagram.svg').png().toBuffer();assert(image.length>100);
+ const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
+ for(const route of routes){
+  const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+  assert.match(html,/fontawesome-free@7\.3\.1\/css\/all\.min\.css/);
+  assert.match(html,/fa-brands fa-whatsapp/,route+' must contain branded WhatsApp icon');
+  assert.match(html,/redcarpert-whatsapp-float-dismiss/,route+' missing accessible dismiss button');
+  assert.match(html,/data-dismiss-whatsapp/,route+' missing close behaviour');
+  assert.match(html,/class="redcarpert-footer-social-whatsapp"/,route+' must provide footer WhatsApp');
+  assert.match(html,/class="redcarpert-footer-book"/,route+' must provide a fitting CTA');
+  assert.doesNotMatch(html,/FITTING ENQUIRIES|Via WhatsApp/,route+' contains old redundant footer text');
+ }
 });
 
 test('ten-page interactive book and eight shared Pexels products are published without local copies',{skip:!available},()=>{
