@@ -41,6 +41,7 @@ try {
           subtitle:s.querySelector('.section-desc') ? box(s.querySelector('.section-desc')) : null,
           button:s.querySelector('.section-content > a.button') ? box(s.querySelector('.section-content > a.button')) : null,
           titleFont:s.querySelector('.section-title') ? parseFloat(getComputedStyle(s.querySelector('.section-title')).fontSize) : null,
+          subtitleFont:s.querySelector('.section-desc') ? parseFloat(getComputedStyle(s.querySelector('.section-desc')).fontSize) : null,
           buttonFont:s.querySelector('.section-content > a.button') ? parseFloat(getComputedStyle(s.querySelector('.section-content > a.button')).fontSize) : null,
           buttonLabel:s.querySelector('.section-content > a.button')?.textContent.trim()??null,
         })),
@@ -59,6 +60,20 @@ try {
     assert.equal(m.loading,false,'remove legacy loading screen');
     assert.equal(m.sections.length,3,'exactly the original three photos');
     assert(m.sections.every((s,i)=>s.bg.includes(images[i])),width+'px photos changed or missing');
+    // Image one must occupy the entire initial viewport, hiding image two
+    // until the visitor actually scrolls. Keep the later panels unchanged.
+    assert(Math.abs(m.sections[0].box.y)<=2,width+'px first image must start at the viewport top');
+    assert(m.sections[0].box.height>=height-1,width+'px first image must fill the visible screen');
+    assert(m.sections[0].box.height<=height+3,width+'px first image should not become an oversized slide');
+    assert(m.sections[1].box.y>=height-1,width+'px second image should start below the initial fold');
+    const expectedTitle=width<=640
+      ? Math.max(20,Math.min(25,width*.03636+8.36))
+      : width<=1000 ? Math.max(26,Math.min(32,width*.0390625))
+      : Math.max(32,Math.min(40,width*.028));
+    const expectedSecondary=width<=640
+      ? Math.max(10,Math.min(12,width*.01818+4.18))
+      : width<=1000 ? Math.max(12,Math.min(13,width*.00431+8.69))
+      : 14;
     for(const [i,s] of m.sections.entries()) {
       assert.equal(s.size,'cover',width+'px photo '+i+' must be cover framed');
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
@@ -68,17 +83,21 @@ try {
       if(s.title) {
         assert(s.title.x>=0&&s.title.right<=width+1,width+'px title '+i+' horizontal overflow');
         assert(s.title.y>=s.box.y&&s.title.bottom<=s.box.bottom,width+'px title '+i+' must fit in photo');
-        assert(s.titleFont>=23&&s.titleFont<=41,width+'px title '+i+' size inappropriate');
+        assert(Math.abs(s.titleFont-expectedTitle)<=.11,
+          width+'px title '+i+' must scale responsively: '+s.titleFont+' != '+expectedTitle);
       }
       if(s.button) {
         assert(s.button.x>=0&&s.button.right<=width+1,width+'px button '+i+' clips');
         assert(s.button.height>=43,width+'px button '+i+' lacks touch target');
         assert(s.button.y>=s.box.y&&s.button.bottom<=s.box.bottom,width+'px button '+i+' not inside photo');
-        assert(s.buttonFont>=11.5&&s.buttonFont<=14.5,width+'px button '+i+' font size inappropriate');
+        assert(Math.abs(s.buttonFont-expectedSecondary)<=.11,
+          width+'px button '+i+' must match responsive font size: '+s.buttonFont+' != '+expectedSecondary);
       }
       if(s.subtitle&&s.title){
         assert(s.subtitle.y>=s.title.bottom-1,width+'px subtitle should follow title');
         assert(s.subtitle.x>=0&&s.subtitle.right<=width+1,width+'px subtitle overflow');
+        assert(Math.abs(s.subtitleFont-expectedSecondary)<=.11,
+          width+'px subtitle '+i+' must scale responsively: '+s.subtitleFont+' != '+expectedSecondary);
       }
     }
     assert.equal(m.sections[1].title,null,'middle photograph must remain text-free');
@@ -109,7 +128,9 @@ try {
     const link=page.locator('.fullpage-wrapper > .section').first().locator('a.button');
     assert((await link.getAttribute('href')).includes('/product/'));
     assert.deepEqual(errors,[],width+'px browser errors');
-    console.log('Native homepage PASS',width,height,m.sections.map(s=>Math.round(s.box.height)),m.sections.map(s=>s.position));
+    console.log('Native homepage PASS',width,height,m.sections.map(s=>Math.round(s.box.height)),
+      'fonts',m.sections.filter(s=>s.title).map(s=>[s.titleFont,s.subtitleFont,s.buttonFont]),
+      m.sections.map(s=>s.position));
     await page.close();
   }
 } finally { await browser.close(); }
