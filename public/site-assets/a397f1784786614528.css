@@ -7339,9 +7339,9 @@ cursor: pointer;
 }
 .mob-nav-btn {
 display: block;
-padding-left: 27px;
+padding-left: 0;
 height: 15px;
-background: url("/site-assets/54680b5d97bca3e0c2.png") no-repeat;
+background: none;
 background-size: 20px 15px;
 color: #ffffff;
 text-transform: uppercase;
@@ -7416,9 +7416,7 @@ display: block;
 margin-left: 10px;
 padding-left: 20px;
 height: 15px;
-background: url("/site-assets/54680b5d97bca3e0c2.png") no-repeat;
-background-position: left center;
-background-size: 14px;
+background: none;
 text-transform: uppercase;
 font-size: 12px;
 line-height: 1.3em;
@@ -8335,7 +8333,7 @@ margin-bottom: 9px;
 margin-right: 50px;
 }
 .icons-style-dark .mob-nav-btn {
-background-image: url("/site-assets/b4bfc950ddaf86c166.png");
+background-image: none;
 }  .fullpage-autoplay .fp-side {
 height: 21px;
 } body {
