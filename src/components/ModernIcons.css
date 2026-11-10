@@ -175,8 +175,25 @@
 }
 
 /* Replace inherited pictogram-font arrows with accessible FA icons. */
-#header .mob-nav-btn .fa-bars { display: inline-block; margin-right: 6px; font-size: .93em; }
-#header .mob-nav-btn::before { content: none !important; }
+/* The captured theme paints a second hamburger as a background image on
+ * .mob-nav-btn and reserves 27px for it. Remove both; the Font Awesome icon
+ * below is the only visible menu glyph at all mobile breakpoints. */
+#header .mob-nav-btn {
+  background-image: none !important;
+  background: none !important;
+  padding-left: 0 !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+#header .mob-nav-btn .fa-bars {
+  display: inline-block;
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: .93em;
+}
+#header .mob-nav-btn::before,
+#header .mob-nav-btn::after { content: none !important; }
 body.redcarpert-home-native .fullpage-scroll-arrow.redcarpert-modern-down-arrow::before {
   content: none !important;
 }
