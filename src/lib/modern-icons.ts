@@ -1,0 +1,154 @@
+import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
+
+const elements = (nodes: DocumentNode[]): DocumentElement[] =>
+  nodes.flatMap(n => typeof n === "string" ? [] : [n, ...elements(n.children)]);
+const hasClass = (n: DocumentElement, name: string) =>
+  (n.attrs.class ?? "").split(/\s+/).includes(name);
+const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[] = []): DocumentElement =>
+  ({ tag, attrs, children });
+const icon = (family: "brands" | "solid", name: string): DocumentElement =>
+  node("i", { class: `fa-${family} fa-${name}`, "aria-hidden": "true" });
+
+/**
+ * Last, strictly scoped presentation pass. Keeps the captured document intact,
+ * replaces legacy image/glyph icons with current Font Awesome Free icon classes,
+ * and retains the pre-existing WhatsApp preview and navigation behaviour.
+ */
+export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData {
+  const fail = (reason: string): never => {
+    throw new Error(`Modern icons ${document.route}: ${reason}`);
+  };
+  const all = elements(document.nodes);
+  const one = (items: DocumentElement[], predicate: (n: DocumentElement) => boolean, reason: string) => {
+    const matches = items.filter(predicate);
+    return matches.length === 1 ? matches[0] : fail(reason);
+  };
+  const replacements = new Map<DocumentElement, DocumentElement>();
+  const footer = one(all, n => n.tag === "footer" && n.attrs["data-redcarpert-footer"] === "true", "footer");
+  const columns = one(elements(footer.children), n => hasClass(n, "redcarpert-footer-columns"), "footer grid");
+  const cols = elements(columns.children);
+  if (cols.length !== 3) fail("expected three footer columns");
+
+  const fittingHeading = one(elements(cols[2].children), n =>
+    elements([n]).some(x => x.tag === "h2" && x.attrs.class === "redcarpert-footer-heading"), "fittings heading wrapper");
+  const heading = one(elements([fittingHeading]), n =>
+    n.tag === "h2" && n.attrs.class === "redcarpert-footer-heading", "fittings heading");
+  if (heading.children.length !== 1 || heading.children[0] !== "FITTING ENQUIRIES") fail("fittings text");
+  replacements.set(heading, { ...heading, children: ["FITTINGS"] });
+
+  const fitItems = one(elements(cols[2].children), n =>
+    elements([n]).some(x => x.attrs.class === "redcarpert-footer-items"), "fitting widget");
+  const fitList = one(elements([fitItems]), n => n.attrs.class === "redcarpert-footer-items", "fitting links");
+  const controls = elements(fitList.children);
+  if (controls.length !== 2 || controls[0].tag !== "button"
+    || controls[0].attrs["data-whatsapp-preview"] !== ""
+    || controls[1].tag !== "span" || controls[1].children.join("") !== "Via WhatsApp") fail("legacy fitting links");
+  replacements.set(fitList, {
+    ...fitList, children: [
+      node("button", {
+        type: "button", class: "redcarpert-footer-book",
+        "data-whatsapp-preview": "", "aria-haspopup": "dialog",
+        "aria-label": "Book a fitting via WhatsApp",
+      }, [icon("brands", "whatsapp"), node("span", {}, ["Book a fitting"])]),
+    ],
+  });
+
+  const socials = one(elements([cols[0]]), n => n.tag === "ul" && n.attrs.class === "social-icons", "footer socials");
+  const platforms = [
+    ["Instagram", "instagram"], ["YouTube", "youtube"], ["Twitter", "x-twitter"],
+    ["Pinterest", "pinterest-p"], ["TikTok", "tiktok"],
+  ] as const;
+  const previous = elements(socials.children);
+  if (previous.length !== platforms.length) fail("five original social placeholders");
+  const items: DocumentNode[] = previous.map((item, index) => {
+    const anchor = one(elements(item.children), n => n.tag === "a", "social placeholder anchor");
+    const [label, symbol] = platforms[index];
+    if (anchor.attrs["aria-disabled"] !== "true" || anchor.attrs["aria-label"] !== `${label}: destination not yet available`
+      && anchor.attrs["aria-label"] !== `${label}: destination to be confirmed`) fail("social placeholder identity");
+    return node("li", {}, [
+      node("span", {
+        class: "redcarpert-footer-social-placeholder", "aria-label": `${label} (coming soon)`,
+        title: `${label} (coming soon)`,
+      }, [icon("brands", symbol)]),
+    ]);
+  });
+  items.push(node("li", {}, [
+    node("button", {
+      type: "button", class: "redcarpert-footer-social-whatsapp",
+      "data-whatsapp-preview": "", "aria-haspopup": "dialog",
+      "aria-label": "WhatsApp fitting enquiries",
+      title: "WhatsApp fitting enquiries",
+    }, [icon("brands", "whatsapp")]),
+  ]));
+  replacements.set(socials, { ...socials, children: items });
+
+  const chat = one(all, n => n.attrs.id === "ht-ctc-chat", "original floating WhatsApp");
+  if (chat.tag !== "div" || !hasClass(chat, "ht-ctc") || !elements([chat]).some(n => n.tag === "svg")) fail("floating icon shape");
+  replacements.set(chat, {
+    ...chat,
+    attrs: { id: "ht-ctc-chat", class: "redcarpert-whatsapp-float" },
+    children: [
+      node("button", {
+        type: "button", class: "redcarpert-whatsapp-float-trigger",
+        "data-whatsapp-preview": "", "aria-haspopup": "dialog",
+        "aria-label": "Open WhatsApp fitting enquiry",
+        title: "WhatsApp fitting enquiry",
+      }, [icon("brands", "whatsapp")]),
+      node("button", {
+        type: "button", class: "redcarpert-whatsapp-float-dismiss",
+        "data-dismiss-whatsapp": "", "aria-label": "Hide floating WhatsApp button",
+        title: "Dismiss WhatsApp widget",
+      }, [icon("solid", "xmark")]),
+    ],
+  });
+
+  const mobile = one(all, n => n.tag === "span" && hasClass(n, "mob-nav-btn"), "mobile menu");
+  if (mobile.children.length !== 1 || typeof mobile.children[0] !== "string") fail("mobile menu text");
+  replacements.set(mobile, {
+    ...mobile,
+    children: [icon("solid", "bars"), node("span", {}, ["Menu"])],
+  });
+
+  if (document.route === "/") {
+    const down = one(all, n => hasClass(n, "fullpage-scroll-arrow"), "home down arrow");
+    replacements.set(down, {
+      ...down, attrs: {
+        ...down.attrs,
+        class: "fullpage-scroll-arrow redcarpert-modern-down-arrow",
+      }, children: [icon("solid", "chevron-down")],
+    });
+  } else {
+    const scroll = one(all, n => hasClass(n, "scroll-to-top"), "scroll-to-top");
+    replacements.set(scroll, {
+      ...scroll, children: [icon("solid", "arrow-up")],
+    });
+  }
+
+  for (const n of all.filter(n => n.tag === "a" && hasClass(n, "wpgis-popup") && hasClass(n, "fa-expand"))) {
+    replacements.set(n, {
+      ...n,
+      attrs: { ...n.attrs, class: "wpgis-popup redcarpert-modern-zoom" },
+      children: [icon("solid", "up-right-and-down-left-from-center")],
+    });
+  }
+  for (const n of all.filter(n => n.tag === "button" && n.attrs["data-bride-preview"] !== undefined)) {
+    const images = elements(n.children);
+    if (images.length !== 1 || images[0].tag !== "img") fail("bride thumbnail");
+    replacements.set(n, { ...n, children: [...n.children,
+      node("span", { class: "redcarpert-bride-zoom-badge", "aria-hidden": "true" },
+        [icon("solid", "up-right-and-down-left-from-center")]),
+    ] });
+  }
+  for (const n of all.filter(n => n.tag === "button" && n.attrs["data-bride-preview-close"] !== undefined)) {
+    replacements.set(n, { ...n, children: [icon("solid", "xmark")] });
+  }
+
+  const visit = (n: DocumentNode): DocumentNode => {
+    if (typeof n === "string") return n;
+    const replacement = replacements.get(n) ?? n;
+    const children = replacement.children.map(visit);
+    return children.some((child, i) => child !== replacement.children[i])
+      ? { ...replacement, children } : replacement;
+  };
+  return { ...document, nodes: document.nodes.map(visit) };
+}
