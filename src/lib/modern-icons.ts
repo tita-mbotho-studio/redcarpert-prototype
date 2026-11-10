@@ -29,16 +29,12 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
   const cols = elements(columns.children);
   if (cols.length !== 3) fail("expected three footer columns");
 
-  const fittingHeading = one(elements(cols[2].children), n =>
-    elements([n]).some(x => x.tag === "h2" && x.attrs.class === "redcarpert-footer-heading"), "fittings heading wrapper");
-  const heading = one(elements([fittingHeading]), n =>
+  const heading = one(elements([cols[2]]), n =>
     n.tag === "h2" && n.attrs.class === "redcarpert-footer-heading", "fittings heading");
   if (heading.children.length !== 1 || heading.children[0] !== "FITTING ENQUIRIES") fail("fittings text");
   replacements.set(heading, { ...heading, children: ["FITTINGS"] });
 
-  const fitItems = one(elements(cols[2].children), n =>
-    elements([n]).some(x => x.attrs.class === "redcarpert-footer-items"), "fitting widget");
-  const fitList = one(elements([fitItems]), n => n.attrs.class === "redcarpert-footer-items", "fitting links");
+  const fitList = one(elements([cols[2]]), n => n.attrs.class === "redcarpert-footer-items", "fitting links");
   const controls = elements(fitList.children);
   if (controls.length !== 2 || controls[0].tag !== "button"
     || controls[0].attrs["data-whatsapp-preview"] !== ""
