@@ -5,7 +5,7 @@ if (!dialog) return;
 let trigger;
 function open(control) { trigger = control; dialog.querySelector('[role=status]').textContent = ''; if (!dialog.open) dialog.showModal(); }
 window.addEventListener('click', event => {
-  const control = event.target.closest?.('#ht-ctc-chat, [data-whatsapp-preview]');
+  const control = event.target.closest?.('[data-whatsapp-preview]');
   if (!control) return;
   event.preventDefault(); event.stopImmediatePropagation(); open(control);
 }, true);
@@ -19,7 +19,7 @@ window.addEventListener('keydown', event => {
     else if (event.key === 'Tab' && !event.shiftKey && document.activeElement === controls.at(-1)) { event.preventDefault(); controls[0].focus(); }
     return;
   }
-  const control = event.target.closest?.('#ht-ctc-chat, [data-whatsapp-preview]');
+  const control = event.target.closest?.('[data-whatsapp-preview]');
   if (control && ['Enter', ' '].includes(event.key)) { event.preventDefault(); event.stopImmediatePropagation(); if (!event.repeat) open(control); }
 }, true);
 for (const type of ['wheel','touchmove']) window.addEventListener(type, event => { if (dialog.open) event.stopImmediatePropagation(); }, {capture:true,passive:true});
