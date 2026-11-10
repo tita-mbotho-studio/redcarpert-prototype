@@ -247,3 +247,38 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
     transition: none;
   }
 }
+
+/* Use matching icon typography for the header, gallery accents and controls. */
+#header #menu-item-15821 > a > .fa-chevron-down {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: .75em;
+  vertical-align: .08em;
+}
+#header #menu-item-15821 > a::after {
+  content: none !important;
+}
+#main-container [data-whatsapp-preview] > .fa-whatsapp {
+  display: inline-block;
+  margin-right: .5em;
+  font-size: 1.08em;
+  vertical-align: -.04em;
+}
+#main-container .redcarpert-bride-accent-mark.fa-solid {
+  font-family: "Font Awesome 7 Free";
+  font-weight: 900;
+  font-size: clamp(16px, 2.1vw, 26px);
+  line-height: 1;
+}
+#enquiry-preview .actions > button,
+#enquiry-preview .actions > a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+#enquiry-preview .actions .fa-solid,
+#enquiry-preview .actions .fa-brands {
+  display: inline-block;
+  font-size: .95em;
+}
