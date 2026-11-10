@@ -14,7 +14,7 @@ try {
         const footer=document.querySelector('footer[data-redcarpert-footer]');
         const brand=footer.querySelector('.redcarpert-footer-columns > .col:first-child');
         const socials=brand.querySelector('.social-icons');
-        const float=document.querySelector('#ht-ctc-chat');
+        const float=document.querySelector('#redcarpert-floating-whatsapp');
         const text=n=>n?.textContent.trim().replace(/\s+/g,' ');
         const bounds=n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
         const sample=footer.querySelector('.fa-brands.fa-whatsapp');
