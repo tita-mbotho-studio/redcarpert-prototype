@@ -1,4 +1,4 @@
-name: Deploy static Pages site
+name: Verify and deploy static Pages site (manual)
 on:
   workflow_dispatch:
     inputs:
@@ -7,8 +7,6 @@ on:
         required: true
         type: boolean
         default: false
-  push:
-    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -43,13 +41,9 @@ jobs:
           path: dist
   deploy:
     needs: build
-    # Publish the explicitly approved Implementation 19 release on this commit only.
-    # Regular future pushes remain build-only unless separately approved.
-    # Manual deployments still require the approve_deployment input.
-    if: >-
-      github.ref == 'refs/heads/main' &&
-      ((github.event_name == 'workflow_dispatch' && inputs.approve_deployment) ||
-      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 19'))
+    # Run only on explicit manual approval: never publish from a code push or PR.
+    # This same manual workflow performs the build and browser checks first.
+    if: github.ref == 'refs/heads/main' && inputs.approve_deployment
     permissions:
       pages: write
       id-token: write

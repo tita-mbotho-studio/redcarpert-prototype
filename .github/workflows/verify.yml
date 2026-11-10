@@ -1,9 +1,8 @@
 name: Verify static Redcarpert site (no deployment)
+# Verification is opt-in; editing, pushing and opening PRs should not
+# consume Actions minutes until the owner requests a final check.
 on:
-  push:
-    branches: ['implementation/**']
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
