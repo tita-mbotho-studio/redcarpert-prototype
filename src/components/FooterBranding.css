@@ -185,13 +185,7 @@
   float: none;
   margin: 0;
 }
-#footer[data-redcarpert-footer] .widget_media_image .social-icons img {
-  width: 32px;
-  height: 32px;
-  opacity: 0.7;
-  object-fit: contain;
-}
-/* Header mobile treatment begins at 1000px: same image aspect/height rules. */
+/* Header mobile treatment begins at 1000px: preserve logo dimensions and responsive social slots. */
 @media (max-width: 1000px) {
   #footer[data-redcarpert-footer] .widget_media_image {
     width: auto;
@@ -215,8 +209,7 @@
   #footer[data-redcarpert-footer] .redcarpert-footer-columns > .col:last-child {
     padding-right: 0;
   }
-  #footer[data-redcarpert-footer] .widget_media_image .social-icons li,
-  #footer[data-redcarpert-footer] .widget_media_image .social-icons img {
+  #footer[data-redcarpert-footer] .widget_media_image .social-icons li {
     flex-basis: 24px;
     width: 24px;
     height: 24px;
@@ -258,8 +251,7 @@
   #footer[data-redcarpert-footer] .widget_media_image .social-profiles {
     margin-top: 10px;
   }
-  #footer[data-redcarpert-footer] .widget_media_image .social-icons li,
-  #footer[data-redcarpert-footer] .widget_media_image .social-icons img {
+  #footer[data-redcarpert-footer] .widget_media_image .social-icons li {
     flex-basis: 16px;
     width: 16px;
     height: 16px;
