@@ -12,7 +12,7 @@ body.redcarpert-home-native {
 /* The reference theme paints #header dark when .dark-header, .mobile or
  * .fixed-header-scroll is active. The homepage must remain a transparent
  * overlay in every one of those states, including while its header shrinks. */
-body.redcarpert-home-native .header-wrapper {
+body.redcarpert-home-native #main-container .header-wrapper {
   position: fixed !important;
   top: 0;
   left: 0;
