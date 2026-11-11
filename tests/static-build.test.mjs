@@ -134,7 +134,11 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.match(yaml,/workflow_dispatch:/);
   assert.match(yaml,/approve_deployment:/);
   assert.match(yaml,/default:\s*false/);
-  assert.match(yaml,/github\.event_name == 'workflow_dispatch' && inputs\.approve_deployment/);
+  assert.match(yaml,/if: github\.ref == 'refs\/heads\/main' && inputs\.approve_deployment/);
+  assert.doesNotMatch(yaml,/^\\s+(?:push|pull_request):/m,'deployment should never run on push or PR');
+  const verification=readFileSync('.github/workflows/verify.yml','utf8');
+  assert.match(verification,/workflow_dispatch:/);
+  assert.doesNotMatch(verification,/^\\s+(?:push|pull_request):/m,'verification should remain opt-in');
   assert.match(yaml,/actions\/deploy-pages@/);
 });
 
