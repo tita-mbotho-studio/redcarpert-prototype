@@ -96,8 +96,13 @@ test("responsive image treatment only blurs on desktop and never on smaller scre
   assert(mobile.includes("background-image: none;") && mobile.includes("filter: none;"),
     "mobile/tablet blur background must be disabled");
   assert(mobile.includes("background-image: var(--redcarpert-home-photo);")
-    && mobile.includes("background-size: contain;"),
-    "mobile/tablet should show only the uncropped original photo");
+    && mobile.includes("background-size: cover;"),
+    "mobile/tablet images must fill the viewport without letterbox bars");
+  assert(css.includes("background-size: 100% 100%, auto 132%;")
+    && css.includes("background-size: auto 132%;"),
+    "desktop sharp portrait should be visibly wider than the previous contain framing");
   assert(css.includes("filter: blur(36px) brightness(.66);"),
     "desktop soft-focus must remain untouched");
+  assert(!/min-height:\\s*(?:80|90)svh/.test(css),
+    "no responsive section may be shorter than a full viewport");
 });
