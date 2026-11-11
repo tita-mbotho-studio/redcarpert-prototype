@@ -3,6 +3,7 @@ import { catalogueProducts } from '../../src/data/catalogue';
 import { contentAdaptations } from '../../src/data/content-adaptations';
 import { adaptSiteDocument } from '../../src/lib/content-adapter';
 import { adaptHomepageBackgrounds } from '../../src/lib/homepage-backgrounds';
+import { adaptHomepageCollectionYears } from '../../src/lib/homepage-collection-years';
 import { adaptFooterSocials } from '../../src/lib/footer-social-adapter';
 import { adaptLogo } from '../../src/lib/logo-adapter';
 import { adaptNavigation } from '../../src/lib/navigation-adapter';
@@ -38,7 +39,7 @@ export function preparePage(route: string) {
  if(Object.hasOwn(listingMetadata,route)) original={...original,...listingMetadata[route]};
  if(route === '/') original = {...original, title:siteMetadata.title, description:siteMetadata.description};
  if(['/about-us','/contact-us','/our-brides'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Our Brides | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about Redcarpert's bridal collections and fitting enquiries.":route==='/contact-us'?'Contact and fitting enquiry information for the Redcarpert prototype.':'Bridal inspiration gallery using clearly labelled sample photography.'};
- const editorial = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations)),sitePages['/about-us']))))));
+ const editorial = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptHomepageCollectionYears(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations))),sitePages['/about-us']))))));
  // Final icon pass runs only after the canonical layout/branding guards.
  const document = modernizeSiteIcons(editorial);
  return {document, product};
