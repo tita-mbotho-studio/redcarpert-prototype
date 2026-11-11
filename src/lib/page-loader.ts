@@ -42,8 +42,8 @@ export const pageLoaderCss = `
 
 /** Same approved logo, resized at build-time; never introduce replacement art. */
 export function pageLoaderMarkup(home: boolean): string {
-  const hero = home ? ` data-hero-url="redcarpert/home/brand-pexels-sample.webp"` : "";
-  return `<div id="redcarpert-page-loader" role="status" aria-live="polite" aria-label="Loading Redcarpert Wedding Dresses"${hero}><div class="rc-load-inner"><img class="rc-load-logo" src="redcarpert/brand/redcarpert-logo-optimized.webp" alt="Redcarpert Wedding Dresses" width="640" height="201" decoding="async"><span class="rc-load-line" aria-hidden="true"></span><span class="rc-load-spinner" aria-hidden="true"></span><p class="rc-load-caption">Preparing your bridal experience</p></div></div>`;
+  const hero = home ? ` data-hero-url="/redcarpert/home/brand-pexels-sample.webp"` : "";
+  return `<div id="redcarpert-page-loader" role="status" aria-live="polite" aria-label="Loading Redcarpert Wedding Dresses"${hero}><div class="rc-load-inner"><img class="rc-load-logo" src="/redcarpert/brand/redcarpert-logo-optimized.webp" alt="Redcarpert Wedding Dresses" width="640" height="201" decoding="async"><span class="rc-load-line" aria-hidden="true"></span><span class="rc-load-spinner" aria-hidden="true"></span><p class="rc-load-caption">Preparing your bridal experience</p></div></div>`;
 }
 
 /** Fail open: JS errors or unavailable images must never lock the site. */
