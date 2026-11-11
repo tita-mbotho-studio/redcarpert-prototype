@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 const origin='http://localhost:4173/redcarpert-prototype';
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
-  for(const {width,height} of [{width:1440,height:900},{width:768,height:1024},{width:375,height:667},{width:320,height:568}]) {
+  for(const {width,height} of [{width:1440,height:900},{width:1024,height:768},{width:1000,height:800},{width:768,height:1024},{width:390,height:844},{width:375,height:667},{width:320,height:568}]) {
     const page=await browser.newPage({viewport:{width,height},reducedMotion:'reduce'});
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
@@ -43,6 +43,8 @@ try {
         softness:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::before').filter,
         softDisplay:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::before').display,
         heroLayers:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::after').backgroundImage,
+        heroSize:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::after').backgroundSize,
+        heroHeight:document.querySelector('.fullpage-wrapper > .section').getBoundingClientRect().height,
         headerPosition:getComputedStyle(header).position,
         headerHeight:header.getBoundingClientRect().height,
         headerBackground:getComputedStyle(header).backgroundColor,
@@ -58,9 +60,14 @@ try {
       assert.equal(appearance.softness,'none',width+'px should have no background blur');
       assert(!appearance.heroLayers.includes('linear-gradient('),
         width+'px should show the original photo without a colour overlay');
+      assert.equal(appearance.heroSize,'cover',
+        width+'px photo must cover viewport without blank bars');
     } else {
       assert(appearance.softness.includes('blur('),width+'px desktop background softness missing');
+      assert(appearance.heroSize.includes('auto 132%'),
+        width+'px foreground photo should be significantly wider on desktop');
     }
+    assert(appearance.heroHeight>=height-2,width+'px initial image must fill the viewport height');
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
     const transparent = color => color === 'transparent' || /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(color);
     const approvedTint = color => {
