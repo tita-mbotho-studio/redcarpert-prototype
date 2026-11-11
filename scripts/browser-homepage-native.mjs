@@ -63,6 +63,21 @@ try {
       width+'px collection years are stale');
     assert.equal(await page.locator('[data-collection-year="start"]').count(),1);
     assert.equal(await page.locator('[data-collection-year="end"]').count(),1);
+    if(width===1440) {
+      // Simulate the browser crossing into the next calendar year and the user
+      // returning to the existing tab, without rebuilding the site.
+      await page.evaluate(() => {
+        const NativeDate=window.Date;
+        window.Date=class FutureDate extends NativeDate {
+          getFullYear() { return super.getFullYear()+1; }
+        };
+        document.dispatchEvent(new Event('visibilitychange'));
+        window.Date=NativeDate;
+      });
+      const refreshed=await page.locator('.fullpage-wrapper > .section:first-child .section-title').textContent();
+      assert.equal(refreshed.trim(),`${year+1} - ${year+2} Collectıon`,
+        'collection title should refresh after New Year without navigation');
+    }
     assert.equal(m.native,true,'native scroll should be enabled');
     assert.equal(m.fullpagePluginMounted,false,width+'px legacy fullpage plugin must not wrap document');
     assert.equal(m.loading,false,'remove legacy loading screen');
