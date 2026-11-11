@@ -9,6 +9,26 @@ body.redcarpert-home-native {
 /* The legacy fullscreen theme forced an absolute, always-full-size header.
  * Keep the approved top-of-page overlay, but allow the site's existing
  * fixed-header-scroll compact styling to operate during native scrolling. */
+/* The reference theme paints #header dark when .dark-header, .mobile or
+ * .fixed-header-scroll is active. The homepage must remain a transparent
+ * overlay in every one of those states, including while its header shrinks. */
+body.redcarpert-home-native .header-wrapper {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+body.redcarpert-home-native #header,
+body.redcarpert-home-native.fixed-header-scroll #header,
+body.redcarpert-home-native.dark-header #header,
+body.redcarpert-home-native.mobile #header {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+}
 body.redcarpert-home-native.fixed-header #header {
   position: fixed !important;
   top: 0;
@@ -33,7 +53,6 @@ body.redcarpert-home-native #header #logo-container img {
   body.redcarpert-home-native.fixed-header-scroll #header {
     padding-top: 6px !important;
     padding-bottom: 6px !important;
-    background: rgba(29,27,27,.95) !important;
   }
   body.redcarpert-home-native.fixed-header-scroll #logo-container img {
     max-height: 32px !important;
