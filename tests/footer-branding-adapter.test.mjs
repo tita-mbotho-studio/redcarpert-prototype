@@ -44,7 +44,7 @@ test('all 8 routes receive the guarded three-column design with functional categ
     ' Redcarpert Wedding Dresses',
   ]);
   const logo=nodes.find(n=>n.attrs.class==='wp-image-13926');
-  assert.deepEqual(logo.attrs,{loading:'lazy',decoding:'async',width:'1024',height:'322',src:'/redcarpert/brand/redcarpert-logo.png',alt:'Redcarpert Wedding Dresses',class:'wp-image-13926',style:'object-fit: contain; object-position: center'});
+  assert.deepEqual(logo.attrs,{loading:'lazy',decoding:'async',width:'1024',height:'322',src:'/redcarpert/brand/redcarpert-logo-optimized.webp',alt:'Redcarpert Wedding Dresses',class:'wp-image-13926',style:'object-fit: contain; object-position: center'});
   const profiles=nodes.filter(n=>n.attrs.class==='social-profiles');assert.equal(profiles.length,1);
   const brand=nodes.find(n=>n.attrs.id==='block-9');assert.equal(brand.children.at(-1),profiles[0]);
   assert.equal(brand.children.at(-2).children[0],'Elegant bridal collections');
@@ -84,12 +84,12 @@ test('missing, duplicate, relocated, malformed and already-branded targets rejec
  }
 });
 test('approved artwork is referenced unchanged, at its full canvas, without new logo derivatives',()=>{
- const bytes=readFileSync(new URL('../public/redcarpert/brand/redcarpert-logo.png',import.meta.url));
+ const bytes=readFileSync(new URL('../public/redcarpert/brand/redcarpert-logo-optimized.webp',import.meta.url));
  const png=PNG.sync.read(bytes);assert.equal(png.width,2208);assert.equal(png.height,813);
  assert.equal(createHash('sha256').update(bytes).digest('hex'),'b275618991b94ccebd6c9b6100ec455dfe1984e9ee7081a96f7a0d000ba208d2');
  for(const source of Object.values(sitePages)){
   const logo=all([footer(adaptFooterBranding(prepare(source)))]).find(n=>n.attrs.class==='wp-image-13926');
-  assert.equal(logo.attrs.src,'/redcarpert/brand/redcarpert-logo.png');assert.equal(logo.attrs.srcset,undefined);assert.equal(logo.attrs.sizes,undefined);
+  assert.equal(logo.attrs.src,'/redcarpert/brand/redcarpert-logo-optimized.webp');assert.equal(logo.attrs.srcset,undefined);assert.equal(logo.attrs.sizes,undefined);
   assert.match(logo.attrs.style,/object-fit: contain/);assert(!/clip|cover|overflow|transform/.test(logo.attrs.style));
  }
 });
