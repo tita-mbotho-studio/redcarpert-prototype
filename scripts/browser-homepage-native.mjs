@@ -12,9 +12,9 @@ const viewports=[
   {width:320,height:568},
 ];
 const images=[
-  'brand-pexels-sample.webp',
-  'collection-pexels-sample.webp',
-  'hero-pexels-sample.webp',
+  'home-page-1.webp',
+  'home-page-2.webp',
+  'home-page-3.webp',
 ];
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
@@ -82,7 +82,9 @@ try {
     assert.equal(m.fullpagePluginMounted,false,width+'px legacy fullpage plugin must not wrap document');
     assert.equal(m.loading,false,'remove legacy loading screen');
     assert.equal(m.sections.length,3,'exactly the original three photos');
-    assert(m.sections.every((s,i)=>s.bg.includes(images[i])),width+'px photos changed or missing');
+    assert(m.sections.every((section,i)=>
+      section.bg.includes('ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/')
+      && section.bg.includes(images[i])),width+'px ImageKit photo order changed or missing');
     // Image one must occupy the entire initial viewport, hiding image two
     // until the visitor actually scrolls. Keep the later panels unchanged.
     assert(Math.abs(m.sections[0].box.y)<=2,width+'px first image must start at the viewport top');
