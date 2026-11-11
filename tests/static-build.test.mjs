@@ -190,6 +190,8 @@ test('Implementation 22: every static page starts with a bounded, branded global
   assert.match(html,/redcarpert-logo-optimized\.webp/,route+' must render optimised approved logo');
   assert.match(html,/Preparing your bridal experience/,route+' missing branded status');
   assert.match(html,/redcarpertLoaderFallback=setTimeout/,route+' must fail open if JS stalls');
+  assert.match(html,/<noscript><style>#redcarpert-page-loader\{display:none!important\}<\/style><\/noscript>/,
+    route+' must fail open with JavaScript disabled');
   assert.match(html,/role="status" aria-live="polite"/,route+' loader must be accessible');
   if(route==='/'){
    assert.match(html,/<link rel="preload" href="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp" as="image" type="image\/webp" fetchpriority="high">/);
