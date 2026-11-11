@@ -24,8 +24,24 @@ body.redcarpert-home-native.fixed-header-scroll #header {
 body.redcarpert-home-native.redcarpert-header-tucked #header {
   transform: translateY(-110%);
 }
+body.redcarpert-home-native #header #logo-container img {
+  transition: max-height .26s ease;
+}
+/* On mobile the regular header logo is already small; give the compact
+ * version a proportionately smaller height as on the interior pages. */
+@media (max-width: 1000px) {
+  body.redcarpert-home-native.fixed-header-scroll #header {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    background: rgba(29,27,27,.95) !important;
+  }
+  body.redcarpert-home-native.fixed-header-scroll #logo-container img {
+    max-height: 32px !important;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  body.redcarpert-home-native.fixed-header #header {
+  body.redcarpert-home-native.fixed-header #header,
+  body.redcarpert-home-native #header #logo-container img {
     transition: none;
   }
 }
