@@ -37,7 +37,12 @@ try {
     assert(appearance.background.includes('brand-pexels-sample.webp'));
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
     const transparent = color => color === 'transparent' || /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(color);
-    assert(transparent(appearance.headerBackground),width+'px initial header background must be transparent: '+appearance.headerBackground);
+    const approvedTint = color => {
+      const match = color.match(/^rgba\(0,\s*0,\s*0,\s*([\d.]+)\)$/);
+      return !!match && Math.abs(Number(match[1])-.70)<.01;
+    };
+    assert(approvedTint(appearance.headerBackground),
+      width+'px header must be dark and translucent (not solid black or clear): '+appearance.headerBackground);
     assert(transparent(appearance.wrapperBackground),width+'px wrapper must be transparent: '+appearance.wrapperBackground);
     assert.equal(appearance.wrapperPosition,'fixed',width+'px wrapper must not push photo downward');
     assert(appearance.wrapperPadding<=1,width+'px header wrapper must not reserve an opaque top strip');
@@ -52,8 +57,8 @@ try {
         if(!present)document.body.classList.remove('mobile');
         return result;
       });
-      assert(transparent(mobileTheme.header)&&transparent(mobileTheme.background),
-        width+'px inherited mobile class must never make header opaque');
+      assert(approvedTint(mobileTheme.header)&&transparent(mobileTheme.background),
+        width+'px inherited mobile class must preserve the approved translucent tint');
       assert(mobileTheme.padding<=1,width+'px inherited mobile class must not insert top spacing');
     }
     await page.evaluate(()=>scrollTo({top:Math.round(innerHeight*.6),behavior:'instant'}));
@@ -65,7 +70,8 @@ try {
       headerBackground:getComputedStyle(document.querySelector('#header')).backgroundColor,
       wrapperBackground:getComputedStyle(document.querySelector('.header-wrapper')).backgroundColor,
     }));
-    assert(transparent(compact.headerBackground),width+'px compact header must remain transparent');
+    assert(approvedTint(compact.headerBackground),
+      width+'px compact header must preserve the approved translucent tint');
     assert(transparent(compact.wrapperBackground),width+'px compact wrapper must remain transparent');
     assert(compact.paddingTop<=9,width+'px compact header must reduce vertical padding');
     assert(compact.logoMaxHeight<=(width<=1000?33:41),
