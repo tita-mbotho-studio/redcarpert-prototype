@@ -194,12 +194,17 @@ test('Implementation 22: every static page starts with a bounded, branded global
     route+' must fail open with JavaScript disabled');
   assert.match(html,/role="status" aria-live="polite"/,route+' loader must be accessible');
   if(route==='/'){
+   // Apply homepage-only transparent header rules before JavaScript arrives.
+   assert.match(html,/<body class="[^"]*\bredcarpert-home-native\b/,
+     'homepage must carry its transparent overlay class from the first paint');
    assert.match(html,/<link rel="preload" href="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp" as="image" type="image\/webp" fetchpriority="high">/);
    assert.match(html,/data-hero-url="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp"/);
    assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
     'hero preload should be declared before loading logo');
   } else {
    assert(!html.includes('data-hero-url='),route+' must not load the homepage hero');
+   assert.doesNotMatch(html,/<body class="[^"]*\bredcarpert-home-native\b/,
+     route+' must retain its approved interior header styling');
   }
  }
 });
