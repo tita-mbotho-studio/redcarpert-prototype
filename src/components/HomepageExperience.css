@@ -138,7 +138,7 @@ body.redcarpert-home-native .fullpage-wrapper > .section::before {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(22px) brightness(.66);
+  filter: blur(36px) brightness(.66);
 }
 body.redcarpert-home-native .fullpage-wrapper > .section::after {
   content: "";
@@ -156,9 +156,14 @@ body.redcarpert-home-native .fullpage-wrapper > .section::after {
   background-repeat: no-repeat;
   background-size: 100% 100%, cover;
   background-position: center center, center center;
-  /* Feather only the transition between the clear panel and blurred sides. */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+  /* No gradient mask: the clear photo must fully cover the blurry layer,
+   * so the blur never bleeds onto the actual dress. */
+}
+/* In the first photograph the face is near the source image's top.
+ * Anchor the visible portrait at the top rather than cropping the head
+ * to favour the skirt. Keep the approved sharp-panel width unchanged. */
+body.redcarpert-home-native .fullpage-wrapper > .section:first-child::after {
+  background-position: center center, center top;
 }
 /* The middle photograph has no title overlay, as on the deployed site. */
 body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
