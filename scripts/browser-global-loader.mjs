@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
+import {readFileSync} from 'node:fs';
 
 const origin='http://localhost:4173/redcarpert-prototype';
 const browser=await chromium.launch({args:['--no-sandbox']});
@@ -8,10 +9,24 @@ try {
     const page=await browser.newPage({viewport:{width,height},reducedMotion:'reduce'});
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
-    // Reproduce a slow first-photo response without changing the approved image.
-    await page.route('**/redcarpert/home/brand-pexels-sample.webp',async route=>{
-      await new Promise(resolve=>setTimeout(resolve,950));
-      await route.continue();
+    // Simulate slow ImageKit access deterministically, without depending on
+    // external network availability during final CI. Keep the exact requested
+    // remote URLs in rendered CSS and preload attributes.
+    const localFixtures=[
+      'brand-pexels-sample.webp',
+      'collection-pexels-sample.webp',
+      'hero-pexels-sample.webp',
+    ];
+    await page.route('https://ik.imagekit.io/**',async route=>{
+      const match=route.request().url().match(/home-page-(\d)\.webp/);
+      const index=Number(match?.[1]??0)-1;
+      if(index<0||index>2) return route.abort();
+      if(index===0) await new Promise(resolve=>setTimeout(resolve,950));
+      return route.fulfill({
+        status:200,
+        contentType:'image/webp',
+        body:readFileSync('public/redcarpert/home/'+localFixtures[index]),
+      });
     });
     await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
     const loader=page.locator('#redcarpert-page-loader');
@@ -19,7 +34,7 @@ try {
     assert.equal(await page.locator('#redcarpert-page-loader .rc-load-logo').isVisible(),true);
     assert.equal(await page.locator('#redcarpert-page-loader .rc-load-spinner').count(),1);
     const heroPreload=await page.locator('link[rel="preload"][as="image"]').getAttribute('href');
-    assert.equal(heroPreload,'/redcarpert-prototype/redcarpert/home/brand-pexels-sample.webp');
+    assert.equal(heroPreload,'https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508');
     await loader.waitFor({state:'detached',timeout:11000});
     const appearance=await page.evaluate(()=>{
       const header=document.querySelector('#header');
@@ -34,7 +49,7 @@ try {
         contentWidth:document.documentElement.scrollWidth,
       };
     });
-    assert(appearance.background.includes('brand-pexels-sample.webp'));
+    assert(appearance.background.includes('ik.imagekit.io')&&appearance.background.includes('home-page-1.webp'));
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
     const transparent = color => color === 'transparent' || /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(color);
     const approvedTint = color => {
