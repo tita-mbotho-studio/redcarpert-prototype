@@ -194,6 +194,10 @@ test('Implementation 22: every static page starts with a bounded, branded global
     route+' must fail open with JavaScript disabled');
   assert.match(html,/role="status" aria-live="polite"/,route+' loader must be accessible');
   if(route==='/'){
+   const year=new Date().getFullYear();
+   assert.match(html,new RegExp('data-collection-year="start"[^>]*>'+year+'<'), 'homepage first year fallback should match build year');
+   assert.match(html,new RegExp('data-collection-year="end"[^>]*>'+(year+1)+'<'), 'homepage next year fallback should match build year');
+   assert(html.includes(' Collectıon'), 'keep the approved collection heading wording');
    // Apply homepage-only transparent header rules before JavaScript arrives.
    assert.match(html,/<body class="[^"]*\bredcarpert-home-native\b/,
      'homepage must carry its transparent overlay class from the first paint');
