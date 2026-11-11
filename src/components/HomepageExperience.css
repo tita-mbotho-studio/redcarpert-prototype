@@ -162,8 +162,10 @@ body.redcarpert-home-native .fullpage-wrapper > .section::after {
 /* In the first photograph the face is near the source image's top.
  * Anchor the visible portrait at the top rather than cropping the head
  * to favour the skirt. Keep the approved sharp-panel width unchanged. */
-body.redcarpert-home-native .fullpage-wrapper > .section:first-child::after {
-  background-position: center center, center top;
+@media (min-width: 641px) {
+  body.redcarpert-home-native .fullpage-wrapper > .section:first-child::after {
+    background-position: center center, center top;
+  }
 }
 /* The middle photograph has no title overlay, as on the deployed site. */
 body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
