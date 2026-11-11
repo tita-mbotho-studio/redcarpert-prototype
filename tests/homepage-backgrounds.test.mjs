@@ -27,7 +27,7 @@ test("only the three approved inline URL substrings change; text, layout, CSS an
   expectedImages.forEach(([oldUrl, newUrl], index) => {
     const node = at(expected, index);
     assert.equal(node.attrs.style, `background-image:url("${oldUrl}");background-position:center center;`);
-    node.attrs.style = `background-image:url("${newUrl}");background-position:center center;`;
+    node.attrs.style = `background-image:url("${newUrl}");background-position:center center;--redcarpert-home-photo:url("${newUrl}");`;
   });
   const result = adaptHomepageBackgrounds(textAdapted);
   assert.deepEqual(result, expected);
