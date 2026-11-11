@@ -113,56 +113,77 @@ body.redcarpert-home-native .fullpage-wrapper > .section {
   isolation: isolate;
   overflow: clip;
 }
-/* Cinematic, blurred background fills every screen and avoids hard bars. */
+/* Match the deployed homepage's composited panoramas: measured sharp centre
+ * widths at a 1440x900 desktop were ~72% / 65% / 70% for panels 1 / 2 / 3.
+ * The client images are portrait (2:3), so each sharp panel uses cover within
+ * its own full-height strip. Never stretch the photograph to fill that strip. */
+body.redcarpert-home-native .fullpage-wrapper > .section {
+  --redcarpert-home-sharp-width: 72%;
+}
+body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2) {
+  --redcarpert-home-sharp-width: 65%;
+}
+body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(3) {
+  --redcarpert-home-sharp-width: 70%;
+}
+/* The original live panoramas baked their softened sidebands into WebP.
+ * Re-create the composition without changing or downloading ImageKit images. */
 body.redcarpert-home-native .fullpage-wrapper > .section::before {
   content: "";
   position: absolute;
-  inset: -36px;
+  inset: -30px;
   z-index: 0;
   pointer-events: none;
   background-image: var(--redcarpert-home-photo);
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(36px) brightness(.66);
+  filter: blur(22px) brightness(.66);
 }
-/* Widen the main bridal photo on desktop without stretching its proportions.
- * The soft-focus background still extends edge-to-edge behind the image. */
 body.redcarpert-home-native .fullpage-wrapper > .section::after {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: var(--redcarpert-home-sharp-width);
+  transform: translateX(-50%);
   z-index: 1;
   pointer-events: none;
   background-image:
     linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.17) 50%, rgba(0,0,0,.08)),
     var(--redcarpert-home-photo);
   background-repeat: no-repeat;
-  background-size: 100% 100%, auto 132%;
+  background-size: 100% 100%, cover;
   background-position: center center, center center;
+  /* Feather only the transition between the clear panel and blurred sides. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
 }
-/* The middle image deliberately has no text/readability overlay. */
+/* The middle photograph has no title overlay, as on the deployed site. */
 body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
   background-image: var(--redcarpert-home-photo);
-  background-size: auto 132%;
+  background-size: cover;
   background-position: center center;
 }
-/* Phones and tablets: return to the last-approved full-bleed cover framing.
- * This fills the viewport with one crisp photograph and no blur, tint or
- * letterbox bars. A portrait image necessarily trims its outside edges on
- * differently shaped screens; keep it centred without distortion. */
-@media (max-width: 1000px) {
+/* Desktop and tablets share the same blurred-side / clear-centre composition.
+ * On phones, preserve the already-approved crisp, edge-to-edge cover image. */
+@media (max-width: 640px) {
   body.redcarpert-home-native .fullpage-wrapper > .section::before {
     content: none;
     display: none;
     background-image: none;
     filter: none;
   }
-  body.redcarpert-home-native .fullpage-wrapper > .section::after,
-  body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
+  body.redcarpert-home-native .fullpage-wrapper > .section::after {
+    left: 0;
+    width: 100%;
+    transform: none;
     background-image: var(--redcarpert-home-photo);
     background-size: cover;
     background-position: center center;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
 body.redcarpert-home-native .fullpage-wrapper > .section .section-content {
