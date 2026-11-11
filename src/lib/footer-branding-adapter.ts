@@ -88,7 +88,7 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
   const placeholder = '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="322" viewBox="0 0 1024 322"><text x="512" y="161" text-anchor="middle" dominant-baseline="middle" font-family="sans-serif" font-size="52" fill="white">Redcarpert Wedding Dresses</text></svg>';
   const expected = { loading: "lazy", decoding: "async", width: "1024", height: "322", src: home ? `data:image/svg+xml,${encodeURIComponent(placeholder)}` : logoSource, alt: home ? "Redcarpert Wedding Dresses" : "", class: "wp-image-13926", ...(!home ? { srcset: logoSources, sizes: "auto, (max-width: 1024px) 100vw, 1024px" } : {}) };
   if (logo.children.length || Object.keys(logo.attrs).length !== Object.keys(expected).length || Object.entries(expected).some(([key, value]) => logo.attrs[key] !== value)) fail("logo attributes");
-  const attrs: Record<string, string> = { ...logo.attrs, src: "/redcarpert/brand/redcarpert-logo.png", alt: "Redcarpert Wedding Dresses", style: "object-fit: contain; object-position: center" };
+  const attrs: Record<string, string> = { ...logo.attrs, src: "/redcarpert/brand/redcarpert-logo-optimized.webp", alt: "Redcarpert Wedding Dresses", style: "object-fit: contain; object-position: center" };
   delete attrs.srcset;
   delete attrs.sizes;
   replacements.set(logo, { ...logo, attrs });
