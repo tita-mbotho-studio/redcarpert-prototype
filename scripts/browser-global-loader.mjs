@@ -36,6 +36,13 @@ try {
     await page.evaluate(()=>scrollTo({top:Math.round(innerHeight*.6),behavior:'instant'}));
     await page.waitForTimeout(100);
     assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('fixed-header-scroll')),true);
+    const compact = await page.evaluate(() => ({
+      paddingTop:parseFloat(getComputedStyle(document.querySelector('#header')).paddingTop),
+      logoMaxHeight:parseFloat(getComputedStyle(document.querySelector('#logo-container img')).maxHeight),
+    }));
+    assert(compact.paddingTop<=9,width+'px compact header must reduce vertical padding');
+    assert(compact.logoMaxHeight<=(width<=1000?33:41),
+      width+'px compact header logo must scale down: '+compact.logoMaxHeight);
     assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('redcarpert-header-tucked')),true,
       width+'px downward scroll must tuck compact header');
     await page.evaluate(()=>scrollTo({top:Math.round(innerHeight*.3),behavior:'instant'}));
