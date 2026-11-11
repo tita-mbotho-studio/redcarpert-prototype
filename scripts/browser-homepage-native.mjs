@@ -117,7 +117,7 @@ try {
         assert(!s.foreground.includes('linear-gradient('),
           width+'px phone photo '+i+' must remain the approved untinted image');
         assert.equal(s.foregroundSize,'cover',width+'px phone photo '+i+' must remain full-bleed cover');
-        assert(!/top|0%/.test(s.foregroundPosition),width+'px phone photo '+i+' must keep its approved centred crop');
+        assert(!/(?:^|[\\s,])(?:0%|top)(?:$|[\\s,])/.test(s.foregroundPosition),width+'px phone photo '+i+' must keep its approved centred crop');
         assert.equal(s.sharpMask,'none',width+'px phone photo '+i+' must have no faded edges');
         assert(Math.abs(s.sharpWidth-width)<=2,width+'px phone photo '+i+' must fill the viewport width');
       } else {
@@ -125,7 +125,7 @@ try {
         assert(s.blur.includes('blur('),width+'px photo '+i+' missing blurred sides');
         assert.equal(s.sharpMask,'none',width+'px photo '+i+' must have completely sharp edges without blur bleeding');
         assert(s.blur.includes('36px'),width+'px photo '+i+' must restore the previous 36px backdrop blur');
-        if(i===0)assert(/top|0%/.test(s.foregroundPosition),
+        if(i===0)assert(/(?:^|[\\s,])(?:0%|top)(?:$|[\\s,])/.test(s.foregroundPosition),
           width+'px first bride photo must show its top (face) instead of centring the skirt');
         assert(s.foregroundSize.split(',').some(part=>part.trim()==='cover'),
           width+'px photo '+i+' must cover the entire sharp central panel');
