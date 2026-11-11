@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import {existsSync, readFileSync} from 'node:fs';
 import {sitePages} from '../src/data/site.ts';
 import {adaptFooterSocials} from '../src/lib/footer-social-adapter.ts';
 import {addHomepageFooter} from '../src/lib/homepage-footer.ts';
@@ -77,4 +78,27 @@ test('icon transformation refuses unexpected captured footer/WhatsApp structure'
   const wrong=structuredClone(fixture('/'));
   find(wrong,n=>n.attrs.class==='redcarpert-footer-items')[1].children=[];
   assert.throws(()=>modernizeSiteIcons(wrong),/Modern icons .*fitting links/);
+});
+
+test('deleted icon artwork has no remaining published asset or stylesheet dependency',()=>{
+ const obsolete=[
+  'public/redcarpert/instagram.svg',
+  'public/site-assets/3d94819dd14ede1760.png',
+  'public/site-assets/4600dc5b99e2f02b67.png',
+  'public/site-assets/3b9a6e23cf5c478efd.png',
+  'public/site-assets/54721da2e3bb14d829.png',
+  'public/site-assets/54680b5d97bca3e0c2.png',
+  'public/site-assets/b4bfc950ddaf86c166.png',
+ ];
+ for(const path of obsolete)assert.equal(existsSync(path),false,'unused icon still checked in: '+path);
+ const theme=readFileSync('public/site-assets/a397f1784786614528.css','utf8');
+ for(const path of obsolete.filter(x=>x.startsWith('public/site-assets/')))
+  assert(!theme.includes(path.split('/').at(-1)),'theme CSS still points to removed artwork: '+path);
+ const runtime=readFileSync('src/client/SiteRuntime.js','utf8');
+ assert(!runtime.includes('document.body.append(chat)'),'legacy WhatsApp remount should not return');
+ assert(!runtime.includes('ht-ctc-chat'),'legacy WhatsApp wrapper should not return');
+ const footerCSS=readFileSync('src/components/FooterBranding.css','utf8');
+ assert(!footerCSS.includes('.social-icons img'),'unused image-based footer icon styling should not return');
+ const galleryCSS=readFileSync('src/components/BridesGallery.css','utf8');
+ assert(!galleryCSS.includes('button:after'),'old text-glyph gallery overlay should not return');
 });
