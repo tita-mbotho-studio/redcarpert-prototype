@@ -24,7 +24,7 @@ test('all 8 routes receive the guarded three-column design with functional categ
   const widgets=nodes.find(n=>n.attrs.class==='cols-wrapper footer-widgets section-boxed redcarpert-footer-columns');
   const columns=widgets.children.filter(n=>typeof n!=='string');assert.equal(columns.length,3);
   assert(!nodes.some(n=>/\bcols-[34]\b/.test(n.attrs.class??'')));
-  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTINGS\\n\\nBook a fitting']);
+  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTINGS\n\nBook a fitting']);
   assert(!nodes.some(n=>n.attrs.id==='block-13'));
   assert.deepEqual(nodes.filter(n=>n.tag==='h2').map(n=>({attrs:n.attrs,text:text(n)})),[
    {attrs:{class:'redcarpert-footer-heading'},text:'COLLECTIONS'},
