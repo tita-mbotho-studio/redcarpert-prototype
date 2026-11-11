@@ -30,6 +30,7 @@ try {
         headerBackground:getComputedStyle(header).backgroundColor,
         wrapperBackground:getComputedStyle(document.querySelector('.header-wrapper')).backgroundColor,
         wrapperPosition:getComputedStyle(document.querySelector('.header-wrapper')).position,
+        wrapperPadding:parseFloat(getComputedStyle(document.querySelector('.header-wrapper')).paddingTop),
         contentWidth:document.documentElement.scrollWidth,
       };
     });
@@ -39,7 +40,22 @@ try {
     assert(transparent(appearance.headerBackground),width+'px initial header background must be transparent: '+appearance.headerBackground);
     assert(transparent(appearance.wrapperBackground),width+'px wrapper must be transparent: '+appearance.wrapperBackground);
     assert.equal(appearance.wrapperPosition,'fixed',width+'px wrapper must not push photo downward');
+    assert(appearance.wrapperPadding<=1,width+'px header wrapper must not reserve an opaque top strip');
     assert(appearance.contentWidth<=width+1.5,width+'px horizontal overflow');
+    if(width<=768) {
+      const mobileTheme=await page.evaluate(()=>{
+        const present=document.body.classList.contains('mobile');
+        document.body.classList.add('mobile');
+        const header=getComputedStyle(document.querySelector('#header')).backgroundColor;
+        const wrapper=getComputedStyle(document.querySelector('.header-wrapper'));
+        const result={header,background:wrapper.backgroundColor,padding:parseFloat(wrapper.paddingTop)};
+        if(!present)document.body.classList.remove('mobile');
+        return result;
+      });
+      assert(transparent(mobileTheme.header)&&transparent(mobileTheme.background),
+        width+'px inherited mobile class must never make header opaque');
+      assert(mobileTheme.padding<=1,width+'px inherited mobile class must not insert top spacing');
+    }
     await page.evaluate(()=>scrollTo({top:Math.round(innerHeight*.6),behavior:'instant'}));
     await page.waitForTimeout(100);
     assert.equal(await page.locator('body').evaluate(e=>e.classList.contains('fixed-header-scroll')),true);
