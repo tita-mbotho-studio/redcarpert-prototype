@@ -6,7 +6,9 @@ const url='http://localhost:4173/redcarpert-prototype/';
 const viewports=[
   {width:1440,height:900},
   {width:1024,height:768},
+  {width:1000,height:800},
   {width:768,height:1024},
+  {width:640,height:800},
   {width:390,height:844},
   {width:375,height:667},
   {width:320,height:568},
@@ -37,6 +39,7 @@ try {
           bg:getComputedStyle(s).backgroundImage,
           photo:getComputedStyle(s).getPropertyValue('--redcarpert-home-photo').trim(),
           softBackground:getComputedStyle(s,'::before').backgroundImage,
+          softDisplay:getComputedStyle(s,'::before').display,
           blur:getComputedStyle(s,'::before').filter,
           foreground:getComputedStyle(s,'::after').backgroundImage,
           foregroundSize:getComputedStyle(s,'::after').backgroundSize,
@@ -104,8 +107,16 @@ try {
       : 14;
     for(const [i,s] of m.sections.entries()) {
       assert.equal(s.bg,'none',width+'px old direct cover background should not crop the portrait');
-      assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing soft-focus backdrop');
-      assert(s.blur.includes('blur('),width+'px photo '+i+' missing the desktop/mobile backdrop blur');
+      if(width<=1000) {
+        assert.equal(s.softDisplay,'none',width+'px photo '+i+' must not render a second blurred image');
+        assert.equal(s.softBackground,'none',width+'px photo '+i+' must not load a blurred background');
+        assert.equal(s.blur,'none',width+'px photo '+i+' should have no blur');
+        assert(!s.foreground.includes('linear-gradient('),
+          width+'px photo '+i+' should show the unfiltered original without tint');
+      } else {
+        assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing desktop soft-focus backdrop');
+        assert(s.blur.includes('blur('),width+'px photo '+i+' missing desktop blur');
+      }
       assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
       assert(s.foregroundSize.split(',').some(part=>part.trim()==='contain'),
         width+'px photo '+i+' must fit completely rather than crop');
