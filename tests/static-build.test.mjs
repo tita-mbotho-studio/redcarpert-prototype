@@ -166,3 +166,34 @@ test('Redcarpert browser-tab and touch icons are generated from the new bridal m
   assert(missing.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),'404 page must use the current '+rel);
  }
 });
+
+test('Implementation 22: every static page starts with a bounded, branded global loading screen', {skip:!available},async()=>{
+ const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
+ const generated='dist/redcarpert/brand/redcarpert-logo-optimized.webp';
+ assert(existsSync(generated),'missing derived logo used by all pages');
+ const original='public/redcarpert/brand/redcarpert-logo.png';
+ const optimized=readFileSync(generated);
+ assert(optimized.length<readFileSync(original).length/2,'approved logo derivative should be considerably smaller');
+ const info=await sharp(optimized).metadata();
+ assert.equal(info.format,'webp');
+ assert(info.width<=640&&info.width>200);
+ for(const route of routes){
+  const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+  const loader=html.indexOf('id="redcarpert-page-loader"');
+  const header=html.indexOf('<header id="header"');
+  assert(loader>0&&header>loader,route+' loader must precede site header');
+  assert.match(html,/id="redcarpert-loader-critical"/,route+' loader critical CSS missing');
+  assert.match(html,/redcarpert-logo-optimized\.webp/,route+' must render optimised approved logo');
+  assert.match(html,/Preparing your bridal experience/,route+' missing branded status');
+  assert.match(html,/redcarpertLoaderFallback=setTimeout/,route+' must fail open if JS stalls');
+  assert.match(html,/role="status" aria-live="polite"/,route+' loader must be accessible');
+  if(route==='/'){
+   assert.match(html,/<link rel="preload" href="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp" as="image" type="image\/webp" fetchpriority="high">/);
+   assert.match(html,/data-hero-url="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp"/);
+   assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
+    'hero preload should be declared before loading logo');
+  } else {
+   assert(!html.includes('data-hero-url='),route+' must not load the homepage hero');
+  }
+ }
+});
