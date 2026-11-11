@@ -6,6 +6,29 @@
 body.redcarpert-home-native {
   overflow-x: clip;
 }
+/* The legacy fullscreen theme forced an absolute, always-full-size header.
+ * Keep the approved top-of-page overlay, but allow the site's existing
+ * fixed-header-scroll compact styling to operate during native scrolling. */
+body.redcarpert-home-native.fixed-header #header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 9000;
+  transform: translateY(0);
+  transition: transform .26s ease, padding .26s ease, background-color .26s ease;
+  will-change: transform;
+}
+body.redcarpert-home-native.fixed-header-scroll #header {
+  position: fixed !important;
+}
+body.redcarpert-home-native.redcarpert-header-tucked #header {
+  transform: translateY(-110%);
+}
+@media (prefers-reduced-motion: reduce) {
+  body.redcarpert-home-native.fixed-header #header {
+    transition: none;
+  }
+}
 html:has(body.redcarpert-home-native) {
   overflow-x: clip;
   scroll-behavior: smooth;
