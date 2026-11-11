@@ -55,7 +55,7 @@ try {
       };
     });
     assert(appearance.background.includes('ik.imagekit.io')&&appearance.background.includes('home-page-1.webp'));
-    if(width<=1000){
+    if(width<=640){
       assert.equal(appearance.softDisplay,'none',width+'px should display a single sharp image');
       assert.equal(appearance.softness,'none',width+'px should have no background blur');
       assert(!appearance.heroLayers.includes('linear-gradient('),
@@ -64,8 +64,8 @@ try {
         width+'px photo must cover viewport without blank bars');
     } else {
       assert(appearance.softness.includes('blur('),width+'px desktop background softness missing');
-      assert(appearance.heroSize.includes('auto 132%'),
-        width+'px foreground photo should be significantly wider on desktop');
+      assert(appearance.heroSize.includes('cover'),
+        width+'px sharp photo should cover its live-proportioned centre on desktop/tablet');
     }
     assert(appearance.heroHeight>=height-2,width+'px initial image must fill the viewport height');
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
