@@ -39,7 +39,8 @@ try {
     const appearance=await page.evaluate(()=>{
       const header=document.querySelector('#header');
       return {
-        background:getComputedStyle(document.querySelector('.fullpage-wrapper > .section')).backgroundImage,
+        background:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::after').backgroundImage,
+        softness:getComputedStyle(document.querySelector('.fullpage-wrapper > .section'),'::before').filter,
         headerPosition:getComputedStyle(header).position,
         headerHeight:header.getBoundingClientRect().height,
         headerBackground:getComputedStyle(header).backgroundColor,
@@ -50,6 +51,7 @@ try {
       };
     });
     assert(appearance.background.includes('ik.imagekit.io')&&appearance.background.includes('home-page-1.webp'));
+    assert(appearance.softness.includes('blur('),width+'px approved cinematic background softness missing');
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
     const transparent = color => color === 'transparent' || /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(color);
     const approvedTint = color => {
