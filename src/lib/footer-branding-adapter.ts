@@ -44,12 +44,21 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
     { tag: "a", attrs: { href: "/product-category/mermaid/" }, children: ["Mermaid"] },
     { tag: "a", attrs: { href: "/product-category/ball_gown/" }, children: ["Ball Gown"] },
   ] });
-  text(slot(2, "block-21", "p"), [home ? "Phone number to be confirmed" : "+90 533 413 16 09"], "FITTING ENQUIRIES", paragraphClass, paragraphStyle);
+  text(slot(2, "block-21", "p"), [home ? "Phone number to be confirmed" : "+90 533 413 16 09"], "FITTINGS", paragraphClass, paragraphStyle);
   const via = slot(2, "block-22", "p");
-  text(via, [home ? "Contact details to be confirmed" : "bridalvanesa@gmail.com"], "Via WhatsApp", paragraphClass, paragraphStyle);
+  const expectedFittingText = home ? "Contact details to be confirmed" : "bridalvanesa@gmail.com";
+  if (via.children.length !== 1 || via.children[0] !== expectedFittingText
+    || via.attrs.class !== paragraphClass || via.attrs.style !== paragraphStyle) fail("fitting content slot");
+  // Emit the final, current WhatsApp CTA once. No redundant intermediate text.
   replacements.set(via, { ...via, attrs: { class: "redcarpert-footer-items" }, children: [
-    { tag: "button", attrs: { type: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, children: ["Book a fitting"] },
-    { tag: "span", attrs: {}, children: ["Via WhatsApp"] },
+    { tag: "button", attrs: {
+      type: "button", class: "redcarpert-footer-book",
+      "data-whatsapp-preview": "", "aria-haspopup": "dialog",
+      "aria-label": "Book a fitting via WhatsApp",
+    }, children: [
+      { tag: "i", attrs: { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, children: [] },
+      { tag: "span", attrs: {}, children: ["Book a fitting"] },
+    ] },
   ] });
   const credit = slot(3, "block-13", "p");
   const [label, br, strong] = credit.children;

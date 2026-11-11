@@ -91,16 +91,6 @@ export function SiteRuntime({ document: data, }) {
         };
         document.addEventListener("submit", preventSubmission, true);
         document.addEventListener("click", preventLegacySubmission, true);
-        const chat = document.getElementById("ht-ctc-chat");
-        if (chat) {
-            chat.style.display = "block";
-            chat.style.zIndex = "99999999";
-            chat.style.cursor = "pointer";
-            chat.setAttribute("role", "button");
-            chat.setAttribute("aria-haspopup", "dialog");
-            chat.setAttribute("tabindex", "0");
-            chat.setAttribute("aria-label", runtimeContent.whatsAppLabel);
-        }
         void (async () => {
             for (const src of [...data.scripts, data.themeConfig, ...(data.postScripts ?? [])].filter(Boolean)) {
                 if (cancelled)
@@ -119,12 +109,6 @@ export function SiteRuntime({ document: data, }) {
                 }
                 await loadScript(src);
             }
-            // The chat plugin normally mounts its control after the fullscreen wrapper.
-            // Keep that fixed positioning when using the extracted semantic markup.
-            window.setTimeout(() => {
-                if (!cancelled && chat)
-                    document.body.append(chat);
-            }, 0);
         })().catch((error) => console.error("Site interactions failed to initialize", error));
         return () => {
             cancelled = true;

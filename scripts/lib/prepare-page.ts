@@ -11,6 +11,7 @@ import { adaptFooterBranding } from '../../src/lib/footer-branding-adapter';
 import { correctFooterLinks } from '../../src/lib/footer-link-corrections';
 import { adaptCatalogue } from '../../src/lib/catalogue-adapter';
 import { adaptEditorialDocument } from '../../src/lib/editorial-pages';
+import { modernizeSiteIcons } from '../../src/lib/modern-icons';
 import { createProductDetailPreview } from '../../src/lib/product-detail-preview';
 import { siteMetadata } from '../../src/data/metadata';
 
@@ -37,6 +38,8 @@ export function preparePage(route: string) {
  if(Object.hasOwn(listingMetadata,route)) original={...original,...listingMetadata[route]};
  if(route === '/') original = {...original, title:siteMetadata.title, description:siteMetadata.description};
  if(['/about-us','/contact-us','/our-brides'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Our Brides | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about Redcarpert's bridal collections and fitting enquiries.":route==='/contact-us'?'Contact and fitting enquiry information for the Redcarpert prototype.':'Bridal inspiration gallery using clearly labelled sample photography.'};
- const document = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations)),sitePages['/about-us']))))));
+ const editorial = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations)),sitePages['/about-us']))))));
+ // Final icon pass runs only after the canonical layout/branding guards.
+ const document = modernizeSiteIcons(editorial);
  return {document, product};
 }

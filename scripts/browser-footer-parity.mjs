@@ -156,7 +156,7 @@ try {
             width+'px '+route+' painted footer text escapes column '+index+': '+JSON.stringify({column,r}));
         }
       }
-      const headings=['COLLECTIONS','FITTING ENQUIRIES'];
+      const headings=['COLLECTIONS','FITTINGS'];
       for (const label of headings) {
         const heading=metrics.headings.find(h=>h.text===label);
         assert(heading,width+'px '+route+' is missing '+label);

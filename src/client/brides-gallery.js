@@ -50,7 +50,7 @@ export function initializeBridesGallery() {
       const picture=document.createElement('div');
       picture.className='redcarpert-bride-accent-art';
       const star=document.createElement('span');
-      star.className='redcarpert-bride-accent-mark';star.textContent='✦';
+      star.className='redcarpert-bride-accent-mark fa-solid fa-star';star.setAttribute('aria-hidden','true');
       const eyebrow=document.createElement('span');
       eyebrow.className='redcarpert-bride-accent-eyebrow';eyebrow.textContent=accents[si][0];
       const title=document.createElement('span');

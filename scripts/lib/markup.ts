@@ -28,8 +28,8 @@ function lookbook() {
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
    '<p class="redcarpert-book-intro">Turn the pages to explore eight demonstration dresses: four Mermaid and four Ball Gown. All photographs are stock images, not confirmed Redcarpert inventory.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="Ten-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
-   '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page">← Previous</button>' +
-   '<span data-book-status role="status" aria-live="polite">Page 1 of 10</span><button type="button" data-book-next aria-label="Next page">Next →</button></div>' +
+   '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Previous</button>' +
+   '<span data-book-status role="status" aria-live="polite">Page 1 of 10</span><button type="button" data-book-next aria-label="Next page">Next<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
    '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/Redcarpert-Sample-Lookbook.pdf" download="Redcarpert-Sample-Lookbook.pdf">Download sample lookbook (PDF)</a><p>The existing PDF contains the original two sample photographs.</p></div>' +
    '</section>';

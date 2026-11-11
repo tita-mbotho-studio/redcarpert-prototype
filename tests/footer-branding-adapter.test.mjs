@@ -24,17 +24,20 @@ test('all 8 routes receive the guarded three-column design with functional categ
   const widgets=nodes.find(n=>n.attrs.class==='cols-wrapper footer-widgets section-boxed redcarpert-footer-columns');
   const columns=widgets.children.filter(n=>typeof n!=='string');assert.equal(columns.length,3);
   assert(!nodes.some(n=>/\bcols-[34]\b/.test(n.attrs.class??'')));
-  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTING ENQUIRIES\n\nBook a fittingVia WhatsApp']);
+  assert.deepEqual(columns.map(text).map(t=>t.trim()),['Elegant bridal collections','COLLECTIONS\n\nMermaidBall Gown','FITTINGS\n\nBook a fitting']);
   assert(!nodes.some(n=>n.attrs.id==='block-13'));
   assert.deepEqual(nodes.filter(n=>n.tag==='h2').map(n=>({attrs:n.attrs,text:text(n)})),[
    {attrs:{class:'redcarpert-footer-heading'},text:'COLLECTIONS'},
-   {attrs:{class:'redcarpert-footer-heading'},text:'FITTING ENQUIRIES'},
+   {attrs:{class:'redcarpert-footer-heading'},text:'FITTINGS'},
   ]);
   const links=nodes.filter(n=>n.tag==='a'&&n.attrs.href);
   assert.deepEqual(links.map(n=>[text(n),n.attrs.href]),[['Mermaid','/product-category/mermaid/'],['Ball Gown','/product-category/ball_gown/']]);
   for(const link of links)assert(sitePages[link.attrs.href.replace(/\/$/,'')]);
   const fitting=nodes.filter(n=>n.tag==='button');assert.equal(fitting.length,1);
-  assert.deepEqual(fitting[0],{tag:'button',attrs:{type:'button','data-whatsapp-preview':'','aria-haspopup':'dialog'},children:['Book a fitting']});
+  assert.deepEqual(fitting[0],{tag:'button',attrs:{type:'button',class:'redcarpert-footer-book','data-whatsapp-preview':'','aria-haspopup':'dialog','aria-label':'Book a fitting via WhatsApp'},children:[
+    {tag:'i',attrs:{class:'fa-brands fa-whatsapp','aria-hidden':'true'},children:[]},
+    {tag:'span',attrs:{},children:['Book a fitting']},
+  ]});
   assert.deepEqual(nodes.find(n=>n.attrs.class==='copyrights').children,[
     '© ',
     {tag:'span',attrs:{'data-copyright-year':''},children:[String(new Date().getFullYear())]},
@@ -47,7 +50,7 @@ test('all 8 routes receive the guarded three-column design with functional categ
   assert.equal(brand.children.at(-2).children[0],'Elegant bridal collections');
   assert(!all([nodes.find(n=>n.attrs.class==='footer-bottom')]).includes(profiles[0]));
   assert.equal(nodes.filter(n=>n.attrs.class==='social-icons').length,1);
-  assert.deepEqual(all([profiles[0]]).filter(n=>n.tag==='img').map(n=>n.attrs.src),['/redcarpert/instagram.svg','/site-assets/3d94819dd14ede1760.png','/site-assets/4600dc5b99e2f02b67.png','/site-assets/3b9a6e23cf5c478efd.png','/site-assets/54721da2e3bb14d829.png']);
+  assert.deepEqual(all([profiles[0]]).filter(n=>n.tag==='img').map(n=>n.attrs.src),['https://nirvanatakipcim.com/gelinlik/wp-content/themes/thestory/images/icons_white/instagram.png','/site-assets/3d94819dd14ede1760.png','/site-assets/4600dc5b99e2f02b67.png','/site-assets/3b9a6e23cf5c478efd.png','/site-assets/54721da2e3bb14d829.png']);
   // Approved social subtrees, local icons, scroll control and all non-footer nodes stay shared.
   for(const n of old.filter(n=>n.attrs.class==='social-profiles'||n.attrs.class==='scroll-to-top'||n.tag==='a'||n.tag==='img'&&n.attrs.class!=='wp-image-13926'))assert(nodes.includes(n));
   const compareOutside=(a,b)=>{if(typeof a==='string')return assert.equal(a,b);if(a.tag==='footer')return;if(!all([a]).some(n=>n.tag==='footer'))return assert.equal(a,b);assert.deepEqual(a.attrs,b.attrs);a.children.forEach((c,i)=>compareOutside(c,b.children[i]));};
