@@ -34,6 +34,7 @@ export const pageLoaderCss = `
   letter-spacing:.09em;color:#c8b9a7;
 }
 @keyframes rc-loading-spin {to{transform:rotate(360deg)}}
+@media print {#redcarpert-page-loader{display:none!important}}
 @media(prefers-reduced-motion:reduce) {
   #redcarpert-page-loader,.rc-load-spinner{transition:none!important;animation:none!important}
   #redcarpert-page-loader .rc-load-spinner{border-color:#b99564}
