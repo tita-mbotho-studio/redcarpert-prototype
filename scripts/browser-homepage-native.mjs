@@ -43,6 +43,8 @@ try {
           blur:getComputedStyle(s,'::before').filter,
           foreground:getComputedStyle(s,'::after').backgroundImage,
           foregroundSize:getComputedStyle(s,'::after').backgroundSize,
+          sharpWidth:parseFloat(getComputedStyle(s,'::after').width),
+          sharpMask:getComputedStyle(s,'::after').maskImage,
           title:s.querySelector('.section-title') ? box(s.querySelector('.section-title')) : null,
           subtitle:s.querySelector('.section-desc') ? box(s.querySelector('.section-desc')) : null,
           button:s.querySelector('.section-content > a.button') ? box(s.querySelector('.section-content > a.button')) : null,
@@ -107,24 +109,26 @@ try {
       : 14;
     for(const [i,s] of m.sections.entries()) {
       assert.equal(s.bg,'none',width+'px old direct cover background should not crop the portrait');
-      if(width<=1000) {
+      if(width<=640) {
         assert.equal(s.softDisplay,'none',width+'px photo '+i+' must not render a second blurred image');
         assert.equal(s.softBackground,'none',width+'px photo '+i+' must not load a blurred background');
         assert.equal(s.blur,'none',width+'px photo '+i+' should have no blur');
         assert(!s.foreground.includes('linear-gradient('),
-          width+'px photo '+i+' should show the unfiltered original without tint');
+          width+'px phone photo '+i+' must remain the approved untinted image');
+        assert.equal(s.foregroundSize,'cover',width+'px phone photo '+i+' must remain full-bleed cover');
+        assert.equal(s.sharpMask,'none',width+'px phone photo '+i+' must have no faded edges');
+        assert(Math.abs(s.sharpWidth-width)<=2,width+'px phone photo '+i+' must fill the viewport width');
       } else {
-        assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing desktop soft-focus backdrop');
-        assert(s.blur.includes('blur('),width+'px photo '+i+' missing desktop blur');
+        assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing blurred-side backdrop');
+        assert(s.blur.includes('blur('),width+'px photo '+i+' missing blurred sides');
+        assert(s.sharpMask.includes('gradient('),width+'px photo '+i+' needs a soft transition');
+        assert(s.foregroundSize.split(',').some(part=>part.trim()==='cover'),
+          width+'px photo '+i+' must cover the entire sharp central panel');
+        const expectedSharpWidth=width*[.72,.65,.70][i];
+        assert(Math.abs(s.sharpWidth-expectedSharpWidth)<=3,
+          width+'px photo '+i+' sharp-panel width diverged from deployed proportions: '+s.sharpWidth);
       }
       assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
-      if(width<=1000){
-        assert.equal(s.foregroundSize,'cover',
-          width+'px photo '+i+' must fill the complete viewport without top/bottom bars');
-      } else {
-        assert(s.foregroundSize.split(',').some(part=>part.trim()==='auto 132%'),
-          width+'px photo '+i+' should be larger than the old narrow portrait strip');
-      }
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
       assert(s.box.height>=height-2,width+'px photo '+i+' must occupy the full screen height');
       if(i>0)assert(Math.abs(s.box.y-m.sections[i-1].box.bottom)<3,
