@@ -1,5 +1,4 @@
 import { installNavigation } from './navigation.js';
-import { preserveHomepageHeader } from "../lib/homepage-header";
 import { runtimeContent } from "../data/runtime";
 function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -16,7 +15,6 @@ export function SiteRuntime({ document: data, }) {
         document.body.className = data.bodyClass;
         document.documentElement.className = data.htmlClass;
         let cancelled = false;
-        let releaseHomepageHeader;
         const homepage = Boolean(document.querySelector('footer[data-homepage-footer]'));
         if (homepage) {
             document.body.classList.add('redcarpert-home-native');
@@ -98,10 +96,8 @@ export function SiteRuntime({ document: data, }) {
                 if (src === data.themeConfig) {
                     installNavigation();
                     if (homepage) {
-                        // Keep the inherited header/menu setup but do not initialise
-                        // PEXETO.Fullpage. That plugin forces slide heights and takes
-                        // control of wheel, keyboard, and desktop-to-footer scrolling.
-                        releaseHomepageHeader = preserveHomepageHeader();
+                        // Preserve native scrolling, but initialise the theme's regular
+                        // sticky header/menu as on the other pages. No fullpage engine.
                         window.PEXETO?.init?.initSite();
                         window.PEXETO?.woocommerce?.init?.(true);
                         continue;
@@ -112,7 +108,6 @@ export function SiteRuntime({ document: data, }) {
         })().catch((error) => console.error("Site interactions failed to initialize", error));
         return () => {
             cancelled = true;
-            releaseHomepageHeader?.();
             document.removeEventListener("submit", preventSubmission, true);
             document.removeEventListener("click", preventLegacySubmission, true);
             orderSelect?.removeEventListener("change", onCatalogChange);
