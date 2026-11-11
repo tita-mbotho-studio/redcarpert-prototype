@@ -19,7 +19,7 @@ export function initializePageLoader() {
   });
   const firstContentImage = [...document.querySelectorAll('#main-container img, #content-container img')]
     .find(img => {
-      if (img.closest('header, footer') || img.loading === 'lazy') return false;
+      if (img.closest('header, footer')) return false;
       const r = img.getBoundingClientRect();
       return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight;
     });
@@ -37,8 +37,9 @@ export function initializePageLoader() {
         if (img.complete) resolve();
       });
   };
+  let deadline;
   void Promise.race([
     decode(),
-    new Promise(resolve => setTimeout(resolve, 5200)),
-  ]).then(firstPaint).then(finish).catch(finish);
+    new Promise(resolve => { deadline = setTimeout(resolve, 5200); }),
+  ]).then(firstPaint).then(finish).catch(finish).finally(() => clearTimeout(deadline));
 }
