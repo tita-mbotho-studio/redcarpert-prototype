@@ -83,8 +83,8 @@ test('missing, duplicate, relocated, malformed and already-branded targets rejec
   assert.throws(()=>adaptFooterBranding(adaptFooterBranding(prepare(sitePages[route]))),/Footer branding/);
  }
 });
-test('approved artwork is referenced unchanged, at its full canvas, without new logo derivatives',()=>{
- const bytes=readFileSync(new URL('../public/redcarpert/brand/redcarpert-logo-optimized.webp',import.meta.url));
+test('approved artwork source stays identical while the generated logo URL is optimised',()=>{
+ const bytes=readFileSync(new URL('../public/redcarpert/brand/redcarpert-logo.png',import.meta.url));
  const png=PNG.sync.read(bytes);assert.equal(png.width,2208);assert.equal(png.height,813);
  assert.equal(createHash('sha256').update(bytes).digest('hex'),'b275618991b94ccebd6c9b6100ec455dfe1984e9ee7081a96f7a0d000ba208d2');
  for(const source of Object.values(sitePages)){
