@@ -9,9 +9,11 @@ body.redcarpert-home-native {
 /* The legacy fullscreen theme forced an absolute, always-full-size header.
  * Keep the approved top-of-page overlay, but allow the site's existing
  * fixed-header-scroll compact styling to operate during native scrolling. */
-/* The reference theme paints #header dark when .dark-header, .mobile or
- * .fixed-header-scroll is active. The homepage must remain a transparent
- * overlay in every one of those states, including while its header shrinks. */
+/* Match the approved SECOND screenshot: a dark translucent glass-like
+ * header over the bridal photograph. The inherited theme can switch it to
+ * solid pitch black in .fixed-header-scroll/.mobile states; override those
+ * states with the SAME translucent background. Keep its wrapper transparent
+ * so the photograph stays visible underneath instead of a black strip. */
 body.redcarpert-home-native #main-container .header-wrapper {
   position: fixed !important;
   top: 0;
@@ -25,8 +27,8 @@ body.redcarpert-home-native #header,
 body.redcarpert-home-native.fixed-header-scroll #header,
 body.redcarpert-home-native.dark-header #header,
 body.redcarpert-home-native.mobile #header {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: rgba(0, 0, 0, .70) !important;
+  background-color: rgba(0, 0, 0, .70) !important;
   background-image: none !important;
 }
 body.redcarpert-home-native.fixed-header #header {
