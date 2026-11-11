@@ -27,11 +27,18 @@ try {
         background:getComputedStyle(document.querySelector('.fullpage-wrapper > .section')).backgroundImage,
         headerPosition:getComputedStyle(header).position,
         headerHeight:header.getBoundingClientRect().height,
+        headerBackground:getComputedStyle(header).backgroundColor,
+        wrapperBackground:getComputedStyle(document.querySelector('.header-wrapper')).backgroundColor,
+        wrapperPosition:getComputedStyle(document.querySelector('.header-wrapper')).position,
         contentWidth:document.documentElement.scrollWidth,
       };
     });
     assert(appearance.background.includes('brand-pexels-sample.webp'));
     assert.equal(appearance.headerPosition,'fixed',width+'px header must remain accessible while scrolling');
+    const transparent = color => color === 'transparent' || /^rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(color);
+    assert(transparent(appearance.headerBackground),width+'px initial header background must be transparent: '+appearance.headerBackground);
+    assert(transparent(appearance.wrapperBackground),width+'px wrapper must be transparent: '+appearance.wrapperBackground);
+    assert.equal(appearance.wrapperPosition,'fixed',width+'px wrapper must not push photo downward');
     assert(appearance.contentWidth<=width+1.5,width+'px horizontal overflow');
     await page.evaluate(()=>scrollTo({top:Math.round(innerHeight*.6),behavior:'instant'}));
     await page.waitForTimeout(100);
@@ -39,7 +46,11 @@ try {
     const compact = await page.evaluate(() => ({
       paddingTop:parseFloat(getComputedStyle(document.querySelector('#header')).paddingTop),
       logoMaxHeight:parseFloat(getComputedStyle(document.querySelector('#logo-container img')).maxHeight),
+      headerBackground:getComputedStyle(document.querySelector('#header')).backgroundColor,
+      wrapperBackground:getComputedStyle(document.querySelector('.header-wrapper')).backgroundColor,
     }));
+    assert(transparent(compact.headerBackground),width+'px compact header must remain transparent');
+    assert(transparent(compact.wrapperBackground),width+'px compact wrapper must remain transparent');
     assert(compact.paddingTop<=9,width+'px compact header must reduce vertical padding');
     assert(compact.logoMaxHeight<=(width<=1000?33:41),
       width+'px compact header logo must scale down: '+compact.logoMaxHeight);
