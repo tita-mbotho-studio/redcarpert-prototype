@@ -55,6 +55,14 @@ try {
         header:box(document.querySelector('#header')),
       };
     });
+    // The hero collection years must follow the visitor's calendar year
+    // with no annual source-code edits or redeployments.
+    const collection = await page.locator('.fullpage-wrapper > .section:first-child .section-title').textContent();
+    const year = await page.evaluate(() => new Date().getFullYear());
+    assert.equal(collection.trim(),`${year} - ${year + 1} Collectıon`,
+      width+'px collection years are stale');
+    assert.equal(await page.locator('[data-collection-year="start"]').count(),1);
+    assert.equal(await page.locator('[data-collection-year="end"]').count(),1);
     assert.equal(m.native,true,'native scroll should be enabled');
     assert.equal(m.fullpagePluginMounted,false,width+'px legacy fullpage plugin must not wrap document');
     assert.equal(m.loading,false,'remove legacy loading screen');
