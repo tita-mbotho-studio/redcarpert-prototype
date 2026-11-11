@@ -118,10 +118,15 @@ try {
         assert(s.blur.includes('blur('),width+'px photo '+i+' missing desktop blur');
       }
       assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
-      assert(s.foregroundSize.split(',').some(part=>part.trim()==='contain'),
-        width+'px photo '+i+' must fit completely rather than crop');
+      if(width<=1000){
+        assert.equal(s.foregroundSize,'cover',
+          width+'px photo '+i+' must fill the complete viewport without top/bottom bars');
+      } else {
+        assert(s.foregroundSize.split(',').some(part=>part.trim()==='auto 132%'),
+          width+'px photo '+i+' should be larger than the old narrow portrait strip');
+      }
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
-      assert(s.box.height>height*.69,width+'px photo '+i+' is too short');
+      assert(s.box.height>=height-2,width+'px photo '+i+' must occupy the full screen height');
       if(i>0)assert(Math.abs(s.box.y-m.sections[i-1].box.bottom)<3,
         width+'px photo '+i+' should follow previous photo without gaps or overlap');
       if(s.title) {
@@ -174,7 +179,7 @@ try {
     assert.deepEqual(errors,[],width+'px browser errors');
     console.log('Native homepage PASS',width,height,m.sections.map(s=>Math.round(s.box.height)),
       'fonts',m.sections.filter(s=>s.title).map(s=>[s.titleFont,s.subtitleFont,s.buttonFont]),
-      m.sections.map(s=>s.foregroundSize));
+      'photo sizing',m.sections.map(s=>s.foregroundSize));
     await page.close();
   }
 } finally { await browser.close(); }
