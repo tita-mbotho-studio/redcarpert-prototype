@@ -103,6 +103,6 @@ test("responsive image treatment only blurs on desktop and never on smaller scre
     "desktop sharp portrait should be visibly wider than the previous contain framing");
   assert(css.includes("filter: blur(36px) brightness(.66);"),
     "desktop soft-focus must remain untouched");
-  assert(!/min-height:\\s*(?:80|90)svh/.test(css),
+  assert(!/min-height:\s*(?:80|90)svh/.test(css),
     "no responsive section may be shorter than a full viewport");
 });
