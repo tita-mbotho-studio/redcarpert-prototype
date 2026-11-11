@@ -23,7 +23,12 @@ export function adaptHomepageBackgrounds(document: SiteDocumentData): SiteDocume
       if (depth === path.length - 1) {
         if (node.tag !== "div" || node.attrs.class !== "section section-text layout-cc" || node.attrs.style !== expected) return fail();
         return children.map((child, i) => i === index
-          ? { ...node, attrs: { ...node.attrs, style: expected.replace(background.original, background.replacement) } }
+          ? { ...node, attrs: { ...node.attrs,
+              // CSS draws one blurred cover layer plus the uncropped original.
+              // Keep the original background declaration as an image fallback.
+              style: expected.replace(background.original, background.replacement)
+                + `--redcarpert-home-photo:url("${background.replacement}");`,
+            } }
           : child);
       }
       const updated = update(node.children, depth + 1);
