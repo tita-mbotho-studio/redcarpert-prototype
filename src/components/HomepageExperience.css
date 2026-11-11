@@ -105,9 +105,9 @@ body.redcarpert-home-native .fullpage-wrapper > .section {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  /* New client photos are all portrait (2:3). The old full-width "cover"
-   * rule crops most of their height on desktop. Keep a dark soft-focus
-   * backdrop, and place the complete uncropped photograph above it. */
+  /* Preserve the approved full-viewport sections. Portrait ImageKit photos
+   * receive a soft-focus backdrop on wide screens and fill mobile screens
+   * without introducing empty letterbox bands or stretching the subjects. */
   background-image: none !important;
   background-color: #242021;
   isolation: isolate;
@@ -126,7 +126,8 @@ body.redcarpert-home-native .fullpage-wrapper > .section::before {
   background-size: cover;
   filter: blur(36px) brightness(.66);
 }
-/* The complete wedding dress remains sharp and visible at all aspect ratios. */
+/* Widen the main bridal photo on desktop without stretching its proportions.
+ * The soft-focus background still extends edge-to-edge behind the image. */
 body.redcarpert-home-native .fullpage-wrapper > .section::after {
   content: "";
   position: absolute;
@@ -137,18 +138,19 @@ body.redcarpert-home-native .fullpage-wrapper > .section::after {
     linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.17) 50%, rgba(0,0,0,.08)),
     var(--redcarpert-home-photo);
   background-repeat: no-repeat;
-  background-size: 100% 100%, contain;
+  background-size: 100% 100%, auto 132%;
   background-position: center center, center center;
 }
 /* The middle image deliberately has no text/readability overlay. */
 body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
   background-image: var(--redcarpert-home-photo);
-  background-size: contain;
+  background-size: auto 132%;
   background-position: center center;
 }
-/* Phones and tablets: show only the original, sharp portrait photo.
- * Do not render a duplicate blurred backdrop or add a tint over the image.
- * Keep contain framing so the entire dress remains visible without cropping. */
+/* Phones and tablets: return to the last-approved full-bleed cover framing.
+ * This fills the viewport with one crisp photograph and no blur, tint or
+ * letterbox bars. A portrait image necessarily trims its outside edges on
+ * differently shaped screens; keep it centred without distortion. */
 @media (max-width: 1000px) {
   body.redcarpert-home-native .fullpage-wrapper > .section::before {
     content: none;
@@ -159,8 +161,8 @@ body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
   body.redcarpert-home-native .fullpage-wrapper > .section::after,
   body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
     background-image: var(--redcarpert-home-photo);
-    background-size: contain;
-    background-position: center;
+    background-size: cover;
+    background-position: center center;
   }
 }
 body.redcarpert-home-native .fullpage-wrapper > .section .section-content {
@@ -274,8 +276,8 @@ body.redcarpert-home-native footer[data-homepage-footer] {
 @media (max-width: 1000px) {
   body.redcarpert-home-native .fullpage-wrapper > .section {
     --redcarpert-home-gutter: 32px;
-    min-height: 90vh;
-    min-height: 90svh;
+    min-height: 100vh;
+    min-height: 100svh;
     padding-top: 88px;
     padding-bottom: 60px;
   }
@@ -294,13 +296,13 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     font-size: clamp(12px, calc(0.431vw + 8.69px), 13px) !important;
   }
 }
-/* Phone portraits: shorter second/third images, readable titles, properly sized
- * buttons and intentional photo focal positions. Image assets stay identical. */
+/* Phone portraits: full-screen photographs with readable titles and properly
+ * sized buttons. Each photo panel remains a complete viewport tall. */
 @media (max-width: 640px) {
   body.redcarpert-home-native .fullpage-wrapper > .section {
     --redcarpert-home-gutter: 20px;
-    min-height: 80vh;
-    min-height: 80svh;
+    min-height: 100vh;
+    min-height: 100svh;
     padding-top: 80px;
     padding-bottom: 56px;
   }
@@ -336,9 +338,9 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     --redcarpert-home-gutter: 16px;
   }
 }
-/* Hero always fills the initial viewport: no second photograph is visible
- * until the visitor scrolls. The later photos retain their responsive heights.
- * The minimum allows very short viewports to grow rather than clip text/CTA. */
+/* Every photo panel fills its viewport; the first does not reveal image two
+ * until the visitor scrolls. Minimum heights allow extra room on very short
+ * devices rather than clipping text or interactive controls. */
 body.redcarpert-home-native .fullpage-wrapper > .section:first-child {
   min-height: 100vh;
   min-height: 100svh;
