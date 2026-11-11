@@ -105,35 +105,64 @@ body.redcarpert-home-native .fullpage-wrapper > .section {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-  background-position: center center !important;
+  /* New client photos are all portrait (2:3). The old full-width "cover"
+   * rule crops most of their height on desktop. Keep a dark soft-focus
+   * backdrop, and place the complete uncropped photograph above it. */
+  background-image: none !important;
+  background-color: #242021;
   isolation: isolate;
   overflow: clip;
 }
-body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(1) {
-  background-position: 52% 50% !important;
+/* Cinematic, blurred background fills every screen and avoids hard bars. */
+body.redcarpert-home-native .fullpage-wrapper > .section::before {
+  content: "";
+  position: absolute;
+  inset: -36px;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--redcarpert-home-photo);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(36px) brightness(.66);
 }
-body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2) {
-  background-position: 50% 50% !important;
-}
-body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(3) {
-  background-position: 48% 50% !important;
-}
-/* Gentle, local readability support without obscuring the approved photo. */
-body.redcarpert-home-native .fullpage-wrapper > .section:not(:nth-child(2))::before {
+/* The complete wedding dress remains sharp and visible at all aspect ratios. */
+body.redcarpert-home-native .fullpage-wrapper > .section::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
-  z-index: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.18) 50%, rgba(0,0,0,.09));
+  background-image:
+    linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.17) 50%, rgba(0,0,0,.08)),
+    var(--redcarpert-home-photo);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, contain;
+  background-position: center center, center center;
+}
+/* The middle image deliberately has no text/readability overlay. */
+body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
+  background-image: var(--redcarpert-home-photo);
+  background-size: contain;
+  background-position: center center;
+}
+@media (max-width: 1000px) {
+  body.redcarpert-home-native .fullpage-wrapper > .section::before {
+    inset: -24px;
+    filter: blur(24px) brightness(.7);
+  }
+}
+@media (max-width: 640px) {
+  body.redcarpert-home-native .fullpage-wrapper > .section::before {
+    inset: -18px;
+    filter: blur(18px) brightness(.72);
+  }
 }
 body.redcarpert-home-native .fullpage-wrapper > .section .section-content {
   box-sizing: border-box;
   display: flex !important;
   position: relative !important;
-  z-index: 1;
+  z-index: 2;
   top: auto !important;
   left: auto !important;
   width: min(100%, 860px);
@@ -215,7 +244,7 @@ body.redcarpert-home-native .fullpage-wrapper > .section .section-content > a.bu
   outline-offset: 4px;
 }
 body.redcarpert-home-native .fullpage-scroll-arrow {
-  z-index: 2;
+  z-index: 3;
   right: 50%;
   bottom: 24px;
   cursor: pointer;
@@ -269,15 +298,6 @@ body.redcarpert-home-native footer[data-homepage-footer] {
     min-height: 80svh;
     padding-top: 80px;
     padding-bottom: 56px;
-  }
-  body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(1) {
-    background-position: 54% center !important;
-  }
-  body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2) {
-    background-position: 50% center !important;
-  }
-  body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(3) {
-    background-position: 46% center !important;
   }
   body.redcarpert-home-native .fullpage-wrapper > .section .section-title {
     /* 20px at 320px, 22px at 375px; readable without overwhelming the photo. */
