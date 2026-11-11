@@ -6,6 +6,66 @@
 body.redcarpert-home-native {
   overflow-x: clip;
 }
+/* The legacy fullscreen theme forced an absolute, always-full-size header.
+ * Keep the approved top-of-page overlay, but allow the site's existing
+ * fixed-header-scroll compact styling to operate during native scrolling. */
+/* Match the approved SECOND screenshot: a dark translucent glass-like
+ * header over the bridal photograph. The inherited theme can switch it to
+ * solid pitch black in .fixed-header-scroll/.mobile states; override those
+ * states with the SAME translucent background. Keep its wrapper transparent
+ * so the photograph stays visible underneath instead of a black strip. */
+body.redcarpert-home-native #main-container .header-wrapper {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+body.redcarpert-home-native #header,
+body.redcarpert-home-native.fixed-header-scroll #header,
+body.redcarpert-home-native.dark-header #header,
+body.redcarpert-home-native.mobile #header {
+  background: rgba(0, 0, 0, .70) !important;
+  background-color: rgba(0, 0, 0, .70) !important;
+  background-image: none !important;
+}
+body.redcarpert-home-native.fixed-header #header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 9000;
+  transform: translateY(0);
+  transition: transform .26s ease, padding .26s ease, background-color .26s ease;
+  will-change: transform;
+}
+body.redcarpert-home-native.fixed-header-scroll #header {
+  position: fixed !important;
+}
+body.redcarpert-home-native.redcarpert-header-tucked #header {
+  transform: translateY(-110%);
+}
+body.redcarpert-home-native #header #logo-container img {
+  transition: max-height .26s ease;
+}
+/* On mobile the regular header logo is already small; give the compact
+ * version a proportionately smaller height as on the interior pages. */
+@media (max-width: 1000px) {
+  body.redcarpert-home-native.fixed-header-scroll #header {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  body.redcarpert-home-native.fixed-header-scroll #logo-container img {
+    max-height: 32px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.redcarpert-home-native.fixed-header #header,
+  body.redcarpert-home-native #header #logo-container img {
+    transition: none;
+  }
+}
 html:has(body.redcarpert-home-native) {
   overflow-x: clip;
   scroll-behavior: smooth;

@@ -134,7 +134,11 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.match(yaml,/workflow_dispatch:/);
   assert.match(yaml,/approve_deployment:/);
   assert.match(yaml,/default:\s*false/);
-  assert.match(yaml,/github\.event_name == 'workflow_dispatch' && inputs\.approve_deployment/);
+  assert.match(yaml,/if: github\.ref == 'refs\/heads\/main' && inputs\.approve_deployment/);
+  assert.doesNotMatch(yaml,/^\s+(?:push|pull_request):/m,'deployment should never run on push or PR');
+  const verification=readFileSync('.github/workflows/verify.yml','utf8');
+  assert.match(verification,/workflow_dispatch:/);
+  assert.doesNotMatch(verification,/^\s+(?:push|pull_request):/m,'verification should remain opt-in');
   assert.match(yaml,/actions\/deploy-pages@/);
 });
 
@@ -164,5 +168,47 @@ test('Redcarpert browser-tab and touch icons are generated from the new bridal m
   }
   const missing=readFileSync('dist/404.html','utf8');
   assert(missing.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),'404 page must use the current '+rel);
+ }
+});
+
+test('Implementation 22: every static page starts with a bounded, branded global loading screen', {skip:!available},async()=>{
+ const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
+ const generated='dist/redcarpert/brand/redcarpert-logo-optimized.webp';
+ assert(existsSync(generated),'missing derived logo used by all pages');
+ const original='public/redcarpert/brand/redcarpert-logo.png';
+ const optimized=readFileSync(generated);
+ assert(optimized.length<readFileSync(original).length/2,'approved logo derivative should be considerably smaller');
+ const info=await sharp(optimized).metadata();
+ assert.equal(info.format,'webp');
+ assert(info.width<=640&&info.width>200);
+ for(const route of routes){
+  const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+  const loader=html.indexOf('id="redcarpert-page-loader"');
+  const header=html.indexOf('<header id="header"');
+  assert(loader>0&&header>loader,route+' loader must precede site header');
+  assert.match(html,/id="redcarpert-loader-critical"/,route+' loader critical CSS missing');
+  assert.match(html,/redcarpert-logo-optimized\.webp/,route+' must render optimised approved logo');
+  assert.match(html,/Preparing your bridal experience/,route+' missing branded status');
+  assert.match(html,/redcarpertLoaderFallback=setTimeout/,route+' must fail open if JS stalls');
+  assert.match(html,/<noscript><style>#redcarpert-page-loader\{display:none!important\}<\/style><\/noscript>/,
+    route+' must fail open with JavaScript disabled');
+  assert.match(html,/role="status" aria-live="polite"/,route+' loader must be accessible');
+  if(route==='/'){
+   const year=new Date().getFullYear();
+   assert.match(html,new RegExp('data-collection-year="start"[^>]*>'+year+'<'), 'homepage first year fallback should match build year');
+   assert.match(html,new RegExp('data-collection-year="end"[^>]*>'+(year+1)+'<'), 'homepage next year fallback should match build year');
+   assert(html.includes(' Collectıon'), 'keep the approved collection heading wording');
+   // Apply homepage-only transparent header rules before JavaScript arrives.
+   assert.match(html,/<body class="[^"]*\bredcarpert-home-native\b/,
+     'homepage must carry its transparent overlay class from the first paint');
+   assert.match(html,/<link rel="preload" href="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp" as="image" type="image\/webp" fetchpriority="high">/);
+   assert.match(html,/data-hero-url="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp"/);
+   assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
+    'hero preload should be declared before loading logo');
+  } else {
+   assert(!html.includes('data-hero-url='),route+' must not load the homepage hero');
+   assert.doesNotMatch(html,/<body class="[^"]*\bredcarpert-home-native\b/,
+     route+' must retain its approved interior header styling');
+  }
  }
 });
