@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { adaptHomepageBackgrounds, homepageBackgrounds } from "../src/lib/homepage-backgrounds.ts";
@@ -84,4 +85,19 @@ test("all three homepage photos are client-supplied remote WebP assets in natura
     assert.equal(url.searchParams.size,1);
   });
   assert.equal(new Set(homepageBackgrounds.map(x=>x.replacement)).size,3);
+});
+
+test("responsive image treatment only blurs on desktop and never on smaller screens", () => {
+  const css = readFileSync("src/components/HomepageExperience.css", "utf8");
+  const mobile = css.slice(css.indexOf("@media (max-width: 1000px) {", css.indexOf("filter: blur(36px)")));
+  assert(mobile.startsWith("@media (max-width: 1000px) {"), "missing small-screen image treatment");
+  assert(mobile.includes("content: none;") && mobile.includes("display: none;"),
+    "mobile/tablet must not draw a duplicate blurred photo");
+  assert(mobile.includes("background-image: none;") && mobile.includes("filter: none;"),
+    "mobile/tablet blur background must be disabled");
+  assert(mobile.includes("background-image: var(--redcarpert-home-photo);")
+    && mobile.includes("background-size: contain;"),
+    "mobile/tablet should show only the uncropped original photo");
+  assert(css.includes("filter: blur(36px) brightness(.66);"),
+    "desktop soft-focus must remain untouched");
 });
