@@ -45,6 +45,7 @@ try {
           foregroundSize:getComputedStyle(s,'::after').backgroundSize,
           sharpWidth:parseFloat(getComputedStyle(s,'::after').width),
           sharpMask:getComputedStyle(s,'::after').maskImage,
+          foregroundPosition:getComputedStyle(s,'::after').backgroundPosition,
           title:s.querySelector('.section-title') ? box(s.querySelector('.section-title')) : null,
           subtitle:s.querySelector('.section-desc') ? box(s.querySelector('.section-desc')) : null,
           button:s.querySelector('.section-content > a.button') ? box(s.querySelector('.section-content > a.button')) : null,
@@ -116,12 +117,16 @@ try {
         assert(!s.foreground.includes('linear-gradient('),
           width+'px phone photo '+i+' must remain the approved untinted image');
         assert.equal(s.foregroundSize,'cover',width+'px phone photo '+i+' must remain full-bleed cover');
+        assert(!/top|0%/.test(s.foregroundPosition),width+'px phone photo '+i+' must keep its approved centred crop');
         assert.equal(s.sharpMask,'none',width+'px phone photo '+i+' must have no faded edges');
         assert(Math.abs(s.sharpWidth-width)<=2,width+'px phone photo '+i+' must fill the viewport width');
       } else {
         assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing blurred-side backdrop');
         assert(s.blur.includes('blur('),width+'px photo '+i+' missing blurred sides');
-        assert(s.sharpMask.includes('gradient('),width+'px photo '+i+' needs a soft transition');
+        assert.equal(s.sharpMask,'none',width+'px photo '+i+' must have completely sharp edges without blur bleeding');
+        assert(s.blur.includes('36px'),width+'px photo '+i+' must restore the previous 36px backdrop blur');
+        if(i===0)assert(/top|0%/.test(s.foregroundPosition),
+          width+'px first bride photo must show its top (face) instead of centring the skirt');
         assert(s.foregroundSize.split(',').some(part=>part.trim()==='cover'),
           width+'px photo '+i+' must cover the entire sharp central panel');
         const expectedSharpWidth=width*[.72,.65,.70][i];
