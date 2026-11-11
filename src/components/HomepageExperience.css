@@ -146,16 +146,21 @@ body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
   background-size: contain;
   background-position: center center;
 }
+/* Phones and tablets: show only the original, sharp portrait photo.
+ * Do not render a duplicate blurred backdrop or add a tint over the image.
+ * Keep contain framing so the entire dress remains visible without cropping. */
 @media (max-width: 1000px) {
   body.redcarpert-home-native .fullpage-wrapper > .section::before {
-    inset: -24px;
-    filter: blur(24px) brightness(.7);
+    content: none;
+    display: none;
+    background-image: none;
+    filter: none;
   }
-}
-@media (max-width: 640px) {
-  body.redcarpert-home-native .fullpage-wrapper > .section::before {
-    inset: -18px;
-    filter: blur(18px) brightness(.72);
+  body.redcarpert-home-native .fullpage-wrapper > .section::after,
+  body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
+    background-image: var(--redcarpert-home-photo);
+    background-size: contain;
+    background-position: center;
   }
 }
 body.redcarpert-home-native .fullpage-wrapper > .section .section-content {
