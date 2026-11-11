@@ -35,8 +35,11 @@ try {
         sections:sections.map(s=>({
           box:box(s),
           bg:getComputedStyle(s).backgroundImage,
-          size:getComputedStyle(s).backgroundSize,
-          position:getComputedStyle(s).backgroundPosition,
+          photo:getComputedStyle(s).getPropertyValue('--redcarpert-home-photo').trim(),
+          softBackground:getComputedStyle(s,'::before').backgroundImage,
+          blur:getComputedStyle(s,'::before').filter,
+          foreground:getComputedStyle(s,'::after').backgroundImage,
+          foregroundSize:getComputedStyle(s,'::after').backgroundSize,
           title:s.querySelector('.section-title') ? box(s.querySelector('.section-title')) : null,
           subtitle:s.querySelector('.section-desc') ? box(s.querySelector('.section-desc')) : null,
           button:s.querySelector('.section-content > a.button') ? box(s.querySelector('.section-content > a.button')) : null,
@@ -83,8 +86,8 @@ try {
     assert.equal(m.loading,false,'remove legacy loading screen');
     assert.equal(m.sections.length,3,'exactly the original three photos');
     assert(m.sections.every((section,i)=>
-      section.bg.includes('ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/')
-      && section.bg.includes(images[i])),width+'px ImageKit photo order changed or missing');
+      section.photo.includes('ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/')
+      && section.photo.includes(images[i])),width+'px ImageKit photo order changed or missing');
     // Image one must occupy the entire initial viewport, hiding image two
     // until the visitor actually scrolls. Keep the later panels unchanged.
     assert(Math.abs(m.sections[0].box.y)<=2,width+'px first image must start at the viewport top');
@@ -100,7 +103,12 @@ try {
       : width<=1000 ? Math.max(12,Math.min(13,width*.00431+8.69))
       : 14;
     for(const [i,s] of m.sections.entries()) {
-      assert.equal(s.size,'cover',width+'px photo '+i+' must be cover framed');
+      assert.equal(s.bg,'none',width+'px old direct cover background should not crop the portrait');
+      assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing soft-focus backdrop');
+      assert(s.blur.includes('blur('),width+'px photo '+i+' missing the desktop/mobile backdrop blur');
+      assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
+      assert(s.foregroundSize.split(',').some(part=>part.trim()==='contain'),
+        width+'px photo '+i+' must fit completely rather than crop');
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
       assert(s.box.height>height*.69,width+'px photo '+i+' is too short');
       if(i>0)assert(Math.abs(s.box.y-m.sections[i-1].box.bottom)<3,
@@ -155,7 +163,7 @@ try {
     assert.deepEqual(errors,[],width+'px browser errors');
     console.log('Native homepage PASS',width,height,m.sections.map(s=>Math.round(s.box.height)),
       'fonts',m.sections.filter(s=>s.title).map(s=>[s.titleFont,s.subtitleFont,s.buttonFont]),
-      m.sections.map(s=>s.position));
+      m.sections.map(s=>s.foregroundSize));
     await page.close();
   }
 } finally { await browser.close(); }
