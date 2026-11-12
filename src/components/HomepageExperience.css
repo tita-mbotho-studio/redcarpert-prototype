@@ -113,18 +113,12 @@ body.redcarpert-home-native .fullpage-wrapper > .section {
   isolation: isolate;
   overflow: clip;
 }
-/* Match the deployed homepage's composited panoramas: measured sharp centre
- * widths at a 1440x900 desktop were ~72% / 65% / 70% for panels 1 / 2 / 3.
- * The client images are portrait (2:3), so each sharp panel uses cover within
- * its own full-height strip. Never stretch the photograph to fill that strip. */
+/* Option B: one original ImageKit portrait per section, framed in a
+ * 60%-wide sharp centre on desktop and tablets. At 1920px viewport width
+ * this is 1152px sharp + 384px of blurred photograph on either side.
+ * On smaller phones the already-approved single photo fills the viewport. */
 body.redcarpert-home-native .fullpage-wrapper > .section {
-  --redcarpert-home-sharp-width: 72%;
-}
-body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2) {
-  --redcarpert-home-sharp-width: 65%;
-}
-body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(3) {
-  --redcarpert-home-sharp-width: 70%;
+  --redcarpert-home-sharp-width: 60%;
 }
 /* The original live panoramas baked their softened sidebands into WebP.
  * Re-create the composition without changing or downloading ImageKit images. */
@@ -138,7 +132,7 @@ body.redcarpert-home-native .fullpage-wrapper > .section::before {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
-  filter: blur(36px) brightness(.66);
+  filter: blur(32px) brightness(.66);
 }
 body.redcarpert-home-native .fullpage-wrapper > .section::after {
   content: "";
@@ -155,23 +149,16 @@ body.redcarpert-home-native .fullpage-wrapper > .section::after {
     var(--redcarpert-home-photo);
   background-repeat: no-repeat;
   background-size: 100% 100%, cover;
-  background-position: center center, center center;
-  /* No gradient mask: the clear photo must fully cover the blurry layer,
-   * so the blur never bleeds onto the actual dress. */
-}
-/* In the first photograph the face is near the source image's top.
- * Anchor the visible portrait at the top rather than cropping the head
- * to favour the skirt. Keep the approved sharp-panel width unchanged. */
-@media (min-width: 641px) {
-  body.redcarpert-home-native .fullpage-wrapper > .section:first-child::after {
-    background-position: center center, center top;
-  }
+  /* All three portrait photos are top-aligned on wide screens, preserving
+   * the face and upper dress instead of letting a centred vertical crop
+   * hide the head. The sharp centre stays opaque: blur never spills in. */
+  background-position: center center, center top;
 }
 /* The middle photograph has no title overlay, as on the deployed site. */
 body.redcarpert-home-native .fullpage-wrapper > .section:nth-child(2)::after {
   background-image: var(--redcarpert-home-photo);
   background-size: cover;
-  background-position: center center;
+  background-position: center top;
 }
 /* Desktop and tablets share the same blurred-side / clear-centre composition.
  * On phones, preserve the already-approved crisp, edge-to-edge cover image. */
