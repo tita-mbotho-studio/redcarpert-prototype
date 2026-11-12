@@ -1,17 +1,16 @@
 import assert from "node:assert/strict";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import sharp from "sharp";
-import { adaptHomepageBackgrounds } from "../src/lib/homepage-backgrounds.ts";
+import { adaptHomepageBackgrounds, homepageBackgrounds } from "../src/lib/homepage-backgrounds.ts";
 import { adaptSiteDocument } from "../src/lib/content-adapter.ts";
 import { contentAdaptations } from "../src/data/content-adaptations.ts";
 import { sitePages } from "../src/data/site.ts";
 
 const expectedImages = [
-  ["/site-assets/ec8b6b2c4222396c44.png", "/redcarpert/home/brand-pexels-sample.webp", 2560, 1370],
-  ["/site-assets/9def3725208290c4ef.png", "/redcarpert/home/collection-pexels-sample.webp", 2560, 1370],
-  ["/site-assets/46f8a1c412d65fd42b.png", "/redcarpert/home/hero-pexels-sample.webp", 2540, 1250],
+  ["/site-assets/ec8b6b2c4222396c44.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508"],
+  ["/site-assets/9def3725208290c4ef.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp?updatedAt=1794351597603"],
+  ["/site-assets/46f8a1c412d65fd42b.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp?updatedAt=1794351600184"],
 ];
 const at = (document, section) => document.nodes[1].children[1].children[4].children[1].children[1].children[section];
 const freeze = (value) => {
@@ -29,7 +28,7 @@ test("only the three approved inline URL substrings change; text, layout, CSS an
   expectedImages.forEach(([oldUrl, newUrl], index) => {
     const node = at(expected, index);
     assert.equal(node.attrs.style, `background-image:url("${oldUrl}");background-position:center center;`);
-    node.attrs.style = `background-image:url("${newUrl}");background-position:center center;`;
+    node.attrs.style = `background-image:url("${newUrl}");background-position:center center;--redcarpert-home-photo:url("${newUrl}");`;
   });
   const result = adaptHomepageBackgrounds(textAdapted);
   assert.deepEqual(result, expected);
@@ -73,15 +72,37 @@ test("unexpected URLs, extra declarations, changed classes/tags or missing/reord
   assert.throws(() => adaptHomepageBackgrounds(reordered), /expected original section/);
 });
 
-test("replacement assets decode as compact WebP at their unchanged canvas dimensions", async () => {
-  for (const [original, replacement, width, height] of expectedImages) {
-    const oldImage = await sharp(readFileSync(`public${original}`)).metadata();
-    const image = sharp(readFileSync(`public${replacement}`));
-    const metadata = await image.metadata();
-    assert.deepEqual([metadata.width, metadata.height], [width, height]);
-    assert.deepEqual([oldImage.width, oldImage.height], original.includes("ec8b6") ? [2540, 1250] : [2560, 1370]);
-    assert.equal(metadata.format, "webp");
-    assert.ok(statSync(`public${replacement}`).size < 1_000_000);
-    await image.raw().toBuffer(); // Decode the whole raster, not only its header.
-  }
+test("all three homepage photos are client-supplied remote WebP assets in natural order", () => {
+  assert.equal(homepageBackgrounds.length,3);
+  homepageBackgrounds.forEach((item,i)=>{
+    assert.equal(item.section,i);
+    assert.deepEqual([item.original,item.replacement],expectedImages[i]);
+    const url=new URL(item.replacement);
+    assert.equal(url.protocol,"https:");
+    assert.equal(url.hostname,"ik.imagekit.io");
+    assert.equal(url.pathname,`/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-${i+1}.webp`);
+    assert(/^[0-9]+$/.test(url.searchParams.get("updatedAt")??""),"keep the supplied asset version");
+    assert.equal(url.searchParams.size,1);
+  });
+  assert.equal(new Set(homepageBackgrounds.map(x=>x.replacement)).size,3);
+});
+
+test("responsive image treatment only blurs on desktop and never on smaller screens", () => {
+  const css = readFileSync("src/components/HomepageExperience.css", "utf8");
+  const mobile = css.slice(css.indexOf("@media (max-width: 1000px) {", css.indexOf("filter: blur(36px)")));
+  assert(mobile.startsWith("@media (max-width: 1000px) {"), "missing small-screen image treatment");
+  assert(mobile.includes("content: none;") && mobile.includes("display: none;"),
+    "mobile/tablet must not draw a duplicate blurred photo");
+  assert(mobile.includes("background-image: none;") && mobile.includes("filter: none;"),
+    "mobile/tablet blur background must be disabled");
+  assert(mobile.includes("background-image: var(--redcarpert-home-photo);")
+    && mobile.includes("background-size: cover;"),
+    "mobile/tablet images must fill the viewport without letterbox bars");
+  assert(css.includes("background-size: 100% 100%, auto 132%;")
+    && css.includes("background-size: auto 132%;"),
+    "desktop sharp portrait should be visibly wider than the previous contain framing");
+  assert(css.includes("filter: blur(36px) brightness(.66);"),
+    "desktop soft-focus must remain untouched");
+  assert(!/min-height:\s*(?:80|90)svh/.test(css),
+    "no responsive section may be shorter than a full viewport");
 });
