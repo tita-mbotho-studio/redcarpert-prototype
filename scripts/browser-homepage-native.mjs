@@ -124,14 +124,14 @@ try {
         assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing blurred-side backdrop');
         assert(s.blur.includes('blur('),width+'px photo '+i+' missing blurred sides');
         assert.equal(s.sharpMask,'none',width+'px photo '+i+' must have completely sharp edges without blur bleeding');
-        assert(s.blur.includes('36px'),width+'px photo '+i+' must restore the previous 36px backdrop blur');
-        if(i===0)assert(/(?:^|[\s,])(?:0%|top)(?:$|[\s,])/.test(s.foregroundPosition),
-          width+'px first bride photo must show its top (face) instead of centring the skirt');
+        assert(s.blur.includes('32px'),width+'px photo '+i+' must use the approved 32px blurred background');
+        assert(/(?:^|[\s,])(?:0%|top)(?:$|[\s,])/.test(s.foregroundPosition.split(',').at(-1).trim()),
+          width+'px photo '+i+' must show the face via top-aligned portrait framing');
         assert(s.foregroundSize.split(',').some(part=>part.trim()==='cover'),
           width+'px photo '+i+' must cover the entire sharp central panel');
-        const expectedSharpWidth=width*[.72,.65,.70][i];
+        const expectedSharpWidth=width*.60;
         assert(Math.abs(s.sharpWidth-expectedSharpWidth)<=3,
-          width+'px photo '+i+' sharp-panel width diverged from deployed proportions: '+s.sharpWidth);
+          width+'px photo '+i+' sharp-panel width must be 60%: '+s.sharpWidth);
       }
       assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
