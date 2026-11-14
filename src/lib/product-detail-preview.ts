@@ -1,5 +1,6 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayDressPrice } from "./pricing.ts";
+import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
 const elements = (nodes: DocumentNode[]) => nodes.filter((n): n is DocumentElement => typeof n !== "string");
@@ -21,7 +22,11 @@ export function sampleFittingMessage(product: CatalogueProduct): string {
 }
 
 /** New demonstration document from one guarded capture; legacy routes/data stay intact. */
-export function createProductDetailPreview(source: SiteDocumentData, product: CatalogueProduct): SiteDocumentData {
+export function createProductDetailPreview(
+  source: SiteDocumentData,
+  product: CatalogueProduct,
+  galleryMappings?: Readonly<Record<string, readonly DressGalleryPhoto[]>>,
+): SiteDocumentData {
   const fail = (detail: string): never => { throw new Error(`Product detail preview: incompatible ${detail}`); };
   if (source.route !== "/product/arabella") fail("source route");
   const original = catalogueProducts.find(entry => entry.id === product.id);
@@ -58,11 +63,51 @@ export function createProductDetailPreview(source: SiteDocumentData, product: Ca
 
   const category = categoryName(product);
   const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
+  const photos = photosForDress(product, galleryMappings);
+  const hasGallery = photos.length > 1;
+  const arrow = (direction: "previous" | "next") =>
+    node("button", {
+      type: "button",
+      class: "redcarpert-gallery-arrow redcarpert-gallery-arrow-" + direction,
+      ["data-gallery-" + direction]: "",
+      "aria-label": direction === "previous" ? "Previous dress photograph" : "Next dress photograph",
+    }, [
+      node("i", { class: direction === "previous" ? "fa-solid fa-chevron-left" : "fa-solid fa-chevron-right", "aria-hidden": "true" }, []),
+    ]);
+  const dots = hasGallery ? node("div", { class: "redcarpert-detail-gallery-pagination", "aria-label": "Dress photograph navigation" }, [
+    ...photos.map((_, index) => node("button", {
+      type: "button",
+      class: index === 0 ? "redcarpert-gallery-dot is-active" : "redcarpert-gallery-dot",
+      "data-gallery-index": String(index),
+      "aria-label": "View photograph " + (index + 1) + " of " + photos.length,
+      "aria-pressed": index === 0 ? "true" : "false",
+    }, [])),
+    node("span", { class: "redcarpert-gallery-counter", "data-gallery-counter": "", "aria-live": "polite", "aria-atomic": "true" }, [
+      "01 / " + String(photos.length).padStart(2, "0"),
+    ]),
+  ]) : null;
   const preview = { ...root, attrs: { id: `detail-${product.id}`, class: "product", "data-detail-preview": product.id }, children: [
-    { ...images, children: [{ ...slider, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
-      node("img", { src: gallery.src, width: String(gallery.width), height: String(gallery.height), class: "attachment-shop_single size-shop_single wp-post-image", alt: product.imageAlt, decoding: "async", fetchpriority: "high" }, []),
-      node("a", { href: gallery.src, class: "wpgis-popup fa fa-expand", "data-fancybox": "product-gallery", "aria-label": "Enlarge sample photograph" }, []),
-    ])] }] },
+    { ...images, attrs: {
+      ...images.attrs,
+      "data-detail-gallery": product.id,
+      "data-gallery-photos": JSON.stringify(photos),
+      ...(hasGallery ? { tabindex: "0", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
+    }, children: [
+      { ...slider, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
+        node("img", {
+          src: photos[0].url, width: String(gallery.width), height: String(gallery.height),
+          class: "attachment-shop_single size-shop_single wp-post-image",
+          alt: photos[0].alt, decoding: "async", fetchpriority: "high", "data-gallery-active-image": "",
+        }, []),
+        node("a", {
+          href: photos[0].url, class: "wpgis-popup fa fa-expand",
+          "data-fancybox": "product-gallery", "data-gallery-enlarge": "",
+          "aria-label": "Enlarge dress photograph",
+        }, []),
+        ...(hasGallery ? [arrow("previous"), arrow("next")] : []),
+      ])] },
+      ...(dots ? [dots] : []),
+    ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
         node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"]),
