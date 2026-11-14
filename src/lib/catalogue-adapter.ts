@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import { catalogueCategories, type CatalogueProduct } from "@/data/catalogue";
+import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayDressPrice } from "./pricing.ts";
 
 const routes: Record<string, readonly [number, string, string]> = {
