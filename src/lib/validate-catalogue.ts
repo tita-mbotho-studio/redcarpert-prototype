@@ -1,4 +1,4 @@
-import { catalogueCategories, type CatalogueProduct } from '../data/catalogue';
+import { catalogueCategories, type CatalogueProduct } from '../data/catalogue.ts';
 
 /** Fail closed before output generation: twenty credited Pexels styling samples. */
 export function validateCatalogue(products: readonly CatalogueProduct[]): void {
