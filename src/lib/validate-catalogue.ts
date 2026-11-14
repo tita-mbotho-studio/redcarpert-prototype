@@ -1,14 +1,14 @@
-import type { CatalogueProduct } from '../data/catalogue';
+import { catalogueCategories, type CatalogueProduct } from '../data/catalogue';
 
-/** Fail closed before output generation: exactly eight credited Pexels samples. */
+/** Fail closed before output generation: twenty credited Pexels styling samples. */
 export function validateCatalogue(products: readonly CatalogueProduct[]): void {
-  if (products.length !== 8) throw new Error('Catalogue must contain eight approved samples');
+  if (products.length !== 20) throw new Error('Catalogue must contain twenty approved samples');
   const ids = new Set<string>(), routes = new Set<string>(), images = new Set<string>();
-  const counts = {mermaid: 0, ball_gown: 0};
+  const counts = Object.fromEntries(catalogueCategories.map(c => [c.id, 0])) as Record<string, number>;
   for (const product of products) {
     if (!/^[a-z0-9-]+$/.test(product.id) || ids.has(product.id)) throw new Error(`Duplicate or invalid product ID: ${product.id}`);
     ids.add(product.id);
-    if (product.category !== 'mermaid' && product.category !== 'ball_gown') throw new Error(`Unapproved category for ${product.id}`);
+    if (!catalogueCategories.some(c => c.id === product.category)) throw new Error(`Unapproved category for ${product.id}`);
     counts[product.category] += 1;
     if (product.priceZar !== null &&
       (!Number.isSafeInteger(product.priceZar) || product.priceZar <= 0)) {
@@ -24,5 +24,5 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     routes.add(product.previewRoute);
     if (!/^Sample (0[1-8])$/.test(product.name) || !product.imageAlt.includes('not Redcarpert inventory')) throw new Error(`Missing sample disclosure: ${product.id}`);
   }
-  if (counts.mermaid !== 4 || counts.ball_gown !== 4) throw new Error('Catalogue must have four samples per category');
+  if (catalogueCategories.some(category => counts[category.id] !== 4)) throw new Error('Catalogue must have four samples per category');
 }
