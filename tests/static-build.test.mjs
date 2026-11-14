@@ -85,7 +85,10 @@ test('twenty-two-page book and twenty shared Pexels products publish without loc
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,20);
- assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,21);
+ assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,20);
+ assert.match(book,/Your bridal story begins here\./);
+ assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
+ assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,20);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);

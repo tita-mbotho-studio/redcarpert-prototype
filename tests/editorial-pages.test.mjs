@@ -6,6 +6,7 @@ import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
 import { displayDressPrice } from '../src/lib/pricing.ts';
+import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
 test('new Redcarpert editorial content reuses source shell and never exposes original business copy', () => {
@@ -67,6 +68,16 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   const jpeg=await sharp({create:{width:24,height:36,channels:3,background:'#eee8df'}}).jpeg().toBuffer();
   const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
+  const online=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
+  for(const statement of [
+    'Your bridal story begins here.',
+    'A considered edit of bridal inspiration for the moment that feels like yours.',
+    'Find your silhouette.'
+  ]) {
+    assert(online.includes(statement)&&html.includes(statement),'online/PDF edition mismatch: '+statement);
+  }
+  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,20);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,20);
   assert.equal((html.match(/<section class="page /g)||[]).length,32);
   assert.equal((html.match(/class="page divider"/g)||[]).length,5);
   assert.equal((html.match(/class="portrait"/g)||[]).length,20);
@@ -75,12 +86,34 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   assert.match(html,/href="#collection-modern_tradition"/);
   assert.match(html,/href="#collection-two_in_one"/);
   assert.match(html,/https:\/\/wa\.me\/27680458811/);
-  assert.match(html,/Illustrative Pexels photograph/);
+  const cover=html.match(/<section class="page cover" id="cover">([\s\S]*?)<\/section>/)?.[1];
+  assert(cover, 'PDF cover is present');
+  assert.equal((cover.match(/<img /g) || []).length, 1, 'PDF front cover uses only the official logo');
+  assert.match(cover, /Your bridal story begins here\./);
+  assert.match(cover, /A considered edit of bridal inspiration for the moment that feels like yours\./);
+  assert.doesNotMatch(cover, /cover-photo|Bridal cover inspiration|data:image\/jpeg/);
+  assert.match(html, /\.cover\{background:linear-gradient\(155deg,#FDFBF8,#F5F0E9\)\}/);
+  assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
+  assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
+  assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
+  assert.equal((html.match(/class="detail-link"/g)||[]).length,20);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,20);
+  assert.match(html, /Illustrative photograph and price/);
+  const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
+  assert(back, 'PDF back cover is present');
+  assert.match(back, /Find your silhouette\./);
+  assert.match(back, /Browse Wedding Dresses/);
+  assert.match(back, /Fitting enquiries/);
   assert.match(html,/Photography Credits/);
   for (const dress of catalogueProducts) {
     const label=dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
+    assert(online.includes('<h3>'+label+'</h3>'),'online reader missing '+label);
+    assert(online.includes('data-book-price="'+dress.id+'">'+displayDressPrice(dress.priceZar)+'</p>'),
+      'online reader price mismatch '+label);
     assert(html.includes('<p class="amount">'+displayDressPrice(dress.priceZar)+'</p>'), 'missing ZAR price '+label);
+    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
+      'missing link to '+label+' preview');
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 20 dresses/);
 });

@@ -13,18 +13,17 @@ function lookbook() {
    const pageNumber = i + 2;
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">REDCARPERT / SAMPLE COLLECTION</span><h3>' + category + '</h3><p>' + escapeHtml(product.name) + ' · Demonstration photograph</p>' +
+     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span><h3>' + escapeHtml(product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayDressPrice(product.priceZar)) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View sample dress details</a><small>Indicative prices · Stock photos, not confirmed Redcarpert inventory</small></div>' +
+     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a><small>Illustrative photograph and price · Not confirmed Redcarpert inventory</small></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
- const coverImage = escapeHtml(catalogueProducts[0].image);
  const logo = '/redcarpert/brand/redcarpert-logo.png';
  const cover = '<article class="redcarpert-book-page redcarpert-book-cover is-current" data-density="hard" data-book-page="1"><div class="redcarpert-book-cover-inner">' +
-   '<img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
-   '<p class="redcarpert-book-kicker">THE BRIDAL EDIT · SAMPLE COLLECTION</p><h3>Digital<br>Lookbook</h3>' +
-   '<div class="redcarpert-book-cover-photo"><img src="' + coverImage + '" alt="Pexels bridal editorial photograph, demonstration only" decoding="async"></div>' +
-   '<p class="redcarpert-book-cover-foot">FIVE BRIDAL COLLECTIONS · 2026</p><small>Images and prices are illustrative</small></div></article>';
+   '<img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert Wedding Dresses logo" width="400" height="200">' +
+   '<span class="redcarpert-book-cover-rule" aria-hidden="true"></span>' +
+   '<h3>Your bridal story begins here.</h3>' +
+   '<p class="redcarpert-book-cover-description">A considered edit of bridal inspiration for the moment that feels like yours.</p></div></article>';
  const back = '<article class="redcarpert-book-page redcarpert-book-back" data-density="hard" data-book-page="' + pageCount + '"><div class="redcarpert-book-back-inner">' +
    '<span class="redcarpert-book-kicker">YOUR BRIDAL STORY BEGINS HERE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
    '<h3>Find your silhouette.</h3><p>Explore five bridal collections, then enquire about a fitting.</p>' +

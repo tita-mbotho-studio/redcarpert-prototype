@@ -34,6 +34,15 @@ test("the pre-rendered 22-page Digital Lookbook has twenty JSON-backed price slo
   const html = render({ tag: "div", attrs: { "data-lookbook-viewer": "true" }, children: [] });
   assert.equal((html.match(/data-book-page=/g) || []).length, 22);
   assert.equal((html.match(/data-book-price=/g) || []).length, 20);
+  const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
+  assert(cover,'book cover missing');
+  assert.equal((cover.match(/<img /g)||[]).length,1,'cover must contain the Redcarpert logo only');
+  assert.match(cover,/Your bridal story begins here\./);
+  assert.match(cover,/redcarpert-book-cover-description/);
+  assert.doesNotMatch(cover,/images\.pexels|redcarpert-book-cover-photo/);
+  assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,20);
+  assert.equal((html.match(/class="redcarpert-book-copy"/g)||[]).length,20);
+  assert.equal((html.match(/<h3>Look \d{2}<\/h3>/g)||[]).length,20);
   assert.equal((html.match(/class="redcarpert-book-dress"/g) || []).length, 0,
     "book dress classes may include additional class names");
   for (const product of catalogueProducts) {
