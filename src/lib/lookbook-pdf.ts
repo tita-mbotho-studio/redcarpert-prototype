@@ -45,7 +45,7 @@ export function createSampleLookbookPdf(photos: readonly PdfPhoto[]): Buffer {
       operator(55, 755, 12, "DIGITAL LOOKBOOK - SAMPLE COLLECTION"),
       `q ${iw} 0 0 ${ih} ${ix} ${iy} cm /Im1 Do Q\n`,
       operator(55, 129, 17, photo.category.toUpperCase() + " | " + photo.sample),
-      operator(55, 105, 13, "PRICE: " + displayDressPrice(photo.priceZar).replace(/\s/g, " ")),
+      operator(55, 105, 13, "SAMPLE PRICE: " + displayDressPrice(photo.priceZar).replace(/\s/g, " ")),
       operator(55, 82, 10, "Demonstration photograph by " + photo.photographer.replace(/[^\x20-\x7E]/g, "")),
       operator(55, 59, 9, "Stock photography only - not confirmed Redcarpert inventory."),
     ].join("");
