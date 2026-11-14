@@ -19,9 +19,9 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-hero", "aria-labelledby": "redcarpert-lookbook-title" }, [
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["THE BRIDAL EDIT"]),
       node("h2", { id: "redcarpert-lookbook-title" }, ["Digital Lookbook"]),
-      node("p", { class: "redcarpert-editorial-lead" }, ["A closer look at Mermaid & Ball Gown silhouettes"]),
+      node("p", { class: "redcarpert-editorial-lead" }, ["A closer look at five bridal collections"]),
       p("Turn through a curated sample of bridal styles, discover the silhouettes that speak to you and explore the dress details at your own pace."),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Preview imagery only — these photographs are stock samples and are not confirmed Redcarpert inventory."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Sample ZAR prices and stock photographs are illustrative only — not confirmed Redcarpert inventory or a final quotation."]),
     ]),
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
@@ -41,10 +41,13 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-collections-title" }, [
       h("Our Collections", "redcarpert-collections-title"),
-      p("Every bride has her own sense of style. Explore the close-fitting lines of Mermaid dresses or the romantic fullness of Ball Gown silhouettes. Each sample listing provides a starting point for a conversation about what you are looking for."),
+      p("Every bride has her own sense of style. Explore Mermaid, Ball Gown, Ruffled, Modern Tradition and 2 in 1 bridal inspiration. Each listing provides a starting point for a conversation about your style."),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Explore bridal collections" }, [
         node("a", { href: "/product-category/mermaid/", class: "redcarpert-editorial-action" }, ["Explore Mermaid"]),
         node("a", { href: "/product-category/ball_gown/", class: "redcarpert-editorial-action" }, ["Explore Ball Gown"]),
+        node("a", { href: "/product-category/ruffled/", class: "redcarpert-editorial-action" }, ["Explore Ruffled Dresses"]),
+        node("a", { href: "/product-category/modern_tradition/", class: "redcarpert-editorial-action" }, ["Explore Modern Tradition"]),
+        node("a", { href: "/product-category/two_in_one/", class: "redcarpert-editorial-action" }, ["Explore 2 in 1 Dresses"]),
       ]),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-fitting-title" }, [
@@ -98,7 +101,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
       h("How to Enquire", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
-        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the Mermaid or Ball Gown collections and open a dress you would like to ask about.")]),
+        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse any of the five bridal collections and open a sample dress you would like to ask about.")]),
         node("li", {}, [node("strong", {}, ["Review"]), p("Use the enquiry preview to check the dress details and your message before opening WhatsApp.")]),
         node("li", {}, [node("strong", {}, ["Connect"]), p("Send your message in WhatsApp when ready, then confirm availability and any fitting arrangements directly.")]),
       ]),
