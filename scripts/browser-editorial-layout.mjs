@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import products from '../src/data/products.json' with {type:'json'};
 
 const base = 'http://localhost:4173/redcarpert-prototype';
 const routes = ['/digital-lookbook/', '/about-us/', '/contact-us/'];
@@ -82,7 +83,7 @@ try {
         assert(metrics.mapSrc.includes('Sunnyside%2C%20Pretoria%2C%20South%20Africa'));
         assert(metrics.mapLink.includes('Sunnyside'));
       } else {
-        assert.equal(metrics.bookPages, 10, 'existing flippable book must remain intact');
+        assert.equal(metrics.bookPages, products.dresses.length+2, 'current 22-page flippable book must remain intact');
       }
       assert(metrics.scrollWidth <= width+1.5, width + 'px ' + route + ' horizontal overflow: ' + metrics.scrollWidth);
       assert.deepEqual(errors, [], width + 'px ' + route + ' browser errors');
