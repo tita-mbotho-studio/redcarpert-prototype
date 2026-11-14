@@ -94,6 +94,10 @@ test('twenty-two-page book and twenty shared Pexels products publish without loc
   assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
   assert.match(html,/not confirmed Redcarpert inventory/i);
   assert.match(html,/class="redcarpert-detail-card"/);
+  assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
+  assert.match(html,/data-gallery-photos="/,'gallery metadata must be emitted by static HTML');
+  assert.match(html,/data-gallery-active-image=""/,'one active photograph must be present');
+  assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
   assert.match(html,/data-dress-price=""/);
   const product=catalogueProducts.find(p=>p.previewRoute===route);
   assert(product,'unknown sample detail route: '+route);
