@@ -23,7 +23,9 @@ Additional photos for each dress are configured in:
 
 `src/data/dress-gallery-images.json`
 
-Initially the file is `{}`. Once the client supplies genuine views of the same gown, use the existing dress ID as the key:
+For browser QA, **Sample 17** (`sample-two-in-one-01`, in the 2 in 1 Dresses collection) now includes one extra Pexels photograph from the **same Esma Atak bridal shoot**. Its existing primary image is Pexels [20370059](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370059/), and its additional angle is [20370060](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370060/). Both show the same model and gown in the same shop setting, with different poses. These are demonstration images, **not real client inventory** and not evidence of convertible dress construction.
+
+All other dresses still have one photograph. The demo mapping must be replaced with real client image URLs when approved; do not mix actual client gown photos with unrelated stock photos. Once client photos arrive, use the existing dress ID as the key:
 
 ```json
 {
@@ -64,6 +66,12 @@ npm run check
 npm run dev
 ```
 
-The existing twenty demo dresses still have one photo each. The gallery navigation will only appear on a real dress with at least two correctly mapped photos; test coverage uses artificial URLs solely inside test fixtures.
+For direct browser review after `npm run dev`, open:
+
+`http://localhost:5173/redcarpert-prototype/product/preview/sample-17-two-in-one/`
+
+For Playwright's full site test, start a preview server on port 4173 from a successful build, then run `node scripts/browser-dress-gallery.mjs`. This exercises both the synthetic three-photo controller and Sample 17's real two-photo Pexels gallery. The `npm run check` command remains the verification gate before merging.
+
+The existing sample dress **17** has two stock photographs, so its arrows, dots and counter can now be tested on the real website at `/product/preview/sample-17-two-in-one/`. All other current demo dresses still have one photograph, so their galleries remain unchanged. A separate three-photo synthetic fixture tests navigation edge cases. The image URLs, photographer and original primary photo have been kept intact; no client inventory has been published.
 
 The branch and PR are **not merged or deployed** without owner approval.
