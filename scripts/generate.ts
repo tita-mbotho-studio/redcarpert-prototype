@@ -13,6 +13,7 @@ import { homepageBackgrounds } from '../src/lib/homepage-backgrounds';
 import { REPOSITORY_BASE } from '../src/config/site';
 import { buildWhatsAppUrl, WHATSAPP_DISPLAY_NUMBER } from '../src/config/whatsapp';
 import { validateCatalogue } from '../src/lib/validate-catalogue';
+import { validateDressGalleryMappings } from '../src/lib/dress-gallery';
 import { escapeHtml, createNodeRenderer } from './lib/markup';
 import { assets, track, prefix, copyTrackedAssets } from './lib/assets';
 import { preparePage } from './lib/prepare-page';
@@ -20,6 +21,7 @@ const base = REPOSITORY_BASE;
 const root = '.generated';
 // Validate all catalogue records and public routes before clearing prior generated files.
 validateCatalogue(catalogueProducts);
+validateDressGalleryMappings();
 const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
