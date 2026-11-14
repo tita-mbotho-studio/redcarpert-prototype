@@ -98,8 +98,8 @@
   align-items: center;
   padding: clamp(5px, 1.6%, 9px);
   overflow: hidden;
-  background: #f3eee8;
-  border: 1px solid var(--book-line);
+  background: var(--book-paper);
+  border: 0;
 }
 .redcarpert-book-photo img {
   display: block;
