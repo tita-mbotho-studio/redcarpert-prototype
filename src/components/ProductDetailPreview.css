@@ -5,6 +5,10 @@
   display: table;
   clear: both;
 }
+#main-container [data-detail-preview] .redcarpert-multi-photo-slider {
+  width: 100%;
+  max-width: 100%;
+}
 #main-container [data-detail-preview] .zoom[data-sample-frame] {
   position: relative;
   aspect-ratio: 848 / 1264;
