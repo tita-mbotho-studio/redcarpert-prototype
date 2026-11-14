@@ -26,6 +26,10 @@ try {
   assert(renderedPrices.every(([id,price])=>expectedPrices.has(id)&&price===expectedPrices.get(id)),
    'lookbook prices must match products.json');
   assert.equal(await page.locator('.redcarpert-book-logo').count(),2);
+  const cover=page.locator('.redcarpert-book-cover');
+  assert.equal(await cover.locator('img').count(),1,'minimal cover contains only Redcarpert logo');
+  assert.equal(await cover.locator('.redcarpert-book-cover-photo').count(),0,'cover must not include a stock image');
+  assert.match(await cover.locator('h3').textContent(),/Your bridal story begins here/);
   assert.equal(await page.locator('.redcarpert-book-dress').count(),products.dresses.length);
   assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-mermaid"]').count(),4);
   assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-ball-gown"]').count(),4);
@@ -36,6 +40,31 @@ try {
    await next.click();
    assert.equal(await page.locator('[data-book-status]').textContent(),'Page '+i+' of '+pageCount);
    assert.equal(await page.locator('.redcarpert-book-page.is-current').count(),1);
+   if(i===2) {
+    const layout=await page.locator('.redcarpert-book-page.is-current').evaluate(dress=>{
+      const leaf=dress.getBoundingClientRect();
+      const photo=dress.querySelector('.redcarpert-book-photo');
+      const photoBox=photo.getBoundingClientRect();
+      const copy=dress.querySelector('.redcarpert-book-copy');
+      const copyBox=copy.getBoundingClientRect();
+      const img=photo.querySelector('img');
+      return {
+        left:photoBox.left-leaf.left,
+        right:leaf.right-photoBox.right,
+        objectFit:getComputedStyle(img).objectFit,
+        detailsAlign:getComputedStyle(copy).textAlign,
+        verticalAlignment:getComputedStyle(copy).justifyContent,
+        centered:Math.abs(copyBox.left+copyBox.width/2-(leaf.left+leaf.width/2))<2,
+        photoInside:photoBox.bottom<leaf.bottom,
+      };
+    });
+    assert(Math.abs(layout.left-layout.right)<=2,'dress image needs symmetric left/right book gutters');
+    assert(layout.left>=15,'dress picture is too close to the page edge');
+    assert.equal(layout.objectFit,'contain','keep the whole original photograph');
+    assert.equal(layout.detailsAlign,'center','dress details must be centred');
+    assert.equal(layout.verticalAlignment,'center','dress details must be vertically balanced');
+    assert(layout.centered&&layout.photoInside,'book contents must stay centred inside the leaf');
+   }
   }
   assert(await next.isDisabled());
   await previous.click();
