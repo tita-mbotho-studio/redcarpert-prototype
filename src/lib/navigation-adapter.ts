@@ -109,7 +109,7 @@ export function adaptNavigation(document: SiteDocumentData): SiteDocumentData {
   const addedCategories = catalogueCategories.slice(2).map((category, index): DocumentElement => {
     const id = String(16310 + index);
     const active = route === category.route.replace(/\/$/, "");
-    const attrs = {...sourceLink.attrs, href: category.route};
+    const attrs: Record<string, string> = {...sourceLink.attrs, href: category.route};
     delete attrs["aria-current"];
     if (active) attrs["aria-current"] = "page";
     return {
