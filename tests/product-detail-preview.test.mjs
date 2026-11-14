@@ -22,9 +22,12 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert.equal(content.find(n=>n.attrs['data-fancybox']).attrs.href,gallery.src);
   const imageGallery=content.find(n=>n.attrs['data-detail-gallery']===product.id);
   assert(imageGallery,'dress gallery metadata must be available');
-  assert.equal(JSON.parse(imageGallery.attrs['data-gallery-photos']).length,1);
-  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,0,'one image must not display misleading arrows');
-  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-index')).length,0,'one image must not display misleading dots');
+  const photos=photosForDress(product);
+  assert.deepEqual(JSON.parse(imageGallery.attrs['data-gallery-photos']),photos);
+  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,photos.length>1?1:0,
+    'navigation appears only when a dress has additional photos');
+  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-index')).length,photos.length>1?photos.length:0,
+    'pagination count must match available dress photos');
   assert.equal(content.find(n=>n.tag==='img').attrs.width,String(gallery.width));assert.equal(content.find(n=>n.tag==='img').attrs.height,String(gallery.height));
   assert(!nodes.some(n=>n.attrs.class==='social-share'||n.attrs.class?.includes('share-item')));
   assert.equal(all(source.nodes).filter(n=>n.attrs.class==='social-share').length,1);
@@ -116,7 +119,7 @@ test('additional dress photographs reject unknown IDs, duplicates and unsafe or 
  const product=catalogueProducts[0];
  const make=photo=>({[product.id]:[photo]});
  validateDressGalleryMappings({});
- assert.equal(photosForDress(product).length,1);
+ assert.equal(photosForDress(product).length,product.id==='sample-two-in-one-01'?2:1);
  assert.throws(()=>validateDressGalleryMappings({unknown:[{url:product.image,alt:'Another angle'}]}),/Unrecognized dress gallery ID/);
  assert.throws(()=>validateDressGalleryMappings(make({url:'javascript:alert(1)',alt:'Another angle'})),/Invalid gallery photo/);
  assert.throws(()=>validateDressGalleryMappings(make({url:'https://evil.example/track.jpg',alt:'Another angle'})),/Invalid gallery photo/);
@@ -125,4 +128,17 @@ test('additional dress photographs reject unknown IDs, duplicates and unsafe or 
  assert.throws(()=>photosForDress(product,make({url:product.image,alt:'Same photograph again'})),/duplicates the primary photograph/);
  const same={url:'https://ik.imagekit.io/example/front.webp',alt:'Front detail of gown'};
  assert.throws(()=>validateDressGalleryMappings({[product.id]:[same,same]}),/Repeated gallery photograph/);
+});
+
+test('Pexels browser-demo gallery has two photographs from the same Esma Atak shoot',()=>{
+ const demo=catalogueProducts.find(product=>product.id==='sample-two-in-one-01');
+ assert(demo);
+ const photos=photosForDress(demo);
+ assert.equal(photos.length,2,'test dress should show real arrows and 01 / 02 counter');
+ assert.match(photos[0].url,/\/20370059\/pexels-photo-20370059\.jpeg/);
+ assert.match(photos[1].url,/\/20370060\/pexels-photo-20370060\.jpeg/);
+ assert.match(photos[1].alt,/Side angle/);
+ const other=catalogueProducts.find(product=>product.id==='sample-mermaid');
+ assert(other);
+ assert.equal(photosForDress(other).length,1,'unmodified dresses still hide navigation');
 });
