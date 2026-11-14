@@ -6,6 +6,7 @@ import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayDressPrice} from '../src/lib/pricing.ts';
+import {photosForDress} from '../src/lib/dress-gallery.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
@@ -100,7 +101,17 @@ test('twenty-two-page book and twenty shared Pexels products publish without loc
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
   assert.match(html,/data-gallery-photos="/,'gallery metadata must be emitted by static HTML');
   assert.match(html,/data-gallery-active-image=""/,'one active photograph must be present');
-  assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
+  const mappedPhotos=photosForDress(product);
+  if(mappedPhotos.length>1){
+    assert.match(html,/data-gallery-next=""/,'multi-photo demo must show next button');
+    assert.match(html,/data-gallery-previous=""/,'multi-photo demo must show previous button');
+    assert.equal((html.match(/data-gallery-index="/g)||[]).length,mappedPhotos.length,
+      'the gallery should render a dot for each photograph');
+    assert.match(html, /data-gallery-counter=""/,'multi-photo demo shows photo counter');
+  }else{
+    assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
+    assert.doesNotMatch(html,/data-gallery-index="/,'single-photo samples must not expose misleading dots');
+  }
   assert(html.includes('data-dress-price="">'+displayDressPrice(product.priceZar)+'</p>'),
     'detail price does not match products.json for '+route);
   assert.match(html,/Book a Fitting/);
