@@ -1,6 +1,6 @@
 # Redcarpert Wedding Dresses
 
-A static bridal catalogue prototype built with **Vite, HTML, CSS and vanilla JavaScript**. The site presents five sample dress categories with twenty illustrative looks, informational pages, fitting-enquiry previews and a downloadable two-page sample lookbook. All photographs are illustrative; they are not confirmed inventory.
+A static bridal catalogue prototype built with **Vite, HTML, CSS and vanilla JavaScript**. The site presents five sample dress categories with twenty illustrative looks, informational pages, fitting-enquiry previews and a downloadable 32-page editorial bridal lookbook. All photographs are illustrative; they are not confirmed inventory.
 
 ## Local development
 
