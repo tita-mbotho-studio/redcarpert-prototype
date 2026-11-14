@@ -129,14 +129,14 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-03").url,
     imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
     detailReference: null, previewRoute: "/product/preview/sample-15-modern-tradition",
-    imageCredit: { photographer: "Milly Lavish", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-03").sourceUrl, provenance: "docs/asset-credits.md" },
+    imageCredit: { photographer: "Mensa Bonsu", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-03").sourceUrl, provenance: "docs/asset-credits.md" },
   },
   {
     id: "sample-modern-tradition-04", priceZar: priceForDress("sample-modern-tradition-04"), name: "Sample 16", category: "modern_tradition", status: "sample",
     image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").url,
     imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
     detailReference: null, previewRoute: "/product/preview/sample-16-modern-tradition",
-    imageCredit: { photographer: "Taiye Salawu", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").sourceUrl, provenance: "docs/asset-credits.md" },
+    imageCredit: { photographer: "Milly Lavish", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").sourceUrl, provenance: "docs/asset-credits.md" },
   },
   {
     id: "sample-two-in-one-01", priceZar: priceForDress("sample-two-in-one-01"), name: "Sample 17", category: "two_in_one", status: "sample",
