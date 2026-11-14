@@ -1,15 +1,21 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import type { CatalogueProduct } from "@/data/catalogue";
+import { catalogueCategories, type CatalogueProduct } from "@/data/catalogue";
 import { displayDressPrice } from "./pricing.ts";
 
-const routes = { "/product": [100, "PRODUCTS", "Wedding Dresses"], "/product-category/mermaid": [78, "Mermaid", "Mermaid"], "/product-category/ball_gown": [36, "Ball Gown", "Ball Gown"] } as const;
+const routes: Record<string, readonly [number, string, string]> = {
+  "/product": [100, "PRODUCTS", "Wedding Dresses"],
+  "/product-category/mermaid": [78, "Mermaid", "Mermaid"],
+  "/product-category/ball_gown": [36, "Ball Gown", "Ball Gown"],
+  ...Object.fromEntries(catalogueCategories.slice(2).map(category =>
+    [category.route.replace(/\/$/, ""), [78, "Mermaid", category.name] as const])),
+};
 const elements = (nodes: DocumentNode[]) => nodes.filter((n): n is DocumentElement => typeof n !== "string");
 const all = (nodes: DocumentNode[]): DocumentElement[] => elements(nodes).flatMap(n => [n, ...all(n.children)]);
 
 /** Listing-only immutable adaptation. Raw captures and every unrelated route remain untouched. */
 export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: readonly CatalogueProduct[]): SiteDocumentData {
   if (!(document.route in routes)) return document;
-  const [count, oldTitle, newTitle] = routes[document.route as keyof typeof routes];
+  const [count, oldTitle, newTitle] = routes[document.route];
   const fail = (detail: string): never => { throw new Error(`Catalogue ${document.route}: incompatible capture (${detail})`); };
   const one = (nodes: DocumentElement[], predicate: (n: DocumentElement) => boolean, detail: string) => {
     const found = nodes.filter(predicate);
@@ -44,14 +50,11 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: ["Sample photographs — not client inventory"] });
-  // The catalogue landing page receives a working three-option filter.
+  // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
   if (document.route === "/product") {
-    const categories = [
-      ["all", "All Dresses"],
-      ["mermaid", "Mermaid"],
-      ["ball_gown", "Ball Gown"],
-    ] as const;
+    const categories = [["all", "All Dresses"], ...catalogueCategories.map(category =>
+      [category.id, category.name])] as readonly (readonly [string, string])[];
     replacements.set(ordering, {
       tag: "div",
       attrs: { class: "woocommerce-ordering redcarpert-catalogue-filter", "data-catalogue-filter": "", role: "group", "aria-label": "Filter wedding dresses by category" },
@@ -82,7 +85,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
         "Sample imagery",
         ...(product.priceZar === null ? [] : [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: [displayDressPrice(product.priceZar)],
+          children: ["Indicative price · " + displayDressPrice(product.priceZar)],
         }]),
       ] } : child) }];
     }) };
