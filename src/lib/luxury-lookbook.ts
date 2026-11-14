@@ -37,15 +37,16 @@ const style = [
   ".kicker{font:500 9pt/1.5 Montserrat,Arial,sans-serif;letter-spacing:.20em;text-transform:uppercase;color:#947B5C}",
   ".folio{position:absolute;left:22mm;bottom:9mm;font:500 8pt/1 Montserrat,Arial,sans-serif;letter-spacing:.12em;color:#998A7C}",
   ".page:nth-child(even) .folio{left:18mm}",
-  ".cover .content{align-items:center;text-align:center}",
-  ".logo{display:block;width:67mm;height:22mm;object-fit:contain;filter:brightness(0)}",
-  ".cover h1{font-size:52pt;line-height:.96;margin:7mm 0 7mm}",
+  ".cover{background:linear-gradient(155deg,#FDFBF8,#F5F0E9)}",
+  ".cover .content{align-items:center;justify-content:center;text-align:center;gap:12mm}",
+  ".logo{display:block;width:67mm;height:22mm;object-fit:contain}",
+  ".cover .logo{width:88mm;height:34mm}",
+  ".cover h1{font:400 35pt/1.12 Georgia,serif;max-width:143mm;letter-spacing:-.022em}",
+  ".cover-description{max-width:125mm;font:400 11pt/1.8 Montserrat,Arial,sans-serif;color:#786B60}",
   ".goldline{background:#947B5C;width:28mm;height:.55mm}",
-  ".cover-photo{height:167mm;width:145mm;display:flex;align-items:center;justify-content:center;background:#FDFBF8;margin:8mm 0 8mm;padding:2mm;border:0}",
-  ".cover-photo img{display:block;width:100%;height:100%;object-fit:contain}",
-  ".cover-tail{margin-top:auto;font-size:9pt;letter-spacing:.12em;text-transform:uppercase}",
+
   ".tiny{font:400 7.8pt/1.5 Montserrat,Arial,sans-serif;color:#8B7C6D}",
-  ".cover .tiny{margin-top:3mm}",
+
   ".front .content{justify-content:center}",
   ".front h1{font-size:76pt;line-height:.93;margin:16mm 0 10mm;letter-spacing:-.03em}",
   ".front .lead{font-size:11.5pt;line-height:2.1;max-width:128mm;color:#665A4E;margin-top:11mm}",
@@ -63,18 +64,19 @@ const style = [
   ".divider .number{font:400 91pt/1 'Cormorant Garamond',Georgia,serif;color:#D8C9B9}",
   ".divider h2{font-size:61pt;line-height:1.05;max-width:144mm;margin:5mm 0 13mm}",
   ".divider .intro{max-width:108mm;color:#76685B;font-size:10pt;line-height:1.9;margin-top:12mm}",
-  ".dress .content{padding-top:2mm}",
-  ".dress-top{display:flex;justify-content:space-between;align-items:baseline;gap:7mm}",
+  ".page.dress .content{left:20mm;right:20mm;padding-top:2mm}",
+  ".dress-top{display:flex;align-items:center;justify-content:center;min-height:5mm}",
   ".look-ref{font:500 8pt/1 Montserrat,Arial,sans-serif;letter-spacing:.12em;color:#8E8276}",
   ".fine-rule{height:.25mm;background:#E9DED2;margin:5mm 0 6mm}",
-  ".portrait{width:100%;height:197mm;background:#FDFBF8;display:flex;justify-content:center;align-items:center}",
+  ".portrait{width:100%;height:164mm;flex:0 0 164mm;background:#FDFBF8;display:flex;justify-content:center;align-items:center;border:0;padding:0}",
   ".portrait img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}",
-  ".dress-bottom{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;margin-top:6mm}",
-  ".dress-bottom h3{font-size:29pt;line-height:1.05}",
-  ".dress-bottom .kind{font-size:8pt;letter-spacing:.10em;text-transform:uppercase;color:#857569;margin-top:2mm}",
-  ".amount{font-size:17pt;font-weight:500;text-align:right;white-space:nowrap}",
-  ".amount-label{font-size:7.7pt;color:#85766A;text-align:right;margin-top:2mm}",
-  ".dress .disclosure{margin-top:auto;font-size:7.4pt;color:#8C8074}",
+  ".dress-bottom{display:flex;flex:1 1 0;min-height:0;flex-direction:column;justify-content:center;align-items:center;gap:3.3mm;text-align:center;padding:5mm 0 9mm}",
+  ".dress-bottom .kind{font:500 8pt/1.3 Montserrat,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#947B5C}",
+  ".dress-bottom h3{font:400 30pt/1.12 Georgia,serif;letter-spacing:-.015em}",
+  ".amount{font:500 16pt/1.3 Montserrat,Arial,sans-serif;color:#65513D;white-space:nowrap}",
+  ".amount-label{font:400 8pt/1.3 Montserrat,Arial,sans-serif;color:#85766A}",
+  ".dress-bottom .detail-link{font:500 9pt/1.4 Montserrat,Arial,sans-serif;color:#8D6845;text-decoration:underline;text-underline-offset:3px}",
+  ".dress .disclosure{font:400 7.2pt/1.5 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;margin:0 auto;max-width:150mm}",
   ".contact .content{justify-content:center}",
   ".contact h2{font-size:58pt;line-height:1.07;margin:7mm 0 13mm}",
   ".contact p{font-size:11pt;line-height:1.95;max-width:139mm;margin-bottom:7mm}",
@@ -87,12 +89,14 @@ const style = [
   ".credit .n{color:#947B5C;margin-right:3mm}",
   ".credit a{display:block;text-decoration:underline;color:#78675A;font-size:7pt;margin-top:1mm}",
   ".credits .note{font-size:7.8pt;line-height:1.65;margin-top:10mm;color:#76685B}",
-  ".back{background:#F5F0E9}",
+  ".back{background:linear-gradient(150deg,#F7F3ED,#E8DDCF)}",
   ".back .content{justify-content:center;align-items:center;text-align:center}",
   ".back .logo{width:89mm;height:30mm}",
-  ".back h2{font-size:48pt;line-height:1.08;margin:20mm 0 12mm}",
-  ".back p{font-size:10pt;line-height:2;max-width:116mm;margin:12mm 0}",
-  ".back a{font-size:9pt;color:#947B5C;margin-top:12mm}",
+  ".back h2{font:400 43pt/1.12 Georgia,serif;margin:10mm 0 3mm}",
+  ".back p{font:400 11pt/1.8 Montserrat,Arial,sans-serif;max-width:118mm;margin:2mm 0 6mm}",
+  ".back-links{display:flex;flex-direction:column;align-items:center;gap:5mm;margin:5mm 0}",
+  ".back-links a{font:500 10pt/1.5 Montserrat,Arial,sans-serif;color:#8A684A;text-decoration:underline;text-underline-offset:3px}",
+  ".back .back-notice{font:400 8pt/1.5 Montserrat,Arial,sans-serif;color:#786E63;max-width:135mm}",
   "@media screen{body{background:#E6E0D9}.page{margin:14px auto;box-shadow:0 10px 35px #0002}}"
 ].join("\n");
 
@@ -113,9 +117,12 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   };
   const logo = imageData(options.logo,"image/png");
   const pages: string[] = [];
-  pages.push(page(1,"cover","cover",'<img class="logo" src="'+logo+'" alt="Redcarpert logo">'+tag("Redcarpert Wedding Dresses")+
-    '<h1>The Bridal Edit</h1><div class="goldline"></div><div class="cover-photo"><img src="'+photograph(products[0].id)+'" alt="Bridal cover inspiration"></div>'+
-    '<p class="cover-tail">The '+options.year+' Edition &nbsp; / &nbsp; Five Collections</p><p class="tiny">Illustrative photography and prices</p>'));
+  const website="https://tita-mbotho-studio.github.io/redcarpert-prototype/";
+  pages.push(page(1,"cover","cover",
+    '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
+    '<div class="goldline" aria-hidden="true"></div>'+
+    '<h1>Your bridal story begins here.</h1>'+
+    '<p class="cover-description">A considered edit of bridal inspiration for the moment that feels like yours.</p>'));
   pages.push(page(2,"front","title",tag("A thoughtful bridal collection")+
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">A curated collection of bridal inspiration, photographed and arranged for the moments that become memories.</p>'));
   pages.push(page(3,"welcome","welcome",tag("A note from Redcarpert")+
@@ -133,17 +140,19 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       '<div class="goldline"></div><p class="intro">Four thoughtfully curated styling references. Discover your favourite look, then enquire about available dresses and fittings.</p>'));
     for (const dress of dresses) {
       const look=dress.name.replace(/^Sample /,"Look ");
+      const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
-        '<div class="dress-top">'+tag(category.name)+'<span class="look-ref">'+esc(look.toUpperCase())+' / REDCARPERT</span></div><div class="fine-rule"></div>'+
+        '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom"><div><h3>'+esc(look)+'</h3><p class="kind">'+esc(category.name)+'</p></div>'+
-        '<div><p class="amount">'+price(dress)+'</p><p class="amount-label">Indicative ZAR price</p></div></div>'+
-        '<p class="disclosure">Illustrative Pexels photograph / Not confirmed Redcarpert inventory</p>'));
+        '<div class="dress-bottom"><span class="kind">'+esc(category.name)+'</span>'+
+        '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
+        '<p class="amount-label">Indicative ZAR price</p>'+
+        '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
+        '<p class="disclosure">Illustrative photograph and price &middot; Not confirmed Redcarpert inventory</p></div>'));
     }
   }
   if(pageNumber!==30)throw new Error("Incorrect editorial page sequence");
   const enquiry="https://wa.me/27680458811?text="+encodeURIComponent("Hello Redcarpert Wedding Dresses! I would like to enquire about a dress fitting.");
-  const website="https://tita-mbotho-studio.github.io/redcarpert-prototype/";
   pages.push(page(30,"contact","fittings",tag("Your bridal story")+
     '<h2>Find the look.<br>Begin the conversation.</h2><p>See a style that speaks to you? Contact Redcarpert to discuss fitting appointments, dress availability and confirmed pricing.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">ENQUIRE VIA WHATSAPP</a><p class="tiny">Nothing is sent until you choose Send in WhatsApp.</p>'+
@@ -153,9 +162,13 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   pages.push(page(31,"credits","credits",tag("With thanks")+
     '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,10).join("")+'</div><div>'+credits.slice(10).join("")+'</div></div>'+
     '<p class="note">All photography is sourced from Pexels and is used here for styling inspiration only. The sample dresses, illustrative ZAR prices and photographs do not establish stock, availability or final selling prices. The 2 in 1 photographs do not verify convertible construction.</p>'));
-  pages.push(page(32,"back","back-cover",'<img class="logo" src="'+logo+'" alt="Redcarpert logo">'+
-    '<h2>Your bridal story<br>begins here.</h2><div class="goldline"></div>'+
-    '<p>For every special moment, discover a look that feels like yours.</p><a href="'+esc(website)+'">REDCARPERT WEDDING DRESSES</a>'));
+  pages.push(page(32,"back","back-cover",
+    '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
+    '<h2>Find your silhouette.</h2>'+
+    '<p>Explore five bridal collections, then enquire about a fitting.</p>'+
+    '<div class="back-links"><a href="'+esc(website)+'product/">Browse Wedding Dresses</a>'+
+    '<a href="'+esc(website)+'contact-us/">Fitting enquiries</a></div>'+
+    '<p class="back-notice">Demonstration collection &middot; No confirmed client inventory</p>'));
   if(pages.length!==32)throw new Error("Expected 32 pages, found "+pages.length);
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redcarpert - The Bridal Edit '+options.year+'</title>'+
     '<meta name="viewport" content="width=device-width,initial-scale=1"><style>'+style+'</style></head><body>'+pages.join("\n")+'</body></html>';
