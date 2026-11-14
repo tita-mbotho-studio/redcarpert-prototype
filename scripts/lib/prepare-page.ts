@@ -1,5 +1,5 @@
 import { sitePages } from '../../src/data/site';
-import { catalogueProducts } from '../../src/data/catalogue';
+import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue';
 import { contentAdaptations } from '../../src/data/content-adaptations';
 import { adaptSiteDocument } from '../../src/lib/content-adapter';
 import { adaptHomepageBackgrounds } from '../../src/lib/homepage-backgrounds';
@@ -19,13 +19,15 @@ import { siteMetadata } from '../../src/data/metadata';
 /** Produce the existing approved page tree without touching its structure. */
 export function preparePage(route: string) {
  const product = catalogueProducts.find(p=>p.previewRoute===route);
- let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Interactive sample bridal lookbook for Mermaid and Ball Gown dresses, with a downloadable PDF.'} : sitePages[route];
+ const newCategory = catalogueCategories.slice(2).find(c => c.route.replace(/\/$/, '') === route);
+ const categoryTemplate = newCategory ? {...sitePages['/product-category/mermaid'], route} : undefined;
+ let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Interactive sample bridal lookbook featuring five wedding dress collections, with a downloadable two-page sample PDF.'} : sitePages[route]);
  // Replace inherited Bridal Vanesa catalogue browser-tab metadata without
  // modifying any approved page structure, product card or visual style.
  const listingMetadata: Record<string, {title:string; description:string}> = {
   '/product': {
    title: 'Wedding Dresses | Redcarpert Wedding Dresses',
-   description: 'Explore illustrative Mermaid and Ball Gown wedding dresses. Stock photographs are not confirmed Redcarpert inventory.',
+   description: 'Explore twenty illustrative wedding dresses across five collections. Sample prices and stock photographs are not confirmed Redcarpert offers.',
   },
   '/product-category/mermaid': {
    title: 'Mermaid Wedding Dresses | Redcarpert',
@@ -36,6 +38,14 @@ export function preparePage(route: string) {
    description: 'Explore illustrative Ball Gown wedding dresses in the Redcarpert bridal collection preview.',
   },
  };
+ for (const category of catalogueCategories.slice(2)) {
+  const key = category.route.replace(/\/$/, '');
+  listingMetadata[key] = {
+   title: category.name + ' | Redcarpert Wedding Dresses',
+   description: 'Explore illustrative ' + category.name + ' and indicative ZAR prices. Stock photos and prices are demonstration content only.',
+  };
+ }
+ if (!original) throw new Error('Unknown public route: '+route);
  if(Object.hasOwn(listingMetadata,route)) original={...original,...listingMetadata[route]};
  if(route === '/') original = {...original, title:siteMetadata.title, description:siteMetadata.description};
  if(['/about-us','/contact-us','/wedding-moments'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Wedding Moments | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about Redcarpert's bridal collections and fitting enquiries.":route==='/contact-us'?'Contact and fitting enquiry information for the Redcarpert prototype.':'Wedding Moments: a celebration of couples, family, friends, photographs and films. Stock inspiration is labelled until real wedding stories are available.'};
