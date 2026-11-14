@@ -26,9 +26,10 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run typecheck
+      # The lookbook PDF requires Chromium during static generation.
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:dist
-      - run: npx playwright install --with-deps chromium
       - name: Test production pages in Chromium
         run: |
           npm run preview -- --port 4173 > /tmp/pages-preview.log 2>&1 &
