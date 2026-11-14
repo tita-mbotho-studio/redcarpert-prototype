@@ -2,8 +2,8 @@ import imageLinks from "./image-links.json" with { type: "json" };
 import { requireImageLink } from "../lib/image-links.ts";
 import { priceForDress, type PriceZar } from "../lib/pricing.ts";
 
-/** Eight curated Pexels demonstration dresses. Never describe these as Redcarpert stock. */
-export type DressCategory = "mermaid" | "ball_gown";
+/** Twenty curated Pexels demonstration dresses. Never describe these as Redcarpert stock. */
+export type DressCategory = "mermaid" | "ball_gown" | "ruffled" | "modern_tradition" | "two_in_one";
 export interface CatalogueProduct {
   readonly id: string;
   readonly name: string;
@@ -19,6 +19,9 @@ export interface CatalogueProduct {
 export const catalogueCategories = [
   { id: "mermaid", name: "Mermaid", route: "/product-category/mermaid/" },
   { id: "ball_gown", name: "Ball Gown", route: "/product-category/ball_gown/" },
+  { id: "ruffled", name: "Ruffled Dresses", route: "/product-category/ruffled/" },
+  { id: "modern_tradition", name: "Modern Tradition Dresses", route: "/product-category/modern_tradition/" },
+  { id: "two_in_one", name: "2 in 1 Dresses", route: "/product-category/two_in_one/" },
 ] as const;
 
 /** Images stay on Pexels servers: there is no image fetch/download in the build. */
@@ -78,5 +81,89 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     imageAlt: "Pexels demonstration bridal photograph (Ball Gown silhouette) — not Redcarpert inventory",
     detailReference: null, previewRoute: "/product/preview/sample-08-ball-gown",
     imageCredit: { photographer: "Andrea Prochilo", sourceUrl: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-04").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-ruffled-01", priceZar: priceForDress("sample-ruffled-01"), name: "Sample 09", category: "ruffled", status: "sample",
+    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-01").url,
+    imageAlt: "Pexels demonstration photograph (Ruffled Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-09-ruffled",
+    imageCredit: { photographer: "Matilda Jacob", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-01").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-ruffled-02", priceZar: priceForDress("sample-ruffled-02"), name: "Sample 10", category: "ruffled", status: "sample",
+    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-02").url,
+    imageAlt: "Pexels demonstration photograph (Ruffled Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-10-ruffled",
+    imageCredit: { photographer: "DΛVΞ GΛRCIΛ", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-02").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-ruffled-03", priceZar: priceForDress("sample-ruffled-03"), name: "Sample 11", category: "ruffled", status: "sample",
+    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-03").url,
+    imageAlt: "Pexels demonstration photograph (Ruffled Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-11-ruffled",
+    imageCredit: { photographer: "Olga Solodilova", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-03").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-ruffled-04", priceZar: priceForDress("sample-ruffled-04"), name: "Sample 12", category: "ruffled", status: "sample",
+    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-04").url,
+    imageAlt: "Pexels demonstration photograph (Ruffled Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-12-ruffled",
+    imageCredit: { photographer: "Rina Mayer", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-04").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-modern-tradition-01", priceZar: priceForDress("sample-modern-tradition-01"), name: "Sample 13", category: "modern_tradition", status: "sample",
+    image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-01").url,
+    imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-13-modern-tradition",
+    imageCredit: { photographer: "Taiye Salawu", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-01").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-modern-tradition-02", priceZar: priceForDress("sample-modern-tradition-02"), name: "Sample 14", category: "modern_tradition", status: "sample",
+    image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-02").url,
+    imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-14-modern-tradition",
+    imageCredit: { photographer: "Taiye Salawu", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-02").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-modern-tradition-03", priceZar: priceForDress("sample-modern-tradition-03"), name: "Sample 15", category: "modern_tradition", status: "sample",
+    image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-03").url,
+    imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-15-modern-tradition",
+    imageCredit: { photographer: "Milly Lavish", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-03").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-modern-tradition-04", priceZar: priceForDress("sample-modern-tradition-04"), name: "Sample 16", category: "modern_tradition", status: "sample",
+    image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").url,
+    imageAlt: "Pexels demonstration photograph (Modern Tradition Dresses styling inspiration) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-16-modern-tradition",
+    imageCredit: { photographer: "Taiye Salawu", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-two-in-one-01", priceZar: priceForDress("sample-two-in-one-01"), name: "Sample 17", category: "two_in_one", status: "sample",
+    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-01").url,
+    imageAlt: "Pexels demonstration photograph (Two-in-one style inspiration; no conversion mechanism verified) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-17-two-in-one",
+    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-01").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-two-in-one-02", priceZar: priceForDress("sample-two-in-one-02"), name: "Sample 18", category: "two_in_one", status: "sample",
+    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-02").url,
+    imageAlt: "Pexels demonstration photograph (Two-in-one style inspiration; no conversion mechanism verified) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-18-two-in-one",
+    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-02").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-two-in-one-03", priceZar: priceForDress("sample-two-in-one-03"), name: "Sample 19", category: "two_in_one", status: "sample",
+    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-03").url,
+    imageAlt: "Pexels demonstration photograph (Two-in-one style inspiration; no conversion mechanism verified) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-19-two-in-one",
+    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-03").sourceUrl, provenance: "docs/asset-credits.md" },
+  },
+  {
+    id: "sample-two-in-one-04", priceZar: priceForDress("sample-two-in-one-04"), name: "Sample 20", category: "two_in_one", status: "sample",
+    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-04").url,
+    imageAlt: "Pexels demonstration photograph (Two-in-one style inspiration; no conversion mechanism verified) — not Redcarpert inventory",
+    detailReference: null, previewRoute: "/product/preview/sample-20-two-in-one",
+    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-04").sourceUrl, provenance: "docs/asset-credits.md" },
   },
 ];
