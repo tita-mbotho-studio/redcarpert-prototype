@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
-import {catalogueProducts} from '../src/data/catalogue.ts';
+import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleDetailTitle,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
 import { displayDressPrice } from '../src/lib/pricing.ts';
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -27,7 +27,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(card,'detail information must be inside a floating card');
   assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
   assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-collection').children[0],
-    (product.category==='mermaid'?'Mermaid':'Ball Gown')+' Collection');
+    (()=>{const name=catalogueCategories.find(c=>c.id===product.category)?.name;return name.endsWith('Dresses')?name:name+' Collection';})());
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-dress-price')).children[0],
     displayDressPrice(product.priceZar));
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
@@ -62,7 +62,7 @@ test('unexpected source structures, commerce content and unverified mappings fai
  for(const changes of [{previewRoute:'/product/arabella'},{detailReference:'/product/client'},{id:'invented'},{status:'confirmed'},{category:'ball_gown'},{image:'https://example.com/photo.jpg'}])assert.throws(()=>createProductDetailPreview(sitePages['/product/arabella'],{...product,...changes}),/incompatible sample mapping/);
 });
 test('each detail reuses the corresponding remote Pexels image without local downloads',()=>{
- assert.equal(catalogueProducts.length,8);
+ assert.equal(catalogueProducts.length,20);
  for(const product of catalogueProducts){
   const gallery=sampleGalleryImages[product.id];
   assert.equal(gallery.src,product.image);
