@@ -3,7 +3,8 @@ import test from 'node:test';
 import sharp from 'sharp';
 import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
-import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf.ts';
+import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
+import { catalogueProducts } from '../src/data/catalogue.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
 test('new Redcarpert editorial content reuses source shell and never exposes original business copy', () => {
@@ -61,18 +62,26 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
   }
 });
 
-test('lookbook PDF is a two-page illustrated PDF with correct xref and no client claims', async () => {
-  const jpeg = await sharp({create:{width:24,height:36,channels:3,background:'#dddddd'}}).jpeg().toBuffer();
-  const pdf = createSampleLookbookPdf([
-    { jpeg, width: 24, height: 36, category: 'Mermaid', sample: 'Sample 01', photographer: 'Stock', priceZar: null },
-    { jpeg, width: 24, height: 36, category: 'Ball Gown', sample: 'Sample 02', photographer: 'Stock', priceZar: null },
-  ]);
-  assert.equal(pdf.toString('latin1',0,8),'%PDF-1.4');
-  const text = pdf.toString('latin1');
-  assert.match(text,/\/Count 2/);
-  assert.match(text,/DIGITAL LOOKBOOK/);
-  assert.match(text,/SAMPLE PRICE: Price to be confirmed/);
-  assert.match(text,/not confirmed Redcarpert inventory/);
-  assert.match(text,/\/DCTDecode/);
-  assert.match(text,/startxref\n\d+\n%%EOF/);
+test('luxury editorial lookbook contains exactly thirty-two A4 pages, five collections, and twenty priced looks', async () => {
+  const jpeg=await sharp({create:{width:24,height:36,channels:3,background:'#eee8df'}}).jpeg().toBuffer();
+  const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
+  const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
+  assert.equal((html.match(/<section class="page /g)||[]).length,32);
+  assert.equal((html.match(/class="divider"/g)||[]).length,5);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,20);
+  assert.match(html,/@page\{size:A4;margin:0\}/);
+  assert.match(html,/href="#collection-ruffled"/);
+  assert.match(html,/href="#collection-modern_tradition"/);
+  assert.match(html,/href="#collection-two_in_one"/);
+  assert.match(html,/https:\/\/wa\.me\/27680458811/);
+  assert.match(html,/Illustrative Pexels photograph/);
+  assert.match(html,/Photography Credits/);
+  for (const dress of catalogueProducts) {
+    const label=dress.name.replace(/^Sample /,'Look ');
+    assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
+    assert(html.includes('>'+new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',maximumFractionDigits:0}).format(dress.priceZar).replace(/^ZAR\s*/,'R ')+'</p>') ||
+      html.includes(dress.priceZar.toLocaleString('en-ZA')) || html.includes('R&nbsp;'),
+      'sample prices must appear in the editorial HTML');
+  }
+  assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 20 dresses/);
 });
