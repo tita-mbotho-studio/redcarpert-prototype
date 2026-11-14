@@ -59,6 +59,72 @@
         "url": "https://images.pexels.com/photos/36297026/pexels-photo-36297026.jpeg?auto=compress&cs=tinysrgb&w=1200",
         "sourceUrl": "https://www.pexels.com/photo/elegant-bride-in-luxurious-ballroom-setting-36297026/"
       }
+    ],
+    "ruffled": [
+      {
+        "id": "sample-ruffled-01",
+        "url": "https://images.pexels.com/photos/39878452/pexels-photo-39878452.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-bridal-gown-with-ruffle-details-39878452/"
+      },
+      {
+        "id": "sample-ruffled-02",
+        "url": "https://images.pexels.com/photos/31205761/pexels-photo-31205761.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-bridal-portrait-with-window-light-31205761/"
+      },
+      {
+        "id": "sample-ruffled-03",
+        "url": "https://images.pexels.com/photos/19781836/pexels-photo-19781836.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/pretty-brunette-bride-in-wedding-dress-posing-in-stadium-stands-19781836/"
+      },
+      {
+        "id": "sample-ruffled-04",
+        "url": "https://images.pexels.com/photos/17278773/pexels-photo-17278773.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/close-up-of-woman-in-wedding-dress-17278773/"
+      }
+    ],
+    "modern_tradition": [
+      {
+        "id": "sample-modern-tradition-01",
+        "url": "https://images.pexels.com/photos/39984605/pexels-photo-39984605.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-lace-gown-39984605/"
+      },
+      {
+        "id": "sample-modern-tradition-02",
+        "url": "https://images.pexels.com/photos/39984609/pexels-photo-39984609.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-west-african-bride-in-traditional-attire-39984609/"
+      },
+      {
+        "id": "sample-modern-tradition-03",
+        "url": "https://images.pexels.com/photos/31493789/pexels-photo-31493789.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-white-gown-31493789/"
+      },
+      {
+        "id": "sample-modern-tradition-04",
+        "url": "https://images.pexels.com/photos/34618239/pexels-photo-34618239.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-wedding-attire-34618239/"
+      }
+    ],
+    "two_in_one": [
+      {
+        "id": "sample-two-in-one-01",
+        "url": "https://images.pexels.com/photos/20370059/pexels-photo-20370059.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370059/"
+      },
+      {
+        "id": "sample-two-in-one-02",
+        "url": "https://images.pexels.com/photos/20370060/pexels-photo-20370060.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370060/"
+      },
+      {
+        "id": "sample-two-in-one-03",
+        "url": "https://images.pexels.com/photos/20352738/pexels-photo-20352738.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/bride-trying-on-a-wedding-dress-in-the-store-20352738/"
+      },
+      {
+        "id": "sample-two-in-one-04",
+        "url": "https://images.pexels.com/photos/20369981/pexels-photo-20369981.jpeg?auto=compress&cs=tinysrgb&w=1200",
+        "sourceUrl": "https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20369981/"
+      }
     ]
   },
   "wedding_moments": {
