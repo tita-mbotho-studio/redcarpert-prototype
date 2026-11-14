@@ -1,4 +1,5 @@
 import { chromium } from "playwright";
+import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
 import { displayDressPrice } from "./pricing.ts";
@@ -13,7 +14,6 @@ export interface LuxuryLookbookImage {
 export interface LuxuryLookbookOptions {
   readonly year: number;
   readonly logo: Buffer;
-  readonly printQuality?: boolean;
 }
 const esc = (s: string): string => s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 const two = (n: number): string => String(n).padStart(2, "0");
@@ -31,7 +31,7 @@ const style = [
   "h1,h2,h3,p{margin:0;padding:0}",
   "h1,h2,h3{font-family:'Cormorant Garamond',Georgia,serif;font-weight:400}",
   "a{color:inherit;text-decoration:none}",
-  ".page{position:relative;width:210mm;height:297mm;overflow:hidden;page-break-after:always;break-after:page;background:#FDFBF8}",
+  ".page{position:relative;width:210mm;height:296.8mm;overflow:hidden;page-break-after:always;break-after:page;background:#FDFBF8}",
   ".page:last-child{page-break-after:auto;break-after:auto}",
   ".content{position:absolute;inset:18mm 18mm 18mm 22mm;display:flex;flex-direction:column}",
   ".page:nth-child(even) .content{left:18mm;right:22mm}",
@@ -169,11 +169,20 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     const tab=await browser.newPage({viewport:{width:1240,height:1754},deviceScaleFactor:1});
     await tab.setContent(html,{waitUntil:"load",timeout:60000});
     await tab.evaluate(async()=>{await document.fonts.ready;});
+    const missing=await tab.evaluate(()=>Array.from(document.images).filter(image=>!image.complete||!image.naturalWidth).map(image=>image.alt));
+    if(missing.length)throw new Error("Lookbook images failed to render: "+missing.join(", "));
     const count=await tab.locator("section.page").count();
     if(count!==32)throw new Error("Wrong rendered book page count "+count);
+    if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {
+      const folder=".generated/lookbook-previews";
+      await mkdir(folder,{recursive:true});
+      for(const id of ["cover","collection-mermaid","look-sample-mermaid","collection-modern_tradition","credits","back-cover"]) {
+        await tab.locator("#"+id).screenshot({path:folder+"/"+id+".png",animations:"disabled"});
+      }
+    }
     const pdf=await tab.pdf({
       format:"A4",printBackground:true,preferCSSPageSize:true,displayHeaderFooter:false,
-      outline:true,timeout:120000
+      outline:true,tagged:true,timeout:120000
     });
     return Buffer.from(pdf);
   } finally {
