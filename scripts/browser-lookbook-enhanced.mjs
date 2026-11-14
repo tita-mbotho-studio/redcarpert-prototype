@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
+import products from '../src/data/products.json' with {type:'json'};
+const pageCount=products.dresses.length+2;
 
 /** Real StPageFlip regression, not the CDN-blocked fallback test.
  * Isolate flipping from the externally hosted Pexels image availability. */
@@ -21,7 +23,7 @@ try {
     const book=page.locator('#redcarpert-flipbook');
     await book.locator('.stf__block').waitFor({timeout:30000});
     assert.equal(await book.getAttribute('data-engine'),'page-flip','must use real enhanced reader');
-    assert.equal(await page.locator('[data-book-page]').count(),10);
+    assert.equal(await page.locator('[data-book-page]').count(),pageCount);
     const current=async()=>Number(await book.getAttribute('data-current-page'));
     const progresses=async(previous,direction)=>{
       await page.waitForFunction(
@@ -40,13 +42,13 @@ try {
     let position=await current();
     assert.equal(position,1,'starts on cover');
     let count=0;
-    while(position<10 && count<10){
+    while(position<pageCount && count<pageCount){
       assert.equal(await next.isDisabled(),false,'next disabled before back cover');
       await next.click();
       position=await progresses(position,1);
       count++;
     }
-    assert.equal(position,10,'reached back cover across all spreads');
+    assert.equal(position,pageCount,'reached back cover across all spreads');
     assert.equal(await next.isDisabled(),true);
     await previous.click();
     position=await progresses(position,-1);
@@ -56,7 +58,7 @@ try {
     await page.keyboard.press('ArrowRight');
     position=await progresses(position,1);
     count=0;
-    while(position>1 && count<10){
+    while(position>1 && count<pageCount){
       await previous.click();
       position=await progresses(position,-1);
       count++;
