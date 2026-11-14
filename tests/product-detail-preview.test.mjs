@@ -97,6 +97,9 @@ test('multiple verified photos for one dress render discreet arrows, dots, posit
  assert.equal(gallery.attrs.tabindex,'0','keyboard access to image gallery');
  assert.deepEqual(JSON.parse(gallery.attrs['data-gallery-photos']),photos);
  const elements=all([gallery]);
+ assert.equal(gallery.attrs.role,'region','screen-reader labelled gallery');
+ assert(elements.find(n=>n.attrs.class==='slider redcarpert-multi-photo-slider'),'custom gallery must not be cloned by the inherited slider plugin');
+ assert(!elements.some(n=>n.attrs.class==='slider wpgis-slider-for'),'do not initialise the legacy single-slide carousel for multiple angles');
  assert.equal(elements.filter(n=>n.tag==='img').length,1,'only the active image is loaded');
  assert.equal(elements.filter(n=>Object.hasOwn(n.attrs,'data-gallery-previous')).length,1);
  assert.equal(elements.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,1);
