@@ -65,6 +65,30 @@ try {
   await page.close();
  }
  console.log('Three-photo dress gallery PASS: arrows, dots, image link, keyboard and touch');
+ // Check the actual generated Sample 17 page, which now has two Pexels photographs
+ // of one gown rather than just our synthetic isolated controller fixture.
+ const actual=await browser.newPage({viewport:{width:1280,height:900}});
+ const liveErrors=[];
+ actual.on('pageerror',error=>liveErrors.push(error.message));
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/sample-17-two-in-one/',{
+   waitUntil:'domcontentloaded',
+   timeout:30000,
+ });
+ const liveGallery=actual.locator('[data-detail-gallery="sample-two-in-one-01"]');
+ await liveGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
+ assert.equal(await liveGallery.locator('[data-gallery-index]').count(),2);
+ assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
+ assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/20370059/);
+ await liveGallery.locator('[data-gallery-next]').click();
+ assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'02 / 02');
+ assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/20370060/);
+ assert.match(await liveGallery.locator('[data-gallery-enlarge]').getAttribute('href'),/20370060/);
+ await liveGallery.locator('[data-gallery-previous]').click();
+ assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
+ await actual.close();
+ assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');
+ console.log('Live Pexels Sample 17 PASS: gallery renders, arrow navigation changes photograph');
+
 } finally {
  await browser.close();
 }
