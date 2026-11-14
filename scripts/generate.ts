@@ -4,7 +4,8 @@ import sharp from 'sharp';
 import { sitePages } from '../src/data/site';
 import { catalogueProducts } from '../src/data/catalogue';
 import { publicStaticRoutes } from '../src/lib/public-routes';
-import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf';
+import { createLuxuryLookbookPdf } from '../src/lib/luxury-lookbook';
+import { prepareLookbookImages } from './lib/lookbook-assets';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview';
 import { siteMetadata } from '../src/data/metadata';
 import { pageLoaderCss, pageLoaderMarkup, pageLoaderFallback } from '../src/lib/page-loader';
@@ -67,12 +68,18 @@ for(const route of routes) {
 }
 track(await readFile('src/client/lookbook.js','utf8'));
 await copyTrackedAssets(root);
-const photos = await Promise.all([
- {src:'sample-01-mermaid-pexels.webp',productId:'sample-mermaid',category:'Mermaid' as const,sample:'Sample 01',photographer:'Tran Long'},
- {src:'sample-02-ball-gown-pexels.webp',productId:'sample-ball-gown',category:'Ball Gown' as const,sample:'Sample 02',photographer:'Thalia villa'},
-].map(async item=>{const product=catalogueProducts.find(p=>p.id===item.productId);if(!product)throw new Error('Missing PDF dress '+item.productId);const {data,info}=await sharp('public/redcarpert/gallery/'+item.src).removeAlpha().jpeg({quality:90,progressive:false}).toBuffer({resolveWithObject:true});return {...item,priceZar:product.priceZar,jpeg:data,width:info.width,height:info.height};}));
+const editionYear=new Date().getFullYear();
+const {images:bookImages,audit:bookImageAudit}=await prepareLookbookImages(catalogueProducts);
+const officialLogo=await readFile('public/redcarpert/brand/redcarpert-logo.png');
+const pdf=await createLuxuryLookbookPdf(catalogueProducts,bookImages,{year:editionYear,logo:officialLogo});
 await mkdir(root+'/static/digital-lookbook',{recursive:true});
-await writeFile(root+'/static/digital-lookbook/Redcarpert-Sample-Lookbook.pdf',createSampleLookbookPdf(photos));
+const premiumPdfName='Redcarpert-The-Bridal-Edit-'+editionYear+'.pdf';
+await Promise.all([
+ writeFile(root+'/static/digital-lookbook/'+premiumPdfName,pdf),
+ // Preserve older links already shared with clients.
+ writeFile(root+'/static/digital-lookbook/Redcarpert-Sample-Lookbook.pdf',pdf),
+ writeFile(root+'/lookbook-image-audit.json',JSON.stringify({editionYear,photoCount:bookImageAudit.length,photos:bookImageAudit},null,2)),
+]);
 await writeFile(root+'/404.html',`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found | Redcarpert</title><link rel="icon" type="image/png" sizes="32x32" href="${base}redcarpert/brand/redcarpert-bridal-favicon-v2-32.png"><link rel="apple-touch-icon" sizes="180x180" href="${base}redcarpert/brand/redcarpert-bridal-touch-v2-180.png"></head><body><main><h1>Page not found</h1><p>This page is unavailable.</p><a href="${base}">Return to Redcarpert Wedding Dresses</a></main></body></html>`);
 await writeFile(root+'/routes.json',JSON.stringify(routes));
 console.log(`Generated ${routes.length} approved pages and ${assets.size} reachable assets.`);

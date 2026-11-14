@@ -5,6 +5,8 @@ import type { DocumentNode } from '../../src/types/site';
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function lookbook() {
+ const editionYear = new Date().getFullYear();
+ const pdfName = 'Redcarpert-The-Bridal-Edit-' + editionYear + '.pdf';
  const pageCount = catalogueProducts.length + 2;
  const dresses = catalogueProducts.map((product, i) => {
    const category = (catalogueCategories.find(c => c.id === product.category)?.name ?? 'WEDDING DRESSES').toUpperCase();
@@ -34,7 +36,7 @@ function lookbook() {
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Previous</button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page">Next<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
-   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/Redcarpert-Sample-Lookbook.pdf" download="Redcarpert-Sample-Lookbook.pdf">Download sample lookbook (PDF)</a><p>The existing PDF contains the original two sample photographs.</p></div>' +
+   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A 32-page editorial publication with five bridal collections, 20 illustrative looks and indicative ZAR prices.</p></div>' +
    '</section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));
