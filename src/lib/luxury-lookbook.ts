@@ -182,7 +182,7 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     }
     const pdf=await tab.pdf({
       format:"A4",printBackground:true,preferCSSPageSize:true,displayHeaderFooter:false,
-      outline:true,tagged:true,timeout:120000
+      outline:true,tagged:true
     });
     return Buffer.from(pdf);
   } finally {
