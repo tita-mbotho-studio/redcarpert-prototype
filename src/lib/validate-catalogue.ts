@@ -22,7 +22,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
       || !product.imageCredit.photographer.trim() || product.imageCredit.provenance !== 'docs/asset-credits.md') throw new Error(`Missing image provenance: ${product.id}`);
     if (!/^\/product\/preview\/[a-z0-9-]+$/.test(product.previewRoute) || routes.has(product.previewRoute)) throw new Error(`Duplicate or invalid preview route: ${product.previewRoute}`);
     routes.add(product.previewRoute);
-    if (!/^Sample (0[1-8])$/.test(product.name) || !product.imageAlt.includes('not Redcarpert inventory')) throw new Error(`Missing sample disclosure: ${product.id}`);
+    if (!/^Sample (0[1-9]|1\d|20)$/.test(product.name) || !product.imageAlt.includes('not Redcarpert inventory')) throw new Error(`Missing sample disclosure: ${product.id}`);
   }
   if (catalogueCategories.some(category => counts[category.id] !== 4)) throw new Error('Catalogue must have four samples per category');
 }
