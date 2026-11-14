@@ -4,6 +4,7 @@ import { HomepageFooterScroll } from './HomepageFooterScroll.js';
 import { SiteRuntime } from './SiteRuntime.js';
 import { initializeEnquiryPreview } from './enquiry-preview.js';
 import { initializeLookbookReader } from './lookbook-reader.js';
+import { initializeDressGalleries } from './dress-gallery.js';
 import { initializeCatalogueFilter } from './catalogue-filter.js';
 import { initializeWeddingMomentsGallery } from './wedding-moments.js';
 import { initializeFloatingWhatsApp } from './WhatsAppFloating.js';
@@ -34,6 +35,7 @@ document.addEventListener('visibilitychange', () => {
 });
 initializeEnquiryPreview();
 initializeLookbookReader(import.meta.env.BASE_URL);
+initializeDressGalleries();
 initializeCatalogueFilter();
 initializeWeddingMomentsGallery();
 initializeFloatingWhatsApp();
