@@ -1,3 +1,5 @@
+import { homepageBackgrounds } from "./homepage-backgrounds";
+
 /** Small, critical and self-contained. Renders before the rest of the page. */
 export const pageLoaderCss = `
 #redcarpert-page-loader {
@@ -43,7 +45,7 @@ export const pageLoaderCss = `
 
 /** Same approved logo, resized at build-time; never introduce replacement art. */
 export function pageLoaderMarkup(home: boolean): string {
-  const hero = home ? ` data-hero-url="/redcarpert/home/brand-pexels-sample.webp"` : "";
+  const hero = home ? ` data-hero-url="${homepageBackgrounds[0].replacement}"` : "";
   return `<div id="redcarpert-page-loader" role="status" aria-live="polite" aria-label="Loading Redcarpert Wedding Dresses"${hero}><div class="rc-load-inner"><img class="rc-load-logo" src="/redcarpert/brand/redcarpert-logo-optimized.webp" alt="Redcarpert Wedding Dresses" width="640" height="236" decoding="async"><span class="rc-load-line" aria-hidden="true"></span><span class="rc-load-spinner" aria-hidden="true"></span><p class="rc-load-caption">Preparing your bridal experience</p></div></div>`;
 }
 

@@ -4,6 +4,8 @@ import {readFileSync,readdirSync,existsSync} from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
+import {catalogueProducts} from '../src/data/catalogue.ts';
+import {displayDressPrice} from '../src/lib/pricing.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
@@ -60,6 +62,11 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
 test('ten-page interactive book and eight shared Pexels products are published without local copies',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,10);
+ assert.equal((book.match(/data-book-price=/g)||[]).length,8);
+ for(const product of catalogueProducts){
+  assert(book.includes('data-book-price="'+product.id+'">'+displayDressPrice(product.priceZar)+'</p>'),
+    'book price does not match products.json for '+product.id);
+ }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
  const gallery=readFileSync('dist/product/index.html','utf8');
@@ -75,6 +82,13 @@ test('ten-page interactive book and eight shared Pexels products are published w
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
   assert.match(html,/not confirmed Redcarpert inventory/i);
+  assert.match(html,/class="redcarpert-detail-card"/);
+  assert.match(html,/data-dress-price=""/);
+  const product=catalogueProducts.find(p=>p.previewRoute===route);
+  assert(product,'unknown sample detail route: '+route);
+  assert(html.includes('data-dress-price="">'+displayDressPrice(product.priceZar)+'</p>'),
+    'detail price does not match products.json for '+route);
+  assert.match(html,/Book a Fitting/);
  }
 });
 
@@ -201,14 +215,38 @@ test('Implementation 22: every static page starts with a bounded, branded global
    // Apply homepage-only transparent header rules before JavaScript arrives.
    assert.match(html,/<body class="[^"]*\bredcarpert-home-native\b/,
      'homepage must carry its transparent overlay class from the first paint');
-   assert.match(html,/<link rel="preload" href="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp" as="image" type="image\/webp" fetchpriority="high">/);
-   assert.match(html,/data-hero-url="\/redcarpert-prototype\/redcarpert\/home\/brand-pexels-sample\.webp"/);
+   assert(html.includes('<link rel="preconnect" href="https://ik.imagekit.io">'),
+     'homepage should preconnect to client ImageKit image host');
+   assert(html.includes('href="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508" as="image" type="image/webp" fetchpriority="high"'),
+     'first client photograph should be priority-preloaded');
+   assert(html.includes('data-hero-url="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508"'),
+     'homepage loader should wait for first client photograph');
+   const imagekitUrls=["https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508","https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp?updatedAt=1794351597603","https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp?updatedAt=1794351600184"];
+   for(const url of imagekitUrls)assert(html.includes(url),'homepage missing approved photo '+url);
    assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
     'hero preload should be declared before loading logo');
   } else {
    assert(!html.includes('data-hero-url='),route+' must not load the homepage hero');
+   assert(!html.includes('ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/'),
+     route+' should not request homepage-only photography');
    assert.doesNotMatch(html,/<body class="[^"]*\bredcarpert-home-native\b/,
      route+' must retain its approved interior header styling');
   }
  }
+});
+
+
+test('Wedding Moments production HTML preserves ImageKit URLs and visible pagination status',{skip:!available},()=>{
+ const html=readFileSync('dist/wedding-moments/index.html','utf8');
+ const base='https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/';
+ assert(html.includes('src="'+base+'wedding-moments-56.jpg"'), 'real image URL was modified during HTML generation');
+ assert(html.includes('data-wedding-src="'+base+'wedding-moments-88.mp4"'), 'client video URL was modified during HTML generation');
+ assert(html.includes('src="'+base+'wedding-moments-88.mp4/ik-thumbnail.jpg"'), 'ImageKit video poster URL was modified');
+ assert(html.includes('Showing 16 of 87 wedding moments'), 'initial gallery counter missing');
+ assert(html.includes('data-wedding-moments-remaining'), 'deferred media template missing');
+ assert(html.includes('data-wedding-load-more'), 'pagination control missing');
+ assert(!html.includes(base.replace('/wedding-moments/','/redcarpert-prototype/wedding-moments/')),
+   'external CDN URLs must never contain the GitHub Pages base');
+ assert(!html.includes('red-carpet-wedding-dresses/redcarpert-prototype/wedding-moments/'),
+   'prefix must not be inserted inside an ImageKit media URL');
 });

@@ -6,15 +6,17 @@ const url='http://localhost:4173/redcarpert-prototype/';
 const viewports=[
   {width:1440,height:900},
   {width:1024,height:768},
+  {width:1000,height:800},
   {width:768,height:1024},
+  {width:640,height:800},
   {width:390,height:844},
   {width:375,height:667},
   {width:320,height:568},
 ];
 const images=[
-  'brand-pexels-sample.webp',
-  'collection-pexels-sample.webp',
-  'hero-pexels-sample.webp',
+  'home-page-1.webp',
+  'home-page-2.webp',
+  'home-page-3.webp',
 ];
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
@@ -35,8 +37,15 @@ try {
         sections:sections.map(s=>({
           box:box(s),
           bg:getComputedStyle(s).backgroundImage,
-          size:getComputedStyle(s).backgroundSize,
-          position:getComputedStyle(s).backgroundPosition,
+          photo:getComputedStyle(s).getPropertyValue('--redcarpert-home-photo').trim(),
+          softBackground:getComputedStyle(s,'::before').backgroundImage,
+          softDisplay:getComputedStyle(s,'::before').display,
+          blur:getComputedStyle(s,'::before').filter,
+          foreground:getComputedStyle(s,'::after').backgroundImage,
+          foregroundSize:getComputedStyle(s,'::after').backgroundSize,
+          sharpWidth:parseFloat(getComputedStyle(s,'::after').width),
+          sharpMask:getComputedStyle(s,'::after').maskImage,
+          foregroundPosition:getComputedStyle(s,'::after').backgroundPosition,
           title:s.querySelector('.section-title') ? box(s.querySelector('.section-title')) : null,
           subtitle:s.querySelector('.section-desc') ? box(s.querySelector('.section-desc')) : null,
           button:s.querySelector('.section-content > a.button') ? box(s.querySelector('.section-content > a.button')) : null,
@@ -82,7 +91,9 @@ try {
     assert.equal(m.fullpagePluginMounted,false,width+'px legacy fullpage plugin must not wrap document');
     assert.equal(m.loading,false,'remove legacy loading screen');
     assert.equal(m.sections.length,3,'exactly the original three photos');
-    assert(m.sections.every((s,i)=>s.bg.includes(images[i])),width+'px photos changed or missing');
+    assert(m.sections.every((section,i)=>
+      section.photo.includes('ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/')
+      && section.photo.includes(images[i])),width+'px ImageKit photo order changed or missing');
     // Image one must occupy the entire initial viewport, hiding image two
     // until the visitor actually scrolls. Keep the later panels unchanged.
     assert(Math.abs(m.sections[0].box.y)<=2,width+'px first image must start at the viewport top');
@@ -98,9 +109,33 @@ try {
       : width<=1000 ? Math.max(12,Math.min(13,width*.00431+8.69))
       : 14;
     for(const [i,s] of m.sections.entries()) {
-      assert.equal(s.size,'cover',width+'px photo '+i+' must be cover framed');
+      assert.equal(s.bg,'none',width+'px old direct cover background should not crop the portrait');
+      if(width<=640) {
+        assert.equal(s.softDisplay,'none',width+'px photo '+i+' must not render a second blurred image');
+        assert.equal(s.softBackground,'none',width+'px photo '+i+' must not load a blurred background');
+        assert.equal(s.blur,'none',width+'px photo '+i+' should have no blur');
+        assert(!s.foreground.includes('linear-gradient('),
+          width+'px phone photo '+i+' must remain the approved untinted image');
+        assert.equal(s.foregroundSize,'cover',width+'px phone photo '+i+' must remain full-bleed cover');
+        assert(!/(?:^|[\s,])(?:0%|top)(?:$|[\s,])/.test(s.foregroundPosition),width+'px phone photo '+i+' must keep its approved centred crop');
+        assert.equal(s.sharpMask,'none',width+'px phone photo '+i+' must have no faded edges');
+        assert(Math.abs(s.sharpWidth-width)<=2,width+'px phone photo '+i+' must fill the viewport width');
+      } else {
+        assert(s.softBackground.includes(images[i]),width+'px photo '+i+' missing blurred-side backdrop');
+        assert(s.blur.includes('blur('),width+'px photo '+i+' missing blurred sides');
+        assert.equal(s.sharpMask,'none',width+'px photo '+i+' must have completely sharp edges without blur bleeding');
+        assert(s.blur.includes('32px'),width+'px photo '+i+' must use the approved 32px blurred background');
+        assert(/(?:^|[\s,])(?:0%|top)(?:$|[\s,])/.test(s.foregroundPosition.split(',').at(-1).trim()),
+          width+'px photo '+i+' must show the face via top-aligned portrait framing');
+        assert(s.foregroundSize.split(',').some(part=>part.trim()==='cover'),
+          width+'px photo '+i+' must cover the entire sharp central panel');
+        const expectedSharpWidth=width*.60;
+        assert(Math.abs(s.sharpWidth-expectedSharpWidth)<=3,
+          width+'px photo '+i+' sharp-panel width must be 60%: '+s.sharpWidth);
+      }
+      assert(s.foreground.includes(images[i]),width+'px photo '+i+' missing sharp foreground');
       assert(s.box.width>=width-2,width+'px photo '+i+' should fill viewport width');
-      assert(s.box.height>height*.69,width+'px photo '+i+' is too short');
+      assert(s.box.height>=height-2,width+'px photo '+i+' must occupy the full screen height');
       if(i>0)assert(Math.abs(s.box.y-m.sections[i-1].box.bottom)<3,
         width+'px photo '+i+' should follow previous photo without gaps or overlap');
       if(s.title) {
@@ -153,7 +188,7 @@ try {
     assert.deepEqual(errors,[],width+'px browser errors');
     console.log('Native homepage PASS',width,height,m.sections.map(s=>Math.round(s.box.height)),
       'fonts',m.sections.filter(s=>s.title).map(s=>[s.titleFont,s.subtitleFont,s.buttonFont]),
-      m.sections.map(s=>s.position));
+      'photo sizing',m.sections.map(s=>s.foregroundSize));
     await page.close();
   }
 } finally { await browser.close(); }

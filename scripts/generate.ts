@@ -8,6 +8,7 @@ import { createSampleLookbookPdf } from '../src/lib/lookbook-pdf';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview';
 import { siteMetadata } from '../src/data/metadata';
 import { pageLoaderCss, pageLoaderMarkup, pageLoaderFallback } from '../src/lib/page-loader';
+import { homepageBackgrounds } from '../src/lib/homepage-backgrounds';
 import { REPOSITORY_BASE } from '../src/config/site';
 import { buildWhatsAppUrl, WHATSAPP_DISPLAY_NUMBER } from '../src/config/whatsapp';
 import { validateCatalogue } from '../src/lib/validate-catalogue';
@@ -21,7 +22,7 @@ validateCatalogue(catalogueProducts);
 const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
-const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css','src/components/CatalogueFilter.css','src/components/BridesGallery.css','src/components/ModernIcons.css'];
+const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css','src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css'];
 // Native homepage scrolling should retain the browser's vertical scrollbar.
 // No synthetic scrollbar hiding or fullpage/footer handoff is necessary.
 const extraCss = (await Promise.all(cssFiles.map(f=>readFile(f,'utf8')))).join('\n');
@@ -58,7 +59,7 @@ for(const route of routes) {
  // start. This prevents the inherited theme briefly rendering a solid header.
  const initialBodyClass = route === '/' ? document.bodyClass + ' redcarpert-home-native' : document.bodyClass;
  const runtime = {bodyClass:initialBodyClass,htmlClass:document.htmlClass,scripts:document.scripts,themeConfig:document.themeConfig,postScripts:document.postScripts};
- const heroPreload = route==='/' ? '<link rel="preload" href="/redcarpert/home/brand-pexels-sample.webp" as="image" type="image/webp" fetchpriority="high">' : '';
+ const heroPreload = route==='/' ? `<link rel="preconnect" href="https://ik.imagekit.io"><link rel="preload" href="${escapeHtml(homepageBackgrounds[0].replacement)}" as="image" type="image/webp" fetchpriority="high">` : '';
  let html = `<!doctype html><html lang="en-US" class="${escapeHtml(document.htmlClass)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(document.title||siteMetadata.title)}</title><meta name="description" content="${escapeHtml(document.description||siteMetadata.description)}">${heroPreload}<style id="redcarpert-loader-critical">${pageLoaderCss}</style><noscript><style>#redcarpert-page-loader{display:none!important}</style></noscript><link rel="icon" type="image/png" sizes="32x32" href="/redcarpert/brand/redcarpert-bridal-favicon-v2-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/redcarpert/brand/redcarpert-bridal-touch-v2-180.png">${document.styles.map(s=>s.href?`<link rel="stylesheet" href="${escapeHtml(s.href)}"${s.media?` media="${escapeHtml(s.media)}"`:''}>`:`<style>${s.css??''}</style>`).join('')}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><style>${extraCss}</style></head><body class="${escapeHtml(initialBodyClass)}">${pageLoaderMarkup(route === '/')}${pageLoaderFallback}${document.nodes.map(render).join('')}${modal}<script id="page-runtime" type="application/json">${JSON.stringify(runtime).replace(/</g,'\\u003c')}</script><script type="module" src="/src/client/main.js"></script></body></html>`;
  html = html.replaceAll('/digital-lookbook/pdf/','/digital-lookbook/Redcarpert-Sample-Lookbook.pdf');
  track(html); html = prefix(html).replace(base+'src/client/main.js','/src/client/main.js');
@@ -67,9 +68,9 @@ for(const route of routes) {
 track(await readFile('src/client/lookbook.js','utf8'));
 await copyTrackedAssets(root);
 const photos = await Promise.all([
- {src:'sample-01-mermaid-pexels.webp',category:'Mermaid' as const,sample:'Sample 01',photographer:'Tran Long'},
- {src:'sample-02-ball-gown-pexels.webp',category:'Ball Gown' as const,sample:'Sample 02',photographer:'Thalia villa'},
-].map(async item=>{const {data,info}=await sharp('public/redcarpert/gallery/'+item.src).removeAlpha().jpeg({quality:90,progressive:false}).toBuffer({resolveWithObject:true});return {...item,jpeg:data,width:info.width,height:info.height};}));
+ {src:'sample-01-mermaid-pexels.webp',productId:'sample-mermaid',category:'Mermaid' as const,sample:'Sample 01',photographer:'Tran Long'},
+ {src:'sample-02-ball-gown-pexels.webp',productId:'sample-ball-gown',category:'Ball Gown' as const,sample:'Sample 02',photographer:'Thalia villa'},
+].map(async item=>{const product=catalogueProducts.find(p=>p.id===item.productId);if(!product)throw new Error('Missing PDF dress '+item.productId);const {data,info}=await sharp('public/redcarpert/gallery/'+item.src).removeAlpha().jpeg({quality:90,progressive:false}).toBuffer({resolveWithObject:true});return {...item,priceZar:product.priceZar,jpeg:data,width:info.width,height:info.height};}));
 await mkdir(root+'/static/digital-lookbook',{recursive:true});
 await writeFile(root+'/static/digital-lookbook/Redcarpert-Sample-Lookbook.pdf',createSampleLookbookPdf(photos));
 await writeFile(root+'/404.html',`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Page not found | Redcarpert</title><link rel="icon" type="image/png" sizes="32x32" href="${base}redcarpert/brand/redcarpert-bridal-favicon-v2-32.png"><link rel="apple-touch-icon" sizes="180x180" href="${base}redcarpert/brand/redcarpert-bridal-touch-v2-180.png"></head><body><main><h1>Page not found</h1><p>This page is unavailable.</p><a href="${base}">Return to Redcarpert Wedding Dresses</a></main></body></html>`);

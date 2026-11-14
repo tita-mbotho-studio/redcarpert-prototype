@@ -21,6 +21,16 @@ export function initializeLookbookReader() {
   const viewer = book.closest('.redcarpert-lookbook');
   const pages = [...book.querySelectorAll('[data-book-page]')];
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
+
+  // Pricing is rendered into the static book during generation, so it remains
+  // visible without JavaScript. Verify it agrees with the catalogue data.
+  for (const entry of lookbookEntries) {
+    const label = [...book.querySelectorAll('[data-book-price]')]
+      .find(element => element.dataset.bookPrice === entry.id);
+    if (!label || label.textContent !== entry.priceDisplay) {
+      throw new Error('Lookbook price does not match products.json for ' + entry.id);
+    }
+  }
   const previous = viewer.querySelector('[data-book-previous]');
   const next = viewer.querySelector('[data-book-next]');
   const status = viewer.querySelector('[data-book-status]');

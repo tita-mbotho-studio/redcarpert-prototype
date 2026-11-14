@@ -13,6 +13,20 @@ npm run dev
 
 Open `http://localhost:5173/redcarpert-prototype/`. Editing document data or adapters requires restarting the dev server to regenerate static HTML.
 
+## Adding page photographs and wedding films
+
+Client-approved and illustrative media URLs are managed in [`src/data/image-links.json`](src/data/image-links.json). The homepage, catalogue and About Us retain their existing images. [Implementation 24](docs/implementation-24-image-links.md) describes the manifest.
+
+## Wedding Moments
+
+Visit **`/wedding-moments/`** to view real client wedding photographs and video in one uninterrupted, responsive square gallery. The page has only the **Wedding Moments** title, the subtitle *“The love, the laughter, the unforgettable moments.”*, and the media grid — no categories or captions. The real client collection currently contains **86 photographs and one directly hosted ImageKit MP4**. The first 16 cards load initially; **Load More** reveals subsequent batches of 16. A live counter below the gallery reads **Showing 16 of 87 wedding moments** and updates to 32, 48, 64, 80 and finally 87.
+
+Client media URLs are stored in `wedding_moments.events` inside [`src/data/image-links.json`](src/data/image-links.json). This initial upload batch retains the exact order the client sent. New upload batches can be appended to the JSON and appear first. [Implementation 25](docs/implementation-25-wedding-moments.md) documents the workflow and publication safeguards.
+
+## Dress pricing and details
+
+Dress amounts are stored in [`src/data/products.json`](src/data/products.json) as whole-number ZAR values. The eight sample listings currently have `null` prices until the client supplies verified product/price mappings. The floating right-hand dress detail card, the online Digital Lookbook and the sample PDF use this same price data. See [Implementation 26](docs/implementation-26-dress-card-and-pricing.md) for the approved card design, data rules and preview commands.
+
 ## Validate and preview
 
 ```sh
@@ -38,7 +52,7 @@ The fitting-enquiry interaction now opens a **live WhatsApp chat at +27 68 045 8
 - `public/`: only production-relevant visuals, fonts, scripts and theme dependencies
 - `tests/`: source, build and browser regression checks
 
-Third-party theme effects remain temporarily to preserve the approved interactions. Implementation 12 refactored the supporting code without replacing these dependencies. Theme replacement remains deferred until separately approved and regression-tested. The modern page-turn lookbook is Implementation 13. Implementation 14 adds the All Dresses / Mermaid / Ball Gown catalogue filter and a five-pattern randomized Our Brides gallery with 18 Pexels photographs and blurred-backdrop image previews. See [the gallery specification](docs/implementation-14-gallery-filter.md). See [asset credits](docs/asset-credits.md).
+Third-party theme effects remain temporarily to preserve the approved interactions. Implementation 12 refactored the supporting code without replacing these dependencies. The page-turn lookbook is Implementation 13. The catalogue retains its All Dresses / Mermaid / Ball Gown filters. Wedding Moments now uses an independent media gallery with photos and native video support; see [Implementation 25](docs/implementation-25-wedding-moments.md). See [asset credits](docs/asset-credits.md).
 
 ## Engineering notes
 

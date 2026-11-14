@@ -87,7 +87,7 @@
 
 
 /* Implementation 19 — Shared, centred editorial presentation on Lookbook,
- * About Us and Contact Us. Our Brides and all approved site chrome are unchanged. */
+ * About Us and Contact Us. Wedding Moments has its own separate gallery CSS. */
 .redcarpert-editorial-page-title,
 .redcarpert-editorial-page-title h1 {
   text-align: center;
@@ -354,4 +354,12 @@
   .redcarpert-editorial .redcarpert-editorial-action {
     width: min(100%,280px);
   }
+}
+
+/* Shared JSON price on each interactive Digital Lookbook dress page. */
+.redcarpert-book-copy p.redcarpert-book-price {
+  margin: 5px 0 1px;
+  color: #65513d;
+  font: 500 clamp(11px, 1.05vw, 14px)/1.4 Montserrat, sans-serif;
+  letter-spacing: .015em;
 }
