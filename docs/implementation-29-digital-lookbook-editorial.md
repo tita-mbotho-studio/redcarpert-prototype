@@ -2,7 +2,7 @@
 
 ## Approved goal
 
-Refine the **interactive online** bridal book, not its separate 32-page downloadable PDF. Preserve the 22-page PageFlip reader, all twenty sample dresses, five categories, pricing from `src/data/products.json`, detail links, keyboard / swipe controls, the mobile fallback and existing website layout.
+Refine the **interactive online** bridal book and bring its separate **32-page downloadable PDF** into the same editorial visual language. Preserve the 22-page PageFlip reader, all twenty sample dresses, five categories, pricing from `src/data/products.json`, detail links, keyboard / swipe controls, the mobile fallback and existing website layout.
 
 ## Front cover
 
@@ -24,9 +24,21 @@ There is no stock photo, "Digital Lookbook" title, or oversized promotional text
 6. **Folio:** Page numbers stay readable at the bottom of each dress page and remain synchronized with the 22-page book.
 7. **Mobile:** Preserve a one-page portrait book, smaller readable typography and proportionally equivalent image margins.
 
+## PDF design parity — approved after online review
+
+The separate digital-download publication remains **32 pages**: four front-matter pages, five collection openers, twenty individual looks, a fitting-contact page, photographer credits and a back cover. The website's interactive reader remains **22 pages**.
+
+The PDF's cover now matches the online cover: **official logo, minimal gold rule, the exact same slogan and short description**, with no cover photograph or duplicate title. The original logo colours remain intact.
+
+Every PDF dress page now follows the same layout logic as the online dress leaf: **ivory paper, symmetrical 20 mm horizontal gutters, portrait image contained with no tinted box or border, a small category label, a centred Georgia-serif Look number, a centred JSON-backed ZAR price, a centred View dress details link and a discreet sample disclaimer**. Details are vertically centred in the available space below the photograph. Dress detail URLs link to the corresponding GitHub Pages preview. The PDF back cover also uses the online book's "Find your silhouette" wording, with browse/fitting links.
+
+Print footers remain numbered out of 32, and the original PDF contents, collection introductions, credits, and contact page remain intact. Existing high-resolution image caching and photo-DPI audit are unchanged. The 32-page output is still a digital PDF rather than a certified CMYK/PDF-X print file.
+
+QA: `tests/editorial-pages.test.mjs` verifies PDF structure, cover text, no cover JPEG, symmetric margins, centred captions, twenty catalogued prices, clickable detail links and footer content. `tests/lookbook-paper.test.mjs` guards against the return of darker photograph panels.
+
 ### Unchanged
 
-The PageFlip animation, fallback mode, downloaded PDF link, back cover, navigation buttons, current page status, pricing validation and dress preview routes are unchanged.
+The PageFlip animation, fallback mode, PDF download URL, navigation buttons, current page status, pricing validation and dress preview routes are unchanged. The online back cover stays as approved; the PDF back cover now matches it.
 
 ## Checks
 
