@@ -91,9 +91,13 @@ export function createProductDetailPreview(
       ...images.attrs,
       "data-detail-gallery": product.id,
       "data-gallery-photos": JSON.stringify(photos),
-      ...(hasGallery ? { tabindex: "0", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
+      ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
     }, children: [
-      { ...slider, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
+      { ...slider, attrs: {
+        ...slider.attrs,
+        // The inherited slick/gallery plugin must not re-clone our own multi-photo controls.
+        ...(hasGallery ? { class: "slider redcarpert-multi-photo-slider" } : {}),
+      }, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
         node("img", {
           src: photos[0].url, width: String(gallery.width), height: String(gallery.height),
           class: "attachment-shop_single size-shop_single wp-post-image",
