@@ -13,7 +13,7 @@ For a dress with **two or more images**, the main photo gains:
 - Mouse clicks, keyboard left/right arrows when the gallery has focus, and horizontal touch swipes on mobile.
 - A full-size enlarge link that always follows the currently selected image.
 
-The main photograph uses `object-fit: contain` on the established ivory background so different angles, portrait proportions and the full silhouette are not cropped.
+Multi-photo dresses use `object-fit: contain` on the established ivory background so different angles, portrait proportions and the full silhouette are not cropped. The existing single-photo styling stays unchanged.
 
 For a **single-photo dress**, arrows, dots and the counter stay **hidden**. We must not pretend unrelated stock images represent additional views of one client gown.
 
@@ -47,6 +47,7 @@ This implementation allows **up to 15 additional images per gown**, currently ho
 ## Technical notes
 
 - Existing `src/lib/product-detail-preview.ts` still validates the captured page structure and preserves the single active `img` element and its current Fancybox zoom link.
+- Multi-image dresses use a dedicated slider class to avoid legacy Slick/widget initialization replacing or cloning the new gallery buttons. Single-photo details retain their existing gallery/zoom behaviour.
 - Gallery options are embedded in escaped metadata at build time; only the active image is loaded. Clicking the navigation swaps the `src`, `alt` and current full-size link.
 - `src/client/dress-gallery.js` is initialized by the existing website entrypoint, with no new dependencies or third-party slideshow libraries.
 - Extra controls are rendered **only when the image list has more than one photo**.
