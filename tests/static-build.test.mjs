@@ -40,7 +40,15 @@ test('static deployment contains complete approved pages, local paths and no app
  const lock=JSON.parse(readFileSync('package-lock.json','utf8'));
  for(const name of ['next','react','react-dom'])assert(!lock.packages['node_modules/'+name]);
  assert.match(readFileSync('dist/404.html','utf8'),/Page not found/);
- const pdf=readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf');assert.equal(pdf.subarray(0,8).toString(),'%PDF-1.4');assert.match(pdf.toString('latin1'),/\/Count 2/);
+ const year=new Date().getFullYear();
+ const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
+ const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
+ assert.match(pdf.toString('latin1'),/\/Count 32/);
+ assert.deepEqual(pdf,readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'old PDF URL remains available');
+ const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
+ assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
+ const audit=JSON.parse(readFileSync('.generated/lookbook-image-audit.json','utf8'));
+ assert.equal(audit.photoCount,20);assert.equal(audit.photos.length,20);
 });
 test('copied classic scripts remain valid and every page uses modern Font Awesome controls',{skip:!available},()=>{
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
