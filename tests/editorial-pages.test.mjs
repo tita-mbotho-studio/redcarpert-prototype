@@ -5,6 +5,7 @@ import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
+import { displayDressPrice } from '../src/lib/pricing.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
 test('new Redcarpert editorial content reuses source shell and never exposes original business copy', () => {
@@ -67,7 +68,7 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
   assert.equal((html.match(/<section class="page /g)||[]).length,32);
-  assert.equal((html.match(/class="divider"/g)||[]).length,5);
+  assert.equal((html.match(/class="page divider"/g)||[]).length,5);
   assert.equal((html.match(/class="portrait"/g)||[]).length,20);
   assert.match(html,/@page\{size:A4;margin:0\}/);
   assert.match(html,/href="#collection-ruffled"/);
@@ -79,9 +80,7 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   for (const dress of catalogueProducts) {
     const label=dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
-    assert(html.includes('>'+new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',maximumFractionDigits:0}).format(dress.priceZar).replace(/^ZAR\s*/,'R ')+'</p>') ||
-      html.includes(dress.priceZar.toLocaleString('en-ZA')) || html.includes('R&nbsp;'),
-      'sample prices must appear in the editorial HTML');
+    assert(html.includes('<p class="amount">'+displayDressPrice(dress.priceZar)+'</p>'), 'missing ZAR price '+label);
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 20 dresses/);
 });
