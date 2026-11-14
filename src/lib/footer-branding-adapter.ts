@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import { catalogueCategories } from "@/data/catalogue";
+import { catalogueCategories } from "../data/catalogue.ts";
 
 const logoSource = "https://nirvanatakipcim.com/gelinlik/wp-content/uploads/2023/07/logo-alt-2-1024x322.png";
 const logoSources = "/site-assets/51ff0e0c1d1e52de73.png 1024w, /site-assets/9316562415e262fe03.png 300w, /site-assets/e20a891318ad36cc08.png 768w, /site-assets/0006acef5cbf174467.png 670w, /site-assets/dd1e8f88b5bb9b2fdf.png 1049w";
