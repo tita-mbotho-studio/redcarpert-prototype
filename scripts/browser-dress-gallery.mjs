@@ -76,6 +76,23 @@ try {
  });
  const liveGallery=actual.locator('[data-detail-gallery="sample-two-in-one-01"]');
  await liveGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
+ // The approved detail card must stay centre-aligned across screen sizes:
+ // collection, dress name, price label and ZAR price above Book a Fitting.
+ for(const width of [1280,390]){
+   await actual.setViewportSize({width,height:900});
+   const alignment=await actual.locator('.redcarpert-detail-card').evaluate(card=>{
+     const selectors=['.redcarpert-detail-collection','h1.redcarpert-detail-name',
+       '.redcarpert-detail-price-label','.redcarpert-detail-price-value'];
+     return selectors.map(selector=>{
+       const element=card.querySelector(selector);
+       return {selector,textAlign:element?getComputedStyle(element).textAlign:null};
+     });
+   });
+   assert(alignment.every(({textAlign})=>textAlign==='center'),
+     width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
+   const sideOverflow=await actual.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
+   assert.equal(sideOverflow,false,width+'px detail card must not cause horizontal scrolling');
+ }
  assert.equal(await liveGallery.locator('[data-gallery-index]').count(),2);
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
  assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/20370059/);
