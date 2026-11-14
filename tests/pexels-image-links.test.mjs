@@ -12,13 +12,12 @@ const descendants = children => children.flatMap(node =>
 
 test("remaining Pexels stock imagery is limited to catalogue and team illustrations", () => {
   const collection = [
-    ...imageLinks.products.mermaid,
-    ...imageLinks.products.ball_gown,
+    ...Object.values(imageLinks.products).flat(),
     ...imageLinks.about_us.team,
   ];
-  assert.equal(collection.length, 11);
-  assert.equal(new Set(collection.map(item => item.id)).size, 11);
-  assert.equal(new Set(collection.map(item => item.url)).size, 11);
+  assert.equal(collection.length, 23);
+  assert.equal(new Set(collection.map(item => item.id)).size, 23);
+  assert.equal(new Set(collection.map(item => item.url)).size, 23);
   for (const item of collection) {
     const url = new URL(item.url);
     assert.equal(url.hostname, "images.pexels.com");
@@ -31,12 +30,12 @@ test("remaining Pexels stock imagery is limited to catalogue and team illustrati
       assert(id && source.pathname.endsWith(id + "/"));
     }
   }
-  assert.equal(collection.filter(x => "sourceUrl" in x).length, 8);
+  assert.equal(collection.filter(x => "sourceUrl" in x).length, 20);
 
 });
 
 test("catalogue photos and lookbook links stay identical", () => {
-  assert.equal(catalogueProducts.length, 8);
+  assert.equal(catalogueProducts.length, 20);
   for (const product of catalogueProducts) {
     const ref = requireImageLink(imageLinks.products[product.category], product.id);
     assert.equal(product.image, ref.url);
