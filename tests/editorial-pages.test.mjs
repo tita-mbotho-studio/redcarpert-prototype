@@ -71,7 +71,7 @@ test('lookbook PDF is a two-page illustrated PDF with correct xref and no client
   const text = pdf.toString('latin1');
   assert.match(text,/\/Count 2/);
   assert.match(text,/DIGITAL LOOKBOOK/);
-  assert.match(text,/PRICE: Price to be confirmed/);
+  assert.match(text,/SAMPLE PRICE: Price to be confirmed/);
   assert.match(text,/not confirmed Redcarpert inventory/);
   assert.match(text,/\/DCTDecode/);
   assert.match(text,/startxref\n\d+\n%%EOF/);

@@ -7,9 +7,10 @@ import { createNodeRenderer } from "../scripts/lib/markup.ts";
 
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
-  assert.equal(products.dresses.length, 8);
+  assert.equal(products.priceStatus, "illustrative");
+  assert.equal(products.dresses.length, 20);
   const ids = products.dresses.map(dress => dress.id);
-  assert.equal(new Set(ids).size, 8);
+  assert.equal(new Set(ids).size, 20);
   assert.deepEqual([...ids].sort(), catalogueProducts.map(dress => dress.id).sort());
   for (const product of catalogueProducts) {
     assert.equal(product.priceZar, priceForDress(product.id));
@@ -28,11 +29,11 @@ test("price formatting works for unassigned and verified integer ZAR prices", ()
   }
 });
 
-test("the pre-rendered 10-page Digital Lookbook has eight JSON-backed price slots", () => {
+test("the pre-rendered 22-page Digital Lookbook has twenty JSON-backed price slots", () => {
   const render = createNodeRenderer([]);
   const html = render({ tag: "div", attrs: { "data-lookbook-viewer": "true" }, children: [] });
-  assert.equal((html.match(/data-book-page=/g) || []).length, 10);
-  assert.equal((html.match(/data-book-price=/g) || []).length, 8);
+  assert.equal((html.match(/data-book-page=/g) || []).length, 22);
+  assert.equal((html.match(/data-book-price=/g) || []).length, 20);
   assert.equal((html.match(/class="redcarpert-book-dress"/g) || []).length, 0,
     "book dress classes may include additional class names");
   for (const product of catalogueProducts) {

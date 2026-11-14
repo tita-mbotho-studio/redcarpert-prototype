@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
-import { catalogueProducts } from '../src/data/catalogue.ts';
+import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 
 test('client-authorized South African WhatsApp number is formatted correctly',()=>{
@@ -20,13 +20,13 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all eight dress-detail WhatsApp messages keep the selected sample and its category',()=>{
-  assert.equal(catalogueProducts.length,8);
+test('all twenty dress-detail WhatsApp messages keep the selected sample and its category',()=>{
+  assert.equal(catalogueProducts.length,20);
   for(const dress of catalogueProducts){
     const url=new URL(buildWhatsAppUrl(sampleFittingMessage(dress)));
     const message=url.searchParams.get('text');
     assert(message.includes(dress.name),dress.name+' missing');
-    assert(message.includes(dress.category==='mermaid'?'Mermaid':'Ball Gown'),dress.name+' category missing');
+    assert(message.includes(catalogueCategories.find(c=>c.id===dress.category).name),dress.name+' category missing');
     assert(message.includes('not confirmed Redcarpert inventory'),dress.name+' missing demo disclosure');
   }
 });

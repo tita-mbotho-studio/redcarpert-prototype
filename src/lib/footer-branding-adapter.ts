@@ -1,4 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
+import { catalogueCategories } from "../data/catalogue.ts";
 
 const logoSource = "https://nirvanatakipcim.com/gelinlik/wp-content/uploads/2023/07/logo-alt-2-1024x322.png";
 const logoSources = "/site-assets/51ff0e0c1d1e52de73.png 1024w, /site-assets/9316562415e262fe03.png 300w, /site-assets/e20a891318ad36cc08.png 768w, /site-assets/0006acef5cbf174467.png 670w, /site-assets/dd1e8f88b5bb9b2fdf.png 1049w";
@@ -41,8 +42,9 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
   const collections = slot(1, "block-24", "p");
   text(collections, [], "", "wp-block-paragraph");
   replacements.set(collections, { ...collections, attrs: { class: "redcarpert-footer-items" }, children: [
-    { tag: "a", attrs: { href: "/product-category/mermaid/" }, children: ["Mermaid"] },
-    { tag: "a", attrs: { href: "/product-category/ball_gown/" }, children: ["Ball Gown"] },
+    ...catalogueCategories.map(category => ({
+      tag: "a", attrs: { href: category.route }, children: [category.name],
+    })),
   ] });
   text(slot(2, "block-21", "p"), [home ? "Phone number to be confirmed" : "+90 533 413 16 09"], "FITTINGS", paragraphClass, paragraphStyle);
   const via = slot(2, "block-22", "p");

@@ -12,7 +12,7 @@ const digest=()=>createHash('sha256').update(JSON.stringify(sitePages)).digest('
 const header=d=>byId(d,'header');
 const icons=d=>find([header(d)],n=>n.attrs.class==='social-icons');
 
-test('all 8 canonical headers map exactly six items and two real categories; no header socials or invented destinations',()=>{
+test('all 8 canonical headers retain six main items and five category links without unwanted socials',()=>{
   for(const original of Object.values(sitePages)){
     const d=adaptNavigation(original);const menu=children(byId(d,'menu-blog-layouts'));
     assert.deepEqual(menu.map(n=>link(n).children.join('')),['Home','Wedding Dresses','Digital Lookbook','Wedding Moments','About Us','Contact Us']);
@@ -20,10 +20,10 @@ test('all 8 canonical headers map exactly six items and two real categories; no 
     assert.equal(menu[0].attrs.id,'menu-item-15418');
     const lookbook=link(menu[2]);assert.equal(lookbook.attrs.href,'/digital-lookbook/');assert.equal(lookbook.attrs['aria-disabled'],undefined);
     const categories=children(children(menu[1])[1]);
-    assert.deepEqual(categories.map(n=>[link(n).children[0],link(n).attrs.href]),[['Mermaid','/product-category/mermaid/'],['Ball Gown','/product-category/ball_gown/']]);
+    assert.deepEqual(categories.map(n=>[link(n).children[0],link(n).attrs.href]),[['Mermaid','/product-category/mermaid/'],['Ball Gown','/product-category/ball_gown/'],['Ruffled Dresses','/product-category/ruffled/'],['Modern Tradition Dresses','/product-category/modern_tradition/'],['2 in 1 Dresses','/product-category/two_in_one/']]);
     assert.equal(icons(d).length,0);
     for(const a of find([header(d)],n=>n.tag==='a'&&n.attrs.href)){
-      assert.ok(['/', '/product/', '/product-category/mermaid/', '/product-category/ball_gown/', '/digital-lookbook/', '/wedding-moments/', '/about-us/', '/contact-us/'].includes(a.attrs.href));
+      assert.ok(['/', '/product/', '/product-category/mermaid/', '/product-category/ball_gown/', '/product-category/ruffled/', '/product-category/modern_tradition/', '/product-category/two_in_one/', '/digital-lookbook/', '/wedding-moments/', '/about-us/', '/contact-us/'].includes(a.attrs.href));
     }
     assert.ok(menu[1].attrs.class.includes('menu-item-has-children'));assert.equal(children(menu[1])[1].attrs.class,'sub-menu');
   }
@@ -55,11 +55,11 @@ test('frozen captured sources never mutate; only changed nodes and ancestors are
 });
 
 test('active classes and aria-current follow actual routes, with no guessed dress-detail category',()=>{
-  for(const [route,id]of [['/','15418'],['/product','15821'],['/product/page/2','15821'],['/product-category/mermaid','15421'],['/product-category/ball_gown','15422'],['/about-us','15416'],['/wedding-moments','16080'],['/contact-us','15417']]){
+  for(const [route,id]of [['/','15418'],['/product','15821'],['/product/page/2','15821'],['/product-category/mermaid','15421'],['/product-category/ball_gown','15422'],['/product-category/ruffled','16310'],['/product-category/modern_tradition','16311'],['/product-category/two_in_one','16312'],['/about-us','15416'],['/wedding-moments','16080'],['/contact-us','15417']]){
     const d=adaptNavigation(sitePages[route] ?? {...sitePages['/product'], route});
     assert.deepEqual(find([header(d)],n=>n.attrs['aria-current']==='page').map(n=>n.attrs.href),[link(byId(d,`menu-item-${id}`)).attrs.href]);
     assert.match(byId(d,`menu-item-${id}`).attrs.class,/current-menu-item/);
-    if(id==='15421'||id==='15422')assert.match(byId(d,'menu-item-15821').attrs.class,/current-menu-parent/);
+    if(['15421','15422','16310','16311','16312'].includes(id))assert.match(byId(d,'menu-item-15821').attrs.class,/current-menu-parent/);
   }
   for(const route of ['/product/alpina','/product-category/bridal-bags','/product-tag/2024','/marka/bridal-vanesa-exclusive']){
     const d=adaptNavigation(sitePages[route]??{...sitePages['/'],route});

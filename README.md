@@ -1,6 +1,6 @@
 # Redcarpert Wedding Dresses
 
-A static bridal catalogue prototype built with **Vite, HTML, CSS and vanilla JavaScript**. The site presents Mermaid and Ball Gown sample collections, informational pages, fitting-enquiry previews and a downloadable two-page sample lookbook. All photographs are illustrative; they are not confirmed inventory.
+A static bridal catalogue prototype built with **Vite, HTML, CSS and vanilla JavaScript**. The site presents five sample dress categories with twenty illustrative looks, informational pages, fitting-enquiry previews and a downloadable two-page sample lookbook. All photographs are illustrative; they are not confirmed inventory.
 
 ## Local development
 
@@ -25,7 +25,7 @@ Client media URLs are stored in `wedding_moments.events` inside [`src/data/image
 
 ## Dress pricing and details
 
-Dress amounts are stored in [`src/data/products.json`](src/data/products.json) as whole-number ZAR values. The eight sample listings currently have `null` prices until the client supplies verified product/price mappings. The floating right-hand dress detail card, the online Digital Lookbook and the sample PDF use this same price data. See [Implementation 26](docs/implementation-26-dress-card-and-pricing.md) for the approved card design, data rules and preview commands.
+Dress amounts are stored in [`src/data/products.json`](src/data/products.json) as whole-number ZAR values. **All twenty samples now have illustrative prices**, marked `priceStatus: illustrative`; these are placeholders for layout review, **not verified client quotes**. Categories are Mermaid, Ball Gown, Ruffled Dresses, Modern Tradition Dresses and 2 in 1 Dresses (four samples each). The floating detail card, category grids, online 22-page Digital Lookbook, and existing two-page downloadable sample PDF use this one source. The two-in-one photographs are styling references, not evidence that a particular gown physically converts. See [Implementation 27](docs/implementation-27-five-categories-demo-prices.md) for pricing, image sources and review steps; [Implementation 26](docs/implementation-26-dress-card-and-pricing.md) records the original card design.
 
 ## Validate and preview
 
