@@ -75,12 +75,31 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   assert.match(html,/href="#collection-modern_tradition"/);
   assert.match(html,/href="#collection-two_in_one"/);
   assert.match(html,/https:\/\/wa\.me\/27680458811/);
-  assert.match(html,/Illustrative Pexels photograph/);
+  const cover=html.match(/<section class="page cover" id="cover">([\s\S]*?)<\/section>/)?.[1];
+  assert(cover, 'PDF cover is present');
+  assert.equal((cover.match(/<img /g) || []).length, 1, 'PDF front cover uses only the official logo');
+  assert.match(cover, /Your bridal story begins here\./);
+  assert.match(cover, /A considered edit of bridal inspiration for the moment that feels like yours\./);
+  assert.doesNotMatch(cover, /cover-photo|Bridal cover inspiration|data:image\/jpeg/);
+  assert.match(html, /\.cover\{background:linear-gradient\(155deg,#FDFBF8,#F5F0E9\)\}/);
+  assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
+  assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
+  assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
+  assert.equal((html.match(/class="detail-link"/g)||[]).length,20);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,20);
+  assert.match(html, /Illustrative photograph and price/);
+  const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
+  assert(back, 'PDF back cover is present');
+  assert.match(back, /Find your silhouette\./);
+  assert.match(back, /Browse Wedding Dresses/);
+  assert.match(back, /Fitting enquiries/);
   assert.match(html,/Photography Credits/);
   for (const dress of catalogueProducts) {
     const label=dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
     assert(html.includes('<p class="amount">'+displayDressPrice(dress.priceZar)+'</p>'), 'missing ZAR price '+label);
+    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
+      'missing link to '+label+' preview');
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 20 dresses/);
 });
