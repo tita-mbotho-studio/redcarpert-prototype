@@ -74,7 +74,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   }
   const children = products.map((product, index): DocumentElement => {
     const { card, anchor, image, title, price } = cardParts[index];
-    const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
+    const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
     return { ...card, attrs: { class: `product${index % 4 === 0 ? " first" : index % 4 === 3 ? " last" : ""}`, "data-catalogue-id": product.id, "data-catalogue-category": product.category }, children: card.children.flatMap<DocumentNode>(node => {
