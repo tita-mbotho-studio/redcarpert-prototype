@@ -21,6 +21,8 @@ jobs:
       - run: npm test
       - run: npm run lint
       - run: npm run typecheck
+      # The lookbook PDF requires Chromium during static generation.
+      - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run test:dist
       - name: Checkout approved Implementation 11 baseline
@@ -38,7 +40,6 @@ jobs:
       - name: Compare HTML and PDF to approved baseline
         if: github.head_ref == 'implementation/12-engineering-hardening' || github.ref_name == 'implementation/12-engineering-hardening'
         run: node scripts/compare-page-html.mjs _baseline/dist dist
-      - run: npx playwright install --with-deps chromium
       - name: Production browser regressions
         run: |
           npm run preview -- --port 4173 > /tmp/redcarpert-preview.log 2>&1 &
