@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import { catalogueCategories } from "@/data/catalogue";
+import { catalogueCategories } from "../data/catalogue.ts";
 
 const originalItems = [
   ["15418", "HOME", "/"], ["15821", "PRODUCTS", "/product/"],
