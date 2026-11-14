@@ -4,6 +4,7 @@ import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleDetailTitle,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
 import { displayDressPrice } from '../src/lib/pricing.ts';
+import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
 const freeze=o=>{if(o&&typeof o==='object'&&!Object.isFrozen(o)){Object.values(o).forEach(freeze);Object.freeze(o);}return o;};
 test('previews are isolated, immutable, collision-free and contain one genuine sample slide with no commerce or inherited dress claims',()=>{
@@ -19,6 +20,11 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   const gallery=sampleGalleryImages[product.id];
   assert.equal(content.filter(n=>n.tag==='img').length,1);assert.equal(content.find(n=>n.tag==='img').attrs.src,gallery.src);
   assert.equal(content.find(n=>n.attrs['data-fancybox']).attrs.href,gallery.src);
+  const imageGallery=content.find(n=>n.attrs['data-detail-gallery']===product.id);
+  assert(imageGallery,'dress gallery metadata must be available');
+  assert.equal(JSON.parse(imageGallery.attrs['data-gallery-photos']).length,1);
+  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,0,'one image must not display misleading arrows');
+  assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-index')).length,0,'one image must not display misleading dots');
   assert.equal(content.find(n=>n.tag==='img').attrs.width,String(gallery.width));assert.equal(content.find(n=>n.tag==='img').attrs.height,String(gallery.height));
   assert(!nodes.some(n=>n.attrs.class==='social-share'||n.attrs.class?.includes('share-item')));
   assert.equal(all(source.nodes).filter(n=>n.attrs.class==='social-share').length,1);
@@ -70,4 +76,50 @@ test('each detail reuses the corresponding remote Pexels image without local dow
   assert.equal(gallery.height,1800);
   assert.match(gallery.src,/^https:\/\/images\.pexels\.com\/photos\//);
  }
+});
+
+test('multiple verified photos for one dress render discreet arrows, dots, position and the correct full-size link',()=>{
+ const product=catalogueProducts[0];
+ const extras={
+  [product.id]: [
+   {url:'https://ik.imagekit.io/kw8awoqvwi/client/dress-front-detail.webp',alt:'Detail view of the same Mermaid wedding gown'},
+   {url:'https://ik.imagekit.io/kw8awoqvwi/client/dress-back.webp',alt:'Back view of the same Mermaid wedding gown'},
+  ],
+ };
+ const photos=photosForDress(product,extras);
+ assert.equal(photos.length,3);
+ assert.equal(photos[0].url,product.image);
+ const output=createProductDetailPreview(sitePages['/product/arabella'],product,extras);
+ const content=all(output.nodes);
+ const root=content.find(n=>n.attrs['data-detail-preview']===product.id);
+ const gallery=all([root]).find(n=>n.attrs['data-detail-gallery']===product.id);
+ assert(gallery,'the dress must have a gallery container');
+ assert.equal(gallery.attrs.tabindex,'0','keyboard access to image gallery');
+ assert.deepEqual(JSON.parse(gallery.attrs['data-gallery-photos']),photos);
+ const elements=all([gallery]);
+ assert.equal(elements.filter(n=>n.tag==='img').length,1,'only the active image is loaded');
+ assert.equal(elements.filter(n=>Object.hasOwn(n.attrs,'data-gallery-previous')).length,1);
+ assert.equal(elements.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,1);
+ const dots=elements.filter(n=>Object.hasOwn(n.attrs,'data-gallery-index'));
+ assert.equal(dots.length,3);
+ assert.deepEqual(dots.map(n=>n.attrs['aria-pressed']),['true','false','false']);
+ assert.deepEqual(dots.map(n=>n.attrs['data-gallery-index']),['0','1','2']);
+ assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-counter')).children[0],'01 / 03');
+ assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image')).attrs.src,product.image);
+ assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-enlarge')).attrs.href,product.image);
+ assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-dress-price')).length,1,'price remains intact');
+});
+test('additional dress photographs reject unknown IDs, duplicates and unsafe or undescribed URLs',()=>{
+ const product=catalogueProducts[0];
+ const make=photo=>({[product.id]:[photo]});
+ validateDressGalleryMappings({});
+ assert.equal(photosForDress(product).length,1);
+ assert.throws(()=>validateDressGalleryMappings({unknown:[{url:product.image,alt:'Another angle'}]}),/Unrecognized dress gallery ID/);
+ assert.throws(()=>validateDressGalleryMappings(make({url:'javascript:alert(1)',alt:'Another angle'})),/Invalid gallery photo/);
+ assert.throws(()=>validateDressGalleryMappings(make({url:'https://evil.example/track.jpg',alt:'Another angle'})),/Invalid gallery photo/);
+ assert.throws(()=>validateDressGalleryMappings(make({url:'https://ik.imagekit.io/example/back.webp',alt:''})),/Invalid gallery photo/);
+ assert.throws(()=>validateDressGalleryMappings(make({url:'https://ik.imagekit.io/example/back.webp',alt:'x'})),/Invalid gallery photo/);
+ assert.throws(()=>photosForDress(product,make({url:product.image,alt:'Same photograph again'})),/duplicates the primary photograph/);
+ const same={url:'https://ik.imagekit.io/example/front.webp',alt:'Front detail of gown'};
+ assert.throws(()=>validateDressGalleryMappings({[product.id]:[same,same]}),/Repeated gallery photograph/);
 });
