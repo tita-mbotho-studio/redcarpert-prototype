@@ -3,18 +3,19 @@ import assert from 'node:assert/strict';
 import { catalogueProducts } from '../src/data/catalogue.ts';
 import { validateCatalogue } from '../src/lib/validate-catalogue.ts';
 const sample = () => structuredClone(catalogueProducts);
-test('eight credited Pexels samples validate without mutation', () => {
+test('twenty credited Pexels samples validate without mutation', () => {
  const products=sample(), original=JSON.stringify(products);
  assert.doesNotThrow(()=>validateCatalogue(products));
  assert.equal(JSON.stringify(products),original);
  assert.equal(products.filter(p=>p.category==='mermaid').length,4);
  assert.equal(products.filter(p=>p.category==='ball_gown').length,4);
+ for(const category of ['ruffled','modern_tradition','two_in_one'])assert.equal(products.filter(p=>p.category===category).length,4);
 });
 test('duplicate IDs and routes fail before generation', () => {
  const samples=sample();
  assert.throws(()=>validateCatalogue(samples.map((p,i)=>i===1?{...p,id:samples[0].id}:p)),/Duplicate or invalid product ID/);
  assert.throws(()=>validateCatalogue(samples.map((p,i)=>i===1?{...p,previewRoute:samples[0].previewRoute}:p)),/Duplicate or invalid preview route/);
- assert.throws(()=>validateCatalogue(samples.slice(0,7)),/eight approved samples/);
+ assert.throws(()=>validateCatalogue(samples.slice(0,7)),/twenty approved samples/);
 });
 test('reject unapproved hosts, paths, missing attribution, categories and inventory claims',()=>{
  const samples=sample();
