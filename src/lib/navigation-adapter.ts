@@ -74,7 +74,7 @@ export function adaptNavigation(document: SiteDocumentData): SiteDocumentData {
   const current = new Map<string, string>([
     ["/", "15418"], ["/about-us", "15416"], ["/contact-us", "15417"], ["/wedding-moments", "16080"], ["/digital-lookbook", "16165"],
     ["/product-category/mermaid", "15421"], ["/product-category/ball_gown", "15422"],
-    ...catalogueCategories.slice(2).map((category, index) => [category.route.replace(/\/$/, ""), String(16310 + index)]),
+    ...catalogueCategories.slice(2).map((category, index) => [category.route.replace(/\/$/, ""), String(16310 + index)] as const),
   ]).get(route) ?? (catalogue ? "15821" : undefined);
   const updateItem = (item: DocumentElement, label: string, disabled = false, destination?: string) => {
     const id = item.attrs.id.slice("menu-item-".length);
