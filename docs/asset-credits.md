@@ -17,10 +17,10 @@ All twenty catalogue and interactive lookbook photographs are **remote Pexels de
 | 10 | Ruffled Dresses | DΛVΞ GΛRCIΛ | [View photograph](https://www.pexels.com/photo/elegant-bridal-portrait-with-window-light-31205761/) |
 | 11 | Ruffled Dresses | Olga Solodilova | [View photograph](https://www.pexels.com/photo/pretty-brunette-bride-in-wedding-dress-posing-in-stadium-stands-19781836/) |
 | 12 | Ruffled Dresses | Rina Mayer | [View photograph](https://www.pexels.com/photo/close-up-of-woman-in-wedding-dress-17278773/) |
-| 13 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-lace-gown-39984605/) |
-| 14 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-west-african-bride-in-traditional-attire-39984609/) |
-| 15 | Modern Tradition Dresses | Milly Lavish | [View photograph](https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-white-gown-31493789/) |
-| 16 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-wedding-attire-34618239/) |
+| 13 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-attire-39984595/) |
+| 14 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-37954664/) |
+| 15 | Modern Tradition Dresses | Mensa Bonsu | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-lace-wedding-gown-34151497/) |
+| 16 | Modern Tradition Dresses | Milly Lavish | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-30391660/) |
 | 17 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370059/) |
 | 18 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370060/) |
 | 19 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/bride-trying-on-a-wedding-dress-in-the-store-20352738/) |
