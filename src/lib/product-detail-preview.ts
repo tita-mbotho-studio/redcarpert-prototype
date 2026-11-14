@@ -1,4 +1,4 @@
-import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
+import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayDressPrice } from "./pricing.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
@@ -11,8 +11,9 @@ export const sampleGalleryImages: Record<string, {src: string; width: number; he
   catalogueProducts.map(product => [product.id, {src:product.image,width:1200,height:1800}]),
 );
 
+const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
 export function sampleDetailTitle(product: CatalogueProduct): string {
-  return `${product.name} — ${product.category === "mermaid" ? "Mermaid" : "Ball Gown"}`;
+  return `${product.name} — ${categoryName(product)}`;
 }
 
 export function sampleFittingMessage(product: CatalogueProduct): string {
@@ -55,7 +56,7 @@ export function createProductDetailPreview(source: SiteDocumentData, product: Ca
     || shareItems.map(n => n.attrs.title).join("|") !== "Facebook|Twitter|Google+|Pinterest"
     || shareItems.some(n => n.attrs["data-url"] !== "https://bridalvanesa.com/product/arabella/")) fail("share content");
 
-  const category = product.category === "mermaid" ? "Mermaid" : "Ball Gown";
+  const category = categoryName(product);
   const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
   const preview = { ...root, attrs: { id: `detail-${product.id}`, class: "product", "data-detail-preview": product.id }, children: [
     { ...images, children: [{ ...slider, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
@@ -64,11 +65,11 @@ export function createProductDetailPreview(source: SiteDocumentData, product: Ca
     ])] }] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        node("p", { class: "redcarpert-detail-collection" }, [category + " Collection"]),
+        node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"]),
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
-          node("span", { class: "redcarpert-detail-price-label" }, ["PRICE"]),
+          node("span", { class: "redcarpert-detail-price-label" }, ["ILLUSTRATIVE PRICE"]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
             [displayDressPrice(product.priceZar)]),
         ]),
@@ -78,7 +79,7 @@ export function createProductDetailPreview(source: SiteDocumentData, product: Ca
         ]),
       ]),
       node("p", { class: "sample-detail-notice" },
-        ["Sample imagery — not confirmed Redcarpert inventory."]),
+        ["Sample imagery and indicative pricing only — not confirmed Redcarpert inventory or a final quotation."]),
     ] },
   ] };
   const visit = (n: DocumentNode): DocumentNode | null => {
