@@ -17,7 +17,7 @@
 }
 
 /* The same square photo crop is used by the Wedding Dresses landing page and
-   both Mermaid / Ball Gown category listings. Captions remain beneath the photo.
+   all five category listings. Captions remain beneath the photo.
    Product-detail zoom frames intentionally retain their original portrait ratio. */
 .woocommerce ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img,
 .woocommerce-page ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img {
@@ -29,7 +29,7 @@
   object-position: center 25%;
 }
 
-/* Prices become visible on catalogue cards only after a real price is assigned. */
+/* Sample ZAR prices are illustrative, clearly labeled and shared with the lookbook. */
 #main-container .catalogue-sample-note .redcarpert-catalogue-price {
   display: block;
   margin-top: 7px;
