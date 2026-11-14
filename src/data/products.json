@@ -3,35 +3,84 @@
   "dresses": [
     {
       "id": "sample-mermaid",
-      "priceZar": null
+      "priceZar": 12900
     },
     {
       "id": "sample-mermaid-02",
-      "priceZar": null
+      "priceZar": 14500
     },
     {
       "id": "sample-mermaid-03",
-      "priceZar": null
+      "priceZar": 16900
     },
     {
       "id": "sample-mermaid-04",
-      "priceZar": null
+      "priceZar": 18900
     },
     {
       "id": "sample-ball-gown",
-      "priceZar": null
+      "priceZar": 15900
     },
     {
       "id": "sample-ball-gown-02",
-      "priceZar": null
+      "priceZar": 18500
     },
     {
       "id": "sample-ball-gown-03",
-      "priceZar": null
+      "priceZar": 21500
     },
     {
       "id": "sample-ball-gown-04",
-      "priceZar": null
+      "priceZar": 24900
+    },
+    {
+      "id": "sample-ruffled-01",
+      "priceZar": 14900
+    },
+    {
+      "id": "sample-ruffled-02",
+      "priceZar": 16900
+    },
+    {
+      "id": "sample-ruffled-03",
+      "priceZar": 18900
+    },
+    {
+      "id": "sample-ruffled-04",
+      "priceZar": 22900
+    },
+    {
+      "id": "sample-modern-tradition-01",
+      "priceZar": 17900
+    },
+    {
+      "id": "sample-modern-tradition-02",
+      "priceZar": 21500
+    },
+    {
+      "id": "sample-modern-tradition-03",
+      "priceZar": 24900
+    },
+    {
+      "id": "sample-modern-tradition-04",
+      "priceZar": 28900
+    },
+    {
+      "id": "sample-two-in-one-01",
+      "priceZar": 21900
+    },
+    {
+      "id": "sample-two-in-one-02",
+      "priceZar": 24900
+    },
+    {
+      "id": "sample-two-in-one-03",
+      "priceZar": 28900
+    },
+    {
+      "id": "sample-two-in-one-04",
+      "priceZar": 33900
     }
-  ]
+  ],
+  "priceStatus": "illustrative"
 }
