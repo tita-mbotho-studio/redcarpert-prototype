@@ -1,4 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
+import { catalogueCategories } from "@/data/catalogue";
 
 const originalItems = [
   ["15418", "HOME", "/"], ["15821", "PRODUCTS", "/product/"],
@@ -73,6 +74,7 @@ export function adaptNavigation(document: SiteDocumentData): SiteDocumentData {
   const current = new Map<string, string>([
     ["/", "15418"], ["/about-us", "15416"], ["/contact-us", "15417"], ["/wedding-moments", "16080"], ["/digital-lookbook", "16165"],
     ["/product-category/mermaid", "15421"], ["/product-category/ball_gown", "15422"],
+    ...catalogueCategories.slice(2).map((category, index) => [category.route.replace(/\/$/, ""), String(16310 + index)]),
   ]).get(route) ?? (catalogue ? "15821" : undefined);
   const updateItem = (item: DocumentElement, label: string, disabled = false, destination?: string) => {
     const id = item.attrs.id.slice("menu-item-".length);
@@ -82,7 +84,7 @@ export function adaptNavigation(document: SiteDocumentData): SiteDocumentData {
     if (active) classes.push("current-menu-item", "current_page_item");
     if (parent) {
       classes.push("current-menu-ancestor", "current_page_ancestor");
-      if (current === "15421" || current === "15422") classes.push("current-menu-parent", "current_page_parent");
+      if (route.startsWith("/product-category/")) classes.push("current-menu-parent", "current_page_parent");
     }
     const link = elements(item.children)[0];
     const attrs = { ...link.attrs };
@@ -101,12 +103,33 @@ export function adaptNavigation(document: SiteDocumentData): SiteDocumentData {
   const labels = ["Home", "Wedding Dresses", "Digital Lookbook", "Wedding Moments", "About Us", "Contact Us"];
   order.forEach((index, i) => updateItem(items[index], labels[i], false, index === 5 ? "/digital-lookbook/" : undefined));
   categories.slice(0, 2).forEach((item, i) => updateItem(item, i ? "Ball Gown" : "Mermaid"));
+  // Add the three new categories without changing the captured menu validation.
+  const sourceCategory = categories[0];
+  const sourceLink = elements(sourceCategory.children)[0];
+  const addedCategories = catalogueCategories.slice(2).map((category, index): DocumentElement => {
+    const id = String(16310 + index);
+    const active = route === category.route.replace(/\/$/, "");
+    const attrs = {...sourceLink.attrs, href: category.route};
+    delete attrs["aria-current"];
+    if (active) attrs["aria-current"] = "page";
+    return {
+      ...sourceCategory,
+      attrs: {
+        ...sourceCategory.attrs,
+        id: "menu-item-" + id,
+        class: (sourceCategory.attrs.class ?? "").replaceAll("15421", id)
+          .split(/\s+/).filter(c => !/^current[-_]/.test(c)).concat(active ? ["current-menu-item", "current_page_item"] : []).join(" "),
+      },
+      children: [{...sourceLink, attrs, children: [category.name]}],
+    };
+  });
   const reorder = (node: DocumentElement, ordered: DocumentElement[]) => {
     let index = 0;
     return { ...node, children: node.children.flatMap<DocumentNode>(child => typeof child === "string" ? [child] : index < ordered.length ? [ordered[index++]] : []) };
   };
   replacements.set(list, reorder(list, order.map(i => items[i])));
-  replacements.set(submenu, reorder(submenu, categories.slice(0, 2)));
+  const existingSubmenu = reorder(submenu, categories.slice(0, 2));
+  replacements.set(submenu, {...existingSubmenu, children: [...existingSubmenu.children, ...addedCategories]});
   // Remove only the approved header icon list; leave its wrappers and hidden cart intact.
   replacements.set(profiles, { ...profiles, children: profiles.children.filter(child => child !== socials) });
   const visit = (node: DocumentNode): DocumentNode => {
