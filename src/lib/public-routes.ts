@@ -15,7 +15,7 @@ export const approvedCapturedRoutes = [
   "/wedding-moments",
 ] as const;
 
-export const authoredPrototypeRoutes = ["/digital-lookbook"] as const;
+export const authoredPrototypeRoutes = ["/digital-lookbook", "/product-category/ruffled", "/product-category/modern_tradition", "/product-category/two_in_one"] as const;
 
 const approvedCapturedRouteSet: ReadonlySet<string> = new Set(approvedCapturedRoutes);
 
