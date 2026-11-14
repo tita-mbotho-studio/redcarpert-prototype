@@ -11,7 +11,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,16);
+ assert.equal(routes.length,31);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -59,10 +59,10 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
  }
 });
 
-test('ten-page interactive book and eight shared Pexels products are published without local copies',{skip:!available},()=>{
+test('twenty-two-page book and twenty shared Pexels products publish without local copies',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
- assert.equal((book.match(/data-book-page=/g)||[]).length,10);
- assert.equal((book.match(/data-book-price=/g)||[]).length,8);
+ assert.equal((book.match(/data-book-page=/g)||[]).length,22);
+ assert.equal((book.match(/data-book-price=/g)||[]).length,20);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-price="'+product.id+'">'+displayDressPrice(product.priceZar)+'</p>'),
     'book price does not match products.json for '+product.id);
@@ -70,14 +70,14 @@ test('ten-page interactive book and eight shared Pexels products are published w
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,8);
- for(const [category,count] of [['mermaid',4],['ball_gown',4]]) {
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,20);
+ for(const [category,count] of [['mermaid',4],['ball_gown',4],['ruffled',4],['modern_tradition',4],['two_in_one',4]]) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
   assert.equal((html.match(/data-catalogue-id=/g)||[]).length,count);
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,8);
- assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,9);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,20);
+ assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,21);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
@@ -95,11 +95,14 @@ test('ten-page interactive book and eight shared Pexels products are published w
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,16);
+  assert.equal(routes.length,31);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
     '/product-category/ball_gown':'Ball Gown Wedding Dresses | Redcarpert',
+    '/product-category/ruffled':'Ruffled Dresses | Redcarpert Wedding Dresses',
+    '/product-category/modern_tradition':'Modern Tradition Dresses | Redcarpert Wedding Dresses',
+    '/product-category/two_in_one':'2 in 1 Dresses | Redcarpert Wedding Dresses',
   };
   for(const route of routes){
     const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
