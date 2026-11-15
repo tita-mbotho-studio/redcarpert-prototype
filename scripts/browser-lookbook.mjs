@@ -32,7 +32,7 @@ try {
   assert.match(await cover.locator('h3').textContent(),/Your bridal story begins here/);
   assert.equal(await page.locator('.redcarpert-book-dress').count(),products.dresses.length);
   assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-mermaid"]').count(),4);
-  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-ball-gown"]').count(),4);
+  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="ball-gown-"]').count(),11);
   assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),products.dresses.length);
   const next = page.getByRole('button',{name:'Next page',exact:true});
   const previous = page.getByRole('button',{name:'Previous page',exact:true});
