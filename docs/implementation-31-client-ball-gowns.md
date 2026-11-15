@@ -30,9 +30,19 @@ This preserves the earlier grouping corrections: former 05 and 08 combined; the 
 
 The eleven client Ball Gowns have explicit `priceZar: null` slots in `src/data/products.json`, displaying **Price to be confirmed** on the catalogue, detail view, interactive book and PDF. Do not copy old example prices, invent prices or claim availability.
 
-Client items are named **Ball Gown 01**, ..., **Ball Gown 11**, with `status: "client"`. Cards say **Client photographs** and the detail notice states that photographs were client supplied and pricing/availability must be confirmed. The WhatsApp fitting message requests confirmation of price and availability.
+Client items remain named **Ball Gown 01** through **Ball Gown 11**. Their cards show only the centred dress name and **Price to be confirmed**; the extra image-origin badge and legacy shipping-line divider are removed. Their detail cards show the dress title, unconfirmed price and **Book a Fitting** button without redundant source/caption messages. The existing WhatsApp enquiry still asks for price and availability.
 
 Sample items retain their existing labels and representative ZAR amounts, with a stock-photo disclosure. The whole Wedding Dresses page has a neutral **Showing N of 27 wedding dresses** filter counter and distinguishes the client Ball Gowns from illustrative designs.
+
+## Client-facing UX refinement
+
+The Wedding Dresses cards and every category page centre the title, any inspiration note and price text consistently at desktop, tablet and mobile widths. This is deliberately scoped to the catalogue cards; image layout, product grid and detail galleries remain unchanged.
+
+For the **11 real Ball Gowns**, remove unnecessary customer-facing text such as "Client photographs", "Client-supplied dress photographs...", "REDCARPERT COLLECTION", "PRICE" and "Enquire via WhatsApp" beneath the button. Keep **Price to be confirmed** until approved client prices are available. Image alt text names the actual view rather than narrating its provenance.
+
+The online lookbook and printable PDF likewise omit extra client-photo disclaimers on individual Ball Gown pages while retaining their 29/39 page structures. The **16 illustrative Pexels dresses** still carry an understated styling/price notice so sample images are not misrepresented as confirmed products. Photography attribution remains in the PDF credits.
+
+Tests: `tests/catalogue-card-alignment.test.mjs`, `tests/catalogue-adapter.test.mjs`, `tests/product-detail-preview.test.mjs`, `tests/static-build.test.mjs` and `scripts/browser-dress-gallery.mjs` now verify the concise labels and card centering.
 
 ## Editorial publications
 
