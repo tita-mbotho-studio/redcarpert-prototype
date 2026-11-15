@@ -8,17 +8,15 @@ function lookbook() {
  const editionYear = new Date().getFullYear();
  const pdfName = 'Redcarpert-The-Bridal-Edit-' + editionYear + '.pdf';
  const pageCount = catalogueProducts.length + 2;
- const clientCount = catalogueProducts.filter(p => p.status === 'client').length;
- const sampleCount = catalogueProducts.length - clientCount;
  const pdfPageCount = catalogueProducts.length + catalogueCategories.length + 7;
  const dresses = catalogueProducts.map((product, i) => {
    const category = (catalogueCategories.find(c => c.id === product.category)?.name ?? 'WEDDING DRESSES').toUpperCase();
    const pageNumber = i + 2;
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">' + escapeHtml(product.status === 'client' ? 'REDCARPERT COLLECTION' : category) + '</span><h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
+     '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayDressPrice(product.priceZar)) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a><small>' + (product.status === 'client' ? 'Client-supplied photographs · Price and availability to be confirmed' : 'Illustrative photograph and price · Not confirmed Redcarpert inventory') + '</small></div>' +
+     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Style inspiration only · Image and price are illustrative</small>') + '</div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
  const logo = '/redcarpert/brand/redcarpert-logo.png';
@@ -31,9 +29,9 @@ function lookbook() {
    '<span class="redcarpert-book-kicker">YOUR BRIDAL STORY BEGINS HERE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
    '<h3>Find your silhouette.</h3><p>Explore five bridal collections, then enquire about a fitting.</p>' +
    '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Fitting enquiries</a></div>' +
-   '<small>Client-supplied Ball Gowns and illustrative inspiration · Confirm pricing and availability</small></div></article>';
+   '</div></article>';
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
-   '<p class="redcarpert-book-intro">Turn the pages to explore ' + catalogueProducts.length + ' wedding dresses across five collections, including ' + clientCount + ' client-photographed Ball Gowns and ' + sampleCount + ' illustrative designs. Prices and availability require confirmation for client dresses.</p>' +
+   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress designs across five collections. Other collections currently include style inspiration.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Previous</button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page">Next<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>' +
