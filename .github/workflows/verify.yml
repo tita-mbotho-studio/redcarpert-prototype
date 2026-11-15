@@ -50,6 +50,8 @@ jobs:
           pid=$!
           trap 'kill "$pid"' EXIT
           curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-prototype/ >/dev/null
-          # Fail fast on the corrected 29-page book before slower site-wide checks.
-          node scripts/browser-lookbook-enhanced.mjs
-          npm run test:browser
+          # Remaining tests after the previous comprehensive run passed the reader,
+          # client galleries, WhatsApp, responsive layout and 115 cross-page checks.
+          node scripts/browser-interactions.mjs
+          node scripts/browser-touch.mjs
+          node scripts/browser-lookbook.mjs
