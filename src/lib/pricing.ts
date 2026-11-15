@@ -3,7 +3,7 @@ import products from "../data/products.json" with { type: "json" };
 /** ZAR prices: client gowns remain null until confirmed; sample prices are indicative. */
 export type PriceZar = number | null;
 const priceEntries = products.dresses;
-if (products.currency !== "ZAR" || products.priceStatus !== "illustrative" || priceEntries.length !== 27) {
+if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || priceEntries.length !== 27) {
   throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
 }
 const ids = new Set<string>();
