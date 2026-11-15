@@ -37,7 +37,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(card,'detail information must be inside a floating card');
   assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
   assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-collection').children[0],
-    (()=>{const name=catalogueCategories.find(c=>c.id===product.category)?.name;return name.endsWith('Dresses')?name:name+' Collection';})());
+    (()=>{if(product.status==='client')return 'REDCARPERT COLLECTION';const name=catalogueCategories.find(c=>c.id===product.category)?.name;return name.endsWith('Dresses')?name:name+' Collection';})());
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-dress-price')).children[0],
     displayDressPrice(product.priceZar));
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
