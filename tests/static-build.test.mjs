@@ -91,7 +91,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
- assert.match(book,/Client-supplied photographs/);
+ assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.match(book,/Price to be confirmed/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
@@ -101,8 +101,9 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
   assert(product,'unknown dress detail route: '+route);
   if(product.status==='client'){
     assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
-    assert.match(html,/Client-supplied dress photographs/);
+    assert.doesNotMatch(html,/Client-supplied dress photographs|redcarpert-detail-collection/);
     assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
+    assert.match(html,/Price to be confirmed/);
   }else{
     assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
     assert.match(html,/not confirmed Redcarpert inventory/i);
