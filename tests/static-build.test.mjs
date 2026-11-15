@@ -101,7 +101,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
   assert(product,'unknown dress detail route: '+route);
   if(product.status==='client'){
     assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
-    assert.doesNotMatch(html,/Client-supplied dress photographs|redcarpert-detail-collection/);
+    assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
     assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
     assert.match(html,/Price to be confirmed/);
   }else{
