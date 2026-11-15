@@ -1,3 +1,4 @@
+import clientBallGowns from "../data/client-ball-gowns.json" with { type: "json" };
 import extraGalleryImages from "../data/dress-gallery-images.json" with { type: "json" };
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 
@@ -11,7 +12,10 @@ export interface DressGalleryPhoto {
  * mapped by stable dress ID; do not show unrelated stock photos as dress angles.
  * Add verified client photographs to src/data/dress-gallery-images.json.
  */
-export const additionalDressPhotos = extraGalleryImages as Readonly<Record<string, readonly DressGalleryPhoto[]>>;
+export const additionalDressPhotos: Readonly<Record<string, readonly DressGalleryPhoto[]>> = {
+  ...extraGalleryImages,
+  ...Object.fromEntries(clientBallGowns.map(gown => [gown.id, gown.photos.slice(1)])),
+};
 
 const approvedPhotoUrl = (value: string): boolean => {
   try {
