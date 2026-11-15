@@ -35,14 +35,21 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert.equal(content.find(n=>n.tag==='h1').children[0],product.name);
   const card=content.find(n=>n.attrs.class==='redcarpert-detail-card');
   assert(card,'detail information must be inside a floating card');
-  assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-collection').children[0],
-    (()=>{if(product.status==='client')return 'REDCARPERT COLLECTION';const name=catalogueCategories.find(c=>c.id===product.category)?.name;return name.endsWith('Dresses')?name:name+' Collection';})());
+  if(product.status==='client'){
+    assert(!content.some(n=>n.attrs.class==='redcarpert-detail-collection'),'no duplicate collection label for a real gown');
+    assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-label'),'client price status needs no extra heading');
+    assert(!content.some(n=>n.attrs.class==='redcarpert-detail-enquiry-note'),'CTA already identifies fitting enquiry');
+  }else{
+    assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
+    const name=catalogueCategories.find(c=>c.id===product.category)?.name;
+    assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-collection').children[0],
+      name.endsWith('Dresses')?name:name+' Collection');
+  }
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-dress-price')).children[0],
     displayDressPrice(product.priceZar));
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
     'stock image disclosure must sit outside the floating card');
-  assert(content.some(n=>n.attrs.class==='sample-detail-notice'));
+  assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),product.status==='sample','only illustrative styles need notices');
   assert(content.some(n=>n.attrs.class==='redcarpert-detail-actions'),
     'fitting action is inside card');
   assert(content.some(n=>n.tag==='button'&&n.children[0]==='Book a Fitting'&&Object.hasOwn(n.attrs,'data-whatsapp-preview')));
@@ -52,7 +59,8 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(!content.some(n=>n.attrs.class==='tabs wc-tabs'),'remove inherited sample description tabs');
   assert(!content.some(n=>n.attrs.id==='wpgis-gallery'));
   const text=JSON.stringify(root);assert(!/Arabella|Worldwide Shipping|French|satin|checkout|payment|woocommerce_loop_add_to_cart/i.test(text));
-  assert(text.includes(product.status==='client'?'Client-supplied dress photographs':'not confirmed Redcarpert inventory'));
+  if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
+  else assert(text.includes('Style inspiration only'));
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
   const message=sampleFittingMessage(product);assert(message.includes(sampleDetailTitle(product)));assert(message.includes(product.status==='client'?'confirm the price and availability':'not confirmed Redcarpert inventory'));assert(!/wa\.me|whatsapp\.com|\+\d/.test(message));
  }
@@ -165,10 +173,10 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,expected[index]>1?1:0);
   assert(output.title.includes(product.name));
   assert(!output.title.includes('Sample Preview'));
-  assert(content.some(n=>n.attrs.class==='redcarpert-detail-price-label'&&n.children[0]==='PRICE'));
+  assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-label'));
   assert(content.some(n=>Object.hasOwn(n.attrs,'data-dress-price')&&n.children[0]==='Price to be confirmed'));
-  assert(JSON.stringify(content).includes('Client-supplied dress photographs'));
-  assert(!JSON.stringify(content).includes('Sample imagery and indicative pricing only'));
+  assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
+  assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
   assert(!sampleFittingMessage(product).includes('demonstration'));
  }
 });
