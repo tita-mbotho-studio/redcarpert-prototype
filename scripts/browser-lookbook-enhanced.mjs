@@ -24,6 +24,7 @@ try {
     await book.locator('.stf__block').waitFor({timeout:30000});
     assert.equal(await book.getAttribute('data-engine'),'page-flip','must use real enhanced reader');
     assert.equal(await page.locator('[data-book-page]').count(),pageCount);
+    assert.equal(await book.locator('.redcarpert-book-endpaper').count(),pageCount%2,'odd-length book needs one unnumbered physical endpaper');
     const current=async()=>Number(await book.getAttribute('data-current-page'));
     const progresses=async(previous,direction)=>{
       await page.waitForFunction(
@@ -44,7 +45,6 @@ try {
     let count=0;
     while(position<pageCount && count<pageCount){
       assert.equal(await next.isDisabled(),false,'next disabled before back cover');
-      console.log('Lookbook advancing',JSON.stringify({width,position,pageCount,step:count}));
       await next.click();
       position=await progresses(position,1);
       count++;
