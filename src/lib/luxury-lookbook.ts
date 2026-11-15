@@ -182,8 +182,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h2>Find your silhouette.</h2>'+
     '<p>Explore five bridal collections, then enquire about a fitting.</p>'+
     '<div class="back-links"><a href="'+esc(website)+'product/">Browse Wedding Dresses</a>'+
-    '<a href="'+esc(website)+'contact-us/">Fitting enquiries</a></div>'+
-    ''));
+    '<a href="'+esc(website)+'contact-us/">Fitting enquiries</a></div>'));
   if(pages.length!==totalPages||pageNumber!==totalPages+1)throw new Error("Expected "+totalPages+" editorial pages, got "+pages.length);
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redcarpert - The Bridal Edit '+options.year+'</title>'+
     '<meta name="viewport" content="width=device-width,initial-scale=1"><style>'+style+'</style></head><body>'+
