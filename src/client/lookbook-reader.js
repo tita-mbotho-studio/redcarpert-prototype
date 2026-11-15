@@ -105,7 +105,9 @@ export function initializeLookbookReader() {
     pageFlip.loadFromHTML(flipPages);
     engine = pageFlip;
     pageFlip.on('flip', event => {
-      index = event.data;
+      // StPageFlip may report the unnumbered final endpaper as page 30.
+      // Keep the public reader, controls and announcements within 1..29.
+      index = Math.min(event.data, pages.length - 1);
       announce();
     });
     book.dataset.engine = 'page-flip';
