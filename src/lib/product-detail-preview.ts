@@ -7,21 +7,22 @@ const elements = (nodes: DocumentNode[]) => nodes.filter((n): n is DocumentEleme
 const all = (nodes: DocumentNode[]): DocumentElement[] => elements(nodes).flatMap(n => [n, ...all(n.children)]);
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[]): DocumentElement => ({ tag, attrs, children });
 
-/** Single source of truth: remote Pexels images are shared by book, grid and details. */
+/** Primary catalogue photographs are shared by book, grid and detail pages. */
 export const sampleGalleryImages: Record<string, {src: string; width: number; height: number}> = Object.fromEntries(
   catalogueProducts.map(product => [product.id, {src:product.image,width:1200,height:1800}]),
 );
 
 const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
 export function sampleDetailTitle(product: CatalogueProduct): string {
-  return `${product.name} — ${categoryName(product)}`;
+  return product.status === "client" ? product.name : `${product.name} — ${categoryName(product)}`;
 }
 
 export function sampleFittingMessage(product: CatalogueProduct): string {
+  if(product.status === "client") return `Hello Redcarpert Wedding Dresses!\n\nI am interested in ${sampleDetailTitle(product)} and would like to enquire about a fitting.\n\nCould you please confirm the price and availability?\n\nThank you.`;
   return `Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about a fitting. I was viewing the ${sampleDetailTitle(product)} demonstration. I understand this photograph is sample imagery, not confirmed Redcarpert inventory.\n\nCould you please provide more information?\n\nThank you.`;
 }
 
-/** New demonstration document from one guarded capture; legacy routes/data stay intact. */
+/** Dress detail document from one guarded source capture; legacy routes stay intact. */
 export function createProductDetailPreview(
   source: SiteDocumentData,
   product: CatalogueProduct,
@@ -31,7 +32,7 @@ export function createProductDetailPreview(
   if (source.route !== "/product/arabella") fail("source route");
   const original = catalogueProducts.find(entry => entry.id === product.id);
   if (!original || JSON.stringify(product) !== JSON.stringify(original)
-    || product.status !== "sample" || product.detailReference !== null) fail("sample mapping");
+    || !["sample","client"].includes(product.status) || product.detailReference !== null) fail("sample mapping");
   const one = (nodes: DocumentElement[], predicate: (n: DocumentElement) => boolean, detail: string) => {
     const matches = nodes.filter(predicate);
     return matches.length === 1 ? matches[0] : fail(detail);
@@ -62,6 +63,7 @@ export function createProductDetailPreview(
     || shareItems.some(n => n.attrs["data-url"] !== "https://bridalvanesa.com/product/arabella/")) fail("share content");
 
   const category = categoryName(product);
+  const client = product.status === "client";
   const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
   const photos = photosForDress(product, galleryMappings);
   const hasGallery = photos.length > 1;
@@ -91,6 +93,7 @@ export function createProductDetailPreview(
       ...images.attrs,
       "data-detail-gallery": product.id,
       "data-gallery-photos": JSON.stringify(photos),
+      "data-gallery-origin": client ? "client" : "sample",
       ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
     }, children: [
       { ...slider, attrs: {
@@ -114,21 +117,20 @@ export function createProductDetailPreview(
     ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"]),
+        ...(client ? [] : [node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"])]),
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
-          node("span", { class: "redcarpert-detail-price-label" }, ["ILLUSTRATIVE PRICE"]),
+          ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["ILLUSTRATIVE PRICE"])]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
             [displayDressPrice(product.priceZar)]),
         ]),
         node("div", { class: "redcarpert-detail-actions" }, [
           node("button", { type: "button", class: "button redcarpert-detail-fitting-button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Book a Fitting"]),
-          node("small", { class: "redcarpert-detail-enquiry-note" }, ["Enquire via WhatsApp"]),
         ]),
       ]),
-      node("p", { class: "sample-detail-notice" },
-        ["Sample imagery and indicative pricing only — not confirmed Redcarpert inventory or a final quotation."]),
+      ...(client ? [] : [node("p", { class: "sample-detail-notice" },
+        ["Style inspiration only. Images and prices are illustrative, not confirmed Redcarpert inventory."])]),
     ] },
   ] };
   const visit = (n: DocumentNode): DocumentNode | null => {
@@ -138,5 +140,10 @@ export function createProductDetailPreview(
     const children = n.children.map(visit).filter((child): child is DocumentNode => child !== null);
     return children.length !== n.children.length || children.some((c, i) => c !== n.children[i]) ? { ...n, children } : n;
   };
-  return { ...source, route: product.previewRoute, title: `${sampleDetailTitle(product)} | Sample Preview | Redcarpert`, description: "Sample dress detail demonstration. Stock imagery, not confirmed Redcarpert inventory.", nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
+  return { ...source, route: product.previewRoute,
+    title: client ? `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses` : `${sampleDetailTitle(product)} | Sample Preview | Redcarpert`,
+    description: client
+      ? "Explore " + product.name + " at Redcarpert Wedding Dresses. View its photographs and arrange a fitting."
+      : "Sample dress detail demonstration. Stock imagery, not confirmed Redcarpert inventory.",
+    nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
 }

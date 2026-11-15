@@ -102,6 +102,49 @@ try {
  assert.match(await liveGallery.locator('[data-gallery-enlarge]').getAttribute('href'),/20370060/);
  await liveGallery.locator('[data-gallery-previous]').click();
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
+ // Verify actual client Ball Gown 03: four unique photos, no sample pricing.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-03/',{waitUntil:'domcontentloaded'});
+ const gown=actual.locator('[data-detail-gallery="ball-gown-03"]');
+ await gown.locator('[data-gallery-next]').waitFor({timeout:20000});
+ assert.equal(await gown.locator('[data-gallery-index]').count(),4);
+ assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'01 / 04');
+ assert.equal(await gown.getAttribute('data-gallery-origin'),'client');
+ assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-main\.webp/);
+ await gown.locator('[data-gallery-next]').click();
+ assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
+ assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
+ assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
+ assert.equal(await actual.locator('[data-dress-price]').textContent(),'Price to be confirmed');
+ assert.equal(await actual.locator('.redcarpert-detail-price-label').count(),0,'client gown has no redundant price heading');
+ assert.equal(await actual.locator('.sample-detail-notice').count(),0,'client gown has no provenance notice');
+ // Single-photo client gowns still show the full silhouette without empty arrows.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
+ const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
+ assert.equal(await singleClient.locator('[data-gallery-next]').count(),0);
+ assert.equal(await singleClient.locator('[data-gallery-index]').count(),0);
+ assert.equal(await singleClient.locator('[data-gallery-active-image]').evaluate(img=>getComputedStyle(img).objectFit),'contain');
+ // Wedding Dresses cards should show centered titles and pricing at desktop and mobile sizes.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
+ for(const width of [1280,390]){
+   await actual.setViewportSize({width,height:900});
+   const cards=actual.locator('ul.products[data-catalogue-preview] li.product');
+   assert.equal(await cards.count(),27);
+   const alignment=await cards.evaluateAll(items=>items.map(card=>{
+     const title=card.querySelector('.woocommerce-loop-product__title');
+     const price=card.querySelector('.redcarpert-catalogue-price');
+     const note=card.querySelector('.catalogue-sample-note');
+     return {
+       title:title?getComputedStyle(title).textAlign:null,
+       price:price?getComputedStyle(price).textAlign:null,
+       note:note?getComputedStyle(note).textAlign:null,
+     };
+   }));
+   assert(alignment.every(item=>item.title==='center' && item.price==='center' && item.note==='center'),
+     width+'px Wedding Dresses cards must centre all text: '+JSON.stringify(alignment));
+   const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
+   assert.equal((await clientCard.locator('.catalogue-sample-note').textContent()).trim(),'Price to be confirmed');
+   assert.equal(await clientCard.locator('h2.woocommerce-loop-product__title').textContent(),'Ball Gown 03');
+ }
  await actual.close();
  assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');
  console.log('Live Pexels Sample 17 PASS: gallery renders, arrow navigation changes photograph');

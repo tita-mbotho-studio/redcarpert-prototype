@@ -18,20 +18,48 @@
       "priceZar": 18900
     },
     {
-      "id": "sample-ball-gown",
-      "priceZar": 15900
+      "id": "ball-gown-01",
+      "priceZar": null
     },
     {
-      "id": "sample-ball-gown-02",
-      "priceZar": 18500
+      "id": "ball-gown-02",
+      "priceZar": null
     },
     {
-      "id": "sample-ball-gown-03",
-      "priceZar": 21500
+      "id": "ball-gown-03",
+      "priceZar": null
     },
     {
-      "id": "sample-ball-gown-04",
-      "priceZar": 24900
+      "id": "ball-gown-04",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-05",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-06",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-07",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-08",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-09",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-10",
+      "priceZar": null
+    },
+    {
+      "id": "ball-gown-11",
+      "priceZar": null
     },
     {
       "id": "sample-ruffled-01",
@@ -82,5 +110,5 @@
       "priceZar": 33900
     }
   ],
-  "priceStatus": "illustrative"
+  "priceStatus": "mixed"
 }

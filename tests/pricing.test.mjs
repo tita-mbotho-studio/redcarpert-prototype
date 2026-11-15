@@ -7,10 +7,10 @@ import { createNodeRenderer } from "../scripts/lib/markup.ts";
 
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
-  assert.equal(products.priceStatus, "illustrative");
-  assert.equal(products.dresses.length, 20);
+  assert.equal(products.priceStatus, "mixed");
+  assert.equal(products.dresses.length, 27);
   const ids = products.dresses.map(dress => dress.id);
-  assert.equal(new Set(ids).size, 20);
+  assert.equal(new Set(ids).size, 27);
   assert.deepEqual([...ids].sort(), catalogueProducts.map(dress => dress.id).sort());
   for (const product of catalogueProducts) {
     assert.equal(product.priceZar, priceForDress(product.id));
@@ -29,25 +29,27 @@ test("price formatting works for unassigned and verified integer ZAR prices", ()
   }
 });
 
-test("the pre-rendered 22-page Digital Lookbook has twenty JSON-backed price slots", () => {
+test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed price slots", () => {
   const render = createNodeRenderer([]);
   const html = render({ tag: "div", attrs: { "data-lookbook-viewer": "true" }, children: [] });
-  assert.equal((html.match(/data-book-page=/g) || []).length, 22);
-  assert.equal((html.match(/data-book-price=/g) || []).length, 20);
+  assert.equal((html.match(/data-book-page=/g) || []).length, 29);
+  assert.equal((html.match(/data-book-price=/g) || []).length, 27);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover,'book cover missing');
   assert.equal((cover.match(/<img /g)||[]).length,1,'cover must contain the Redcarpert logo only');
   assert.match(cover,/Your bridal story begins here\./);
   assert.match(cover,/redcarpert-book-cover-description/);
   assert.doesNotMatch(cover,/images\.pexels|redcarpert-book-cover-photo/);
-  assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,20);
-  assert.equal((html.match(/class="redcarpert-book-copy"/g)||[]).length,20);
-  assert.equal((html.match(/<h3>Look \d{2}<\/h3>/g)||[]).length,20);
+  assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,27);
+  assert.equal((html.match(/class="redcarpert-book-copy"/g)||[]).length,27);
+  assert.equal((html.match(/<h3>Look \d{2}<\/h3>/g)||[]).length,16);
+  assert.equal((html.match(/<h3>Ball Gown \d{2}<\/h3>/g)||[]).length,11);
   assert.equal((html.match(/class="redcarpert-book-dress"/g) || []).length, 0,
     "book dress classes may include additional class names");
   for (const product of catalogueProducts) {
     assert(html.includes('data-book-price="' + product.id + '"'));
     assert(html.includes(displayDressPrice(product.priceZar)));
   }
+  assert.equal((html.match(/Price to be confirmed/g)||[]).length>=11,true);
   assert(!html.includes("R 0"), "never invent a zero-price dress");
 });

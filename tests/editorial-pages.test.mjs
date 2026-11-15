@@ -64,7 +64,7 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
   }
 });
 
-test('luxury editorial lookbook contains exactly thirty-two A4 pages, five collections, and twenty priced looks', async () => {
+test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns and attributed samples', async () => {
   const jpeg=await sharp({create:{width:24,height:36,channels:3,background:'#eee8df'}}).jpeg().toBuffer();
   const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
@@ -76,11 +76,11 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   ]) {
     assert(online.includes(statement)&&html.includes(statement),'online/PDF edition mismatch: '+statement);
   }
-  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,20);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,20);
-  assert.equal((html.match(/<section class="page /g)||[]).length,32);
+  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,27);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,27);
+  assert.equal((html.match(/<section class="page /g)||[]).length,39);
   assert.equal((html.match(/class="page divider"/g)||[]).length,5);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,20);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,27);
   assert.match(html,/@page\{size:A4;margin:0\}/);
   assert.match(html,/href="#collection-ruffled"/);
   assert.match(html,/href="#collection-modern_tradition"/);
@@ -96,17 +96,26 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
   assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
-  assert.equal((html.match(/class="detail-link"/g)||[]).length,20);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,20);
-  assert.match(html, /Illustrative photograph and price/);
+  assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,16);
+  assert.match(html, /Style inspiration only/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
   assert.match(back, /Find your silhouette\./);
   assert.match(back, /Browse Wedding Dresses/);
   assert.match(back, /Fitting enquiries/);
   assert.match(html,/Photography Credits/);
+  assert.doesNotMatch(html,/Client-supplied photography/);
+  assert.match(html,/Ball Gown collection: Redcarpert Wedding Dresses/);
+  assert.match(html,/Price to be confirmed/);
+  for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
+    assert(html.includes('href="#collection-'+id+'">'+
+      (id==='ball_gown'?'Ball Gown':id==='mermaid'?'Mermaid':id==='ruffled'?'Ruffled Dresses':id==='modern_tradition'?'Modern Tradition Dresses':'2 in 1 Dresses')+
+      '</a><span class="page-number">'+page+'</span>'), 'contents page mismatch for '+id);
+  }
+  assert.match(html,/39 \/ 39|38 \/ 39/,'the PDF page folios should use the current page count');
   for (const dress of catalogueProducts) {
-    const label=dress.name.replace(/^Sample /,'Look ');
+    const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
     assert(online.includes('<h3>'+label+'</h3>'),'online reader missing '+label);
     assert(online.includes('data-book-price="'+dress.id+'">'+displayDressPrice(dress.priceZar)+'</p>'),
@@ -115,5 +124,5 @@ test('luxury editorial lookbook contains exactly thirty-two A4 pages, five colle
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }
-  assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 20 dresses/);
+  assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 27 dresses/);
 });

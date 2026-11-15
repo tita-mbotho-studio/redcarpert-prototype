@@ -9,9 +9,28 @@ const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const listingRoutes=['/product',...catalogueCategories.map(c=>c.route.replace(/\/$/,''))];
 const categorySource=route=>sitePages[route]??{...sitePages['/product-category/mermaid'],route};
-test('twenty shared sample records have remote Pexels photographs and no invented inventory/detail destinations',()=>{
- assert.deepEqual(catalogueCategories.map(c=>c.name),['Mermaid','Ball Gown','Ruffled Dresses','Modern Tradition Dresses','2 in 1 Dresses']);assert.equal(catalogueProducts.length,20);assert.equal(catalogueProducts.filter(p=>p.category==='mermaid').length,4);assert.equal(catalogueProducts.filter(p=>p.category==='ball_gown').length,4);
- for(const p of catalogueProducts){assert.equal(p.status,'sample');assert.equal(p.detailReference,null);assert.match(p.name,/^Sample /);assert.match(p.imageAlt,/not Redcarpert inventory/);assert.match(p.image,/^https:\/\/images\.pexels\.com\/photos\//);const report=readFileSync(p.imageCredit.provenance,'utf8');assert(report.includes(p.imageCredit.sourceUrl));assert(report.includes(p.imageCredit.photographer));assert(!('price'in p));assert(!('sizes'in p));}
+test('eleven client Ball Gowns and sixteen inspirational samples keep verified image sources',()=>{
+ assert.deepEqual(catalogueCategories.map(c=>c.name),['Mermaid','Ball Gown','Ruffled Dresses','Modern Tradition Dresses','2 in 1 Dresses']);
+ assert.equal(catalogueProducts.length,27);
+ assert.equal(catalogueProducts.filter(p=>p.category==='ball_gown').length,11);
+ assert.equal(catalogueProducts.filter(p=>p.status==='sample').length,16);
+ for(const p of catalogueProducts){
+  assert.equal(p.detailReference,null);
+  assert(!('price' in p) && !('sizes' in p));
+  if(p.status==='client'){
+   assert.match(p.name,/^Ball Gown \d{2}$/);
+   assert.match(p.image,/^https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
+   assert.equal(p.priceZar,null);
+   assert.equal(p.imageCredit.provenance,'client-supplied');
+  }else{
+   assert.match(p.name,/^Sample /);
+   assert.match(p.imageAlt,/not Redcarpert inventory/);
+   assert.match(p.image,/^https:\/\/images\.pexels\.com\/photos\//);
+   const report=readFileSync(p.imageCredit.provenance,'utf8');
+   assert(report.includes(p.imageCredit.sourceUrl));
+   assert(report.includes(p.imageCredit.photographer));
+  }
+ }
 });
 test('only approved listing documents change; other routes and all protected subtrees retain identity',()=>{
  freeze(sitePages);const before=JSON.stringify(sitePages);
@@ -21,8 +40,14 @@ test('only approved listing documents change; other routes and all protected sub
   for(const key of Object.keys(input).filter(k=>k!=='nodes'))assert.equal(input[key],output[key]);
   for(const n of all(input.nodes).filter(n=>n.attrs.id==='header'||n.tag==='footer'||n.attrs.id==='ht-ctc-chat'))assert(all(output.nodes).includes(n));
   const nodes=all(output.nodes),grid=nodes.find(n=>n.attrs['data-catalogue-preview']);assert.equal(grid.attrs.class,'products columns-4');
-  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?20:4);
-  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);assert.equal(n.find(n=>n.tag==='h2').children[0],p.name);assert.equal(n.find(n=>n.attrs.class==='catalogue-sample-note').children[0],'Sample imagery');assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
+  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?27:input.route==='/product-category/ball_gown'?11:4);
+  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);assert.equal(n.find(n=>n.tag==='h2').children[0],p.name);const note=n.find(n=>n.attrs.class==='catalogue-sample-note');
+    assert(note,'card price/inspiration caption should remain');
+    if(p.status==='client'){
+      assert.equal(note.children.length,1,'real gowns show only price, without photograph labels');
+      assert.equal(note.children[0].attrs.class,'redcarpert-catalogue-price');
+      assert.equal(note.children[0].children[0],'Price to be confirmed');
+    } else assert.equal(note.children[0],'Style inspiration');assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
   assert(!nodes.some(n=>n.attrs.class==='woocommerce-pagination'));const order=nodes.find(n=>(n.attrs.class||'').split(' ').includes('woocommerce-ordering'));assert.equal(order.tag,'div');assert(!all([order]).some(n=>n.tag==='form'||n.attrs.name==='orderby'||n.attrs.value==='price'));if(input.route==='/product'){const buttons=all([order]).filter(n=>n.tag==='button'&&n.attrs['data-filter-category']);assert.deepEqual(buttons.map(n=>n.attrs['data-filter-category']),['all',...catalogueCategories.map(c=>c.id)]);assert.equal(buttons.filter(n=>n.attrs['aria-pressed']==='true').length,1);}else{assert.equal(order.attrs['aria-hidden'],'true');}
  }
  assert.equal(JSON.stringify(sitePages),before);
@@ -35,7 +60,7 @@ test('unexpected structures/counts, commerce slots and unready data fail closed'
   d=>{all(d.nodes).find(n=>n.attrs.class==='woocommerce-LoopProduct-link woocommerce-loop-product__link').attrs.href='/unknown';},
  ]){const d=structuredClone(categorySource(route));mutate(d);assert.throws(()=>adaptCatalogue(d,catalogueProducts),/Catalogue .*incompatible capture/);}
  assert.throws(()=>adaptCatalogue(adaptCatalogue(categorySource(route),catalogueProducts),catalogueProducts),/Catalogue/);
- assert.throws(()=>adaptCatalogue(categorySource(route),catalogueProducts.map(p=>({...p,detailReference:'/unready'}))),/sample readiness/);
+ assert.throws(()=>adaptCatalogue(categorySource(route),catalogueProducts.map(p=>({...p,detailReference:'/unready'}))),/catalogue readiness/);
  }
 });
 
@@ -43,12 +68,18 @@ test('verified catalogue prices appear only when a ZAR amount is present',()=>{
  const products=catalogueProducts.map((p,i)=>i===0?{...p,priceZar:14999}:p);
  const doc=adaptCatalogue(sitePages['/product'],products);
  const cards=all(doc.nodes).filter(n=>n.attrs['data-catalogue-id']);
- assert.equal(cards.length,20);
+ assert.equal(cards.length,27);
  for(const [i,card] of cards.entries()){
   const prices=all([card]).filter(n=>Object.hasOwn(n.attrs,'data-dress-price'));
   const amount=products.find(product=>product.id===card.attrs['data-catalogue-id'])?.priceZar;
   assert(amount!==undefined);
-  if(amount!==null){assert.equal(prices.length,1);assert.equal(prices[0].children[0],'Indicative price · '+displayDressPrice(amount));}
-  else assert.equal(prices.length,0,'unassigned sample prices remain hidden');
+  const status=products.find(product=>product.id===card.attrs['data-catalogue-id'])?.status;
+  if(status==='client'){
+    assert.equal(prices.length,1);
+    assert.equal(prices[0].children[0],displayDressPrice(amount));
+  }else if(amount!==null){
+    assert.equal(prices.length,1);
+    assert.equal(prices[0].children[0],'Indicative price · '+displayDressPrice(amount));
+  }else assert.equal(prices.length,0,'unassigned sample prices remain hidden');
  }
 });

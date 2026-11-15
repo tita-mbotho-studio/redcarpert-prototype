@@ -15,9 +15,9 @@ test("remaining Pexels stock imagery is limited to catalogue and team illustrati
     ...Object.values(imageLinks.products).flat(),
     ...imageLinks.about_us.team,
   ];
-  assert.equal(collection.length, 23);
-  assert.equal(new Set(collection.map(item => item.id)).size, 23);
-  assert.equal(new Set(collection.map(item => item.url)).size, 23);
+  assert.equal(collection.length, 19);
+  assert.equal(new Set(collection.map(item => item.id)).size, 19);
+  assert.equal(new Set(collection.map(item => item.url)).size, 19);
   for (const item of collection) {
     const url = new URL(item.url);
     assert.equal(url.hostname, "images.pexels.com");
@@ -30,18 +30,22 @@ test("remaining Pexels stock imagery is limited to catalogue and team illustrati
       assert(id && source.pathname.endsWith(id + "/"));
     }
   }
-  assert.equal(collection.filter(x => "sourceUrl" in x).length, 20);
+  assert.equal(collection.filter(x => "sourceUrl" in x).length, 16);
 
 });
 
 test("catalogue photos and lookbook links stay identical", () => {
-  assert.equal(catalogueProducts.length, 20);
-  for (const product of catalogueProducts) {
+  assert.equal(catalogueProducts.length, 27);
+  const sampleDresses=catalogueProducts.filter(product=>product.status==='sample');
+  assert.equal(sampleDresses.length,16);
+  for (const product of sampleDresses) {
     const ref = requireImageLink(imageLinks.products[product.category], product.id);
     assert.equal(product.image, ref.url);
     assert.equal(product.imageCredit.sourceUrl, ref.sourceUrl);
     assert.match(product.imageAlt, /not Redcarpert inventory/);
   }
+  assert.equal(imageLinks.products.ball_gown.length,0,'retired sample Ball Gown photo URLs should not remain');
+  assert.equal(catalogueProducts.filter(product=>product.status==='client').length,11);
 });
 
 test("About Us stock illustrations are preserved", () => {

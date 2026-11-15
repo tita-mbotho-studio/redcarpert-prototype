@@ -8,14 +8,15 @@ function lookbook() {
  const editionYear = new Date().getFullYear();
  const pdfName = 'Redcarpert-The-Bridal-Edit-' + editionYear + '.pdf';
  const pageCount = catalogueProducts.length + 2;
+ const pdfPageCount = catalogueProducts.length + catalogueCategories.length + 7;
  const dresses = catalogueProducts.map((product, i) => {
    const category = (catalogueCategories.find(c => c.id === product.category)?.name ?? 'WEDDING DRESSES').toUpperCase();
    const pageNumber = i + 2;
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span><h3>' + escapeHtml(product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
+     '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayDressPrice(product.priceZar)) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a><small>Illustrative photograph and price · Not confirmed Redcarpert inventory</small></div>' +
+     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Style inspiration only · Image and price are illustrative</small>') + '</div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
  const logo = '/redcarpert/brand/redcarpert-logo.png';
@@ -28,14 +29,14 @@ function lookbook() {
    '<span class="redcarpert-book-kicker">YOUR BRIDAL STORY BEGINS HERE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
    '<h3>Find your silhouette.</h3><p>Explore five bridal collections, then enquire about a fitting.</p>' +
    '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Fitting enquiries</a></div>' +
-   '<small>Demonstration collection · No confirmed client inventory</small></div></article>';
+   '</div></article>';
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
-   '<p class="redcarpert-book-intro">Turn the pages to explore twenty sample dresses in five categories. ZAR prices are illustrative only; photographs are stock images, not Redcarpert inventory.</p>' +
+   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress designs across five collections. Other collections currently include style inspiration.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Previous</button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page">Next<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
-   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A 32-page editorial publication with five bridal collections, 20 illustrative looks and indicative ZAR prices.</p></div>' +
+   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A ' + pdfPageCount + '-page editorial publication featuring the five bridal collections, client Ball Gowns and illustrative designs.</p></div>' +
    '</section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));

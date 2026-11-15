@@ -1,4 +1,4 @@
-/** Functional category filter for the sample Wedding Dresses grid; never changes routes. */
+/** Functional category filter for the mixed-source Wedding Dresses grid; never changes routes. */
 export function initializeCatalogueFilter() {
   const controls=document.querySelector('[data-catalogue-filter]');
   const grid=document.querySelector('ul.products[data-catalogue-preview]');
@@ -25,7 +25,7 @@ export function initializeCatalogueFilter() {
     }
     for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.filterCategory===category));
     const status=controls.querySelector('[data-filter-status]');
-    if(status)status.textContent='Showing '+shown+' of '+items.length+' sample dresses';
+    if(status)status.textContent='Showing '+shown+' of '+items.length+' wedding dresses';
     controls.dataset.activeCategory=category;
   };
   apply(current());

@@ -46,10 +46,16 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     return { card, anchor, image, title, price };
   });
   const products = catalogueProducts.filter(p => document.route === "/product" || document.route.endsWith(`/${p.category}`));
-  if (!products.length || products.some(p => p.status !== "sample" || p.detailReference !== null)) fail("sample readiness");
+  if (!products.length || products.some(p => !["sample","client"].includes(p.status) || p.detailReference !== null)) fail("catalogue readiness");
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
-  replacements.set(result, { ...result, children: ["Sample photographs — not client inventory"] });
+  replacements.set(result, { ...result, children: [
+    document.route === "/product"
+      ? "Explore our wedding dresses across five collections."
+      : document.route.endsWith("/ball_gown")
+        ? "Explore our Ball Gown collection."
+        : "Style inspiration · Prices are indicative.",
+  ] });
   // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
   if (document.route === "/product") {
@@ -64,7 +70,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
           attrs: { type: "button", "data-filter-category": id, "aria-pressed": id === "all" ? "true" : "false" },
           children: [label],
         })),
-        { tag: "span", attrs: { class: "redcarpert-filter-status", "data-filter-status": "", role: "status", "aria-live": "polite" }, children: ["Showing " + products.length + " of " + products.length + " sample dresses"] },
+        { tag: "span", attrs: { class: "redcarpert-filter-status", "data-filter-status": "", role: "status", "aria-live": "polite" }, children: ["Showing " + products.length + " of " + products.length + " wedding dresses"] },
       ],
     });
   } else {
@@ -80,10 +86,13 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     return { ...card, attrs: { class: `product${index % 4 === 0 ? " first" : index % 4 === 3 ? " last" : ""}`, "data-catalogue-id": product.id, "data-catalogue-category": product.category }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
-      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${product.name}: view sample detail demonstration`, style: "cursor: pointer" };
+      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${product.name}: ${product.status === "client" ? "view dress photographs" : "view sample detail demonstration"}`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children.map(child => child === image ? { ...image, attrs: imageAttrs } : child === title ? { ...title, children: [product.name] } : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: [
-        "Sample imagery",
-        ...(product.priceZar === null ? [] : [{
+        ...(product.status === "client" ? [] : ["Style inspiration"]),
+        ...(product.status === "client" ? [{
+          tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
+          children: [displayDressPrice(product.priceZar)],
+        }] : product.priceZar === null ? [] : [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
           children: ["Indicative price · " + displayDressPrice(product.priceZar)],
         }]),

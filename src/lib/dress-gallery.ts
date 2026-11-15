@@ -1,3 +1,4 @@
+import clientBallGowns from "../data/client-ball-gowns.json" with { type: "json" };
 import extraGalleryImages from "../data/dress-gallery-images.json" with { type: "json" };
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 
@@ -11,7 +12,10 @@ export interface DressGalleryPhoto {
  * mapped by stable dress ID; do not show unrelated stock photos as dress angles.
  * Add verified client photographs to src/data/dress-gallery-images.json.
  */
-export const additionalDressPhotos = extraGalleryImages as Readonly<Record<string, readonly DressGalleryPhoto[]>>;
+export const additionalDressPhotos: Readonly<Record<string, readonly DressGalleryPhoto[]>> = {
+  ...extraGalleryImages,
+  ...Object.fromEntries(clientBallGowns.map(gown => [gown.id, gown.photos.slice(1)])),
+};
 
 const approvedPhotoUrl = (value: string): boolean => {
   try {
@@ -36,6 +40,11 @@ export function validateDressGalleryMappings(
       if (typeof photo?.url !== "string" || !approvedPhotoUrl(photo.url) ||
         typeof photo?.alt !== "string" || photo.alt.trim().length < 5 || photo.alt.length > 180) {
         throw new Error("Invalid gallery photo or alternative text for " + productId);
+      }
+      if (productId.startsWith("ball-gown-")) {
+        const prefix="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/"+productId+"/"+productId+"-";
+        if (!photo.url.startsWith(prefix) || !/^[-a-z]+\.webp\?updatedAt=\d{13}$/.test(photo.url.slice(prefix.length)))
+          throw new Error("Client gallery photograph belongs to a different dress: "+productId);
       }
       if (urls.has(photo.url)) throw new Error("Repeated gallery photograph for " + productId);
       urls.add(photo.url);

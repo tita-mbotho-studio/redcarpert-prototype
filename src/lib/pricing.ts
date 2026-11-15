@@ -1,10 +1,10 @@
 import products from "../data/products.json" with { type: "json" };
 
-/** Indicative sample prices are integer ZAR amounts, never verified client quotations. */
+/** ZAR prices: client gowns remain null until confirmed; sample prices are indicative. */
 export type PriceZar = number | null;
 const priceEntries = products.dresses;
-if (products.currency !== "ZAR" || products.priceStatus !== "illustrative" || priceEntries.length !== 20) {
-  throw new Error("products.json: expected twenty illustrative dress prices in ZAR");
+if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || priceEntries.length !== 27) {
+  throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
 }
 const ids = new Set<string>();
 for (const entry of priceEntries) {
