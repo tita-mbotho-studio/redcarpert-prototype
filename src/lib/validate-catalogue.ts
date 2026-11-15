@@ -27,7 +27,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
       const expected = 'https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/' +
         product.id + '/' + product.id + '-main.webp?updatedAt=';
       if (!product.image.startsWith(expected) || !/^\d{13}$/.test(product.image.slice(expected.length)) ||
-        !product.imageAlt.includes('client-supplied photograph') ||
+        !product.imageAlt.includes(product.name) ||
         product.imageCredit.sourceUrl !== product.image ||
         product.imageCredit.photographer !== 'Client supplied' ||
         product.imageCredit.provenance !== 'client-supplied')
