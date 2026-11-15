@@ -14,7 +14,7 @@ export const sampleGalleryImages: Record<string, {src: string; width: number; he
 
 const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
 export function sampleDetailTitle(product: CatalogueProduct): string {
-  return `${product.name} — ${categoryName(product)}`;
+  return product.status === "client" ? product.name : `${product.name} — ${categoryName(product)}`;
 }
 
 export function sampleFittingMessage(product: CatalogueProduct): string {
@@ -117,7 +117,7 @@ export function createProductDetailPreview(
     ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"]),
+        node("p", { class: "redcarpert-detail-collection" }, [client ? "REDCARPERT COLLECTION" : category.endsWith("Dresses") ? category : category + " Collection"]),
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
