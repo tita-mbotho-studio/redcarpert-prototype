@@ -39,6 +39,13 @@ export function validateLookbookPhotoDimensions(
     throw new Error("Pexels source too small for PDF: "+id+" ("+width+"x"+height+")");
 }
 
+/** Conservative effective DPI for an image contained within the PDF photo area. */
+export function estimateLookbookPrintDpi(width:number,height:number):number {
+  if (!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1)
+    throw new Error("Invalid processed lookbook image dimensions");
+  return Math.round(25.4/Math.min(targetPhotoWidthMm/width,targetPhotoHeightMm/height));
+}
+
 async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookbookImage;audit:ImageAuditEntry}> {
   const id=photoId(product.image);
   const name=product.id+"-"+createHash("sha256").update(product.image).digest("hex").slice(0,10);
@@ -79,8 +86,7 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
     const final=await sharp(image).metadata();
     if(!final.width||!final.height)throw new Error("Invalid processed lookbook JPEG "+product.id);
     // Calculate realistic print DPI from the JPEG actually placed on the A4 page.
-    const scale=Math.min(targetPhotoWidthMm/final.width,targetPhotoHeightMm/final.height);
-    const effectiveDpi=Math.round(25.4/scale);
+    const effectiveDpi=estimateLookbookPrintDpi(final.width,final.height);
     audit={id:product.id,sourceUrl:product.imageCredit.sourceUrl,width:meta.width,height:meta.height,
       effectiveDpi,printReady:effectiveDpi>=300,byteSize:image.length};
     await mkdir(cacheDirectory,{recursive:true});
@@ -88,6 +94,12 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
   }
   const output=await sharp(image).metadata();
   if(!output.width||!output.height)throw new Error("Corrupt cached lookbook photo "+product.id);
+  // Old cached metadata may use an outdated print area; recompute without re-downloading.
+  const actualDpi=estimateLookbookPrintDpi(output.width,output.height);
+  if(audit.effectiveDpi!==actualDpi || audit.printReady!==(actualDpi>=300)) {
+    audit={...audit,effectiveDpi:actualDpi,printReady:actualDpi>=300};
+    await writeFile(record,JSON.stringify(audit,null,2)+"\n");
+  }
   if(product.status === "client" && !audit.printReady) {
     console.warn("[Bridal Edit] "+product.id+": source image "+audit.width+"x"+audit.height+
       " px; estimated "+audit.effectiveDpi+" DPI in PDF. Included without upscaling; higher-resolution photo recommended for print.");
