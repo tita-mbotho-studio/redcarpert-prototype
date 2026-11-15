@@ -1,36 +1,57 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { catalogueProducts } from '../src/data/catalogue.ts';
-import { validateCatalogue } from '../src/lib/validate-catalogue.ts';
-const sample = () => structuredClone(catalogueProducts);
-test('twenty credited Pexels samples validate without mutation', () => {
- const products=sample(), original=JSON.stringify(products);
- assert.doesNotThrow(()=>validateCatalogue(products));
- assert.equal(JSON.stringify(products),original);
- assert.equal(products.filter(p=>p.category==='mermaid').length,4);
- assert.equal(products.filter(p=>p.category==='ball_gown').length,4);
- for(const category of ['ruffled','modern_tradition','two_in_one'])assert.equal(products.filter(p=>p.category===category).length,4);
+import {catalogueProducts} from '../src/data/catalogue.ts';
+import {validateCatalogue} from '../src/lib/validate-catalogue.ts';
+const clone = () => structuredClone(catalogueProducts);
+
+test('twenty-seven dresses validate: eleven client Ball Gowns and sixteen Pexels samples', () => {
+ const records=clone(), original=JSON.stringify(records);
+ assert.doesNotThrow(()=>validateCatalogue(records));
+ assert.equal(JSON.stringify(records),original);
+ assert.equal(records.length,27);
+ assert.equal(records.filter(p=>p.status==='client'&&p.category==='ball_gown').length,11);
+ assert.equal(records.filter(p=>p.status==='sample').length,16);
+ for(const category of ['mermaid','ruffled','modern_tradition','two_in_one'])
+   assert.equal(records.filter(p=>p.category===category).length,4);
+ assert(records.filter(p=>p.status==='client').every(p=>p.priceZar===null));
 });
-test('duplicate IDs and routes fail before generation', () => {
- const samples=sample();
- assert.throws(()=>validateCatalogue(samples.map((p,i)=>i===1?{...p,id:samples[0].id}:p)),/Duplicate or invalid product ID/);
- assert.throws(()=>validateCatalogue(samples.map((p,i)=>i===1?{...p,previewRoute:samples[0].previewRoute}:p)),/Duplicate or invalid preview route/);
- assert.throws(()=>validateCatalogue(samples.slice(0,7)),/twenty approved samples/);
+
+test('duplicate IDs, image URLs and routes fail before generation',()=>{
+ const records=clone();
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,id:records[0].id}:p)),/Duplicate or invalid product ID/);
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,previewRoute:records[0].previewRoute}:p)),/Duplicate or invalid preview route/);
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,image:records[0].image}:p)),/Duplicate primary photograph/);
+ assert.throws(()=>validateCatalogue(records.slice(0,7)),/eleven client Ball Gowns and sixteen sample dresses/);
 });
-test('reject unapproved hosts, paths, missing attribution, categories and inventory claims',()=>{
- const samples=sample();
+
+test('Pexels samples reject bad hosts, missing attribution and status claims',()=>{
+ const products=clone();
  for(const [change,message] of [
-  [{status:'confirmed'},/Unverified inventory/],
-  [{detailReference:'/product/real'},/Unverified inventory/],
-  [{image:'https://example.com/bad.jpg'},/Unapproved or duplicate Pexels image/],
+  [{status:'confirmed'},/Unverified catalogue status/],
+  [{detailReference:'/product/real'},/Unverified catalogue status/],
+  [{image:'https://example.com/bad.jpg'},/Unapproved Pexels image/],
   [{priceZar:-1},/Invalid catalogue price/],
   [{priceZar:3499.99},/Invalid catalogue price/],
-  [{image:'https://images.pexels.com.evil.com/photos/1/pexels-photo-1.jpeg'},/Unapproved or duplicate Pexels image/],
-  [{image:'/redcarpert/../bad.webp'},/Unapproved or duplicate Pexels image/],
-  [{image:samples[1].image},/Unapproved or duplicate Pexels image|Missing image provenance/],
+  [{image:'https://images.pexels.com.evil.com/photos/1/pexels-photo-1.jpeg'},/Unapproved Pexels image/],
+  [{image:'/redcarpert/../bad.webp'},/Unapproved Pexels image/],
   [{category:'other'},/Unapproved category/],
   [{name:''},/Missing sample disclosure/],
   [{imageAlt:'missing'},/Missing sample disclosure/],
-  [{imageCredit:{...samples[0].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
- ]) assert.throws(()=>validateCatalogue(samples.map((p,i)=>i===0?{...p,...change}:p)),message);
+  [{imageCredit:{...products[0].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
+ ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===0?{...p,...change}:p)),message);
+});
+
+test('client Ball Gown mapping rejects wrong URLs, names and invented prices',()=>{
+ const products=clone();
+ const index=products.findIndex(p=>p.id==='ball-gown-01');
+ assert(index>=0);
+ for(const change of [
+  {image:'https://example.com/bad.webp'},
+  {image:'https://ik.imagekit.io/kw8awoqvwi/wrong/ball-gown-01-main.webp'},
+  {priceZar:10000},
+  {name:'Sample 01'},
+  {imageAlt:'Not a valid client photo'},
+  {imageCredit:{...products[index].imageCredit,photographer:'Unknown'}},
+ ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===index?{...p,...change}:p)),
+   /Incorrect client Ball Gown mapping|Invalid client photo metadata/);
 });
