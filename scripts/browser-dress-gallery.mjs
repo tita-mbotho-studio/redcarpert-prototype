@@ -102,6 +102,27 @@ try {
  assert.match(await liveGallery.locator('[data-gallery-enlarge]').getAttribute('href'),/20370060/);
  await liveGallery.locator('[data-gallery-previous]').click();
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
+ // Verify actual client Ball Gown 03: four unique photos, no sample pricing.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-03/',{waitUntil:'domcontentloaded'});
+ const gown=actual.locator('[data-detail-gallery="ball-gown-03"]');
+ await gown.locator('[data-gallery-next]').waitFor({timeout:20000});
+ assert.equal(await gown.locator('[data-gallery-index]').count(),4);
+ assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'01 / 04');
+ assert.equal(await gown.getAttribute('data-gallery-origin'),'client');
+ assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-main\.webp/);
+ await gown.locator('[data-gallery-next]').click();
+ assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
+ assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
+ assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
+ assert.equal(await actual.locator('[data-dress-price]').textContent(),'Price to be confirmed');
+ assert.equal(await actual.locator('.redcarpert-detail-price-label').textContent(),'PRICE');
+ assert.match(await actual.locator('.sample-detail-notice').textContent(),/Client-supplied dress photographs/);
+ // Single-photo client gowns still show the full silhouette without empty arrows.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
+ const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
+ assert.equal(await singleClient.locator('[data-gallery-next]').count(),0);
+ assert.equal(await singleClient.locator('[data-gallery-index]').count(),0);
+ assert.equal(await singleClient.locator('[data-gallery-active-image]').evaluate(img=>getComputedStyle(img).objectFit),'contain');
  await actual.close();
  assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');
  console.log('Live Pexels Sample 17 PASS: gallery renders, arrow navigation changes photograph');
