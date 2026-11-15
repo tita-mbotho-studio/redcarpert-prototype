@@ -87,7 +87,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
  assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
- assert.match(book,/Your bridal story begins here\./);
+ assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
