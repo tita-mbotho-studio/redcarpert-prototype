@@ -51,10 +51,10 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: [
     document.route === "/product"
-      ? "Client Ball Gown photographs and illustrative inspiration from other collections"
+      ? "Explore our wedding dresses across five collections."
       : document.route.endsWith("/ball_gown")
-        ? "Client-supplied Ball Gown photographs · Prices and availability to be confirmed"
-        : "Illustrative photographs · Not confirmed Redcarpert inventory",
+        ? "Explore our Ball Gown collection."
+        : "Style inspiration · Prices are indicative.",
   ] });
   // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
@@ -88,7 +88,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       if (node !== anchor) return [];
       const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${product.name}: ${product.status === "client" ? "view dress photographs" : "view sample detail demonstration"}`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children.map(child => child === image ? { ...image, attrs: imageAttrs } : child === title ? { ...title, children: [product.name] } : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: [
-        product.status === "client" ? "Client photographs" : "Sample imagery",
+        ...(product.status === "client" ? [] : ["Style inspiration"]),
         ...(product.status === "client" ? [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
           children: [displayDressPrice(product.priceZar)],
