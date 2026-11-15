@@ -41,6 +41,11 @@ export function validateDressGalleryMappings(
         typeof photo?.alt !== "string" || photo.alt.trim().length < 5 || photo.alt.length > 180) {
         throw new Error("Invalid gallery photo or alternative text for " + productId);
       }
+      if (productId.startsWith("ball-gown-")) {
+        const prefix="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/"+productId+"/"+productId+"-";
+        if (!photo.url.startsWith(prefix) || !/^[-a-z]+\.webp\?updatedAt=\d{13}$/.test(photo.url.slice(prefix.length)))
+          throw new Error("Client gallery photograph belongs to a different dress: "+productId);
+      }
       if (urls.has(photo.url)) throw new Error("Repeated gallery photograph for " + productId);
       urls.add(photo.url);
     }
