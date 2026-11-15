@@ -23,10 +23,10 @@ function lookbook() {
  const cover = '<article class="redcarpert-book-page redcarpert-book-cover is-current" data-density="hard" data-book-page="1"><div class="redcarpert-book-cover-inner">' +
    '<img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert Wedding Dresses logo" width="400" height="200">' +
    '<span class="redcarpert-book-cover-rule" aria-hidden="true"></span>' +
-   '<h3>Your bridal story begins here.</h3>' +
+   '<h3>Walking on red carpet with confidence</h3>' +
    '<p class="redcarpert-book-cover-description">A considered edit of bridal inspiration for the moment that feels like yours.</p></div></article>';
  const back = '<article class="redcarpert-book-page redcarpert-book-back" data-density="hard" data-book-page="' + pageCount + '"><div class="redcarpert-book-back-inner">' +
-   '<span class="redcarpert-book-kicker">YOUR BRIDAL STORY BEGINS HERE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
+   '<span class="redcarpert-book-kicker">WALKING ON RED CARPET WITH CONFIDENCE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
    '<h3>Find your silhouette.</h3><p>Explore five bridal collections, then enquire about a fitting.</p>' +
    '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Fitting enquiries</a></div>' +
    '</div></article>';

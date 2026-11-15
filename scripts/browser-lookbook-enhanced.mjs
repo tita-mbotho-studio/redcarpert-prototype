@@ -24,6 +24,7 @@ try {
     await book.locator('.stf__block').waitFor({timeout:30000});
     assert.equal(await book.getAttribute('data-engine'),'page-flip','must use real enhanced reader');
     assert.equal(await page.locator('[data-book-page]').count(),pageCount);
+    assert.equal(await book.locator('.redcarpert-book-endpaper').count(),pageCount%2,'odd-length book needs one unnumbered physical endpaper');
     const current=async()=>Number(await book.getAttribute('data-current-page'));
     const progresses=async(previous,direction)=>{
       await page.waitForFunction(

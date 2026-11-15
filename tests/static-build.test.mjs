@@ -87,7 +87,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
  assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
- assert.match(book,/Your bridal story begins here\./);
+ assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
@@ -191,7 +191,9 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.doesNotMatch(yaml,/^\s+(?:push|pull_request):/m,'deployment should never run on push or PR');
   const verification=readFileSync('.github/workflows/verify.yml','utf8');
   assert.match(verification,/workflow_dispatch:/);
-  assert.doesNotMatch(verification,/^\s+(?:push|pull_request):/m,'verification should remain opt-in');
+  const oneTimeReleaseVerification=/^  push:\n    branches:\n      - implementation\/32-brand-logo-slogan$/m.test(verification);
+  assert(oneTimeReleaseVerification || !/^\s+(?:push|pull_request):/m.test(verification),
+    'verification must be manual except during the explicitly authorised Implementation 32 final check');
   assert.match(yaml,/actions\/deploy-pages@/);
 });
 

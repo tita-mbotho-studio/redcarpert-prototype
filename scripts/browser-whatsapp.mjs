@@ -8,7 +8,7 @@ try {
   for(const {route,width,name,trigger} of [
     {route:'/',width:1440,name:'homepage floating enquiry',trigger:'#redcarpert-floating-whatsapp [data-whatsapp-preview]'},
     {route:'/product/preview/sample-01-mermaid/',width:390,name:'Mermaid dress fitting',trigger:'[data-detail-preview] [data-whatsapp-preview]'},
-    {route:'/product/preview/sample-02-ball-gown/',width:768,name:'Ball Gown dress fitting',trigger:'[data-detail-preview] [data-whatsapp-preview]'},
+    {route:'/product/preview/ball-gown-02/',width:768,name:'Ball Gown dress fitting',trigger:'[data-detail-preview] [data-whatsapp-preview]'},
     {route:'/contact-us/',width:375,name:'mobile footer fitting',trigger:'#footer .redcarpert-footer-book'},
   ]){
     const context=await browser.newContext({viewport:{width,height:900}});
@@ -30,7 +30,7 @@ try {
     const message=href.searchParams.get('text');
     assert(message?.includes('Hello Redcarpert Wedding Dresses!'));
     if(name==='Mermaid dress fitting')assert(message.includes('Sample 01')&&message.includes('Mermaid'));
-    if(name==='Ball Gown dress fitting')assert(message.includes('Sample 02')&&message.includes('Ball Gown'));
+    if(name==='Ball Gown dress fitting')assert(message.includes('Ball Gown 02')&&message.includes('confirm the price and availability'));
     const [popup]=await Promise.all([context.waitForEvent('page'),link.click()]);
     await popup.waitForLoadState('domcontentloaded');
     assert.equal(popup.url(),href.toString(),name+' opens the reviewed message URL');

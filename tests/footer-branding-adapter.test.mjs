@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {createHash} from 'node:crypto';
 import test from 'node:test';
 import {PNG} from 'pngjs';
 import {sitePages} from '../src/data/site.ts';
@@ -84,10 +83,11 @@ test('missing, duplicate, relocated, malformed and already-branded targets rejec
   assert.throws(()=>adaptFooterBranding(adaptFooterBranding(prepare(sitePages[route]))),/Footer branding/);
  }
 });
-test('approved artwork source stays identical while the generated logo URL is optimised',()=>{
+test('approved transparent replacement logo keeps the intended dimensions and responsive branding',()=>{
  const bytes=readFileSync(new URL('../public/redcarpert/brand/redcarpert-logo.png',import.meta.url));
- const png=PNG.sync.read(bytes);assert.equal(png.width,2208);assert.equal(png.height,813);
- assert.equal(createHash('sha256').update(bytes).digest('hex'),'b275618991b94ccebd6c9b6100ec455dfe1984e9ee7081a96f7a0d000ba208d2');
+ const png=PNG.sync.read(bytes);assert.equal(png.width,2067);assert.equal(png.height,761);
+ assert.equal(png.data[3],0,'transparent approved logo must have a transparent top-left corner');
+ assert.equal(png.data.length,2067*761*4,'new RGBA artwork should retain transparency');
  for(const source of Object.values(sitePages)){
   const logo=all([footer(adaptFooterBranding(prepare(source)))]).find(n=>n.attrs.class==='wp-image-13926');
   assert.equal(logo.attrs.src,'/redcarpert/brand/redcarpert-logo-optimized.webp');assert.equal(logo.attrs.srcset,undefined);assert.equal(logo.attrs.sizes,undefined);

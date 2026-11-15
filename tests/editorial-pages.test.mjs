@@ -70,7 +70,7 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
   const online=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   for(const statement of [
-    'Your bridal story begins here.',
+    'Walking on red carpet with confidence',
     'A considered edit of bridal inspiration for the moment that feels like yours.',
     'Find your silhouette.'
   ]) {
@@ -89,7 +89,7 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   const cover=html.match(/<section class="page cover" id="cover">([\s\S]*?)<\/section>/)?.[1];
   assert(cover, 'PDF cover is present');
   assert.equal((cover.match(/<img /g) || []).length, 1, 'PDF front cover uses only the official logo');
-  assert.match(cover, /Your bridal story begins here\./);
+  assert.match(cover, /Walking on red carpet with confidence/);
   assert.match(cover, /A considered edit of bridal inspiration for the moment that feels like yours\./);
   assert.doesNotMatch(cover, /cover-photo|Bridal cover inspiration|data:image\/jpeg/);
   assert.match(html, /\.cover\{background:linear-gradient\(155deg,#FDFBF8,#F5F0E9\)\}/);
