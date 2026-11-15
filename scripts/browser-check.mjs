@@ -8,10 +8,10 @@ if(route==='/digital-lookbook'){
  assert.equal(await page.locator('[data-book-page]').count(),products.dresses.length+2);
  await page.getByRole('button',{name:'Next page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),/Page 2 of 22/);
+ assert.match(await page.locator('[data-book-status]').textContent(),/Page 2 of 29/);
  await page.getByRole('button',{name:'Previous page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),/Page 1 of 22/);
+ assert.match(await page.locator('[data-book-status]').textContent(),/Page 1 of 29/);
 }
 await page.locator('#footer .redcarpert-footer-book').click();assert(await page.locator('#enquiry-preview').evaluate(d=>d.open));const approvedHref=new URL(await page.locator('#enquiry-preview [data-whatsapp-send]').getAttribute('href'));assert.equal(approvedHref.hostname,'wa.me');assert.equal(approvedHref.pathname,'/27680458811');assert(approvedHref.searchParams.get('text')?.includes('Redcarpert'),route+' WhatsApp message');await page.keyboard.press('Escape');assert(!(await page.locator('#enquiry-preview').evaluate(d=>d.open)));
 await page.reload({waitUntil:'domcontentloaded'});await page.waitForTimeout(2200);
