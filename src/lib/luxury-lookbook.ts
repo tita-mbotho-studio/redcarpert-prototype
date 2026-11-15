@@ -156,7 +156,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom"><span class="kind">'+esc(category.name)+'</span>'+
+        '<div class="dress-bottom"><span class="kind">'+esc(dress.status==='client'?'REDCARPERT COLLECTION':category.name)+'</span>'+
         '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
         '<p class="amount-label">'+(dress.status==="client"?"Enquire for confirmed pricing":"Indicative ZAR price")+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
