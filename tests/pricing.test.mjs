@@ -7,7 +7,7 @@ import { createNodeRenderer } from "../scripts/lib/markup.ts";
 
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
-  assert.equal(products.priceStatus, "illustrative");
+  assert.equal(products.priceStatus, "mixed");
   assert.equal(products.dresses.length, 27);
   const ids = products.dresses.map(dress => dress.id);
   assert.equal(new Set(ids).size, 27);
