@@ -7,7 +7,7 @@ import type { LuxuryLookbookImage } from "../../src/lib/luxury-lookbook.ts";
 
 const cacheDirectory=path.resolve(".cache/redcarpert-lookbook");
 const targetPhotoWidthMm=170;
-const targetPhotoHeightMm=197;
+const targetPhotoHeightMm=164; // Actual PDF dress-photo area in luxury-lookbook.ts
 export interface ImageAuditEntry {
   readonly id: string;
   readonly sourceUrl: string;
@@ -24,6 +24,21 @@ const photoId = (url: string): string | null => {
     return null;
   throw new Error("Unapproved lookbook image URL "+url);
 };
+/** Pexels has high-resolution originals; client ImageKit photos may be smaller.
+ * Preserve genuine client images at native resolution and report print suitability
+ * in the PDF audit rather than blocking the entire website build. */
+export function validateLookbookPhotoDimensions(
+  dimensions: { readonly width?: number; readonly height?: number },
+  source: "client" | "sample",
+  id: string,
+): void {
+  const {width,height}=dimensions;
+  if (!width || !height || !Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width<1 || height<1)
+    throw new Error("Invalid lookbook image dimensions for "+id);
+  if (source === "sample" && (width<600 || height<600))
+    throw new Error("Pexels source too small for PDF: "+id+" ("+width+"x"+height+")");
+}
+
 async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookbookImage;audit:ImageAuditEntry}> {
   const id=photoId(product.image);
   const name=product.id+"-"+createHash("sha256").update(product.image).digest("hex").slice(0,10);
@@ -49,7 +64,7 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
         const buffer=Buffer.from(await response.arrayBuffer());
         if(buffer.length>25_000_000)throw new Error("Photo exceeds 25 MB: "+product.id);
         const info=await sharp(buffer).metadata();
-        if(!info.width||!info.height||info.width<600||info.height<600)throw new Error("Photo lacks adequate dimensions: "+product.id);
+        validateLookbookPhotoDimensions(info,product.status,product.id);
         original=buffer;
         break;
       } catch(error){lastError=error;}
@@ -57,13 +72,15 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
     if(!original)throw new Error("Cannot obtain lookbook photograph "+product.id+": "+String(lastError));
     const meta=await sharp(original).metadata();
     if(!meta.width||!meta.height)throw new Error("Unrecognizable lookbook photo "+product.id);
-    const scale=Math.min(targetPhotoWidthMm/meta.width,targetPhotoHeightMm/meta.height);
-    const effectiveDpi=Math.round(25.4/scale);
-    // Cache source high-res metadata and only the screen-optimized JPEG; do not commit Pexels originals.
+    // Cache source dimensions and a JPEG suitable for the embedded PDF.
+    // Do not upscale smaller client photographs: this cannot add real detail.
     image=await sharp(original).rotate().resize({width:2000,height:2500,fit:"inside",withoutEnlargement:true})
       .flatten({background:"#F5F0E9"}).jpeg({quality:86,progressive:false,mozjpeg:true}).toBuffer();
     const final=await sharp(image).metadata();
     if(!final.width||!final.height)throw new Error("Invalid processed lookbook JPEG "+product.id);
+    // Calculate realistic print DPI from the JPEG actually placed on the A4 page.
+    const scale=Math.min(targetPhotoWidthMm/final.width,targetPhotoHeightMm/final.height);
+    const effectiveDpi=Math.round(25.4/scale);
     audit={id:product.id,sourceUrl:product.imageCredit.sourceUrl,width:meta.width,height:meta.height,
       effectiveDpi,printReady:effectiveDpi>=300,byteSize:image.length};
     await mkdir(cacheDirectory,{recursive:true});
@@ -71,6 +88,10 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
   }
   const output=await sharp(image).metadata();
   if(!output.width||!output.height)throw new Error("Corrupt cached lookbook photo "+product.id);
+  if(product.status === "client" && !audit.printReady) {
+    console.warn("[Bridal Edit] "+product.id+": source image "+audit.width+"x"+audit.height+
+      " px; estimated "+audit.effectiveDpi+" DPI in PDF. Included without upscaling; higher-resolution photo recommended for print.");
+  }
   return {image:{id:product.id,jpeg:image,width:output.width,height:output.height},audit};
 }
 
