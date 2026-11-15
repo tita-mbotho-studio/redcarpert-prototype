@@ -16,7 +16,7 @@ function lookbook() {
    const pageNumber = i + 2;
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span><h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
+     '<div class="redcarpert-book-copy"><span class="redcarpert-book-kicker">' + escapeHtml(product.status === 'client' ? 'REDCARPERT COLLECTION' : category) + '</span><h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayDressPrice(product.priceZar)) + '</p>' +
      '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a><small>' + (product.status === 'client' ? 'Client-supplied photographs · Price and availability to be confirmed' : 'Illustrative photograph and price · Not confirmed Redcarpert inventory') + '</small></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
