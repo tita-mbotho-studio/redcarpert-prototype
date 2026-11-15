@@ -29,7 +29,7 @@ try {
   const cover=page.locator('.redcarpert-book-cover');
   assert.equal(await cover.locator('img').count(),1,'minimal cover contains only Redcarpert logo');
   assert.equal(await cover.locator('.redcarpert-book-cover-photo').count(),0,'cover must not include a stock image');
-  assert.match(await cover.locator('h3').textContent(),/Your bridal story begins here/);
+  assert.match(await cover.locator('h3').textContent(),/Walking on red carpet with confidence/);
   assert.equal(await page.locator('.redcarpert-book-dress').count(),products.dresses.length);
   assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-mermaid"]').count(),4);
   assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="ball-gown-"]').count(),11);
