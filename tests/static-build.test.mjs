@@ -12,7 +12,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,31);
+ assert.equal(routes.length,38);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -44,12 +44,12 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 32/);
+ assert.match(pdf.toString('latin1'),/\/Count 39/);
  assert.deepEqual(pdf,readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'old PDF URL remains available');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
  const audit=JSON.parse(readFileSync('.generated/lookbook-image-audit.json','utf8'));
- assert.equal(audit.photoCount,20);assert.equal(audit.photos.length,20);
+ assert.equal(audit.photoCount,27);assert.equal(audit.photos.length,27);
 });
 test('copied classic scripts remain valid and every page uses modern Font Awesome controls',{skip:!available},()=>{
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
@@ -68,10 +68,10 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
  }
 });
 
-test('twenty-two-page book and twenty shared Pexels products publish without local copies',{skip:!available},()=>{
+test('twenty-nine-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
- assert.equal((book.match(/data-book-page=/g)||[]).length,22);
- assert.equal((book.match(/data-book-price=/g)||[]).length,20);
+ assert.equal((book.match(/data-book-page=/g)||[]).length,29);
+ assert.equal((book.match(/data-book-price=/g)||[]).length,27);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-price="'+product.id+'">'+displayDressPrice(product.priceZar)+'</p>'),
     'book price does not match products.json for '+product.id);
@@ -79,25 +79,34 @@ test('twenty-two-page book and twenty shared Pexels products publish without loc
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,20);
- for(const [category,count] of [['mermaid',4],['ball_gown',4],['ruffled',4],['modern_tradition',4],['two_in_one',4]]) {
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,27);
+ for(const [category,count] of [['mermaid',4],['ball_gown',11],['ruffled',4],['modern_tradition',4],['two_in_one',4]]) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
   assert.equal((html.match(/data-catalogue-id=/g)||[]).length,count);
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,20);
- assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,20);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
+ assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
  assert.match(book,/Your bridal story begins here\./);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
- assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,20);
+ assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
+ assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
+ assert.match(book,/Client-supplied photographs/);
+ assert.match(book,/Price to be confirmed/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
-  assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
-  assert.match(html,/not confirmed Redcarpert inventory/i);
   assert.match(html,/class="redcarpert-detail-card"/);
   assert.match(html,/data-dress-price=""/);
   const product=catalogueProducts.find(p=>p.previewRoute===route);
-  assert(product,'unknown sample detail route: '+route);
+  assert(product,'unknown dress detail route: '+route);
+  if(product.status==='client'){
+    assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
+    assert.match(html,/Client-supplied dress photographs/);
+    assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
+  }else{
+    assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
+    assert.match(html,/not confirmed Redcarpert inventory/i);
+  }
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
   assert.match(html,/data-gallery-photos="/,'gallery metadata must be emitted by static HTML');
   assert.match(html,/data-gallery-active-image=""/,'one active photograph must be present');
@@ -121,7 +130,7 @@ test('twenty-two-page book and twenty shared Pexels products publish without loc
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,31);
+  assert.equal(routes.length,38);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
