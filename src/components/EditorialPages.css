@@ -197,10 +197,11 @@
 }
 .redcarpert-book-cover h3 {
   margin: 0;
-  max-width: 300px;
+  max-width: min(95%, 315px);
   color: #493d33;
-  font: 400 clamp(26px, 3.4vw, 43px)/1.13 Georgia, "Times New Roman", serif;
-  letter-spacing: -.025em;
+  font: italic 400 clamp(19px, 2.45vw, 30px)/1.27 Georgia, "Times New Roman", serif;
+  letter-spacing: -.012em;
+  text-wrap: balance;
 }
 .redcarpert-book-cover-description {
   margin: 0;
