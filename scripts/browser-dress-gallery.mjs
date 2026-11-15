@@ -123,6 +123,28 @@ try {
  assert.equal(await singleClient.locator('[data-gallery-next]').count(),0);
  assert.equal(await singleClient.locator('[data-gallery-index]').count(),0);
  assert.equal(await singleClient.locator('[data-gallery-active-image]').evaluate(img=>getComputedStyle(img).objectFit),'contain');
+ // Wedding Dresses cards should show centered titles and pricing at desktop and mobile sizes.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
+ for(const width of [1280,390]){
+   await actual.setViewportSize({width,height:900});
+   const cards=actual.locator('ul.products[data-catalogue-preview] li.product');
+   assert.equal(await cards.count(),27);
+   const alignment=await cards.evaluateAll(items=>items.map(card=>{
+     const title=card.querySelector('.woocommerce-loop-product__title');
+     const price=card.querySelector('.redcarpert-catalogue-price');
+     const note=card.querySelector('.catalogue-sample-note');
+     return {
+       title:title?getComputedStyle(title).textAlign:null,
+       price:price?getComputedStyle(price).textAlign:null,
+       note:note?getComputedStyle(note).textAlign:null,
+     };
+   }));
+   assert(alignment.every(item=>item.title==='center' && item.price==='center' && item.note==='center'),
+     width+'px Wedding Dresses cards must centre all text: '+JSON.stringify(alignment));
+   const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
+   assert.equal((await clientCard.locator('.catalogue-sample-note').textContent()).trim(),'Price to be confirmed');
+   assert.equal(await clientCard.locator('h2.woocommerce-loop-product__title').textContent(),'Ball Gown 03');
+ }
  await actual.close();
  assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');
  console.log('Live Pexels Sample 17 PASS: gallery renders, arrow navigation changes photograph');
