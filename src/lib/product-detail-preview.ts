@@ -117,23 +117,20 @@ export function createProductDetailPreview(
     ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        node("p", { class: "redcarpert-detail-collection" }, [client ? "REDCARPERT COLLECTION" : category.endsWith("Dresses") ? category : category + " Collection"]),
+        ...(client ? [] : [node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"])]),
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
-          node("span", { class: "redcarpert-detail-price-label" }, [client ? "PRICE" : "ILLUSTRATIVE PRICE"]),
+          ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["ILLUSTRATIVE PRICE"])]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
             [displayDressPrice(product.priceZar)]),
         ]),
         node("div", { class: "redcarpert-detail-actions" }, [
           node("button", { type: "button", class: "button redcarpert-detail-fitting-button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Book a Fitting"]),
-          node("small", { class: "redcarpert-detail-enquiry-note" }, ["Enquire via WhatsApp"]),
         ]),
       ]),
-      node("p", { class: "sample-detail-notice" },
-        [client
-          ? "Client-supplied dress photographs. Please enquire to confirm price, availability and fitting details."
-          : "Sample imagery and indicative pricing only — not confirmed Redcarpert inventory or a final quotation."]),
+      ...(client ? [] : [node("p", { class: "sample-detail-notice" },
+        ["Style inspiration only. Images and prices are illustrative, not confirmed Redcarpert inventory."])]),
     ] },
   ] };
   const visit = (n: DocumentNode): DocumentNode | null => {
@@ -146,7 +143,7 @@ export function createProductDetailPreview(
   return { ...source, route: product.previewRoute,
     title: client ? `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses` : `${sampleDetailTitle(product)} | Sample Preview | Redcarpert`,
     description: client
-      ? "Explore client-supplied photographs of this Ball Gown wedding dress. Enquire for price, availability and fitting information."
+      ? "Explore " + product.name + " at Redcarpert Wedding Dresses. View its photographs and arrange a fitting."
       : "Sample dress detail demonstration. Stock imagery, not confirmed Redcarpert inventory.",
     nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
 }
