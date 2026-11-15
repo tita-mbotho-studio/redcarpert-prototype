@@ -44,6 +44,7 @@ try {
     let count=0;
     while(position<pageCount && count<pageCount){
       assert.equal(await next.isDisabled(),false,'next disabled before back cover');
+      console.log('Lookbook advancing',JSON.stringify({width,position,pageCount,step:count}));
       await next.click();
       position=await progresses(position,1);
       count++;
