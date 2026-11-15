@@ -46,15 +46,10 @@ git fetch origin
 git switch implementation/31-client-ball-gown-catalogue
 npm ci
 npm run setup
-REDCARPERT_BOOK_PREVIEW=1 npm run check
-npm run dev
-```
-
-**Windows PowerShell environment-variable syntax:**
-```powershell
 $env:REDCARPERT_BOOK_PREVIEW="1"
 npm run check
 Remove-Item Env:REDCARPERT_BOOK_PREVIEW
+npm run dev
 ```
 
 Verify `/product-category/ball_gown/`, `/product/`, `/product/preview/ball-gown-03/`, `/product/preview/ball-gown-07/`, the Digital Lookbook and the new 39-page downloaded PDF. On 03 check that arrows, dots and **01 / 04** counter work; on 07 no gallery arrows should appear. On all eleven verify photo grouping, complete silhouette, lack of sample labels and price confirmation. Check other Pexels categories still disclose that their images are illustrative.
