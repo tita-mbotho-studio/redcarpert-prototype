@@ -115,8 +115,8 @@ try {
  assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
  assert.equal(await actual.locator('[data-dress-price]').textContent(),'Price to be confirmed');
- assert.equal(await actual.locator('.redcarpert-detail-price-label').textContent(),'PRICE');
- assert.match(await actual.locator('.sample-detail-notice').textContent(),/Client-supplied dress photographs/);
+ assert.equal(await actual.locator('.redcarpert-detail-price-label').count(),0,'client gown has no redundant price heading');
+ assert.equal(await actual.locator('.sample-detail-notice').count(),0,'client gown has no provenance notice');
  // Single-photo client gowns still show the full silhouette without empty arrows.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
  const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
