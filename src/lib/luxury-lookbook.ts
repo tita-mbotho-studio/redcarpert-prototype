@@ -4,7 +4,7 @@ import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
 import { displayDressPrice } from "./pricing.ts";
 
-/** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + twenty dress pages + three closing pages. */
+/** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + one page per dress + three closing pages. */
 export interface LuxuryLookbookImage {
   readonly id: string;
   readonly jpeg: Buffer;
@@ -102,19 +102,28 @@ const style = [
 
 const page = (index: number, type: string, id: string, contents: string): string =>
   '<section class="page ' + type + '" id="' + id + '"><div class="content">' +
-  contents + '</div>' + (index===1||index===32?'':'<div class="folio">'+two(index)+' / 32</div>') + '</section>';
+  contents + '</div>' + (type==="cover"||type==="back"?'':'<div class="folio">'+two(index)+' / __PAGE_TOTAL__</div>') + '</section>';
 const tag = (value: string): string => '<span class="kicker">' + esc(value) + '</span>';
 
 export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], images: readonly LuxuryLookbookImage[], options: LuxuryLookbookOptions): string {
-  if (products.length !== 20 || catalogueCategories.length !== 5) throw new Error("The Bridal Edit requires 20 dresses in 5 categories");
+  if (products.length !== 27 || catalogueCategories.length !== 5) throw new Error("The Bridal Edit requires 27 dresses in five categories");
   if (options.year < 2026 || !Number.isInteger(options.year)) throw new Error("Invalid edition year");
   const sources = new Map(images.map(image=>[image.id,image]));
-  if (sources.size !== 20) throw new Error("The Bridal Edit requires twenty unique photos");
+  if (sources.size !== products.length) throw new Error("The Bridal Edit needs one photograph per dress");
   const photograph = (id: string): string => {
     const item = sources.get(id);
     if (!item || !item.jpeg.subarray(0,2).equals(Buffer.from([0xff,0xd8])) || item.width<=0||item.height<=0) throw new Error("Invalid PDF photo "+id);
     return imageData(item.jpeg,"image/jpeg");
   };
+  const clientCount=products.filter(p=>p.status==="client").length;
+  const sampleCount=products.length-clientCount;
+  const totalPages=products.length+catalogueCategories.length+7;
+  const sectionStarts=new Map<string,number>();
+  let nextStart=5;
+  for (const category of catalogueCategories) {
+    sectionStarts.set(category.id,nextStart);
+    nextStart+=1+products.filter(p=>p.category===category.id).length;
+  }
   const logo = imageData(options.logo,"image/png");
   const pages: string[] = [];
   const website="https://tita-mbotho-studio.github.io/redcarpert-prototype/";
@@ -127,51 +136,62 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">A curated collection of bridal inspiration, photographed and arranged for the moments that become memories.</p>'));
   pages.push(page(3,"welcome","welcome",tag("A note from Redcarpert")+
     '<h2>Every bridal story starts with an idea.</h2><p>Explore silhouettes and details at your own pace. Find the looks you love, then start a fitting conversation directly with Redcarpert.</p>'+
-    '<p>These photographs and ZAR prices illustrate possibilities. They are not confirmed Redcarpert stock or final selling quotations.</p>'+tag("Redcarpert Wedding Dresses")));
+    '<p>Our Ball Gown images are client supplied. Other collection photographs and listed prices are illustrative. Please enquire to confirm dress availability, fittings and final prices.</p>'+tag("Redcarpert Wedding Dresses")));
   pages.push(page(4,"contents","contents",tag("The bridal edit")+'<h2>Contents</h2>'+
-    catalogueCategories.map((cat,i)=>'<div class="entry"><span class="num">0'+(i+1)+'</span><a href="#collection-'+cat.id+'">'+esc(cat.name)+'</a><span class="page-number">'+two(5+i*5)+'</span></div>').join("")+
-    '<p class="tiny" style="margin-top:15mm">Twenty sample looks across five bridal categories.</p>'));
+    catalogueCategories.map((cat,i)=>'<div class="entry"><span class="num">0'+(i+1)+'</span><a href="#collection-'+cat.id+'">'+esc(cat.name)+'</a><span class="page-number">'+two(sectionStarts.get(cat.id)??0)+'</span></div>').join("")+
+    '<p class="tiny" style="margin-top:15mm">'+products.length+' wedding dress looks: '+clientCount+' client-photographed Ball Gowns and '+sampleCount+' illustrative designs.</p>'));
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
     const dresses=products.filter(p=>p.category===category.id);
-    if (dresses.length!==4) throw new Error("Collection must have exactly four sample dresses: "+category.id);
+    if(!dresses.length || sectionStarts.get(category.id)!==pageNumber)
+      throw new Error("Collection page alignment failed for "+category.id);
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
-      '<div class="goldline"></div><p class="intro">Four thoughtfully curated styling references. Discover your favourite look, then enquire about available dresses and fittings.</p>'));
+      '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
+        ? "Explore "+dresses.length+" client-photographed Ball Gown designs. Enquire for availability, prices and fitting appointments."
+        : "Explore "+dresses.length+" styling references. These images are illustrative; please enquire about available dresses.")+'</p>'));
     for (const dress of dresses) {
-      const look=dress.name.replace(/^Sample /,"Look ");
+      const look=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
       const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
         '<div class="dress-bottom"><span class="kind">'+esc(category.name)+'</span>'+
         '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
-        '<p class="amount-label">Indicative ZAR price</p>'+
+        '<p class="amount-label">'+(dress.status==="client"?"Enquire for confirmed pricing":"Indicative ZAR price")+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
-        '<p class="disclosure">Illustrative photograph and price &middot; Not confirmed Redcarpert inventory</p></div>'));
+        '<p class="disclosure">'+(dress.status==="client"
+          ? "Client-supplied photography &middot; Prices and availability require confirmation"
+          : "Illustrative photograph and price &middot; Not confirmed Redcarpert inventory")+'</p></div>'));
     }
   }
-  if(pageNumber!==30)throw new Error("Incorrect editorial page sequence");
+  if(pageNumber!==nextStart)throw new Error("Incorrect collection page sequence");
   const enquiry="https://wa.me/27680458811?text="+encodeURIComponent("Hello Redcarpert Wedding Dresses! I would like to enquire about a dress fitting.");
-  pages.push(page(30,"contact","fittings",tag("Your bridal story")+
+  pages.push(page(pageNumber++,"contact","fittings",tag("Your bridal story")+
     '<h2>Find the look.<br>Begin the conversation.</h2><p>See a style that speaks to you? Contact Redcarpert to discuss fitting appointments, dress availability and confirmed pricing.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">ENQUIRE VIA WHATSAPP</a><p class="tiny">Nothing is sent until you choose Send in WhatsApp.</p>'+
     '<a class="web" href="'+esc(website)+'">'+esc(website)+'</a>'));
-  const credits=products.map(dress=>'<div class="credit"><span class="n">'+esc(dress.name.replace(/^Sample /,"Look "))+'</span>'+
-    esc(dress.imageCredit.photographer)+'<a href="'+esc(dress.imageCredit.sourceUrl)+'">Pexels photograph</a></div>');
-  pages.push(page(31,"credits","credits",tag("With thanks")+
-    '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,10).join("")+'</div><div>'+credits.slice(10).join("")+'</div></div>'+
-    '<p class="note">All photography is sourced from Pexels and is used here for styling inspiration only. The sample dresses, illustrative ZAR prices and photographs do not establish stock, availability or final selling prices. The 2 in 1 photographs do not verify convertible construction.</p>'));
-  pages.push(page(32,"back","back-cover",
+  const credits=products.map(dress=>{
+    const name=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
+    return '<div class="credit"><span class="n">'+esc(name)+'</span>'+
+      (dress.status==="client" ? 'Client-supplied photography' :
+        esc(dress.imageCredit.photographer)+'<a href="'+esc(dress.imageCredit.sourceUrl)+'">Pexels photograph</a>')+'</div>';
+  });
+  const split=Math.ceil(credits.length/2);
+  pages.push(page(pageNumber++,"credits","credits",tag("With thanks")+
+    '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,split).join("")+'</div><div>'+credits.slice(split).join("")+'</div></div>'+
+    '<p class="note">Ball Gown photographs are client supplied. Other styling inspiration is credited to Pexels. Prices and availability must be confirmed by Redcarpert. Images of 2 in 1 dresses do not verify convertible construction.</p>'));
+  pages.push(page(pageNumber++,"back","back-cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<h2>Find your silhouette.</h2>'+
     '<p>Explore five bridal collections, then enquire about a fitting.</p>'+
     '<div class="back-links"><a href="'+esc(website)+'product/">Browse Wedding Dresses</a>'+
     '<a href="'+esc(website)+'contact-us/">Fitting enquiries</a></div>'+
-    '<p class="back-notice">Demonstration collection &middot; No confirmed client inventory</p>'));
-  if(pages.length!==32)throw new Error("Expected 32 pages, found "+pages.length);
+    '<p class="back-notice">Client Ball Gowns and illustrative inspiration &middot; Confirm prices and availability</p>'));
+  if(pages.length!==totalPages||pageNumber!==totalPages+1)throw new Error("Expected "+totalPages+" editorial pages, got "+pages.length);
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redcarpert - The Bridal Edit '+options.year+'</title>'+
-    '<meta name="viewport" content="width=device-width,initial-scale=1"><style>'+style+'</style></head><body>'+pages.join("\n")+'</body></html>';
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><style>'+style+'</style></head><body>'+
+    pages.join("\n").replaceAll("__PAGE_TOTAL__",two(totalPages))+'</body></html>';
 }
 
 export async function createLuxuryLookbookPdf(products: readonly CatalogueProduct[], images: readonly LuxuryLookbookImage[], options: LuxuryLookbookOptions): Promise<Buffer> {
@@ -184,11 +204,11 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     const missing=await tab.evaluate(()=>Array.from(document.images).filter(image=>!image.complete||!image.naturalWidth).map(image=>image.alt));
     if(missing.length)throw new Error("Lookbook images failed to render: "+missing.join(", "));
     const count=await tab.locator("section.page").count();
-    if(count!==32)throw new Error("Wrong rendered book page count "+count);
+    if(count!==products.length+catalogueCategories.length+7)throw new Error("Wrong rendered book page count "+count);
     if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {
       const folder=".generated/lookbook-previews";
       await mkdir(folder,{recursive:true});
-      for(const id of ["cover","collection-mermaid","look-sample-mermaid","collection-modern_tradition","credits","back-cover"]) {
+      for(const id of ["cover","collection-mermaid","collection-ball_gown","look-ball-gown-01","look-sample-mermaid","collection-modern_tradition","credits","back-cover"]) {
         await tab.locator("#"+id).screenshot({path:folder+"/"+id+".png",animations:"disabled"});
       }
     }
