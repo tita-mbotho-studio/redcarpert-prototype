@@ -21,13 +21,13 @@ export function preparePage(route: string) {
  const product = catalogueProducts.find(p=>p.previewRoute===route);
  const newCategory = catalogueCategories.slice(2).find(c => c.route.replace(/\/$/, '') === route);
  const categoryTemplate = newCategory ? {...sitePages['/product-category/mermaid'], route} : undefined;
- let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Interactive sample bridal lookbook featuring five wedding dress collections, with a downloadable two-page sample PDF.'} : sitePages[route]);
+ let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Interactive bridal lookbook featuring client Ball Gowns and illustrative collections, with a downloadable editorial PDF.'} : sitePages[route]);
  // Replace inherited Bridal Vanesa catalogue browser-tab metadata without
  // modifying any approved page structure, product card or visual style.
  const listingMetadata: Record<string, {title:string; description:string}> = {
   '/product': {
    title: 'Wedding Dresses | Redcarpert Wedding Dresses',
-   description: 'Explore twenty illustrative wedding dresses across five collections. Sample prices and stock photographs are not confirmed Redcarpert offers.',
+   description: 'Browse eleven client-photographed Ball Gowns and sixteen illustrative wedding dress inspirations across five collections. Enquire for confirmed prices and availability.',
   },
   '/product-category/mermaid': {
    title: 'Mermaid Wedding Dresses | Redcarpert',
@@ -35,7 +35,7 @@ export function preparePage(route: string) {
   },
   '/product-category/ball_gown': {
    title: 'Ball Gown Wedding Dresses | Redcarpert',
-   description: 'Explore illustrative Ball Gown wedding dresses in the Redcarpert bridal collection preview.',
+   description: 'Explore eleven client-supplied Ball Gown wedding dresses with multiple photographs of each gown. Enquire about prices and fittings.',
   },
  };
  for (const category of catalogueCategories.slice(2)) {
