@@ -98,7 +98,7 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
   assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
   assert.equal((html.match(/class="amount-label"/g)||[]).length,16);
-  assert.match(html, /Illustrative photograph and price/);
+  assert.match(html, /Style inspiration only/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
   assert.match(back, /Find your silhouette\./);
