@@ -182,19 +182,19 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
   }
 });
 
-test('release readiness: public GitHub Pages deployment requires explicit manual approval',()=>{
+test('release readiness: main deploys automatically after checks while development verification is manual',()=>{
   const yaml=readFileSync('.github/workflows/pages.yml','utf8');
-  assert.match(yaml,/workflow_dispatch:/);
-  assert.match(yaml,/approve_deployment:/);
-  assert.match(yaml,/default:\s*false/);
-  assert.match(yaml,/if: github\.ref == 'refs\/heads\/main' && inputs\.approve_deployment/);
-  assert.doesNotMatch(yaml,/^\s+(?:push|pull_request):/m,'deployment should never run on push or PR');
+  assert.match(yaml,/^  push:\n    branches:\n      - main$/m,'main updates must trigger automatic deployment');
+  assert.match(yaml,/    needs: build/,'deployment must wait for successful build and tests');
+  assert.match(yaml,/if: github\.ref == 'refs\/heads\/main'/,'deployment is restricted to main');
+  assert.match(yaml,/npm run test:browser/,'production must pass browser checks');
+  assert.match(yaml,/actions\/upload-pages-artifact@/);
+  assert.match(yaml,/actions\/deploy-pages@/);
+  assert.doesNotMatch(yaml,/approve_deployment|inputs\.approve_deployment/,'production deployment must not require manual approval');
+  assert.doesNotMatch(yaml,/^  pull_request:/m,'pull requests must not deploy');
   const verification=readFileSync('.github/workflows/verify.yml','utf8');
   assert.match(verification,/workflow_dispatch:/);
-  const oneTimeReleaseVerification=/^  push:\n    branches:\n      - implementation\/32-brand-logo-slogan$/m.test(verification);
-  assert(oneTimeReleaseVerification || !/^\s+(?:push|pull_request):/m.test(verification),
-    'verification must be manual except during the explicitly authorised Implementation 32 final check');
-  assert.match(yaml,/actions\/deploy-pages@/);
+  assert.doesNotMatch(verification,/^  (?:push|pull_request):/m,'development verification remains opt-in');
 });
 
 test('Redcarpert browser-tab and touch icons are generated from the new bridal monogram on every page', {skip:!available}, async()=>{
