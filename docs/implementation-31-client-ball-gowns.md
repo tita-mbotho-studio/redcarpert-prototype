@@ -40,6 +40,14 @@ Sample items retain their existing labels and representative ZAR amounts, with a
 - **The Bridal Edit downloadable PDF:** 39 pages (four front pages + five category openers + 27 individual dress pages + three closing pages). The table of contents and folio numbers are generated from actual category sizes. Images use contain mode and the same ivory margins and centred dress copy; source credits distinguish client imagery from Pexels.
 - The PDF generator accepts full-resolution Pexels JPGs and ImageKit WebPs, caches processed JPEGs for repeat local builds, and retains the existing named download URL and legacy alias. The actual 39-page PDF is generated during the local build; it is not committed to this branch.
 
+## Ball Gown 06 PDF build fix (November 15, 2026)
+
+A user's Windows build failed during `prepareLookbookImages` because the source ImageKit photograph for `ball-gown-06` has at least one side below the old 600px minimum. The earlier check was designed for Pexels stock originals and should not reject smaller genuine client-supplied pictures.
+
+`scripts/lib/lookbook-assets.ts` now accepts images with valid positive dimensions for client sources while preserving the existing 600px minimum for Pexels samples. The generator never upscales smaller images; it estimates effective PDF DPI from the actual cached JPEG dimensions at the book's 170mm × 164mm photo area. Low-resolution client images are included, but the build prints a warning and records `printReady: false` below 300 DPI in `.generated/lookbook-image-audit.json`. Previously cached photos are re-audited without network downloads.
+
+`tests/lookbook-photo-quality.test.mjs` covers the smaller client photograph, the retained sample-photo minimum, invalid dimensions, and print-DPI estimates. Do not claim the PDF is print-ready solely because the site builds: a higher-resolution source is preferable for physical printing.
+
 ## Local review after pulling the branch
 ```powershell
 git fetch origin
