@@ -20,13 +20,17 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all twenty dress-detail WhatsApp messages keep the selected sample and its category',()=>{
-  assert.equal(catalogueProducts.length,20);
+test('all 27 dress enquiries identify their gown and distinguish client photos from samples',()=>{
+  assert.equal(catalogueProducts.length,27);
   for(const dress of catalogueProducts){
     const url=new URL(buildWhatsAppUrl(sampleFittingMessage(dress)));
     const message=url.searchParams.get('text');
     assert(message.includes(dress.name),dress.name+' missing');
     assert(message.includes(catalogueCategories.find(c=>c.id===dress.category).name),dress.name+' category missing');
-    assert(message.includes('not confirmed Redcarpert inventory'),dress.name+' missing demo disclosure');
+    if(dress.status==='sample') assert(message.includes('not confirmed Redcarpert inventory'),dress.name+' missing sample disclosure');
+    else {
+      assert(message.includes('confirm the price and availability'),dress.name+' missing client price question');
+      assert(!message.includes('sample imagery'),'client gown cannot be labelled sample imagery');
+    }
   }
 });
