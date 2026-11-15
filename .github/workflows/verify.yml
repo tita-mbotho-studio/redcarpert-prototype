@@ -3,6 +3,10 @@ name: Verify static Redcarpert site (no deployment)
 # consume Actions minutes until the owner requests a final check.
 on:
   workflow_dispatch:
+  # One-time opt-in verification for the explicitly approved logo release.
+  push:
+    branches:
+      - implementation/32-brand-logo-slogan
 permissions:
   contents: read
 concurrency:
