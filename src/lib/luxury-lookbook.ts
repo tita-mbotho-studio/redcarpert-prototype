@@ -115,8 +115,6 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     if (!item || !item.jpeg.subarray(0,2).equals(Buffer.from([0xff,0xd8])) || item.width<=0||item.height<=0) throw new Error("Invalid PDF photo "+id);
     return imageData(item.jpeg,"image/jpeg");
   };
-  const clientCount=products.filter(p=>p.status==="client").length;
-  const sampleCount=products.length-clientCount;
   const totalPages=products.length+catalogueCategories.length+7;
   const sectionStarts=new Map<string,number>();
   let nextStart=5;
@@ -136,10 +134,10 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">A curated collection of bridal inspiration, photographed and arranged for the moments that become memories.</p>'));
   pages.push(page(3,"welcome","welcome",tag("A note from Redcarpert")+
     '<h2>Every bridal story starts with an idea.</h2><p>Explore silhouettes and details at your own pace. Find the looks you love, then start a fitting conversation directly with Redcarpert.</p>'+
-    '<p>Our Ball Gown images are client supplied. Other collection photographs and listed prices are illustrative. Please enquire to confirm dress availability, fittings and final prices.</p>'+tag("Redcarpert Wedding Dresses")));
+    '<p>Browse our Ball Gown collection alongside design inspiration in the other collections. Some imagery and prices are illustrative; please enquire for current availability.</p>'+tag("Redcarpert Wedding Dresses")));
   pages.push(page(4,"contents","contents",tag("The bridal edit")+'<h2>Contents</h2>'+
     catalogueCategories.map((cat,i)=>'<div class="entry"><span class="num">0'+(i+1)+'</span><a href="#collection-'+cat.id+'">'+esc(cat.name)+'</a><span class="page-number">'+two(sectionStarts.get(cat.id)??0)+'</span></div>').join("")+
-    '<p class="tiny" style="margin-top:15mm">'+products.length+' wedding dress looks: '+clientCount+' client-photographed Ball Gowns and '+sampleCount+' illustrative designs.</p>'));
+    '<p class="tiny" style="margin-top:15mm">'+products.length+' bridal designs across five collections.</p>'));
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
     const dresses=products.filter(p=>p.category===category.id);
@@ -148,7 +146,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
-        ? "Explore "+dresses.length+" client-photographed Ball Gown designs. Enquire for availability, prices and fitting appointments."
+        ? "Discover "+dresses.length+" Ball Gown designs, each with its own character and silhouette."
         : "Explore "+dresses.length+" styling references. These images are illustrative; please enquire about available dresses.")+'</p>'));
     for (const dress of dresses) {
       const look=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
@@ -156,13 +154,11 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom"><span class="kind">'+esc(dress.status==='client'?'REDCARPERT COLLECTION':category.name)+'</span>'+
+        '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
         '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
-        '<p class="amount-label">'+(dress.status==="client"?"Enquire for confirmed pricing":"Indicative ZAR price")+'</p>'+
+        (dress.status==="client"?"":'<p class="amount-label">Indicative ZAR price</p>')+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
-        '<p class="disclosure">'+(dress.status==="client"
-          ? "Client-supplied photography &middot; Prices and availability require confirmation"
-          : "Illustrative photograph and price &middot; Not confirmed Redcarpert inventory")+'</p></div>'));
+        (dress.status==="client"?"":'<p class="disclosure">Style inspiration only &middot; Image and price are illustrative</p>')+'</div>'));
     }
   }
   if(pageNumber!==nextStart)throw new Error("Incorrect collection page sequence");
@@ -174,20 +170,20 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   const credits=products.map(dress=>{
     const name=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
     return '<div class="credit"><span class="n">'+esc(name)+'</span>'+
-      (dress.status==="client" ? 'Client-supplied photography' :
+      (dress.status==="client" ? 'Redcarpert Wedding Dresses' :
         esc(dress.imageCredit.photographer)+'<a href="'+esc(dress.imageCredit.sourceUrl)+'">Pexels photograph</a>')+'</div>';
   });
   const split=Math.ceil(credits.length/2);
   pages.push(page(pageNumber++,"credits","credits",tag("With thanks")+
     '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,split).join("")+'</div><div>'+credits.slice(split).join("")+'</div></div>'+
-    '<p class="note">Ball Gown photographs are client supplied. Other styling inspiration is credited to Pexels. Prices and availability must be confirmed by Redcarpert. Images of 2 in 1 dresses do not verify convertible construction.</p>'));
+    '<p class="note">Ball Gown collection: Redcarpert Wedding Dresses. Additional styling inspiration is credited to Pexels. Sample prices are illustrative; confirm current prices and availability before booking. Images of 2 in 1 dresses do not establish convertible construction.</p>'));
   pages.push(page(pageNumber++,"back","back-cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<h2>Find your silhouette.</h2>'+
     '<p>Explore five bridal collections, then enquire about a fitting.</p>'+
     '<div class="back-links"><a href="'+esc(website)+'product/">Browse Wedding Dresses</a>'+
     '<a href="'+esc(website)+'contact-us/">Fitting enquiries</a></div>'+
-    '<p class="back-notice">Client Ball Gowns and illustrative inspiration &middot; Confirm prices and availability</p>'));
+    ''));
   if(pages.length!==totalPages||pageNumber!==totalPages+1)throw new Error("Expected "+totalPages+" editorial pages, got "+pages.length);
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Redcarpert - The Bridal Edit '+options.year+'</title>'+
     '<meta name="viewport" content="width=device-width,initial-scale=1"><style>'+style+'</style></head><body>'+
