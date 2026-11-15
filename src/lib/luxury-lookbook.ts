@@ -41,7 +41,7 @@ const style = [
   ".cover .content{align-items:center;justify-content:center;text-align:center;gap:12mm}",
   ".logo{display:block;width:67mm;height:22mm;object-fit:contain}",
   ".cover .logo{width:88mm;height:34mm}",
-  ".cover h1{font:400 35pt/1.12 Georgia,serif;max-width:143mm;letter-spacing:-.022em}",
+  ".cover h1{font:italic 400 32pt/1.2 Georgia,serif;max-width:148mm;letter-spacing:-.012em}",
   ".cover-description{max-width:125mm;font:400 11pt/1.8 Montserrat,Arial,sans-serif;color:#786B60}",
   ".goldline{background:#947B5C;width:28mm;height:.55mm}",
 
@@ -94,6 +94,7 @@ const style = [
   ".back .logo{width:89mm;height:30mm}",
   ".back h2{font:400 43pt/1.12 Georgia,serif;margin:10mm 0 3mm}",
   ".back p{font:400 11pt/1.8 Montserrat,Arial,sans-serif;max-width:118mm;margin:2mm 0 6mm}",
+  ".back .brand-slogan{font:italic 400 18pt/1.4 Georgia,serif;color:#8D674A;max-width:138mm;margin:3mm 0}",
   ".back-links{display:flex;flex-direction:column;align-items:center;gap:5mm;margin:5mm 0}",
   ".back-links a{font:500 10pt/1.5 Montserrat,Arial,sans-serif;color:#8A684A;text-decoration:underline;text-underline-offset:3px}",
   ".back .back-notice{font:400 8pt/1.5 Montserrat,Arial,sans-serif;color:#786E63;max-width:135mm}",
@@ -128,7 +129,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   pages.push(page(1,"cover","cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<div class="goldline" aria-hidden="true"></div>'+
-    '<h1>Your bridal story begins here.</h1>'+
+    '<h1>Walking on red carpet with confidence</h1>'+
     '<p class="cover-description">A considered edit of bridal inspiration for the moment that feels like yours.</p>'));
   pages.push(page(2,"front","title",tag("A thoughtful bridal collection")+
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">A curated collection of bridal inspiration, photographed and arranged for the moments that become memories.</p>'));
@@ -179,6 +180,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<p class="note">Ball Gown collection: Redcarpert Wedding Dresses. Additional styling inspiration is credited to Pexels. Sample prices are illustrative; confirm current prices and availability before booking. Images of 2 in 1 dresses do not establish convertible construction.</p>'));
   pages.push(page(pageNumber++,"back","back-cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
+    '<p class="brand-slogan">Walking on red carpet with confidence</p>'+
     '<h2>Find your silhouette.</h2>'+
     '<p>Explore five bridal collections, then enquire about a fitting.</p>'+
     '<div class="back-links"><a href="'+esc(website)+'product/">Browse Wedding Dresses</a>'+
