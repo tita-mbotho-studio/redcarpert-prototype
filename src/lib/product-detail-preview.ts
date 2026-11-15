@@ -93,6 +93,7 @@ export function createProductDetailPreview(
       ...images.attrs,
       "data-detail-gallery": product.id,
       "data-gallery-photos": JSON.stringify(photos),
+      "data-gallery-origin": client ? "client" : "sample",
       ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
     }, children: [
       { ...slider, attrs: {
