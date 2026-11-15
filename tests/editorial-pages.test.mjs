@@ -97,7 +97,7 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
   assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,27);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,16);
   assert.match(html, /Illustrative photograph and price/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
@@ -105,7 +105,8 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(back, /Browse Wedding Dresses/);
   assert.match(back, /Fitting enquiries/);
   assert.match(html,/Photography Credits/);
-  assert.match(html,/Client-supplied photography/);
+  assert.doesNotMatch(html,/Client-supplied photography/);
+  assert.match(html,/Ball Gown collection: Redcarpert Wedding Dresses/);
   assert.match(html,/Price to be confirmed/);
   for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
     assert(html.includes('href="#collection-'+id+'">'+
