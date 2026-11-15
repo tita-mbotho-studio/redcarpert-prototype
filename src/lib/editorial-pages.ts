@@ -20,8 +20,8 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["THE BRIDAL EDIT"]),
       node("h2", { id: "redcarpert-lookbook-title" }, ["Digital Lookbook"]),
       node("p", { class: "redcarpert-editorial-lead" }, ["A closer look at five bridal collections"]),
-      p("Turn through a curated sample of bridal styles, discover the silhouettes that speak to you and explore the dress details at your own pace."),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Sample ZAR prices and stock photographs are illustrative only — not confirmed Redcarpert inventory or a final quotation."]),
+      p("Explore client-photographed Ball Gowns alongside curated bridal inspiration, and discover the silhouettes that speak to you."),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Ball Gown photographs are client supplied; other collections still display illustrative stock photography and prices. Confirm availability and final prices directly with Redcarpert."]),
     ]),
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
@@ -54,7 +54,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       h("A Personal Fitting Conversation", "redcarpert-fitting-title"),
       p("When a dress catches your eye, use its fitting enquiry option to review a prefilled WhatsApp message. You can ask about availability, preferences and the next steps before arranging a visit. Nothing is sent until you choose to continue in WhatsApp."),
       fitting(),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Styles shown on this prototype use illustrative photography. Actual dresses, fitting arrangements and business details are subject to confirmation."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Ball Gown photographs have been supplied by the client. Other collections use illustrative photography. Dress availability, prices and fitting arrangements require confirmation."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
       h("Meet the Team", "redcarpert-team-title"),
@@ -101,7 +101,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
       h("How to Enquire", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
-        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse any of the five bridal collections and open a sample dress you would like to ask about.")]),
+        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the five bridal collections and open a dress you would like to enquire about.")]),
         node("li", {}, [node("strong", {}, ["Review"]), p("Use the enquiry preview to check the dress details and your message before opening WhatsApp.")]),
         node("li", {}, [node("strong", {}, ["Connect"]), p("Send your message in WhatsApp when ready, then confirm availability and any fitting arrangements directly.")]),
       ]),
@@ -112,7 +112,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
       h("Before Your Visit", "redcarpert-visiting-title"),
       p("Redcarpert is located in the Sunnyside area of Pretoria, South Africa. Please confirm the exact studio address, opening hours and fitting availability directly with the business before travelling."),
-      p("Dress photographs on this website are illustrative samples. The business can confirm which styles are currently available when you enquire."),
+      p("Ball Gown photographs are client supplied, while other collections currently use illustrative photos. Confirm dress availability and prices with Redcarpert."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
       h("Our Pretoria Location", "redcarpert-map-title"),
