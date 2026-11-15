@@ -17,10 +17,12 @@ export interface ImageAuditEntry {
   readonly printReady: boolean;
   readonly byteSize: number;
 }
-const photoId = (url: string): string => {
+const photoId = (url: string): string | null => {
   const result=/\/photos\/(\d+)\/pexels-photo-\1\.jpeg/.exec(url);
-  if(!result)throw new Error("Unexpected Pexels image URL "+url);
-  return result[1];
+  if(result) return result[1];
+  if(url.startsWith("https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/"))
+    return null;
+  throw new Error("Unapproved lookbook image URL "+url);
 };
 async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookbookImage;audit:ImageAuditEntry}> {
   const id=photoId(product.image);
@@ -33,10 +35,12 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
     image=await readFile(file);
     audit=JSON.parse(await readFile(record,"utf8")) as ImageAuditEntry;
   } catch {
-    const originalUrl="https://images.pexels.com/photos/"+id+"/pexels-photo-"+id+".jpeg";
+    const possibleSources=id
+      ? ["https://images.pexels.com/photos/"+id+"/pexels-photo-"+id+".jpeg",product.image]
+      : [product.image];
     let original:Buffer|undefined;
     let lastError:unknown;
-    for(const url of [originalUrl,product.image]) {
+    for(const url of possibleSources) {
       try {
         const response=await fetch(url,{signal:AbortSignal.timeout(20000),headers:{"Accept":"image/jpeg,image/*"}});
         if(!response.ok)throw new Error("Pexels HTTP "+response.status+" for "+url);
@@ -50,16 +54,16 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
         break;
       } catch(error){lastError=error;}
     }
-    if(!original)throw new Error("Cannot obtain Pexels photograph "+product.id+": "+String(lastError));
+    if(!original)throw new Error("Cannot obtain lookbook photograph "+product.id+": "+String(lastError));
     const meta=await sharp(original).metadata();
-    if(!meta.width||!meta.height)throw new Error("Unrecognizable Pexels photo "+product.id);
+    if(!meta.width||!meta.height)throw new Error("Unrecognizable lookbook photo "+product.id);
     const scale=Math.min(targetPhotoWidthMm/meta.width,targetPhotoHeightMm/meta.height);
     const effectiveDpi=Math.round(25.4/scale);
     // Cache source high-res metadata and only the screen-optimized JPEG; do not commit Pexels originals.
     image=await sharp(original).rotate().resize({width:2000,height:2500,fit:"inside",withoutEnlargement:true})
       .flatten({background:"#F5F0E9"}).jpeg({quality:86,progressive:false,mozjpeg:true}).toBuffer();
     const final=await sharp(image).metadata();
-    if(!final.width||!final.height)throw new Error("Invalid processed Pexels JPEG "+product.id);
+    if(!final.width||!final.height)throw new Error("Invalid processed lookbook JPEG "+product.id);
     audit={id:product.id,sourceUrl:product.imageCredit.sourceUrl,width:meta.width,height:meta.height,
       effectiveDpi,printReady:effectiveDpi>=300,byteSize:image.length};
     await mkdir(cacheDirectory,{recursive:true});
