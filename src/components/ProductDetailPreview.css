@@ -22,6 +22,13 @@
 }
 /* Preserve the approved single-photo preview. Only multi-angle dresses use
    proportional image containment and suppress stale vendor zoom overlays. */
+#main-container [data-detail-preview] [data-gallery-origin="client"] .zoom[data-sample-frame] {
+  background: #fdfbf8;
+  overflow: hidden;
+}
+#main-container [data-detail-preview] [data-gallery-origin="client"] .zoom[data-sample-frame] > img:not(.zoomImg) {
+  object-fit: contain;
+}
 #main-container [data-detail-preview] .redcarpert-multi-photo-slider .zoom[data-sample-frame] {
   overflow: hidden;
   background: #fdfbf8;
