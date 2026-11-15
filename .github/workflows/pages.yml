@@ -1,12 +1,11 @@
-name: Verify and deploy static Pages site (manual)
+name: Verify and deploy static Pages site
+# Development branch checks remain opt-in. Only changes merged into main
+# trigger the production validation and Pages deployment pipeline.
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      approve_deployment:
-        description: Approve deployment of reviewed main to GitHub Pages
-        required: true
-        type: boolean
-        default: false
 permissions:
   contents: read
 concurrency:
@@ -42,9 +41,9 @@ jobs:
           path: dist
   deploy:
     needs: build
-    # Run only on explicit manual approval: never publish from a code push or PR.
-    # This same manual workflow performs the build and browser checks first.
-    if: github.ref == 'refs/heads/main' && inputs.approve_deployment
+    # Publish only main after the complete build and browser checks succeed.
+    # Feature branches and pull requests never deploy.
+    if: github.ref == 'refs/heads/main'
     permissions:
       pages: write
       id-token: write
@@ -53,6 +52,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy approved main artifact
+      - name: Deploy verified main artifact
         id: deployment
         uses: actions/deploy-pages@v4
