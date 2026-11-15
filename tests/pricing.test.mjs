@@ -37,7 +37,7 @@ test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed pri
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover,'book cover missing');
   assert.equal((cover.match(/<img /g)||[]).length,1,'cover must contain the Redcarpert logo only');
-  assert.match(cover,/Your bridal story begins here\./);
+  assert.match(cover,/Walking on red carpet with confidence/);
   assert.match(cover,/redcarpert-book-cover-description/);
   assert.doesNotMatch(cover,/images\.pexels|redcarpert-book-cover-photo/);
   assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,27);
