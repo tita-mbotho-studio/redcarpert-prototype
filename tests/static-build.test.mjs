@@ -191,7 +191,9 @@ test('release readiness: public GitHub Pages deployment requires explicit manual
   assert.doesNotMatch(yaml,/^\s+(?:push|pull_request):/m,'deployment should never run on push or PR');
   const verification=readFileSync('.github/workflows/verify.yml','utf8');
   assert.match(verification,/workflow_dispatch:/);
-  assert.doesNotMatch(verification,/^\s+(?:push|pull_request):/m,'verification should remain opt-in');
+  const oneTimeReleaseVerification=/^  push:\n    branches:\n      - implementation\/32-brand-logo-slogan$/m.test(verification);
+  assert(oneTimeReleaseVerification || !/^\s+(?:push|pull_request):/m.test(verification),
+    'verification must be manual except during the explicitly authorised Implementation 32 final check');
   assert.match(yaml,/actions\/deploy-pages@/);
 });
 
