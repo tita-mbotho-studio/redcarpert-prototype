@@ -20,8 +20,8 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["THE BRIDAL EDIT"]),
       node("h2", { id: "redcarpert-lookbook-title" }, ["Digital Lookbook"]),
       node("p", { class: "redcarpert-editorial-lead" }, ["A closer look at five bridal collections"]),
-      p("Explore client-photographed Ball Gowns alongside curated bridal inspiration, and discover the silhouettes that speak to you."),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Ball Gown photographs are client supplied; other collections still display illustrative stock photography and prices. Confirm availability and final prices directly with Redcarpert."]),
+      p("Explore our bridal collections and discover the silhouettes that speak to you."),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Other collections currently include illustrative styles. Ask us about current availability and pricing."]),
     ]),
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
@@ -54,7 +54,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       h("A Personal Fitting Conversation", "redcarpert-fitting-title"),
       p("When a dress catches your eye, use its fitting enquiry option to review a prefilled WhatsApp message. You can ask about availability, preferences and the next steps before arranging a visit. Nothing is sent until you choose to continue in WhatsApp."),
       fitting(),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Ball Gown photographs have been supplied by the client. Other collections use illustrative photography. Dress availability, prices and fitting arrangements require confirmation."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Other collections currently include styling inspiration. Prices and fitting arrangements can be confirmed when you enquire."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
       h("Meet the Team", "redcarpert-team-title"),
@@ -112,7 +112,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
       h("Before Your Visit", "redcarpert-visiting-title"),
       p("Redcarpert is located in the Sunnyside area of Pretoria, South Africa. Please confirm the exact studio address, opening hours and fitting availability directly with the business before travelling."),
-      p("Ball Gown photographs are client supplied, while other collections currently use illustrative photos. Confirm dress availability and prices with Redcarpert."),
+      p("Other collections currently include illustrative styles. Enquire for current dress prices and availability."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
       h("Our Pretoria Location", "redcarpert-map-title"),
