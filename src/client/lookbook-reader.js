@@ -88,7 +88,21 @@ export function initializeLookbookReader() {
       mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
       autoSize: true,
     });
-    pageFlip.loadFromHTML(pages);
+    // StPageFlip requires complete physical spreads when showCover is true.
+    // The 29-page editorial book has an odd leaf count; append a decorative
+    // empty endpaper so the final numbered back cover is reachable.
+    // This is not a catalogue page, is not counted in book navigation, and
+    // does not appear in the static/no-JS fallback.
+    const flipPages = [...pages];
+    if (flipPages.length % 2 !== 0) {
+      const endpaper = document.createElement('article');
+      endpaper.className = 'redcarpert-book-page redcarpert-book-endpaper';
+      endpaper.setAttribute('aria-hidden','true');
+      endpaper.setAttribute('role','presentation');
+      book.append(endpaper);
+      flipPages.push(endpaper);
+    }
+    pageFlip.loadFromHTML(flipPages);
     engine = pageFlip;
     pageFlip.on('flip', event => {
       index = event.data;
