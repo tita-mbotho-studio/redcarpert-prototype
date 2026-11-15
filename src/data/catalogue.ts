@@ -1,8 +1,9 @@
+import clientBallGowns from "./client-ball-gowns.json" with { type: "json" };
 import imageLinks from "./image-links.json" with { type: "json" };
 import { requireImageLink } from "../lib/image-links.ts";
 import { priceForDress, type PriceZar } from "../lib/pricing.ts";
 
-/** Twenty curated Pexels demonstration dresses. Never describe these as Redcarpert stock. */
+/** Client-supplied Ball Gown photographs alongside clearly labelled Pexels styling samples. */
 export type DressCategory = "mermaid" | "ball_gown" | "ruffled" | "modern_tradition" | "two_in_one";
 export interface CatalogueProduct {
   readonly id: string;
@@ -13,7 +14,7 @@ export interface CatalogueProduct {
   readonly imageAlt: string;
   readonly detailReference: null;
   readonly previewRoute: `/product/preview/${string}`;
-  readonly status: "sample";
+  readonly status: "sample" | "client";
   readonly imageCredit: { readonly photographer: string; readonly sourceUrl: string; readonly provenance: string };
 }
 export const catalogueCategories = [
@@ -24,7 +25,7 @@ export const catalogueCategories = [
   { id: "two_in_one", name: "2 in 1 Dresses", route: "/product-category/two_in_one/" },
 ] as const;
 
-/** Images stay on Pexels servers: there is no image fetch/download in the build. */
+/** Primary images stay remote (ImageKit for client gowns; Pexels for samples). */
 export const catalogueProducts: readonly CatalogueProduct[] = [
   {
     id: "sample-mermaid", priceZar: priceForDress("sample-mermaid"), name: "Sample 01", category: "mermaid", status: "sample",
@@ -54,34 +55,18 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     detailReference: null, previewRoute: "/product/preview/sample-05-mermaid",
     imageCredit: { photographer: "Genaro Servín", sourceUrl: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-04").sourceUrl, provenance: "docs/asset-credits.md" },
   },
-  {
-    id: "sample-ball-gown", priceZar: priceForDress("sample-ball-gown"), name: "Sample 02", category: "ball_gown", status: "sample",
-    image: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown").url,
-    imageAlt: "Pexels demonstration bridal photograph (Ball Gown silhouette) — not Redcarpert inventory",
-    detailReference: null, previewRoute: "/product/preview/sample-02-ball-gown",
-    imageCredit: { photographer: "Thalia villa", sourceUrl: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ball-gown-02", priceZar: priceForDress("sample-ball-gown-02"), name: "Sample 06", category: "ball_gown", status: "sample",
-    image: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-02").url,
-    imageAlt: "Pexels demonstration bridal photograph (Ball Gown silhouette) — not Redcarpert inventory",
-    detailReference: null, previewRoute: "/product/preview/sample-06-ball-gown",
-    imageCredit: { photographer: "Hiren Lad", sourceUrl: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-02").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ball-gown-03", priceZar: priceForDress("sample-ball-gown-03"), name: "Sample 07", category: "ball_gown", status: "sample",
-    image: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-03").url,
-    imageAlt: "Pexels demonstration bridal photograph (Ball Gown silhouette) — not Redcarpert inventory",
-    detailReference: null, previewRoute: "/product/preview/sample-07-ball-gown",
-    imageCredit: { photographer: "Andrea Prochilo", sourceUrl: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-03").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ball-gown-04", priceZar: priceForDress("sample-ball-gown-04"), name: "Sample 08", category: "ball_gown", status: "sample",
-    image: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-04").url,
-    imageAlt: "Pexels demonstration bridal photograph (Ball Gown silhouette) — not Redcarpert inventory",
-    detailReference: null, previewRoute: "/product/preview/sample-08-ball-gown",
-    imageCredit: { photographer: "Andrea Prochilo", sourceUrl: requireImageLink(imageLinks.products.ball_gown, "sample-ball-gown-04").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
+  ...clientBallGowns.map(gown => ({
+    id: gown.id,
+    name: gown.name,
+    category: "ball_gown" as const,
+    priceZar: priceForDress(gown.id),
+    image: gown.photos[0].url,
+    imageAlt: gown.photos[0].alt,
+    detailReference: null,
+    previewRoute: `/product/preview/${gown.id}` as const,
+    status: "client" as const,
+    imageCredit: { photographer: "Client supplied", sourceUrl: gown.photos[0].url, provenance: "client-supplied" },
+  })),
   {
     id: "sample-ruffled-01", priceZar: priceForDress("sample-ruffled-01"), name: "Sample 09", category: "ruffled", status: "sample",
     image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-01").url,
