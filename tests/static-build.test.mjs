@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
-import {displayDressPrice} from '../src/lib/pricing.ts';
+import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {sampleFittingMessage,sampleDetailTitle} from '../src/lib/product-detail-preview.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
@@ -81,8 +81,10 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,29);
  assert.equal((book.match(/data-book-price=/g)||[]).length,27);
+ assert.equal((book.match(/redcarpert-book-condition-note/g)||[]).length,27);
+ assert(book.includes(PRICE_CONDITION_DISCLAIMER));
  for(const product of catalogueProducts){
-  assert(book.includes('data-book-price="'+product.id+'">'+displayDressPrice(product.priceZar)+'</p>'),
+  assert(book.includes('data-book-price="'+product.id+'">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
     'book price does not match products.json for '+product.id);
  }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
@@ -145,7 +147,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
     assert.doesNotMatch(html,/data-gallery-index="/,'single-photo samples must not expose misleading dots');
   }
-  assert(html.includes('data-dress-price="">'+displayDressPrice(product.priceZar)+'</p>'),
+  assert(html.includes('data-dress-price="">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
     'detail price does not match products.json for '+route);
   assert.match(html,/Book a Fitting/);
  }
