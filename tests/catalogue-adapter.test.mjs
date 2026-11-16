@@ -46,7 +46,7 @@ test('only approved listing documents change; other routes and all protected sub
     if(p.status==='client'){
       assert.equal(note.children.length,2,'real gowns show price and condition disclaimer, without photograph labels');
       assert.equal(note.children[0].attrs.class,'redcarpert-catalogue-price');
-      assert.equal(note.children[0].children[0],'Price to be confirmed');
+      assert.equal(note.children[0].children[0],'Indicative range: '+displayPriceForDress(p.id, p.priceZar));
       assert.equal(note.children[1].children[0],PRICE_CONDITION_DISCLAIMER);
     } else assert.equal(note.children[0],'Inspiration photo');assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
   assert(!nodes.some(n=>n.attrs.class==='woocommerce-pagination'));const order=nodes.find(n=>(n.attrs.class||'').split(' ').includes('woocommerce-ordering'));assert.equal(order.tag,'div');assert(!all([order]).some(n=>n.tag==='form'||n.attrs.name==='orderby'||n.attrs.value==='price'));if(input.route==='/product'){const buttons=all([order]).filter(n=>n.tag==='button'&&n.attrs['data-filter-category']);assert.deepEqual(buttons.map(n=>n.attrs['data-filter-category']),['all',...catalogueCategories.map(c=>c.id)]);assert.equal(buttons.filter(n=>n.attrs['aria-pressed']==='true').length,1);}else{assert.equal(order.attrs['aria-hidden'],'true');}
@@ -80,7 +80,7 @@ test('verified catalogue prices appear only when a ZAR amount is present',()=>{
     assert.equal(prices[0].children[0],displayPriceForDress(card.attrs['data-catalogue-id'], amount));
   }else if(amount!==null){
     assert.equal(prices.length,1);
-    assert.equal(prices[0].children[0],'Example price: '+displayPriceForDress(card.attrs['data-catalogue-id'], amount));
+    assert.equal(prices[0].children[0],'Example range: '+displayPriceForDress(card.attrs['data-catalogue-id'], amount));
   }else assert.equal(prices.length,0,'unassigned sample prices remain hidden');
  }
 });
