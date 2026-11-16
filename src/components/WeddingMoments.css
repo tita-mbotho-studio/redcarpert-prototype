@@ -116,6 +116,7 @@
 
 .redcarpert-moments-more button {
   min-width: 140px;
+  min-height: 44px;
   padding: 12px 26px;
   border: 1px solid #af9a83;
   border-radius: 0;
