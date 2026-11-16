@@ -5,7 +5,7 @@
 .fa-solid, .fa-brands { font-style: normal; line-height: 1; }
 
 /* Floating contact control: never show on phones, including 375 x 667.
- * Keep buttons independent: dismissing must never open the enquiry preview. */
+ * Keep controls independent: dismissing must never open WhatsApp. */
 #redcarpert-floating-whatsapp.redcarpert-whatsapp-float {
   box-sizing: border-box;
   display: none !important;
@@ -51,6 +51,7 @@
   background: #25d366;
   color: #fff;
   font-size: 29px;
+  text-decoration: none;
 }
 #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss {
   width: 27px;
@@ -79,8 +80,8 @@
   }
 }
 
-/* The fitting link uses the brand glyph but retains existing dialog behaviour. */
-#footer[data-redcarpert-footer] .redcarpert-footer-items button.redcarpert-footer-book {
+/* The fitting link uses the same brand glyph and opens WhatsApp directly. */
+#footer[data-redcarpert-footer] .redcarpert-footer-items a.redcarpert-footer-book {
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -88,6 +89,7 @@
   gap: 5px;
   max-width: 100%;
   white-space: nowrap;
+  text-decoration: none;
 }
 #footer[data-redcarpert-footer] .redcarpert-footer-book .fa-whatsapp {
   flex: none;
@@ -165,7 +167,7 @@
     font-size: 12px;
   }
   #footer[data-redcarpert-footer] .redcarpert-footer-items
-  button.redcarpert-footer-book {
+  a.redcarpert-footer-book {
     gap: 3px;
     letter-spacing: -.01em;
   }
@@ -244,7 +246,7 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
 #header #menu-item-15821 > a::after {
   content: none !important;
 }
-#main-container [data-whatsapp-preview] > .fa-whatsapp {
+#main-container [data-whatsapp-send] > .fa-whatsapp {
   display: inline-block;
   margin-right: .5em;
   font-size: 1.08em;

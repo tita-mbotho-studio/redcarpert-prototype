@@ -7,6 +7,8 @@ import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayDressPrice} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
+import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
+import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
@@ -16,7 +18,9 @@ test('static deployment contains complete approved pages, local paths and no app
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
-  assert.match(html,/<!doctype html>/i);assert.match(html,/<header id="header"/);assert.match(html,/<footer/);assert.match(html,/WhatsApp Enquiry Preview/);
+  assert.match(html,/<!doctype html>/i);assert.match(html,/<header id="header"/);assert.match(html,/<footer/);
+  assert.doesNotMatch(html,/id="enquiry-preview"|data-whatsapp-preview|WhatsApp Enquiry Preview/,
+    route+' must not include the old website-based WhatsApp preview');
   assert.doesNotMatch(html,/__NEXT_DATA__|self\.__next|\/_next\/|data-settings=/);
   for(const [,url] of html.matchAll(/(?:href|src)="(\/[^"#?]*)/g)){
    assert(url.startsWith('/redcarpert-prototype/'),url);
@@ -24,17 +28,22 @@ test('static deployment contains complete approved pages, local paths and no app
    assert(existsSync(local)||existsSync(path.join(local,'index.html')),url);
   }
   const handoffs=[...html.matchAll(/<a\b[^>]*\bdata-whatsapp-send\b[^>]*\bhref="([^"]+)"[^>]*>/gi)];
-  assert.equal(handoffs.length,1,route+' must have exactly one approved WhatsApp handoff');
-  const sendLink=handoffs[0][0];
-  const sendUrl=new URL(handoffs[0][1].replaceAll('&amp;','&'));
-  assert.equal(sendUrl.origin,'https://wa.me');
-  assert.equal(sendUrl.pathname,'/27680458811');
-  assert(sendUrl.searchParams.get('text')?.includes('Hello Redcarpert Wedding Dresses!'));
-  assert.match(sendLink,/target="_blank"/);
-  assert.match(sendLink,/rel="noopener noreferrer"/);
-  const sample=route.match(/\/product\/preview\/sample-(\d{2})-/);
-  if(sample)assert(sendUrl.searchParams.get('text')?.includes('Sample '+sample[1]),
-    route+' must retain its individual sample-dress enquiry');
+  assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
+  const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
+  const expectedMessage=product ? sampleFittingMessage(product)
+    : 'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
+  const expectedUrl=buildWhatsAppUrl(expectedMessage);
+  for(const [,href] of handoffs){
+    const linkUrl=new URL(href.replaceAll('&amp;','&'));
+    assert.equal(linkUrl.toString(),expectedUrl,route+' wrong direct WhatsApp message');
+    assert.equal(linkUrl.origin,'https://wa.me');
+  }
+  for(const [markup] of handoffs){
+    assert.match(markup,/target="_blank"/);
+    assert.match(markup,/rel="noopener noreferrer"/);
+    assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
+  }
+  if(product)assert(expectedMessage.includes(product.name),route+' must identify its specific gown');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));

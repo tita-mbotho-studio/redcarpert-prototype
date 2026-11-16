@@ -52,7 +52,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-fitting-title" }, [
       h("A Personal Fitting Conversation", "redcarpert-fitting-title"),
-      p("When a dress catches your eye, use its fitting enquiry option to review a prefilled WhatsApp message. You can ask about availability, preferences and the next steps before arranging a visit. Nothing is sent until you choose to continue in WhatsApp."),
+      p("When a dress catches your eye, select its fitting enquiry option to open a prefilled WhatsApp message directly. You can review or edit the message in WhatsApp, then choose whether to send it. Nothing is sent automatically."),
       fitting(),
       node("p", { class: "redcarpert-editorial-disclosure" }, ["Other collections currently include styling inspiration. Prices and fitting arrangements can be confirmed when you enquire."]),
     ]),
@@ -102,8 +102,8 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       h("How to Enquire", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
         node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the five bridal collections and open a dress you would like to enquire about.")]),
-        node("li", {}, [node("strong", {}, ["Review"]), p("Use the enquiry preview to check the dress details and your message before opening WhatsApp.")]),
-        node("li", {}, [node("strong", {}, ["Connect"]), p("Send your message in WhatsApp when ready, then confirm availability and any fitting arrangements directly.")]),
+        node("li", {}, [node("strong", {}, ["Open WhatsApp"]), p("Select the fitting enquiry link to open the prefilled message in WhatsApp, without an extra website preview.")]),
+        node("li", {}, [node("strong", {}, ["Send when ready"]), p("Review or edit the message in WhatsApp before sending, then discuss availability and fitting arrangements directly.")]),
       ]),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Browse dresses and contact us" }, [
         node("a", { href: "/product/", class: "redcarpert-editorial-action" }, ["Browse Wedding Dresses"]),

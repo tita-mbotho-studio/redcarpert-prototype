@@ -197,7 +197,7 @@
   text-align: center;
 }
 
-#main-container [data-detail-preview] .redcarpert-detail-actions button.redcarpert-detail-fitting-button {
+#main-container [data-detail-preview] .redcarpert-detail-actions a.redcarpert-detail-fitting-button {
   box-sizing: border-box;
   display: inline-flex !important;
   align-items: center;
@@ -216,16 +216,17 @@
   letter-spacing: .045em;
   text-align: center;
   text-transform: none;
+  text-decoration: none !important;
   cursor: pointer;
   white-space: normal;
   transition: background-color .2s ease, border-color .2s ease;
 }
 
-#main-container [data-detail-preview] .redcarpert-detail-actions button.redcarpert-detail-fitting-button:hover {
+#main-container [data-detail-preview] .redcarpert-detail-actions a.redcarpert-detail-fitting-button:hover {
   background: #80674f !important;
   border-color: #80674f !important;
 }
-#main-container [data-detail-preview] .redcarpert-detail-actions button.redcarpert-detail-fitting-button:focus-visible {
+#main-container [data-detail-preview] .redcarpert-detail-actions a.redcarpert-detail-fitting-button:focus-visible {
   outline: 2px solid #a07b58;
   outline-offset: 4px;
 }
