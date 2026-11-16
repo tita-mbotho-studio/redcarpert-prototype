@@ -19,7 +19,7 @@ const esc = (s: string): string => s.replaceAll("&","&amp;").replaceAll("<","&lt
 const two = (n: number): string => String(n).padStart(2, "0");
 const imageData = (data: Buffer, mime: "image/jpeg" | "image/png"): string =>
   "data:" + mime + ";base64," + data.toString("base64");
-const price = (p: CatalogueProduct): string => esc(displayPriceForDress(p.id));
+const price = (p: CatalogueProduct): string => esc(displayPriceForDress(p.id, p.priceZar));
 
 const style = [
   "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600&display=swap');",
