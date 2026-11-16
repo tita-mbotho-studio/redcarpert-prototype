@@ -182,15 +182,16 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
   }
 });
 
-test('release readiness: main deploys automatically after checks while development verification is manual',()=>{
+test('release readiness: verification and deployment require explicit manual workflow dispatch',()=>{
   const yaml=readFileSync('.github/workflows/pages.yml','utf8').replace(/\r\n?/g,'\n');
-  assert.match(yaml,/^  push:\n    branches:\n      - main$/m,'main updates must trigger automatic deployment');
+  assert.match(yaml,/^  workflow_dispatch:$/m,'owner must explicitly dispatch the Pages workflow');
+  assert.doesNotMatch(yaml,/^  (?:push|pull_request|schedule):/m,'merges and branch pushes must never initiate Pages Actions');
   assert.match(yaml,/    needs: build/,'deployment must wait for successful build and tests');
   assert.match(yaml,/if: github\.ref == 'refs\/heads\/main'/,'deployment is restricted to main');
   assert.match(yaml,/npm run test:browser/,'production must pass browser checks');
   assert.match(yaml,/actions\/upload-pages-artifact@/);
   assert.match(yaml,/actions\/deploy-pages@/);
-  assert.doesNotMatch(yaml,/approve_deployment|inputs\.approve_deployment/,'production deployment must not require manual approval');
+  assert.doesNotMatch(yaml,/approve_deployment|inputs\.approve_deployment/,'manual workflow dispatch is the explicit release approval');
   assert.doesNotMatch(yaml,/^  pull_request:/m,'pull requests must not deploy');
   const verification=readFileSync('.github/workflows/verify.yml','utf8').replace(/\r\n?/g,'\n');
   assert.match(verification,/workflow_dispatch:/);
