@@ -57,9 +57,18 @@ export function initializeWeddingMomentsGallery() {
       photo.alt = button.querySelector('img')?.alt ||
         button.getAttribute('aria-label') || 'Wedding photograph';
     } else {
+      video.muted = false;
       video.src = url;
     }
     dialog.showModal();
+    if (type === 'video') {
+      // Start from the thumbnail click while user activation is still available.
+      // Some browsers may still block playback with sound; native controls remain.
+      const playback = video.play();
+      if (playback && typeof playback.catch === 'function') {
+        playback.catch(() => {});
+      }
+    }
   });
 
   close.addEventListener('click', () => dialog.close());
