@@ -1,6 +1,5 @@
-name: One-time verified Pages deployment dispatch
-# This workflow only dispatches the existing manual verification/deployment.
-# Remove this file after the deployment; leave pages.yml manual-only.
+name: One-time verified Pages deployment
+# Temporary owner-authorized release workflow. Remove after verified publication.
 on:
   push:
     branches:
@@ -8,13 +7,56 @@ on:
     paths:
       - '.github/workflows/deploy-once.yml'
 permissions:
+  contents: read
   actions: write
+concurrency:
+  group: github-pages-one-time-release
+  cancel-in-progress: false
 jobs:
-  dispatch:
+  build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch verified Pages workflow on main
+      - name: Cancel stalled GitHub bot dispatch to avoid duplicate publishing
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run pages.yml --ref main --repo tita-mbotho-studio/redcarpert-prototype
+        run: gh api -X POST repos/tita-mbotho-studio/redcarpert-prototype/actions/runs/43900973763/cancel || true
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      # The lookbook PDF requires Chromium during static generation.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:dist
+      - name: Test production pages in Chromium
+        run: |
+          npm run preview -- --port 4173 > /tmp/pages-preview.log 2>&1 &
+          pages_preview_pid=$!
+          trap 'kill "$pages_preview_pid"' EXIT
+          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-prototype/ > /dev/null
+          npm run test:browser
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    # Publish only main after the complete build and browser checks succeed.
+    # Feature branches and pull requests never deploy.
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy verified main artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
