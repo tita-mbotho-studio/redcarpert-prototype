@@ -110,5 +110,6 @@
       "priceZar": 33900
     }
   ],
-  "priceStatus": "mixed"
+  "priceStatus": "mixed",
+  "priceRangesZar": {}
 }
