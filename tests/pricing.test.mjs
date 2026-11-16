@@ -2,13 +2,14 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import products from "../src/data/products.json" with { type: "json" };
 import { catalogueProducts } from "../src/data/catalogue.ts";
-import { priceForDress, displayDressPrice } from "../src/lib/pricing.ts";
+import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "../src/lib/pricing.ts";
 import { createNodeRenderer } from "../scripts/lib/markup.ts";
 
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
   assert.equal(products.priceStatus, "mixed");
   assert.equal(products.dresses.length, 27);
+  assert.deepEqual(products.priceRangesZar, {}, "no ranges have been approved or fabricated");
   const ids = products.dresses.map(dress => dress.id);
   assert.equal(new Set(ids).size, 27);
   assert.deepEqual([...ids].sort(), catalogueProducts.map(dress => dress.id).sort());
@@ -24,6 +25,10 @@ test("price formatting works for unassigned and verified integer ZAR prices", ()
   assert.equal(displayDressPrice(null), "Price to be confirmed");
   assert.equal(displayDressPrice(12500).replace(/\s/g, " "), "R 12 500");
   assert.equal(displayDressPrice(950).replace(/\s/g, " "), "R 950");
+  assert.equal(displayDressPrice({minZar:12500,maxZar:18900}).replace(/\s/g, " "), "R 12 500 – R 18 900");
+  assert.throws(() => displayDressPrice({minZar:20000,maxZar:15000}),/Invalid wedding dress price range/);
+  assert.match(PRICE_CONDITION_DISCLAIMER,/new or pre-owned/);
+  for(const record of products.dresses) assert.equal(displayPriceForDress(record.id),displayDressPrice(record.priceZar));
   for (const invalid of [0, -120, 100.25, Number.NaN, Number.POSITIVE_INFINITY]) {
     assert.throws(() => displayDressPrice(invalid), /Invalid wedding dress price/);
   }
