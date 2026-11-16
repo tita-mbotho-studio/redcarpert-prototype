@@ -5,7 +5,7 @@ import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
-import { displayDressPrice } from '../src/lib/pricing.ts';
+import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
@@ -126,7 +126,9 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
   assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,16);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,27);
+   assert.equal((html.match(/class="price-condition"/g)||[]).length,27);
+   assert(html.includes(PRICE_CONDITION_DISCLAIMER));
   assert.match(html, /Inspiration photo and example price/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
@@ -136,7 +138,8 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html,/Photography Credits/);
   assert.doesNotMatch(html,/Client-supplied photography/);
   assert.match(html,/Ball Gown photos: Redcarpert Wedding Dresses/);
-  assert.match(html,/Price to be confirmed/);
+  assert.doesNotMatch(html,/Price to be confirmed/);
+   assert.match(html,/Indicative range/);
   for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
     assert(html.includes('href="#collection-'+id+'">'+
       (id==='ball_gown'?'Ball Gown':id==='mermaid'?'Mermaid':id==='ruffled'?'Ruffled Dresses':id==='modern_tradition'?'Modern Tradition Dresses':'2 in 1 Dresses')+
@@ -147,9 +150,9 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
     const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
     assert(online.includes('<h3>'+label+'</h3>'),'online reader missing '+label);
-    assert(online.includes('data-book-price="'+dress.id+'">'+displayDressPrice(dress.priceZar)+'</p>'),
+    assert(online.includes('data-book-price="'+dress.id+'">'+displayPriceForDress(dress.id, dress.priceZar)+'</p>'),
       'online reader price mismatch '+label);
-    assert(html.includes('<p class="amount">'+displayDressPrice(dress.priceZar)+'</p>'), 'missing ZAR price '+label);
+    assert(html.includes('<p class="amount">'+displayPriceForDress(dress.id, dress.priceZar)+'</p>'), 'missing ZAR price '+label);
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }
