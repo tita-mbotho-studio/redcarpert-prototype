@@ -128,6 +128,10 @@ try {
     assert(await dialog.evaluate(el => el.open));
     const fullImage = dialog.locator("[data-wedding-preview-photo]");
     await fullImage.waitFor({ state: "visible", timeout: 12000 });
+    await page.waitForFunction(() => {
+      const image = document.querySelector('[data-wedding-preview-photo]');
+      return image?.complete && image.naturalWidth > 0;
+    }, { timeout: 12000 });
     assert.equal(await fullImage.evaluate(el => getComputedStyle(el).objectFit), "contain");
     const photoFrame = await dialog.evaluate(el => {
       const inner = el.querySelector('.redcarpert-moment-dialog-inner');
