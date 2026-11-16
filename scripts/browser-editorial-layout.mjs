@@ -87,15 +87,15 @@ try {
       }
       if (route === '/about-us/') {
         assert.equal(metrics.actionButtons.length,5,'all five collection links must remain');
-        const expectedColumns=width<=640?2:width<=1000?3:5;
+        const expectedColumns=width<=640?2:width<=1000?3:4;
         const rows=[];
         for(const action of metrics.actionButtons){
           const existing=rows.find(row=>Math.abs(row[0].y-action.y)<=1);
           if(existing)existing.push(action);else rows.push([action]);
         }
-        const expectedRows=expectedColumns===5?[5]:expectedColumns===3?[3,2]:[2,2,1];
+        const expectedRows=expectedColumns===4?[4,1]:expectedColumns===3?[3,2]:[2,2,1];
         assert.deepEqual(rows.map(row=>row.length),expectedRows,
-          width+'px About Us must use five / three-two / two-two-one responsive columns');
+          width+'px About Us must use four-one / three-two / two-two-one responsive columns');
         if(rows.at(-1).length===1){
           assert(Math.abs(rows.at(-1)[0].center-metrics.actionGroup.center)<=2,
             width+'px final collection button must be centred');
