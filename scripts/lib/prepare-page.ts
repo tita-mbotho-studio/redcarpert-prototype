@@ -1,20 +1,20 @@
-import { sitePages } from '../../src/data/site';
-import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue';
-import { contentAdaptations } from '../../src/data/content-adaptations';
-import { adaptSiteDocument } from '../../src/lib/content-adapter';
-import { adaptHomepageBackgrounds } from '../../src/lib/homepage-backgrounds';
-import { adaptHomepageCollectionYears } from '../../src/lib/homepage-collection-years';
-import { adaptFooterSocials } from '../../src/lib/footer-social-adapter';
-import { adaptLogo } from '../../src/lib/logo-adapter';
-import { adaptNavigation } from '../../src/lib/navigation-adapter';
-import { addHomepageFooter } from '../../src/lib/homepage-footer';
-import { adaptFooterBranding } from '../../src/lib/footer-branding-adapter';
-import { correctFooterLinks } from '../../src/lib/footer-link-corrections';
-import { adaptCatalogue } from '../../src/lib/catalogue-adapter';
-import { adaptEditorialDocument } from '../../src/lib/editorial-pages';
-import { modernizeSiteIcons } from '../../src/lib/modern-icons';
-import { createProductDetailPreview } from '../../src/lib/product-detail-preview';
-import { siteMetadata } from '../../src/data/metadata';
+import { sitePages } from '../../src/data/site.ts';
+import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue.ts';
+import { contentAdaptations } from '../../src/data/content-adaptations.ts';
+import { adaptSiteDocument } from '../../src/lib/content-adapter.ts';
+import { adaptHomepageBackgrounds } from '../../src/lib/homepage-backgrounds.ts';
+import { adaptHomepageCollectionYears } from '../../src/lib/homepage-collection-years.ts';
+import { adaptFooterSocials } from '../../src/lib/footer-social-adapter.ts';
+import { adaptLogo } from '../../src/lib/logo-adapter.ts';
+import { adaptNavigation } from '../../src/lib/navigation-adapter.ts';
+import { addHomepageFooter } from '../../src/lib/homepage-footer.ts';
+import { adaptFooterBranding } from '../../src/lib/footer-branding-adapter.ts';
+import { correctFooterLinks } from '../../src/lib/footer-link-corrections.ts';
+import { adaptCatalogue } from '../../src/lib/catalogue-adapter.ts';
+import { adaptEditorialDocument } from '../../src/lib/editorial-pages.ts';
+import { modernizeSiteIcons } from '../../src/lib/modern-icons.ts';
+import { createProductDetailPreview } from '../../src/lib/product-detail-preview.ts';
+import { siteMetadata } from '../../src/data/metadata.ts';
 
 /** Produce the existing approved page tree without touching its structure. */
 export function preparePage(route: string) {
