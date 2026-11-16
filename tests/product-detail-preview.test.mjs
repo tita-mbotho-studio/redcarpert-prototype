@@ -3,7 +3,7 @@ import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleDetailTitle,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
-import { displayDressPrice } from '../src/lib/pricing.ts';
+import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -46,7 +46,8 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
       name.endsWith('Dresses')?name:name+' Collection');
   }
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-dress-price')).children[0],
-    displayDressPrice(product.priceZar));
+    displayPriceForDress(product.id, product.priceZar));
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-disclaimer').children[0],PRICE_CONDITION_DISCLAIMER);
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
     'stock image disclosure must sit outside the floating card');
   assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),product.status==='sample','only illustrative styles need notices');
