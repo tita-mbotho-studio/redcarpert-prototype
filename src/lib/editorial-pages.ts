@@ -12,7 +12,7 @@ const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/weddi
 
 const p = (text: string) => node("p", {}, [text]);
 const h = (text: string, id?: string) => node("h2", id ? { id } : {}, [text]);
-const fitting = () => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Enquire about a fitting"]);
+const fitting = (label = "Enquire about a fitting") => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, [label]);
 
 function editorialContent(route: EditorialRoute): DocumentNode[] {
   if (route === "/digital-lookbook") return [
@@ -95,15 +95,15 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["GET IN TOUCH"]),
       node("h2", { id: "redcarpert-contact-title" }, ["Let's find your wedding dress"]),
       node("p", { class: "redcarpert-editorial-lead" }, ["We're here to help you find a dress you love."]),
-      p("Browse our wedding dresses and message us on WhatsApp to ask questions or arrange a fitting."),
-      fitting(),
+      p("Message us on WhatsApp to ask about our dresses or book a fitting."),
+      fitting("Book a Fitting"),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
       h("How to Book a Fitting", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
         node("li", {}, [node("strong", {}, ["Find a Dress"]), p("Browse our wedding dresses and choose a style you love.")]),
         node("li", {}, [node("strong", {}, ["Message Us"]), p("Contact us on WhatsApp to ask about the dress and book your fitting.")]),
-        node("li", {}, [node("strong", {}, ["Confirm Your Appointment"]), p("We'll confirm your appointment with you on WhatsApp.")]),
+        node("li", {}, [node("strong", {}, ["Confirm Your Appointment"]), p("We'll agree on a fitting time and confirm it with you.")]),
       ]),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Browse dresses and contact us" }, [
         node("a", { href: "/product/", class: "redcarpert-editorial-action" }, ["Browse Wedding Dresses"]),
@@ -116,7 +116,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
       h("Our Location", "redcarpert-map-title"),
       node("p", { class: "redcarpert-editorial-lead" }, ["Pomona · Kempton Park · Gauteng"]),
-      p("We're based in Pomona, Kempton Park. This map shows the general area."),
+      p("We're in Pomona, Kempton Park. This map shows the general area."),
       node("div", { class: "redcarpert-editorial-map" }, [
         node("iframe", {
           title: "Map of the Pomona area in Kempton Park, Gauteng, South Africa",
