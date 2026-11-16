@@ -1,10 +1,7 @@
 name: Verify and deploy static Pages site
-# Development branch checks remain opt-in. Only changes merged into main
-# trigger the production validation and Pages deployment pipeline.
+# All builds, tests, GitHub Actions and production deployments are
+# initiated manually by the owner. Merging to main never triggers this run.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 permissions:
   contents: read
