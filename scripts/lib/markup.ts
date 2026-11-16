@@ -1,5 +1,6 @@
 import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue.ts';
 import { displayDressPrice } from '../../src/lib/pricing.ts';
+import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
 
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -51,7 +52,7 @@ function render(node: DocumentNode): string {
  // Preserve only the explicitly approved, fully validated native wa.me links
  // from directWhatsAppHandoffs. Captured legacy contact URLs stay inert.
  const approvedWhatsApp = attrs['data-whatsapp-send'] === ''
-   && attrs.href?.startsWith('https://wa.me/27680458811?text=');
+   && attrs.href?.startsWith(`https://wa.me/${WHATSAPP_NUMBER}?text=`);
  if(attrs.href && /^(?:https?:\/\/(?:wa\.me|[^/]*whatsapp\.(?:com|net))|whatsapp:|intent:)/i.test(attrs.href)
    && !approvedWhatsApp) {
   delete attrs.href; delete attrs.target; Object.assign(attrs,{'data-whatsapp-preview':'',role:'button',tabindex:'0','aria-haspopup':'dialog'});
