@@ -268,7 +268,7 @@ test('Implementation 22: every static page starts with a bounded, branded global
   assert(loader>0&&header>loader,route+' loader must precede site header');
   assert.match(html,/id="redcarpert-loader-critical"/,route+' loader critical CSS missing');
   assert.match(html,/redcarpert-logo-optimized\.webp/,route+' must render optimised approved logo');
-  assert.match(html,/Preparing your bridal experience/,route+' missing branded status');
+  assert.match(html,/Loading Redcarpert Wedding Dresses/,route+' missing branded status');
   assert.match(html,/redcarpertLoaderFallback=setTimeout/,route+' must fail open if JS stalls');
   assert.match(html,/<noscript><style>#redcarpert-page-loader\{display:none!important\}<\/style><\/noscript>/,
     route+' must fail open with JavaScript disabled');
