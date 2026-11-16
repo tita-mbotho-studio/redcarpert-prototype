@@ -181,7 +181,7 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
           assert.equal(route,'/contact-us','only the Contact page may link to an external map');
           assert.equal(outbound.pathname,'/maps/search/','external Google link must be a Maps search only');
           assert.equal(outbound.searchParams.get('api'),'1');
-          assert.equal(outbound.searchParams.get('query'),'Sunnyside, Pretoria, South Africa');
+          assert.equal(outbound.searchParams.get('query'),'Pomona, Kempton Park, Gauteng, South Africa');
           assert.equal(outbound.searchParams.size,2,'external map link must not contain tracking parameters');
           continue;
         }
