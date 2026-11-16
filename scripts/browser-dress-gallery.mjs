@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
+import { displayPriceForDress } from '../src/lib/pricing.ts';
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -120,7 +121,8 @@ try {
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
  assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
- assert.equal(await actual.locator('[data-dress-price]').textContent(),'Price to be confirmed');
+ assert.equal(await actual.locator('[data-dress-price]').textContent(),displayPriceForDress('ball-gown-03'));
+ assert.match(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),/new or pre-owned/);
  assert.equal(await actual.locator('.redcarpert-detail-price-label').count(),0,'client gown has no redundant price heading');
  assert.equal(await actual.locator('.sample-detail-notice').count(),0,'client gown has no provenance notice');
  // Single-photo client gowns still show the full silhouette without empty arrows.
