@@ -64,6 +64,32 @@ try {
         assert(!['none','normal','""'].includes(metrics.menu.iconGlyph),
           width+'px modern hamburger glyph missing');
       }
+      if(width<=1000){
+        await page.locator('#header .mob-nav-menu').waitFor({state:'attached'});
+        await page.locator('#header .mobile-nav').click();
+        await page.locator('#header .mob-nav-menu').waitFor({state:'visible'});
+        const dropdown=await page.evaluate(()=>{
+          const header=document.querySelector('#header');
+          const menu=header.querySelector('.mob-nav-menu');
+          const labelChevron=menu.querySelector('#menu-item-15821 > a > .fa-chevron-down');
+          const toggle=menu.querySelector('#menu-item-15821 > .mob-nav-arrow');
+          const reference=document.body.classList.contains('redcarpert-home-native')
+            ? header : document.querySelector('#main-container .header-wrapper');
+          return {
+            actual:getComputedStyle(menu).backgroundColor,
+            expected:getComputedStyle(reference).backgroundColor,
+            labelChevronExists:!!labelChevron,
+            labelChevronDisplay:labelChevron?getComputedStyle(labelChevron).display:null,
+            toggleAccessible:toggle?.getAttribute('aria-label')==='Toggle dress categories',
+          };
+        });
+        assert.equal(dropdown.actual,dropdown.expected,route+' '+width+'px mobile dropdown must match header');
+        assert(dropdown.labelChevronExists,'expected desktop-only decorative icon markup');
+        assert.equal(dropdown.labelChevronDisplay,'none','redundant Wedding Dresses label arrow must be hidden on mobile');
+        assert(dropdown.toggleAccessible,'keep the functional right-hand category toggle');
+        await page.locator('#header .mob-nav-arrow').click();
+        await page.locator('#header .mob-nav-menu .sub-menu').waitFor({state:'visible'});
+      }
       assert.equal(metrics.fittingTitle,'FITTINGS');
       assert.equal(metrics.fittingText,'Book a fitting');
       assert.deepEqual(metrics.socials,[
