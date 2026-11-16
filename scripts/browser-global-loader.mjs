@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {readFileSync} from 'node:fs';
+import imageLinks from '../src/data/image-links.json' with {type:'json'};
 
 const origin='http://localhost:4173/redcarpert-prototype';
 const browser=await chromium.launch({args:['--no-sandbox']});
@@ -34,7 +35,8 @@ try {
     assert.equal(await page.locator('#redcarpert-page-loader .rc-load-logo').isVisible(),true);
     assert.equal(await page.locator('#redcarpert-page-loader .rc-load-spinner').count(),1);
     const heroPreload=await page.locator('link[rel="preload"][as="image"]').getAttribute('href');
-    assert.equal(heroPreload,'https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508');
+    assert.equal(heroPreload,imageLinks.home_page.hero[0].url,
+      width+'px hero preload must match the approved image manifest');
     await loader.waitFor({state:'detached',timeout:11000});
     const appearance=await page.evaluate(()=>{
       const header=document.querySelector('#header');
