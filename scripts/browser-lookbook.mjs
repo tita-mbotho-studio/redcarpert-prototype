@@ -36,6 +36,37 @@ try {
   assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),products.dresses.length);
   const next = page.getByRole('button',{name:'Next page',exact:true});
   const previous = page.getByRole('button',{name:'Previous page',exact:true});
+  // Accessible names remain for screen readers; visible labels are icons only.
+  assert.equal(await previous.textContent(),'','previous control must have no visible text');
+  assert.equal(await next.textContent(),'','next control must have no visible text');
+  assert.equal(await previous.locator('.fa-solid.fa-chevron-left').count(),1);
+  assert.equal(await next.locator('.fa-solid.fa-chevron-right').count(),1);
+  assert(await previous.isDisabled(),'previous arrow must be disabled on the cover');
+
+  // Compare computed appearance with the existing approved dress gallery arrows.
+  const appearance=async locator=>locator.evaluate(button=>{
+    const computed=getComputedStyle(button);
+    const box=button.getBoundingClientRect();
+    const icon=button.querySelector('i').getBoundingClientRect();
+    return {
+      width:Math.round(box.width*100)/100,height:Math.round(box.height*100)/100,
+      borderRadius:computed.borderRadius,borderColor:computed.borderTopColor,
+      borderWidth:computed.borderTopWidth,background:computed.backgroundColor,
+      color:computed.color,shadow:computed.boxShadow,fontSize:computed.fontSize,
+      iconCentered:Math.abs((icon.left+icon.right)/2-(box.left+box.right)/2)<=1.5
+        && Math.abs((icon.top+icon.bottom)/2-(box.top+box.bottom)/2)<=1.5,
+    };
+  });
+  const referencePage=await browser.newPage({viewport:{width,height:900},isMobile:mobile,hasTouch:mobile});
+  await referencePage.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-02/',{waitUntil:'domcontentloaded'});
+  const reference=referencePage.locator('[data-gallery-next]');
+  await reference.waitFor({state:'visible'});
+  const expectedStyle=await appearance(reference);
+  const actualStyle=await appearance(next);
+  assert.deepEqual(actualStyle,expectedStyle,width+'px lookbook arrow must match dress gallery appearance');
+  assert((await appearance(previous)).iconCentered,width+'px previous chevron must be centered');
+  await referencePage.close();
+
   for(let i=2;i<=pageCount;i++){
    await next.click();
    assert.equal(await page.locator('[data-book-status]').textContent(),'Page '+i+' of '+pageCount);

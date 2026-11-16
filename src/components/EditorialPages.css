@@ -242,17 +242,39 @@
   margin: 22px auto 7px;
   flex-wrap: wrap;
 }
+/* Match the dress-detail gallery's approved circular, off-white chevrons.
+   Keep these in the existing counter row, not overlaid on the lookbook pages. */
 .redcarpert-book-controls button {
-  min-width: 108px;
-  padding: 11px 14px;
-  color: #44372c;
-  font: 500 12px Montserrat, sans-serif;
-  background: #fff;
-  border: 1px solid #b9ac9d;
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 auto;
+  width: clamp(36px, 3.4vw, 44px);
+  height: clamp(36px, 3.4vw, 44px);
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 1px solid rgba(148, 123, 92, .28);
+  border-radius: 50%;
+  background: rgba(253, 251, 248, .93);
+  color: #4c4035;
+  box-shadow: 0 3px 12px rgba(41, 29, 22, .1);
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
+  transition: background .18s ease, box-shadow .18s ease;
+}
+.redcarpert-book-controls button:not(:disabled):hover {
+  background: #fdfbf8;
+  box-shadow: 0 5px 16px rgba(41, 29, 22, .16);
 }
 .redcarpert-book-controls button:disabled { opacity: .35; cursor: not-allowed; }
-.redcarpert-book-controls button:focus-visible,
+.redcarpert-book-controls button:focus-visible {
+  outline: 2px solid #947b5c;
+  outline-offset: 3px;
+}
 .redcarpert-book a:focus-visible { outline: 2px solid #a47749; outline-offset: 3px; }
 .redcarpert-book-controls [data-book-status] {
   min-width: 86px;
