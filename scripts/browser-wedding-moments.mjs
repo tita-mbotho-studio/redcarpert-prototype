@@ -120,6 +120,39 @@ try {
     assert(Math.abs(geometry.ratio - 1) < .02, "all media cards remain square");
     assert.equal(geometry.overflow, false, "no horizontal scrolling");
 
+    // The X belongs outside the visible media, not over the photograph or film.
+    // On wider desktops it sits to the right; on phones/tablets it sits above.
+    const assertCloseOutsideMedia = async mediaSelector => {
+      const positions = await dialog.evaluate((el, selector) => {
+        const media = el.querySelector(selector).getBoundingClientRect();
+        const close = el.querySelector('[data-wedding-preview-close]').getBoundingClientRect();
+        return {
+          media: {left: media.left, top: media.top, right: media.right, bottom: media.bottom},
+          close: {left: close.left, top: close.top, right: close.right, bottom: close.bottom},
+        };
+      }, mediaSelector);
+      const {media, close} = positions;
+      assert(close.left >= -1 && close.right <= width+1,
+        width+'px close button must remain inside the horizontal viewport');
+      assert(close.top >= -1 && close.bottom <= 901,
+        width+'px close button must remain inside the vertical viewport');
+      if(width > 1000) {
+        assert(close.left >= media.right+6,
+          width+'px close button must be just to the right, not over the media');
+        assert(close.left <= media.right+18,
+          width+'px close button must remain near the upper-right corner');
+        assert(Math.abs(close.top-media.top)<=2,
+          width+'px close button must align with media top');
+      } else {
+        assert(close.bottom <= media.top-4,
+          width+'px close button must be entirely above the media');
+        assert(close.bottom >= media.top-14,
+          width+'px close button should be just outside the top-right corner');
+        assert(Math.abs(close.right-media.right)<=2,
+          width+'px close button must align with media right edge');
+      }
+    };
+
     const firstPhoto = gallery.locator("button[data-wedding-media=photo]").first();
     assert.equal(await firstPhoto.getAttribute("data-wedding-src"),
       base + "wedding-moments-56.jpg");
@@ -158,6 +191,7 @@ try {
       width + 'px photo must fill the popup without side mats');
     assert(Math.abs(photoFrame.frameHeight - photoFrame.imageHeight) <= 2,
       width + 'px photo must fill the popup without top/bottom mats');
+    await assertCloseOutsideMedia('[data-wedding-preview-photo]');
     await page.keyboard.press("Escape");
     assert.equal(await dialog.evaluate(el => el.open), false);
     await page.waitForFunction(() =>
@@ -194,6 +228,7 @@ try {
     assert.equal(videoFrame.border, '0px', width + 'px video popup should have no border');
     assert(Math.abs(videoFrame.frameWidth - videoFrame.videoWidth) <= 2,
       width + 'px video must fill the popup without side mats');
+    await assertCloseOutsideMedia('[data-wedding-preview-video]');
     const playbackAttempts = await page.evaluate(() => window.__weddingVideoPlayAttempts);
     assert.equal(playbackAttempts.length, 1, width + 'px clicking a film must attempt immediate playback');
     assert.equal(playbackAttempts[0].muted, false, width + 'px film should start with sound');
