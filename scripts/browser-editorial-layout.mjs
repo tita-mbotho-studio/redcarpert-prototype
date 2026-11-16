@@ -55,6 +55,10 @@ try {
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
           teamLast: team ? box(team.lastElementChild) : null,
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
+          actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
+          actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
+          fittingButtons: [...wrap.querySelectorAll('a.button[data-whatsapp-send]')].map(box),
+          downloadButton: wrap.querySelector('.redcarpert-lookbook-download a.button') ? box(wrap.querySelector('.redcarpert-lookbook-download a.button')) : null,
           bookPages: wrap.querySelectorAll('#redcarpert-flipbook [data-book-page]').length,
           scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
@@ -68,7 +72,34 @@ try {
         assert(Math.abs(panel.center - metrics.root.center) <= 2, width + 'px ' + route + ' panel is off centre');
         assert(panel.width <= metrics.root.width + 1, width + 'px ' + route + ' panel exceeds root width');
       }
+      for (const button of metrics.fittingButtons) {
+        assert(button.height>=43.5,width+'px '+route+' fitting button needs a comfortable touch target');
+        assert(button.right<=width+1&&button.x>=-1,width+'px '+route+' fitting button must not overflow');
+        if(width<=560)assert(button.width<=250.5,width+'px '+route+' fitting button must stay compact');
+      }
+      for (const action of metrics.actionButtons) {
+        assert(action.height>=43.5,width+'px '+route+' collection action must be tappable');
+        assert(action.width<=210.5,width+'px '+route+' action must not become oversized');
+      }
       if (route === '/about-us/') {
+        assert.equal(metrics.actionButtons.length,5,'all five collection links must remain');
+        const expectedColumns=width<=560?2:width<=900?3:4;
+        const rows=[];
+        for(const action of metrics.actionButtons){
+          const existing=rows.find(row=>Math.abs(row[0].y-action.y)<=1);
+          if(existing)existing.push(action);else rows.push([action]);
+        }
+        assert.equal(rows[0].length,expectedColumns,width+'px About Us collection columns');
+        assert(rows.every(row=>row.length<=expectedColumns),width+'px too many collection buttons in one row');
+        if(rows.at(-1).length===1){
+          assert(Math.abs(rows.at(-1)[0].center-metrics.actionGroup.center)<=2,
+            width+'px final collection button must be centred');
+        }else{
+          const last=rows.at(-1);
+          const center=(last[0].x+last.at(-1).right)/2;
+          assert(Math.abs(center-metrics.actionGroup.center)<=2,
+            width+'px partial last button row must be centred');
+        }
         assert.equal(metrics.teamCount, 3);
         assert(metrics.teamSources.every(s => s.startsWith('https://images.pexels.com/photos/')));
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
@@ -77,13 +108,19 @@ try {
             width + 'px the last team card must be centred on tablet');
         }
       } else if (route === '/contact-us/') {
+        assert.equal(metrics.actionButtons.length,1,'Contact Us keeps its browse-dresses action');
+        assert(Math.abs(metrics.actionButtons[0].center-metrics.actionGroup.center)<=2,
+          width+'px Contact Us action must stay centered');
         assert.equal(metrics.panelCount, 3);
         assert(metrics.map && metrics.map.width > 200, width + 'px map missing or collapsed');
         assert(Math.abs(metrics.map.center - metrics.root.center) <= 2, width + 'px map is not centred');
-        assert(metrics.mapSrc.includes('Sunnyside%2C%20Pretoria%2C%20South%20Africa'));
-        assert(metrics.mapLink.includes('Sunnyside'));
+        assert(metrics.mapSrc.includes('Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa'));
+        assert(metrics.mapLink.includes('Pomona'));
       } else {
-        assert.equal(metrics.bookPages, products.dresses.length+2, 'current 22-page flippable book must remain intact');
+        assert(metrics.downloadButton,'lookbook download action must be present');
+        assert(metrics.downloadButton.height>=43.5,width+'px lookbook download must be tappable');
+        if(width<=560)assert(metrics.downloadButton.width<=250.5,width+'px lookbook download must not become oversized');
+        assert.equal(metrics.bookPages, products.dresses.length+2, 'flippable book must remain intact');
       }
       assert(metrics.scrollWidth <= width+1.5, width + 'px ' + route + ' horizontal overflow: ' + metrics.scrollWidth);
       assert.deepEqual(errors, [], width + 'px ' + route + ' browser errors');
