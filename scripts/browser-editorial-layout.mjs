@@ -36,6 +36,12 @@ try {
           const r = e.getBoundingClientRect();
           return {x:r.x, y:r.y, width:r.width, height:r.height, right:r.right, bottom:r.bottom, center:r.x+r.width/2};
         };
+        const control = e => ({
+          ...box(e),
+          fontSize: parseFloat(getComputedStyle(e).fontSize),
+          paddingLeft: parseFloat(getComputedStyle(e).paddingLeft),
+          whiteSpace: getComputedStyle(e).whiteSpace,
+        });
         const range = document.createRange();
         range.selectNodeContents(title);
         const titleText = range.getBoundingClientRect();
@@ -61,8 +67,8 @@ try {
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
           actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
-          fittingButtons: [...wrap.querySelectorAll('a.button[data-whatsapp-send]')].map(box),
-          downloadButton: wrap.querySelector('.redcarpert-lookbook-download a.button') ? box(wrap.querySelector('.redcarpert-lookbook-download a.button')) : null,
+          fittingButtons: [...wrap.querySelectorAll('a.button[data-whatsapp-send]')].map(control),
+          downloadButton: wrap.querySelector('.redcarpert-lookbook-download a.button') ? control(wrap.querySelector('.redcarpert-lookbook-download a.button')) : null,
           bookPages: wrap.querySelectorAll('#redcarpert-flipbook [data-book-page]').length,
           scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
@@ -79,7 +85,10 @@ try {
       for (const button of metrics.fittingButtons) {
         assert(button.height>=43.5,width+'px '+route+' fitting button needs a comfortable touch target');
         assert(button.right<=width+1&&button.x>=-1,width+'px '+route+' fitting button must not overflow');
-        if(width<=640)assert(button.width<=250.5,width+'px '+route+' fitting button must stay compact');
+        const maxFittingWidth=width<=640?205.5:width<=1000?230.5:260.5;
+        assert(button.width<=maxFittingWidth,width+'px '+route+' fitting button must stay compact');
+        assert.equal(button.whiteSpace,'normal',width+'px '+route+' fitting label must wrap if needed');
+        if(width<=640)assert(button.fontSize<=11.75,width+'px '+route+' fitting label must be phone-sized');
       }
       for (const action of metrics.actionButtons) {
         assert(action.height>=43.5,width+'px '+route+' collection action must be tappable');
@@ -87,15 +96,15 @@ try {
       }
       if (route === '/about-us/') {
         assert.equal(metrics.actionButtons.length,5,'all five collection links must remain');
-        const expectedColumns=width<=640?2:width<=1000?3:4;
+        const expectedColumns=width<=640?2:width<=1000?3:5;
         const rows=[];
         for(const action of metrics.actionButtons){
           const existing=rows.find(row=>Math.abs(row[0].y-action.y)<=1);
           if(existing)existing.push(action);else rows.push([action]);
         }
-        const expectedRows=expectedColumns===4?[4,1]:expectedColumns===3?[3,2]:[2,2,1];
+        const expectedRows=expectedColumns===5?[5]:expectedColumns===3?[3,2]:[2,2,1];
         assert.deepEqual(rows.map(row=>row.length),expectedRows,
-          width+'px About Us must use four-one / three-two / two-two-one responsive columns');
+          width+'px About Us must use five / three-two / two-two-one responsive columns');
         if(rows.at(-1).length===1){
           assert(Math.abs(rows.at(-1)[0].center-metrics.actionGroup.center)<=2,
             width+'px final collection button must be centred');
@@ -124,7 +133,17 @@ try {
       } else {
         assert(metrics.downloadButton,'lookbook download action must be present');
         assert(metrics.downloadButton.height>=43.5,width+'px lookbook download must be tappable');
-        if(width<=640)assert(metrics.downloadButton.width<=250.5,width+'px lookbook download must not become oversized');
+        const maxDownloadWidth=width<=640?225.5:width<=1000?250.5:280.5;
+        assert(metrics.downloadButton.width<=maxDownloadWidth,
+          width+'px lookbook download must shrink with the viewport');
+        assert.equal(metrics.downloadButton.whiteSpace,'normal',
+          width+'px lookbook download must wrap rather than overflow');
+        if(width<=640) {
+          assert(metrics.downloadButton.fontSize<=11.25,
+            width+'px lookbook download font must scale down on phones');
+          assert(metrics.downloadButton.paddingLeft<=12.5,
+            width+'px lookbook download padding must scale down on phones');
+        }
         assert.equal(metrics.bookPages, products.dresses.length+2, 'flippable book must remain intact');
       }
       assert(metrics.scrollWidth <= width+1.5, width + 'px ' + route + ' horizontal overflow: ' + metrics.scrollWidth);
