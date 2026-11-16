@@ -88,6 +88,7 @@
   gap: 5px;
   max-width: 100%;
   white-space: nowrap;
+  text-decoration: none;
 }
 #footer[data-redcarpert-footer] .redcarpert-footer-book .fa-whatsapp {
   flex: none;
