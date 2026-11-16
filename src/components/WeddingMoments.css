@@ -208,7 +208,7 @@
   box-sizing: content-box;
   width: auto !important;
   height: auto !important;
-  max-width: min(960px,calc(100vw - 32px)) !important;
+  max-width: min(960px,calc(100vw - 112px)) !important;
   max-height: calc(100dvh - 32px) !important;
   min-width: 0;
   object-fit: contain !important;
@@ -222,7 +222,7 @@
 .redcarpert-wedding-dialog .redcarpert-wedding-preview-video {
   display: block;
   box-sizing: border-box;
-  width: min(960px,calc(100vw - 32px)) !important;
+  width: min(960px,calc(100vw - 112px)) !important;
   max-width: 100%;
   max-height: calc(100dvh - 32px) !important;
   object-fit: contain;
@@ -235,8 +235,9 @@
 .redcarpert-wedding-dialog .redcarpert-wedding-preview-close {
   position: absolute;
   z-index: 5;
-  top: 8px;
-  right: 8px;
+  /* Sit just outside the media's top-right corner, never over its pixels. */
+  top: 0;
+  right: -56px;
   display: grid;
   place-items: center;
   width: 44px;
@@ -254,6 +255,23 @@
 .redcarpert-wedding-preview-close:focus-visible {
   outline: 2px solid #a58055;
   outline-offset: 2px;
+}
+
+/* Narrow screens have no room for a side-mounted X. Place it immediately
+   above the media's right edge, with enough vertical space for a tall photo. */
+@media (max-width: 1000px) {
+  .redcarpert-wedding-dialog .redcarpert-wedding-preview-image {
+    max-width: min(960px,calc(100vw - 32px)) !important;
+    max-height: calc(100dvh - 128px) !important;
+  }
+  .redcarpert-wedding-dialog .redcarpert-wedding-preview-video {
+    width: min(960px,calc(100vw - 32px)) !important;
+    max-height: calc(100dvh - 128px) !important;
+  }
+  .redcarpert-wedding-dialog .redcarpert-wedding-preview-close {
+    top: -52px;
+    right: 0;
+  }
 }
 
 @media(max-width:768px) {
@@ -280,7 +298,8 @@
     font-size: 12px;
   }
   .redcarpert-wedding-dialog .redcarpert-wedding-preview-close {
-    top: 6px; right: 6px; width: 44px; height: 44px;
+    width: 44px;
+    height: 44px;
   }
 }
 
