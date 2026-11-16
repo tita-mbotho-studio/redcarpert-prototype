@@ -1,11 +1,11 @@
 import products from "../data/products.json" with { type: "json" };
 
-/** ZAR prices: client gowns remain null until confirmed; sample prices are indicative. */
+/** ZAR fallback prices plus explicitly illustrative ranges, pending client confirmation. */
 export type PriceZar = number | null;
 export interface PriceRangeZar { readonly minZar: number; readonly maxZar: number; }
 export const PRICE_CONDITION_DISCLAIMER = "Prices vary depending on whether the dress is new or pre-owned.";
 const priceEntries = products.dresses;
-if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || priceEntries.length !== 27) {
+if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 27) {
   throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
 }
 const priceRangesZar: Record<string, PriceRangeZar> = products.priceRangesZar;
@@ -20,6 +20,9 @@ for (const entry of priceEntries) {
   }
 }
 
+if (Object.keys(priceRangesZar).length !== ids.size) {
+  throw new Error("products.json: every dress requires an indicative price range");
+}
 for (const [id, range] of Object.entries(priceRangesZar)) {
   if (!ids.has(id) || !range || !Number.isSafeInteger(range.minZar) || !Number.isSafeInteger(range.maxZar)
     || range.minZar <= 0 || range.maxZar <= range.minZar) {
@@ -49,7 +52,7 @@ export function displayDressPrice(priceZar: PriceZar | PriceRangeZar): string {
   return "R " + new Intl.NumberFormat("en-ZA", { maximumFractionDigits: 0 }).format(priceZar);
 }
 
-/** Prefer confirmed per-dress ranges; retain current illustrative prices until approved bounds arrive. */
+/** Every catalogue display uses indicative ranges until the client supplies final values. */
 export function displayPriceForDress(id: string, fallbackPrice?: PriceZar): string {
   const storedPrice = priceForDress(id);
   return displayDressPrice(priceRangesZar[id] ?? (fallbackPrice === undefined ? storedPrice : fallbackPrice));
