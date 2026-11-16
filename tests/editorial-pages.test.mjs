@@ -51,14 +51,25 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
       assert.equal(container.attrs.class,'content-boxed layout-full');
       assert(!rendered.some(n=>n.attrs.id==='sidebar'),'empty sidebar must be removed from Contact Us');
       assert(rendered.some(n=>n.attrs.id==='full-width'),'Contact Us must use About Us content width');
+      const contact=JSON.stringify(content);
       const map=nodes(content.children).find(n=>n.tag==='iframe');
       assert(map,'Contact Us must include an embedded map');
-      assert.equal(map.attrs.src,'https://www.google.com/maps?q=Sunnyside%2C%20Pretoria%2C%20South%20Africa&output=embed');
+      assert.equal(map.attrs.src,'https://www.google.com/maps?q=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa&output=embed');
       assert.equal(map.attrs.loading,'lazy');
-      assert.match(JSON.stringify(content),/not a precise studio pin/);
+      assert.match(map.attrs.title,/Pomona area in Kempton Park/);
+      assert.match(map.attrs['aria-label'],/general Pomona area/);
+      assert.match(contact,/Pomona/);
+      assert.match(contact,/confirmed appointment only/);
+      assert.match(contact,/exact studio address and directions/);
+      assert.match(contact,/WhatsApp after your fitting appointment is confirmed/);
+      assert.match(contact,/does not identify the studio or its exact street address/);
+      assert.doesNotMatch(contact,/Sunnyside|Our Pretoria Location/,'Contact Us must not show the old Pretoria area');
       const mapLink=nodes(content.children).find(n=>n.tag==='a' && n.attrs.href?.startsWith('https://www.google.com/maps/search/'));
       assert(mapLink);
+      assert.equal(mapLink.attrs.href,'https://www.google.com/maps/search/?api=1&query=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa');
+      assert.equal(mapLink.attrs.target,'_blank');
       assert.equal(mapLink.attrs.rel,'noopener noreferrer');
+      assert.equal(mapLink.children[0],'View Pomona on Google Maps');
     }
     assert.equal(JSON.stringify(capture), before);
   }
