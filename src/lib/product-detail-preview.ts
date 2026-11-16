@@ -14,12 +14,12 @@ export const sampleGalleryImages: Record<string, {src: string; width: number; he
 
 const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
 export function sampleDetailTitle(product: CatalogueProduct): string {
-  return product.status === "client" ? product.name : `${product.name} — ${categoryName(product)}`;
+  return product.status === "client" ? product.name : `${product.name.replace(/^Sample /, "Look ")} — ${categoryName(product)}`;
 }
 
 export function sampleFittingMessage(product: CatalogueProduct): string {
-  if(product.status === "client") return `Hello Redcarpert Wedding Dresses!\n\nI am interested in ${sampleDetailTitle(product)} and would like to enquire about a fitting.\n\nCould you please confirm the price and availability?\n\nThank you.`;
-  return `Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about a fitting. I was viewing the ${sampleDetailTitle(product)} demonstration. I understand this photograph is sample imagery, not confirmed Redcarpert inventory.\n\nCould you please provide more information?\n\nThank you.`;
+  if(product.status === "client") return `Hello Redcarpert Wedding Dresses!\n\nI am interested in ${sampleDetailTitle(product)}. Can I book a fitting? Please let me know the price and availability.\n\nThank you.`;
+  return `Hello Redcarpert Wedding Dresses!\n\nI saw ${sampleDetailTitle(product)} in your inspiration collection. Do you have a similar dress available for a fitting? Please let me know the price.\n\nThank you.`;
 }
 
 /** Dress detail document from one guarded source capture; legacy routes stay intact. */
@@ -118,10 +118,10 @@ export function createProductDetailPreview(
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
         ...(client ? [] : [node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"])]),
-        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
+        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.status === "client" ? product.name : product.name.replace(/^Sample /, "Look ")] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
-          ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["ILLUSTRATIVE PRICE"])]),
+          ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["EXAMPLE PRICE"])]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
             [displayDressPrice(product.priceZar)]),
         ]),
@@ -130,7 +130,7 @@ export function createProductDetailPreview(
         ]),
       ]),
       ...(client ? [] : [node("p", { class: "sample-detail-notice" },
-        ["Style inspiration only. Images and prices are illustrative, not confirmed Redcarpert inventory."])]),
+        ["This photo is for inspiration. The dress is not confirmed as available, and the price is an example."])]),
     ] },
   ] };
   const visit = (n: DocumentNode): DocumentNode | null => {
@@ -141,9 +141,9 @@ export function createProductDetailPreview(
     return children.length !== n.children.length || children.some((c, i) => c !== n.children[i]) ? { ...n, children } : n;
   };
   return { ...source, route: product.previewRoute,
-    title: client ? `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses` : `${sampleDetailTitle(product)} | Sample Preview | Redcarpert`,
+    title: client ? `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses` : `${sampleDetailTitle(product)} | Wedding Dress Inspiration | Redcarpert`,
     description: client
-      ? "Explore " + product.name + " at Redcarpert Wedding Dresses. View its photographs and arrange a fitting."
-      : "Sample dress detail demonstration. Stock imagery, not confirmed Redcarpert inventory.",
+      ? "View " + product.name + " and message Redcarpert to book a fitting."
+      : "Explore this dress style for inspiration. Ask Redcarpert about similar dresses, prices and fittings.",
     nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
 }
