@@ -158,7 +158,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
         '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
         '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
-        (dress.status==="client"?"":'<p class="amount-label">Example price</p>')+
+        '<p class="amount-label">'+(dress.status==="client"?"Indicative range":"Example range")+'</p>'+
         '<p class="price-condition">'+esc(PRICE_CONDITION_DISCLAIMER)+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
         (dress.status==="client"?"":'<p class="disclosure">Inspiration photo and example price. Ask what is available.</p>')+'</div>'));
