@@ -24,8 +24,10 @@ export function directWhatsAppHandoffs(document: SiteDocumentData, href: string)
         throw new Error(`Unexpected WhatsApp preview control on ${document.route}`);
       }
       count++;
-      const { type: _type, "aria-haspopup": _popup,
-        "data-whatsapp-preview": _preview, ...attrs } = node.attrs;
+      const attrs = { ...node.attrs };
+      delete attrs.type;
+      delete attrs["aria-haspopup"];
+      delete attrs["data-whatsapp-preview"];
       return {
         ...node,
         tag: "a",
