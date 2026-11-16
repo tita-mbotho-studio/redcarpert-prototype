@@ -59,7 +59,7 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
       "aria-label": "Book a fitting via WhatsApp",
     }, children: [
       { tag: "i", attrs: { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, children: [] },
-      { tag: "span", attrs: {}, children: ["Book a fitting"] },
+      { tag: "span", attrs: {}, children: ["Book a Fitting"] },
     ] },
   ] });
   const credit = slot(3, "block-13", "p");
