@@ -1,6 +1,6 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayDressPrice } from "./pricing.ts";
+import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
 
 const routes: Record<string, readonly [number, string, string]> = {
   "/product": [100, "PRODUCTS", "Wedding Dresses"],
@@ -92,11 +92,12 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
         ...(product.status === "client" ? [] : ["Inspiration photo"]),
         ...(product.status === "client" ? [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: [displayDressPrice(product.priceZar)],
+          children: [displayPriceForDress(product.id)],
         }] : product.priceZar === null ? [] : [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: ["Example price: " + displayDressPrice(product.priceZar)],
+          children: ["Example price: " + displayPriceForDress(product.id)],
         }]),
+        { tag: "span", attrs: { class: "redcarpert-catalogue-condition-note" }, children: [PRICE_CONDITION_DISCLAIMER] },
       ] } : child) }];
     }) };
   });
