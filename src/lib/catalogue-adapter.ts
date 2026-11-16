@@ -92,10 +92,10 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
         ...(product.status === "client" ? [] : ["Inspiration photo"]),
         ...(product.status === "client" ? [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: [displayPriceForDress(product.id)],
+          children: [displayPriceForDress(product.id, product.priceZar)],
         }] : product.priceZar === null ? [] : [{
           tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: ["Example price: " + displayPriceForDress(product.id)],
+          children: ["Example price: " + displayPriceForDress(product.id, product.priceZar)],
         }]),
         { tag: "span", attrs: { class: "redcarpert-catalogue-condition-note" }, children: [PRICE_CONDITION_DISCLAIMER] },
       ] } : child) }];
