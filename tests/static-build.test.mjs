@@ -183,7 +183,7 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
 });
 
 test('release readiness: main deploys automatically after checks while development verification is manual',()=>{
-  const yaml=readFileSync('.github/workflows/pages.yml','utf8');
+  const yaml=readFileSync('.github/workflows/pages.yml','utf8').replace(/\r\n?/g,'\n');
   assert.match(yaml,/^  push:\n    branches:\n      - main$/m,'main updates must trigger automatic deployment');
   assert.match(yaml,/    needs: build/,'deployment must wait for successful build and tests');
   assert.match(yaml,/if: github\.ref == 'refs\/heads\/main'/,'deployment is restricted to main');
@@ -192,7 +192,7 @@ test('release readiness: main deploys automatically after checks while developme
   assert.match(yaml,/actions\/deploy-pages@/);
   assert.doesNotMatch(yaml,/approve_deployment|inputs\.approve_deployment/,'production deployment must not require manual approval');
   assert.doesNotMatch(yaml,/^  pull_request:/m,'pull requests must not deploy');
-  const verification=readFileSync('.github/workflows/verify.yml','utf8');
+  const verification=readFileSync('.github/workflows/verify.yml','utf8').replace(/\r\n?/g,'\n');
   assert.match(verification,/workflow_dispatch:/);
   assert.doesNotMatch(verification,/^  (?:push|pull_request):/m,'development verification remains opt-in');
 });
@@ -258,11 +258,12 @@ test('Implementation 22: every static page starts with a bounded, branded global
      'homepage must carry its transparent overlay class from the first paint');
    assert(html.includes('<link rel="preconnect" href="https://ik.imagekit.io">'),
      'homepage should preconnect to client ImageKit image host');
-   assert(html.includes('href="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508" as="image" type="image/webp" fetchpriority="high"'),
+   const imagekitUrls=JSON.parse(readFileSync("src/data/image-links.json","utf8")).home_page.hero.map(image=>image.url);
+   assert.equal(imagekitUrls.length,3,"homepage manifest must list three approved photos");
+   assert(html.includes('href="'+imagekitUrls[0]+'" as="image" type="image/webp" fetchpriority="high"'),
      'first client photograph should be priority-preloaded');
-   assert(html.includes('data-hero-url="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508"'),
+   assert(html.includes('data-hero-url="'+imagekitUrls[0]+'"'),
      'homepage loader should wait for first client photograph');
-   const imagekitUrls=["https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508","https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp?updatedAt=1794351597603","https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp?updatedAt=1794351600184"];
    for(const url of imagekitUrls)assert(html.includes(url),'homepage missing approved photo '+url);
    assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
     'hero preload should be declared before loading logo');
