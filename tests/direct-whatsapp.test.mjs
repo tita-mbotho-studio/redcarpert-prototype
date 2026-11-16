@@ -54,10 +54,10 @@ test('rejects invalid WhatsApp destinations and unexpected preview widgets',()=>
 
 test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and dress controls',()=>{
   const render=createNodeRenderer([]);
-  for(const route of ['/','/product/preview/sample-01-mermaid/','/product/preview/ball-gown-02/']){
+  for(const route of ['/','/product/preview/sample-01-mermaid','/product/preview/ball-gown-02']){
     const {document,product}=preparePage(route);
     const message=product?sampleFittingMessage(product):
-      'Hello Redcarpert Wedding Dresses!\\n\\nI would like to enquire about your wedding dresses and arrange a fitting.\\n\\nCould you please provide more information?\\n\\nThank you.';
+      'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
     const href=buildWhatsAppUrl(message);
     const converted=directWhatsAppHandoffs(document,href);
     const links=all(converted.nodes).filter(node=>node.attrs['data-whatsapp-send']==='');
