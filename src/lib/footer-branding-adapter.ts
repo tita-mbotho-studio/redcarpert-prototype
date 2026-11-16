@@ -56,7 +56,7 @@ export function adaptFooterBranding(document: SiteDocumentData): SiteDocumentDat
     { tag: "button", attrs: {
       type: "button", class: "redcarpert-footer-book",
       "data-whatsapp-preview": "", "aria-haspopup": "dialog",
-      "aria-label": "Book a fitting via WhatsApp",
+      "aria-label": "Book a Fitting via WhatsApp",
     }, children: [
       { tag: "i", attrs: { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, children: [] },
       { tag: "span", attrs: {}, children: ["Book a Fitting"] },
