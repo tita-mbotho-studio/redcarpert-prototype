@@ -1,5 +1,6 @@
 name: One-time verified Pages deployment
 # Temporary owner-authorized release workflow. Remove after verified publication.
+# Retry after fixing Node 24 module resolution in PR #34.
 on:
   push:
     branches:
