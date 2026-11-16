@@ -26,12 +26,14 @@
 .woocommerce-page ul.products[data-catalogue-preview] > li.redcarpert-filtered-out {display:none!important;}
 /* Category filters follow the same desktop/tablet/phone column rhythm. */
 @media (max-width:1000px) {
+  .woocommerce .redcarpert-catalogue-filter,
+  .woocommerce-page .redcarpert-catalogue-filter {max-width:660px;}
   .redcarpert-catalogue-filter button {flex-basis:calc((100% - 20px) / 3);}
 }
 @media (max-width:640px) {
   .woocommerce .redcarpert-catalogue-filter,
   .woocommerce-page .redcarpert-catalogue-filter {
-    gap:8px;margin:10px auto 20px!important;padding:12px 6px;
+    gap:8px;max-width:420px;margin:10px auto 20px!important;padding:12px 6px;
   }
   .redcarpert-catalogue-filter button {
     flex-basis:calc((100% - 8px) / 2);
