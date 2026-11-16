@@ -233,7 +233,8 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
 
 @media (prefers-reduced-motion: reduce) {
   #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger,
-  #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss {
+  #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-dismiss,
+  .redcarpert-book-controls button {
     transition: none;
   }
 
