@@ -118,11 +118,20 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
     ...productsLink, children: [...productsLink.children, icon("solid", "chevron-down")],
   });
 
-  const mobile = one(all, n => n.tag === "span" && hasClass(n, "mob-nav-btn"), "mobile menu");
+  // Icon-only mobile control. The visible glyph is decorative; the parent
+  // exposes the accessible name, initial state and keyboard semantics.
+  const mobileControl = one(all, n => hasClass(n, "mobile-nav"), "mobile menu control");
+  const mobile = one(elements(mobileControl.children), n => n.tag === "span" && hasClass(n, "mob-nav-btn"), "mobile menu");
   if (mobile.children.length !== 1 || typeof mobile.children[0] !== "string") fail("mobile menu text");
+  replacements.set(mobileControl, {
+    ...mobileControl,
+    attrs: {
+      ...mobileControl.attrs, role: "button", tabindex: "0",
+      "aria-label": "Open menu", "aria-expanded": "false", title: "Open menu",
+    },
+  });
   replacements.set(mobile, {
-    ...mobile,
-    children: [icon("solid", "bars"), node("span", {}, ["Menu"])],
+    ...mobile, children: [icon("solid", "bars")],
   });
 
   if (document.route === "/") {

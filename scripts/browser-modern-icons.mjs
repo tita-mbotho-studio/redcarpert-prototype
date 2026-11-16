@@ -20,16 +20,27 @@ try {
         const sample=footer.querySelector('.fa-brands.fa-whatsapp');
         const menu=document.querySelector('#header .mob-nav-btn');
         const menuStyle=getComputedStyle(menu);
-        const menuIcon=menu.querySelector('.fa-solid.fa-bars');
+        const menuIcon=menu.querySelector('.fa-solid');
         const menuBounds=bounds(menu);
+        const column=document.querySelector('#header .mobile-nav');
+        const columnBounds=bounds(column);
         const iconBounds=menuIcon?bounds(menuIcon):null;
         return {
           menu:{
             backgroundImage:menuStyle.backgroundImage,
             paddingLeft:parseFloat(menuStyle.paddingLeft),
             visible:menuStyle.display!=='none' && bounds(menu).width>0,
-            icons:menu.querySelectorAll('.fa-solid.fa-bars').length,
+            icons:menu.querySelectorAll('.fa-solid').length,
+            bars:menuIcon?.classList.contains('fa-bars')??false,
             text:menu.textContent.trim(),
+            label:column.getAttribute('aria-label'),
+            expanded:column.getAttribute('aria-expanded'),
+            columnCenterX:(columnBounds.left+columnBounds.right)/2,
+            columnCenterY:(columnBounds.top+columnBounds.bottom)/2,
+            iconCenterX:iconBounds?(iconBounds.left+iconBounds.right)/2:null,
+            iconCenterY:iconBounds?(iconBounds.top+iconBounds.bottom)/2:null,
+            columnWidth:columnBounds.width,
+            columnHeight:columnBounds.height,
             left:menuBounds.left,right:menuBounds.right,
             iconLeft:iconBounds?.left??null,
             iconRight:iconBounds?.right??null,
@@ -55,14 +66,62 @@ try {
         assert.equal(metrics.menu.paddingLeft,0,
           width+'px reserved legacy hamburger padding must be removed');
         assert.equal(metrics.menu.icons,1,
-          width+'px menu must have exactly one Font Awesome hamburger');
-        assert.equal(metrics.menu.text.toLowerCase(),'menu');
-        assert(metrics.menu.visible,width+'px mobile menu should be visible');
+          width+'px menu must have exactly one Font Awesome icon');
+        assert(metrics.menu.bars,width+'px closed menu must display bars');
+        assert.equal(metrics.menu.text,'',width+'px must not show a Menu label');
+        assert.equal(metrics.menu.label,'Open menu',width+'px closed menu needs an accessible name');
+        assert.equal(metrics.menu.expanded,'false',width+'px initial menu state');
+        assert(metrics.menu.columnWidth>=43 && metrics.menu.columnHeight>=43,
+          width+'px mobile menu touch target is too small');
+        assert(Math.abs(metrics.menu.iconCenterX-metrics.menu.columnCenterX)<=1.5 &&
+          Math.abs(metrics.menu.iconCenterY-metrics.menu.columnCenterY)<=1.5,
+          width+'px Font Awesome icon must be centered within its column');
+        assert(metrics.menu.visible,width+'px mobile icon should be visible');
         assert(metrics.menu.iconLeft>=metrics.menu.left-1
           && metrics.menu.iconRight<=metrics.menu.right+1,
           width+'px modern hamburger must fit within Menu control');
         assert(!['none','normal','""'].includes(metrics.menu.iconGlyph),
           width+'px modern hamburger glyph missing');
+      }
+      if(width<=1000){
+        await page.locator('#header .mob-nav-menu').waitFor({state:'attached'});
+        await page.locator('#header .mobile-nav').click();
+        await page.locator('#header .mob-nav-menu').waitFor({state:'visible'});
+        assert.equal(await page.locator('#header .mobile-nav').getAttribute('aria-expanded'),'true');
+        assert.equal(await page.locator('#header .mobile-nav').getAttribute('aria-label'),'Close menu');
+        assert.equal(await page.locator('#header .mob-nav-btn > .fa-xmark').count(),1,
+          width+'px open menu must show only a modern X icon');
+        assert.equal(await page.locator('#header .mob-nav-btn > .fa-bars').count(),0,
+          width+'px bars must disappear when open');
+        const dropdown=await page.evaluate(()=>{
+          const header=document.querySelector('#header');
+          const menu=header.querySelector('.mob-nav-menu');
+          const labelChevron=menu.querySelector('#menu-item-15821 > a > .fa-chevron-down');
+          const toggle=menu.querySelector('#menu-item-15821 > .mob-nav-arrow');
+          const reference=document.body.classList.contains('redcarpert-home-native')
+            ? header : document.querySelector('#main-container .header-wrapper');
+          return {
+            actual:getComputedStyle(menu).backgroundColor,
+            expected:getComputedStyle(reference).backgroundColor,
+            labelChevronExists:!!labelChevron,
+            labelChevronDisplay:labelChevron?getComputedStyle(labelChevron).display:null,
+            toggleAccessible:toggle?.getAttribute('aria-label')==='Toggle dress categories',
+          };
+        });
+        assert.equal(dropdown.actual,dropdown.expected,route+' '+width+'px mobile dropdown must match header');
+        assert(dropdown.labelChevronExists,'expected desktop-only decorative icon markup');
+        assert.equal(dropdown.labelChevronDisplay,'none','redundant Wedding Dresses label arrow must be hidden on mobile');
+        assert(dropdown.toggleAccessible,'keep the functional right-hand category toggle');
+        await page.locator('#header .mobile-nav').click();
+        await page.locator('#header .mob-nav-menu').waitFor({state:'hidden'});
+        assert.equal(await page.locator('#header .mobile-nav').getAttribute('aria-expanded'),'false');
+        assert.equal(await page.locator('#header .mobile-nav').getAttribute('aria-label'),'Open menu');
+        assert.equal(await page.locator('#header .mob-nav-btn > .fa-bars').count(),1,
+          width+'px bars must return after closing the menu');
+        await page.locator('#header .mobile-nav').click();
+        await page.locator('#header .mob-nav-menu').waitFor({state:'visible'});
+        await page.locator('#header .mob-nav-arrow').click();
+        await page.locator('#header .mob-nav-menu .sub-menu').waitFor({state:'visible'});
       }
       assert.equal(metrics.fittingTitle,'FITTINGS');
       assert.equal(metrics.fittingText,'Book a fitting');

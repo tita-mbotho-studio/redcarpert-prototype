@@ -64,7 +64,15 @@ test('all custom legacy image and glyph icons become modern FA icons',()=>{
   const up=find(inner,n=>n.attrs.class==='scroll-to-top')[0];
   assert(up&&all([up]).some(n=>n.attrs.class==='fa-solid fa-arrow-up'));
   const menu=find(inner,n=>n.attrs.class?.split(/\s+/).includes('mob-nav-btn'))[0];
-  assert(menu&&all([menu]).some(n=>n.attrs.class==='fa-solid fa-bars'));
+  assert(menu,'mobile icon-only menu must exist');
+  assert.deepEqual(all([menu]).filter(n=>n.tag==='i').map(n=>n.attrs.class),['fa-solid fa-bars'],
+    'show one modern Font Awesome bars icon until the menu opens');
+  assert.equal(getText(menu),'','do not render the Menu label');
+  const control=find(inner,n=>n.attrs.class?.split(/\s+/).includes('mobile-nav'))[0];
+  assert.equal(control.attrs.role,'button');
+  assert.equal(control.attrs['aria-label'],'Open menu');
+  assert.equal(control.attrs['aria-expanded'],'false');
+  assert.equal(control.attrs.tabindex,'0');
   const gallery=modernizeSiteIcons(fixture('/wedding-moments'));
   assert.equal(find(gallery,n=>n.attrs.class==='redcarpert-moment-play').length,1,
     'one native video card should use the modern Font Awesome play icon');
