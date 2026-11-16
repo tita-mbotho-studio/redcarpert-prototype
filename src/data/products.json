@@ -111,5 +111,115 @@
     }
   ],
   "priceStatus": "mixed",
-  "priceRangesZar": {}
+  "priceRangesZar": {
+    "sample-mermaid": {
+      "minZar": 8900,
+      "maxZar": 12900
+    },
+    "sample-mermaid-02": {
+      "minZar": 9900,
+      "maxZar": 14500
+    },
+    "sample-mermaid-03": {
+      "minZar": 11900,
+      "maxZar": 16900
+    },
+    "sample-mermaid-04": {
+      "minZar": 13900,
+      "maxZar": 18900
+    },
+    "ball-gown-01": {
+      "minZar": 13500,
+      "maxZar": 22900
+    },
+    "ball-gown-02": {
+      "minZar": 14900,
+      "maxZar": 24900
+    },
+    "ball-gown-03": {
+      "minZar": 19900,
+      "maxZar": 32900
+    },
+    "ball-gown-04": {
+      "minZar": 12900,
+      "maxZar": 21900
+    },
+    "ball-gown-05": {
+      "minZar": 22900,
+      "maxZar": 36900
+    },
+    "ball-gown-06": {
+      "minZar": 17900,
+      "maxZar": 29900
+    },
+    "ball-gown-07": {
+      "minZar": 11900,
+      "maxZar": 19900
+    },
+    "ball-gown-08": {
+      "minZar": 13900,
+      "maxZar": 23900
+    },
+    "ball-gown-09": {
+      "minZar": 23900,
+      "maxZar": 38900
+    },
+    "ball-gown-10": {
+      "minZar": 15900,
+      "maxZar": 25900
+    },
+    "ball-gown-11": {
+      "minZar": 18900,
+      "maxZar": 31900
+    },
+    "sample-ruffled-01": {
+      "minZar": 10900,
+      "maxZar": 14900
+    },
+    "sample-ruffled-02": {
+      "minZar": 11900,
+      "maxZar": 16900
+    },
+    "sample-ruffled-03": {
+      "minZar": 13900,
+      "maxZar": 18900
+    },
+    "sample-ruffled-04": {
+      "minZar": 15900,
+      "maxZar": 22900
+    },
+    "sample-modern-tradition-01": {
+      "minZar": 12900,
+      "maxZar": 17900
+    },
+    "sample-modern-tradition-02": {
+      "minZar": 14900,
+      "maxZar": 21500
+    },
+    "sample-modern-tradition-03": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "sample-modern-tradition-04": {
+      "minZar": 19900,
+      "maxZar": 28900
+    },
+    "sample-two-in-one-01": {
+      "minZar": 15900,
+      "maxZar": 21900
+    },
+    "sample-two-in-one-02": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "sample-two-in-one-03": {
+      "minZar": 20900,
+      "maxZar": 28900
+    },
+    "sample-two-in-one-04": {
+      "minZar": 24900,
+      "maxZar": 33900
+    }
+  },
+  "priceRangeStatus": "illustrative"
 }
