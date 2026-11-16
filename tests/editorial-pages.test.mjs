@@ -62,6 +62,8 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
       assert.match(map.attrs['aria-label'],/general Pomona area/);
       assert.match(visibleText,/Let's find your wedding dress/);
       assert.match(visibleText,/How to Book a Fitting/);
+      assert.match(visibleText,/Book a Fitting/);
+      assert.match(visibleText,/Message us on WhatsApp to ask about our dresses or book a fitting/);
       assert.match(visibleText,/Find a Dress/);
       assert.match(visibleText,/Message Us/);
       assert.match(visibleText,/Confirm Your Appointment/);
