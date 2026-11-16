@@ -163,7 +163,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     }
   }
   if(pageNumber!==nextStart)throw new Error("Incorrect collection page sequence");
-  const enquiry="https://wa.me/27680458811?text="+encodeURIComponent("Hello Redcarpert Wedding Dresses! I would like to enquire about a dress fitting.");
+  const enquiry="https://wa.me/27680458811?text="+encodeURIComponent("Hello Redcarpert Wedding Dresses! I'd like to book a fitting. Could you please help me?");
   pages.push(page(pageNumber++,"contact","fittings",tag("Your bridal story")+
     '<h2>Found a dress?<br>Book a fitting.</h2><p>Message us on WhatsApp to ask about prices, available dresses and fittings.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">BOOK A FITTING ON WHATSAPP</a><p class="tiny">Fittings by appointment only.</p>'+
