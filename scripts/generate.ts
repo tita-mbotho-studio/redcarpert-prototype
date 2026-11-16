@@ -11,7 +11,8 @@ import { siteMetadata } from '../src/data/metadata';
 import { pageLoaderCss, pageLoaderMarkup, pageLoaderFallback } from '../src/lib/page-loader';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds';
 import { REPOSITORY_BASE } from '../src/config/site';
-import { buildWhatsAppUrl, WHATSAPP_DISPLAY_NUMBER } from '../src/config/whatsapp';
+import { buildWhatsAppUrl } from '../src/config/whatsapp';
+import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp';
 import { validateCatalogue } from '../src/lib/validate-catalogue';
 import { validateDressGalleryMappings } from '../src/lib/dress-gallery';
 import { escapeHtml, createNodeRenderer } from './lib/markup';
@@ -25,7 +26,7 @@ validateDressGalleryMappings();
 const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
-const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/client/enquiry.css','src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css'];
+const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css'];
 // Native homepage scrolling should retain the browser's vertical scrollbar.
 // No synthetic scrollbar hiding or fullpage/footer handoff is necessary.
 const extraCss = (await Promise.all(cssFiles.map(f=>readFile(f,'utf8')))).join('\n');
@@ -54,16 +55,16 @@ await sharp('public/redcarpert/brand/redcarpert-logo.png')
   .webp({quality:84,effort:5})
   .toFile(path.join(faviconRoot,'redcarpert-logo-optimized.webp'));
 for(const route of routes) {
- const {document,product} = preparePage(route);
+ const {document: preparedDocument,product} = preparePage(route);
  const message = product ? sampleFittingMessage(product) : 'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
  const whatsappHref = buildWhatsAppUrl(message);
- const modal = `<dialog id="enquiry-preview" class="dialog" aria-labelledby="enquiry-title" aria-describedby="enquiry-notice"><p class="demo">Fitting enquiry</p><h2 id="enquiry-title" class="title">WhatsApp Enquiry Preview</h2><p id="enquiry-notice" class="notice">Review your message, then continue to WhatsApp at ${escapeHtml(WHATSAPP_DISPLAY_NUMBER)}. Nothing is sent until you press Send in WhatsApp.</p><p class="message">${escapeHtml(message)}</p><div class="actions"><a class="whatsapp-send" data-whatsapp-send href="${escapeHtml(whatsappHref)}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>Continue to WhatsApp</a><button type="button" data-copy><i class="fa-solid fa-copy" aria-hidden="true"></i>Copy Message</button><button type="button" data-close><i class="fa-solid fa-xmark" aria-hidden="true"></i>Close</button></div><p class="status" role="status"></p></dialog>`;
+ const document = directWhatsAppHandoffs(preparedDocument,whatsappHref);
  // Apply homepage-only rules on the very first paint, before client scripts
  // start. This prevents the inherited theme briefly rendering a solid header.
  const initialBodyClass = route === '/' ? document.bodyClass + ' redcarpert-home-native' : document.bodyClass;
  const runtime = {bodyClass:initialBodyClass,htmlClass:document.htmlClass,scripts:document.scripts,themeConfig:document.themeConfig,postScripts:document.postScripts};
  const heroPreload = route==='/' ? `<link rel="preconnect" href="https://ik.imagekit.io"><link rel="preload" href="${escapeHtml(homepageBackgrounds[0].replacement)}" as="image" type="image/webp" fetchpriority="high">` : '';
- let html = `<!doctype html><html lang="en-US" class="${escapeHtml(document.htmlClass)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(document.title||siteMetadata.title)}</title><meta name="description" content="${escapeHtml(document.description||siteMetadata.description)}">${heroPreload}<style id="redcarpert-loader-critical">${pageLoaderCss}</style><noscript><style>#redcarpert-page-loader{display:none!important}</style></noscript><link rel="icon" type="image/png" sizes="32x32" href="/redcarpert/brand/redcarpert-bridal-favicon-v2-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/redcarpert/brand/redcarpert-bridal-touch-v2-180.png">${document.styles.map(s=>s.href?`<link rel="stylesheet" href="${escapeHtml(s.href)}"${s.media?` media="${escapeHtml(s.media)}"`:''}>`:`<style>${s.css??''}</style>`).join('')}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><style>${extraCss}</style></head><body class="${escapeHtml(initialBodyClass)}">${pageLoaderMarkup(route === '/')}${pageLoaderFallback}${document.nodes.map(render).join('')}${modal}<script id="page-runtime" type="application/json">${JSON.stringify(runtime).replace(/</g,'\\u003c')}</script><script type="module" src="/src/client/main.js"></script></body></html>`;
+ let html = `<!doctype html><html lang="en-US" class="${escapeHtml(document.htmlClass)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(document.title||siteMetadata.title)}</title><meta name="description" content="${escapeHtml(document.description||siteMetadata.description)}">${heroPreload}<style id="redcarpert-loader-critical">${pageLoaderCss}</style><noscript><style>#redcarpert-page-loader{display:none!important}</style></noscript><link rel="icon" type="image/png" sizes="32x32" href="/redcarpert/brand/redcarpert-bridal-favicon-v2-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/redcarpert/brand/redcarpert-bridal-touch-v2-180.png">${document.styles.map(s=>s.href?`<link rel="stylesheet" href="${escapeHtml(s.href)}"${s.media?` media="${escapeHtml(s.media)}"`:''}>`:`<style>${s.css??''}</style>`).join('')}<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css"><style>${extraCss}</style></head><body class="${escapeHtml(initialBodyClass)}">${pageLoaderMarkup(route === '/')}${pageLoaderFallback}${document.nodes.map(render).join('')}<script id="page-runtime" type="application/json">${JSON.stringify(runtime).replace(/</g,'\\u003c')}</script><script type="module" src="/src/client/main.js"></script></body></html>`;
  html = html.replaceAll('/digital-lookbook/pdf/','/digital-lookbook/Redcarpert-Sample-Lookbook.pdf');
  track(html); html = prefix(html).replace(base+'src/client/main.js','/src/client/main.js');
  const dir = path.join(root,route); await mkdir(dir,{recursive:true}); await writeFile(path.join(dir,'index.html'),html);
