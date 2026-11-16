@@ -6,6 +6,7 @@ name: One-time verified Pages deployment
 # Retry after correcting Playwright button bounding-box helper in PR #37.
 # Retry after mobile dropdown/header parity fix in PR #38.
 # Retry after WhatsApp browser-copy assertion fix in PR #39.
+# Retry after replacing obsolete direct WhatsApp smoke-test preview assertion in PR #40.
 on:
   push:
     branches:
