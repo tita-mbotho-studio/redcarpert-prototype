@@ -2,7 +2,6 @@ import { HeaderNavigationAlignment } from './HeaderNavigationAlignment.js';
 import { FooterScrollToTop } from './FooterScrollToTop.js';
 import { HomepageFooterScroll } from './HomepageFooterScroll.js';
 import { SiteRuntime } from './SiteRuntime.js';
-import { initializeEnquiryPreview } from './enquiry-preview.js';
 import { initializeLookbookReader } from './lookbook-reader.js';
 import { initializeDressGalleries } from './dress-gallery.js';
 import { initializeCatalogueFilter } from './catalogue-filter.js';
@@ -33,7 +32,6 @@ window.addEventListener('pageshow', syncCollectionYears);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) syncCollectionYears();
 });
-initializeEnquiryPreview();
 initializeLookbookReader(import.meta.env.BASE_URL);
 initializeDressGalleries();
 initializeCatalogueFilter();
