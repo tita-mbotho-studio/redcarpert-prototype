@@ -225,7 +225,7 @@
   }
 }
 
-@media(max-width:480px) {
+@media(max-width:640px) {
   .redcarpert-moments-subtitle {
     margin-top: 16px !important;
     margin-bottom: 28px !important;
