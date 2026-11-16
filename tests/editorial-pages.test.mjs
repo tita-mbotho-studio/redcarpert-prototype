@@ -32,6 +32,8 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     if (route === '/digital-lookbook') {
       assert.equal(nodes(content.children).filter(n => n.attrs['data-lookbook-viewer'] === 'true').length, 1);
       assert(nodes(content.children).some(n => n.attrs.id === 'redcarpert-lookbook-title'));
+      assert.match(JSON.stringify(content),/Some photos show style ideas, not dresses confirmed in stock/);
+      assert.doesNotMatch(JSON.stringify(content),/illustrative|prototype|demonstration/i);
     }
     if (route === '/about-us' || route === '/contact-us' || route === '/digital-lookbook') {
       assert(rendered.some(n => n.attrs.class === 'page-title redcarpert-editorial-page-title'));
@@ -40,6 +42,10 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     if (route === '/about-us') {
       const team=nodes(content.children).filter(n => n.attrs.class === 'redcarpert-editorial-team-card');
       assert.equal(team.length,3,'Meet the Team must preserve all three photo cards');
+      assert.match(JSON.stringify(content),/Your Dream Dress Starts Here/);
+      assert.match(JSON.stringify(content),/Book Your Fitting/);
+      assert.doesNotMatch(JSON.stringify(content),/prefilled|illustrative|demonstration|prototype/i,
+        'About Us must use clear customer wording');
       assert.match(JSON.stringify(content),/photos below are for inspiration and do not show Redcarpert staff/);
       for(const card of team){
         const image=nodes(card.children).find(n=>n.tag==='img');
