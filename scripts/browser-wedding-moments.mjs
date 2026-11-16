@@ -6,6 +6,26 @@ const base = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/weddi
 try {
   for (const width of [1440, 1000, 768, 640, 390, 320]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
+    // The media request is mocked below, so observe play() instead of expecting
+    // an empty MP4 response to decode. Also exercise a browser playback denial.
+    await page.addInitScript(blockAudioPlayback => {
+      window.__weddingVideoPlayAttempts = [];
+      const nativePlay = HTMLMediaElement.prototype.play;
+      HTMLMediaElement.prototype.play = function (...args) {
+        if (this.matches('[data-wedding-preview-video]')) {
+          window.__weddingVideoPlayAttempts.push({
+            muted: this.muted,
+            controls: this.controls,
+            src: this.getAttribute('src'),
+            dialogOpen: this.closest('dialog')?.open,
+          });
+          return blockAudioPlayback
+            ? Promise.reject(new DOMException('Playback with sound blocked', 'NotAllowedError'))
+            : Promise.resolve();
+        }
+        return nativePlay.apply(this, args);
+      };
+    }, width === 320);
     const errors = [];
     const galleryImageRequests = [];
     page.on("pageerror", err => errors.push(err.message));
@@ -109,6 +129,31 @@ try {
     const fullImage = dialog.locator("[data-wedding-preview-photo]");
     await fullImage.waitFor({ state: "visible", timeout: 12000 });
     assert.equal(await fullImage.evaluate(el => getComputedStyle(el).objectFit), "contain");
+    const photoFrame = await dialog.evaluate(el => {
+      const inner = el.querySelector('.redcarpert-moment-dialog-inner');
+      const image = el.querySelector('[data-wedding-preview-photo]');
+      const style = getComputedStyle(inner);
+      const imageBox = image.getBoundingClientRect();
+      const innerBox = inner.getBoundingClientRect();
+      return {
+        padding: style.padding,
+        background: style.backgroundColor,
+        shadow: style.boxShadow,
+        border: style.borderTopWidth,
+        imageWidth: imageBox.width,
+        frameWidth: innerBox.width,
+        imageHeight: imageBox.height,
+        frameHeight: innerBox.height,
+      };
+    });
+    assert.equal(photoFrame.padding, '0px', width + 'px photo popup should have no padding');
+    assert.equal(photoFrame.background, 'rgba(0, 0, 0, 0)', width + 'px photo popup should have no white background');
+    assert.equal(photoFrame.shadow, 'none', width + 'px photo popup should have no frame shadow');
+    assert.equal(photoFrame.border, '0px', width + 'px photo popup should have no border');
+    assert(Math.abs(photoFrame.frameWidth - photoFrame.imageWidth) <= 2,
+      width + 'px photo must fill the popup without side mats');
+    assert(Math.abs(photoFrame.frameHeight - photoFrame.imageHeight) <= 2,
+      width + 'px photo must fill the popup without top/bottom mats');
     await page.keyboard.press("Escape");
     assert.equal(await dialog.evaluate(el => el.open), false);
     await page.waitForFunction(() =>
@@ -122,6 +167,35 @@ try {
     await player.waitFor({ state: "visible", timeout: 12000 });
     assert.equal(await player.getAttribute("src"), base + "wedding-moments-88.mp4");
     assert(await player.evaluate(el => el.controls), "native video controls");
+    assert(await player.evaluate(el => el.playsInline), "video plays inline on mobile");
+    const videoFrame = await dialog.evaluate(el => {
+      const inner = el.querySelector('.redcarpert-moment-dialog-inner');
+      const video = el.querySelector('[data-wedding-preview-video]');
+      const style = getComputedStyle(inner);
+      const videoStyle = getComputedStyle(video);
+      const videoBox = video.getBoundingClientRect();
+      const innerBox = inner.getBoundingClientRect();
+      return {
+        padding: style.padding,
+        background: style.backgroundColor,
+        shadow: style.boxShadow,
+        border: videoStyle.borderTopWidth,
+        videoWidth: videoBox.width,
+        frameWidth: innerBox.width,
+      };
+    });
+    assert.equal(videoFrame.padding, '0px', width + 'px video popup should have no padding');
+    assert.equal(videoFrame.background, 'rgba(0, 0, 0, 0)', width + 'px video popup should have no white background');
+    assert.equal(videoFrame.shadow, 'none', width + 'px video popup should have no frame shadow');
+    assert.equal(videoFrame.border, '0px', width + 'px video popup should have no border');
+    assert(Math.abs(videoFrame.frameWidth - videoFrame.videoWidth) <= 2,
+      width + 'px video must fill the popup without side mats');
+    const playbackAttempts = await page.evaluate(() => window.__weddingVideoPlayAttempts);
+    assert.equal(playbackAttempts.length, 1, width + 'px clicking a film must attempt immediate playback');
+    assert.equal(playbackAttempts[0].muted, false, width + 'px film should start with sound');
+    assert.equal(playbackAttempts[0].controls, true, 'native video controls must remain available');
+    assert.equal(playbackAttempts[0].dialogOpen, true, 'playback must be attempted after opening the popup');
+    assert.equal(playbackAttempts[0].src, base + "wedding-moments-88.mp4");
     await page.keyboard.press("Escape");
     await page.waitForFunction(() =>
       !document.querySelector("[data-wedding-preview-video]").hasAttribute("src"),
