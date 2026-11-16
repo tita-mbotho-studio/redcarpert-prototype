@@ -1,4 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "../types/site";
+import { WHATSAPP_NUMBER } from "../config/whatsapp";
 
 /**
  * Replace every website-level WhatsApp preview button with a real external link.
@@ -9,7 +10,7 @@ import type { DocumentElement, DocumentNode, SiteDocumentData } from "../types/s
 export function directWhatsAppHandoffs(document: SiteDocumentData, href: string): SiteDocumentData {
   const url = new URL(href);
   if (url.protocol !== "https:" || url.hostname !== "wa.me" ||
-      url.pathname !== "/27680458811" || !url.searchParams.get("text") ||
+      url.pathname !== `/${WHATSAPP_NUMBER}` || !url.searchParams.get("text") ||
       [...url.searchParams.keys()].join() !== "text") {
     throw new Error("Invalid Redcarpert WhatsApp handoff URL");
   }
