@@ -262,6 +262,16 @@
   }
 }
 
+/* The fitting action must not dominate the dress detail on narrow phones. */
+@media (max-width: 560px) {
+  #main-container [data-detail-preview] .redcarpert-detail-actions a.redcarpert-detail-fitting-button {
+    min-width: min(185px, 100%);
+    min-height: 44px;
+    padding: 10px 16px !important;
+    font-size: 12px !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #main-container [data-detail-preview] .redcarpert-detail-fitting-button {
     transition: none;
