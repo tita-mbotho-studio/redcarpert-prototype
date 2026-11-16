@@ -103,7 +103,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("ol", { class: "redcarpert-editorial-steps" }, [
         node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the five bridal collections and open a dress you would like to enquire about.")]),
         node("li", {}, [node("strong", {}, ["Open WhatsApp"]), p("Select the fitting enquiry link to open the prefilled message in WhatsApp, without an extra website preview.")]),
-        node("li", {}, [node("strong", {}, ["Send when ready"]), p("Review or edit the message in WhatsApp before sending, then discuss availability and fitting arrangements directly.")]),
+        node("li", {}, [node("strong", {}, ["Send when ready"]), p("Review or edit your message in WhatsApp before sending. The exact address is shared only after Redcarpert confirms your fitting appointment.")]),
       ]),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Browse dresses and contact us" }, [
         node("a", { href: "/product/", class: "redcarpert-editorial-action" }, ["Browse Wedding Dresses"]),
@@ -111,26 +111,26 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
       h("Before Your Visit", "redcarpert-visiting-title"),
-      p("Redcarpert is located in the Sunnyside area of Pretoria, South Africa. Please confirm the exact studio address, opening hours and fitting availability directly with the business before travelling."),
+      p("Redcarpert Wedding Dresses is based in the Pomona area of Kempton Park, Gauteng. Fittings are by confirmed appointment only. The exact studio address and directions will be shared via WhatsApp after your fitting appointment is confirmed. Please arrange your appointment before visiting."),
       p("Other collections currently include illustrative styles. Enquire for current dress prices and availability."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
-      h("Our Pretoria Location", "redcarpert-map-title"),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Sunnyside · Pretoria · South Africa"]),
-      p("The map below shows the Sunnyside area for orientation. It is not a precise studio pin or confirmed street address."),
+      h("Our Location", "redcarpert-map-title"),
+      node("p", { class: "redcarpert-editorial-lead" }, ["Pomona · Kempton Park · Gauteng · South Africa"]),
+      p("The map below shows the general Pomona area for orientation. It does not identify the studio or its exact street address."),
       node("div", { class: "redcarpert-editorial-map" }, [
         node("iframe", {
-          title: "Map of the Sunnyside area in Pretoria, South Africa",
-          src: "https://www.google.com/maps?q=Sunnyside%2C%20Pretoria%2C%20South%20Africa&output=embed",
+          title: "Map of the Pomona area in Kempton Park, Gauteng, South Africa",
+          src: "https://www.google.com/maps?q=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa&output=embed",
           loading: "lazy",
           referrerpolicy: "no-referrer-when-downgrade",
-          "aria-label": "Map showing Sunnyside, Pretoria, South Africa",
+          "aria-label": "Map showing the general Pomona area of Kempton Park, Gauteng, South Africa",
         }, []),
       ]),
       node("p", { class: "redcarpert-editorial-map-link" }, [
-        node("a", { href: "https://www.google.com/maps/search/?api=1&query=Sunnyside%2C%20Pretoria%2C%20South%20Africa", target: "_blank", rel: "noopener noreferrer" }, ["View Sunnyside on Google Maps"]),
+        node("a", { href: "https://www.google.com/maps/search/?api=1&query=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa", target: "_blank", rel: "noopener noreferrer" }, ["View Pomona on Google Maps"]),
       ]),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Area shown for reference only. Please confirm an exact address before visiting."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["General location only. The exact studio address and directions are shared via WhatsApp after your fitting appointment is confirmed."]),
     ]),
   ];
 }
