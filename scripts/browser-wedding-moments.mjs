@@ -45,6 +45,13 @@ try {
     assert.equal(await template.evaluate(el => el.content.children.length), 71,
       "remaining 71 media tiles stay inert until selected");
     assert.equal(await loadMore.count(), 1);
+    const loadMoreBox=await loadMore.boundingBox();
+    assert(loadMoreBox,'Load More control must be visible before pagination');
+    assert(loadMoreBox.height>=43.5,width+'px Load More needs a comfortable touch target');
+    assert(loadMoreBox.x>=-1&&loadMoreBox.x+loadMoreBox.width<=width+1,
+      width+'px Load More must remain within the viewport');
+    if(width<=640)assert(loadMoreBox.width<=200.5,
+      width+'px Load More must remain compact on phones');
     const counter = page.locator("[data-wedding-count]");
     assert.equal(await counter.textContent(), "Showing 16 of 87 wedding moments");
     const assertCenteredCounter = async () => {
