@@ -10,8 +10,19 @@ export function installNavigation() {
     document.querySelector('#header .section-header')?.after(mobile);
     const button = document.querySelector('#header .mobile-nav');
     if (!button) return;
+    const icon = button.querySelector('.mob-nav-btn > .fa-solid');
+    mobile.id = 'redcarpert-mobile-menu';
     button.setAttribute('role','button'); button.tabIndex = 0;
-    button.setAttribute('aria-expanded','false');
+    button.setAttribute('aria-controls', mobile.id);
+    const syncMenuState = (open) => {
+      button.setAttribute('aria-expanded', String(open));
+      const name = open ? 'Close menu' : 'Open menu';
+      button.setAttribute('aria-label', name);
+      button.setAttribute('title', name);
+      icon?.classList.toggle('fa-bars', !open);
+      icon?.classList.toggle('fa-xmark', open);
+    };
+    syncMenuState(false);
     const reveal = (element, show, slide = false) => {
       element.getAnimations().forEach(animation => animation.cancel());
       if (show) element.style.display = 'block';
@@ -21,11 +32,12 @@ export function installNavigation() {
     };
     const toggle = () => {
       const show = button.getAttribute('aria-expanded') !== 'true';
-      button.setAttribute('aria-expanded',String(show)); reveal(mobile,show,true);
+      syncMenuState(show);
+      reveal(mobile,show,true);
     };
     button.addEventListener('click',toggle);
     button.addEventListener('keydown',event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();toggle();}});
-    window.addEventListener('resize',()=>{if(getComputedStyle(button).display==='none'){mobile.style.display='none';button.setAttribute('aria-expanded','false');}});
+    window.addEventListener('resize',()=>{if(getComputedStyle(button).display==='none'){mobile.getAnimations().forEach(animation=>animation.cancel());mobile.style.display='none';syncMenuState(false);}});
     for(const li of mobile.querySelectorAll('li')) {
       const ul = li.querySelector(':scope > ul'); if(!ul) continue;
       const arrow = document.createElement('div'); arrow.className='mob-nav-arrow'; arrow.innerHTML='<span></span>';
