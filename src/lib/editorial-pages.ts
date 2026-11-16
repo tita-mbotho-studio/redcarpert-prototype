@@ -12,7 +12,7 @@ const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/weddi
 
 const p = (text: string) => node("p", {}, [text]);
 const h = (text: string, id?: string) => node("h2", id ? { id } : {}, [text]);
-const fitting = () => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Enquire about a fitting"]);
+const fitting = (label = "Enquire about a fitting") => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, [label]);
 
 function editorialContent(route: EditorialRoute): DocumentNode[] {
   if (route === "/digital-lookbook") return [
@@ -93,17 +93,17 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
   return [
     node("section", { class: "redcarpert-editorial-hero", "aria-labelledby": "redcarpert-contact-title" }, [
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["GET IN TOUCH"]),
-      node("h2", { id: "redcarpert-contact-title" }, ["Let's talk about your bridal look"]),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Found a silhouette you love? Begin with an enquiry."]),
-      p("Explore our collections, choose a dress that interests you and start a fitting conversation through WhatsApp. Share your questions and preferences so the next steps can be discussed directly with Redcarpert."),
-      fitting(),
+      node("h2", { id: "redcarpert-contact-title" }, ["Let's find your wedding dress"]),
+      node("p", { class: "redcarpert-editorial-lead" }, ["We're here to help you find a dress you love."]),
+      p("Message us on WhatsApp to ask about our dresses or book a fitting."),
+      fitting("Book a Fitting"),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
-      h("How to Enquire", "redcarpert-enquiry-steps"),
+      h("How to Book a Fitting", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
-        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the five bridal collections and open a dress you would like to enquire about.")]),
-        node("li", {}, [node("strong", {}, ["Open WhatsApp"]), p("Select the fitting enquiry link to open the prefilled message in WhatsApp, without an extra website preview.")]),
-        node("li", {}, [node("strong", {}, ["Send when ready"]), p("Review or edit the message in WhatsApp before sending, then discuss availability and fitting arrangements directly.")]),
+        node("li", {}, [node("strong", {}, ["Find a Dress"]), p("Browse our wedding dresses and choose a style you love.")]),
+        node("li", {}, [node("strong", {}, ["Message Us"]), p("Contact us on WhatsApp to ask about the dress and book your fitting.")]),
+        node("li", {}, [node("strong", {}, ["Confirm Your Appointment"]), p("We'll agree on a fitting time and confirm it with you.")]),
       ]),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Browse dresses and contact us" }, [
         node("a", { href: "/product/", class: "redcarpert-editorial-action" }, ["Browse Wedding Dresses"]),
@@ -111,26 +111,25 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
       h("Before Your Visit", "redcarpert-visiting-title"),
-      p("Redcarpert is located in the Sunnyside area of Pretoria, South Africa. Please confirm the exact studio address, opening hours and fitting availability directly with the business before travelling."),
-      p("Other collections currently include illustrative styles. Enquire for current dress prices and availability."),
+      p("Fittings are by appointment only. Please book your fitting on WhatsApp before visiting."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
-      h("Our Pretoria Location", "redcarpert-map-title"),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Sunnyside · Pretoria · South Africa"]),
-      p("The map below shows the Sunnyside area for orientation. It is not a precise studio pin or confirmed street address."),
+      h("Our Location", "redcarpert-map-title"),
+      node("p", { class: "redcarpert-editorial-lead" }, ["Pomona · Kempton Park · Gauteng"]),
+      p("We're in Pomona, Kempton Park. This map shows the general area."),
       node("div", { class: "redcarpert-editorial-map" }, [
         node("iframe", {
-          title: "Map of the Sunnyside area in Pretoria, South Africa",
-          src: "https://www.google.com/maps?q=Sunnyside%2C%20Pretoria%2C%20South%20Africa&output=embed",
+          title: "Map of the Pomona area in Kempton Park, Gauteng, South Africa",
+          src: "https://www.google.com/maps?q=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa&output=embed",
           loading: "lazy",
           referrerpolicy: "no-referrer-when-downgrade",
-          "aria-label": "Map showing Sunnyside, Pretoria, South Africa",
+          "aria-label": "Map showing the general Pomona area of Kempton Park, Gauteng, South Africa",
         }, []),
       ]),
       node("p", { class: "redcarpert-editorial-map-link" }, [
-        node("a", { href: "https://www.google.com/maps/search/?api=1&query=Sunnyside%2C%20Pretoria%2C%20South%20Africa", target: "_blank", rel: "noopener noreferrer" }, ["View Sunnyside on Google Maps"]),
+        node("a", { href: "https://www.google.com/maps/search/?api=1&query=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa", target: "_blank", rel: "noopener noreferrer" }, ["View Pomona on Google Maps"]),
       ]),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Area shown for reference only. Please confirm an exact address before visiting."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["We'll share the exact studio address and directions on WhatsApp once your fitting appointment is confirmed."]),
     ]),
   ];
 }

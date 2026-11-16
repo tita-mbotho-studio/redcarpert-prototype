@@ -51,14 +51,35 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
       assert.equal(container.attrs.class,'content-boxed layout-full');
       assert(!rendered.some(n=>n.attrs.id==='sidebar'),'empty sidebar must be removed from Contact Us');
       assert(rendered.some(n=>n.attrs.id==='full-width'),'Contact Us must use About Us content width');
+      const contact=JSON.stringify(content);
+      const readText=value=>typeof value==='string'?value:value.children.map(readText).join(' ');
+      const visibleText=readText(content);
       const map=nodes(content.children).find(n=>n.tag==='iframe');
       assert(map,'Contact Us must include an embedded map');
-      assert.equal(map.attrs.src,'https://www.google.com/maps?q=Sunnyside%2C%20Pretoria%2C%20South%20Africa&output=embed');
+      assert.equal(map.attrs.src,'https://www.google.com/maps?q=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa&output=embed');
       assert.equal(map.attrs.loading,'lazy');
-      assert.match(JSON.stringify(content),/not a precise studio pin/);
+      assert.match(map.attrs.title,/Pomona area in Kempton Park/);
+      assert.match(map.attrs['aria-label'],/general Pomona area/);
+      assert.match(visibleText,/Let's find your wedding dress/);
+      assert.match(visibleText,/How to Book a Fitting/);
+      assert.match(visibleText,/Book a Fitting/);
+      assert.match(visibleText,/Message us on WhatsApp to ask about our dresses or book a fitting/);
+      assert.match(visibleText,/Find a Dress/);
+      assert.match(visibleText,/Message Us/);
+      assert.match(visibleText,/Confirm Your Appointment/);
+      assert.match(visibleText,/Fittings are by appointment only/);
+      assert.match(visibleText,/Pomona/);
+      assert.match(visibleText,/This map shows the general area/);
+      assert.match(visibleText,/exact studio address and directions on WhatsApp once your fitting appointment is confirmed/);
+      assert.doesNotMatch(visibleText,/illustrative|prefilled|website preview|prototype|sample imagery|studio pin/i,
+        'Contact Us wording must be clear and customer-ready');
+      assert.doesNotMatch(contact,/Sunnyside|Our Pretoria Location/,'Contact Us must not show the old Pretoria area');
       const mapLink=nodes(content.children).find(n=>n.tag==='a' && n.attrs.href?.startsWith('https://www.google.com/maps/search/'));
       assert(mapLink);
+      assert.equal(mapLink.attrs.href,'https://www.google.com/maps/search/?api=1&query=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa');
+      assert.equal(mapLink.attrs.target,'_blank');
       assert.equal(mapLink.attrs.rel,'noopener noreferrer');
+      assert.equal(mapLink.children[0],'View Pomona on Google Maps');
     }
     assert.equal(JSON.stringify(capture), before);
   }
