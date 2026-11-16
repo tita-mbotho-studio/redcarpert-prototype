@@ -56,7 +56,7 @@ await sharp('public/redcarpert/brand/redcarpert-logo.png')
   .toFile(path.join(faviconRoot,'redcarpert-logo-optimized.webp'));
 for(const route of routes) {
  const {document: preparedDocument,product} = preparePage(route);
- const message = product ? sampleFittingMessage(product) : 'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
+ const message = product ? sampleFittingMessage(product) : 'Hello Redcarpert Wedding Dresses!\n\nI'd like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
  const whatsappHref = buildWhatsAppUrl(message);
  const document = directWhatsAppHandoffs(preparedDocument,whatsappHref);
  // Apply homepage-only rules on the very first paint, before client scripts
