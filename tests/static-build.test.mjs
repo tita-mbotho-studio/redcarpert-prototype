@@ -7,7 +7,7 @@ import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayDressPrice} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
-import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
+import {sampleFittingMessage,sampleDetailTitle} from '../src/lib/product-detail-preview.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
@@ -31,7 +31,7 @@ test('static deployment contains complete approved pages, local paths and no app
   assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
   const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
   const expectedMessage=product ? sampleFittingMessage(product)
-    : 'Hello Redcarpert Wedding Dresses!\n\nI would like to enquire about your wedding dresses and arrange a fitting.\n\nCould you please provide more information?\n\nThank you.';
+    : 'Hello Redcarpert Wedding Dresses!\n\nI'd like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
   const expectedUrl=buildWhatsAppUrl(expectedMessage);
   for(const [,href] of handoffs){
     const linkUrl=new URL(href.replaceAll('&amp;','&'));
@@ -43,7 +43,7 @@ test('static deployment contains complete approved pages, local paths and no app
     assert.match(markup,/rel="noopener noreferrer"/);
     assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
   }
-  if(product)assert(expectedMessage.includes(product.name),route+' must identify its specific gown');
+  if(product)assert(expectedMessage.includes(sampleDetailTitle(product)),route+' must identify its specific gown');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));
@@ -112,6 +112,8 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.match(book,/Price to be confirmed/);
+ assert.match(book,/Inspiration photo and example price/);
+ assert.doesNotMatch(book,/Image and price are illustrative/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/class="redcarpert-detail-card"/);
@@ -125,7 +127,9 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.match(html,/Price to be confirmed/);
   }else{
     assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
-    assert.match(html,/not confirmed Redcarpert inventory/i);
+    assert.match(html,/not confirmed as available/i);
+    assert.match(html,/EXAMPLE PRICE/);
+    assert.match(html,/Look \d{2}/);
   }
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
   assert.match(html,/data-gallery-photos="/,'gallery metadata must be emitted by static HTML');
@@ -168,8 +172,9 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
     assert(!/bridal[\s_-]*vanesa|vanesabridal|nirvanatakipcim|tatli media|Ürün kategorileri/i.test(title),
       route+' exposes inherited reference-site title');
     if(expectedTitles[route])assert.equal(title,expectedTitles[route]);
-    assert(html.includes('Nothing is sent until you press Send in WhatsApp.'),
-      route+' missing explicit WhatsApp user-send disclosure');
+    assert(html.includes('Book a Fitting'),route+' missing customer fitting action');
+    assert.doesNotMatch(description,/prototype|demonstration|illustrative|indicative|sample preview/i,
+      route+' contains internal or unclear wording in its page description');
     assert(!/(?:href|action)="(?:https?:\/\/[^"]*whatsapp\.(?:com|net)|whatsapp:|intent:)/i.test(html),
       route+' contains an unapproved WhatsApp/intent destination');
     for(const [,href] of html.matchAll(/<a\b[^>]*\bhref="([^"]+)"/gi)){
