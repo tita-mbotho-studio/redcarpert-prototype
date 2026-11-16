@@ -50,7 +50,7 @@ export function displayDressPrice(priceZar: PriceZar | PriceRangeZar): string {
 }
 
 /** Prefer confirmed per-dress ranges; retain current illustrative prices until approved bounds arrive. */
-export function displayPriceForDress(id: string): string {
-  const price = priceForDress(id);
-  return displayDressPrice(priceRangesZar[id] ?? price);
+export function displayPriceForDress(id: string, fallbackPrice?: PriceZar): string {
+  const storedPrice = priceForDress(id);
+  return displayDressPrice(priceRangesZar[id] ?? (fallbackPrice === undefined ? storedPrice : fallbackPrice));
 }
