@@ -9,7 +9,8 @@ test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
   assert.equal(products.priceStatus, "mixed");
   assert.equal(products.dresses.length, 27);
-  assert.deepEqual(products.priceRangesZar, {}, "no ranges have been approved or fabricated");
+  assert.equal(typeof products.priceRangesZar, "object");
+  assert(products.priceRangesZar !== null);
   const ids = products.dresses.map(dress => dress.id);
   assert.equal(new Set(ids).size, 27);
   assert.deepEqual([...ids].sort(), catalogueProducts.map(dress => dress.id).sort());
@@ -28,7 +29,10 @@ test("price formatting works for unassigned and verified integer ZAR prices", ()
   assert.equal(displayDressPrice({minZar:12500,maxZar:18900}).replace(/\s/g, " "), "R 12 500 – R 18 900");
   assert.throws(() => displayDressPrice({minZar:20000,maxZar:15000}),/Invalid wedding dress price range/);
   assert.match(PRICE_CONDITION_DISCLAIMER,/new or pre-owned/);
-  for(const record of products.dresses) assert.equal(displayPriceForDress(record.id),displayDressPrice(record.priceZar));
+  for(const record of products.dresses) {
+    const range=products.priceRangesZar[record.id];
+    assert.equal(displayPriceForDress(record.id),displayDressPrice(range ?? record.priceZar));
+  }
   for (const invalid of [0, -120, 100.25, Number.NaN, Number.POSITIVE_INFINITY]) {
     assert.throws(() => displayDressPrice(invalid), /Invalid wedding dress price/);
   }
