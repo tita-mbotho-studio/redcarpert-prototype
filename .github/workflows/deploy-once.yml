@@ -4,6 +4,7 @@ name: One-time verified Pages deployment
 # Retry after resolving direct WhatsApp import in PR #35.
 # Retry after mobile-menu tap target fix in PR #36.
 # Retry after correcting Playwright button bounding-box helper in PR #37.
+# Retry after mobile dropdown/header parity fix in PR #38.
 on:
   push:
     branches:
