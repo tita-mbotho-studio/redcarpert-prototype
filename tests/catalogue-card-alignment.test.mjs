@@ -30,7 +30,7 @@ test('actual Ball Gown cards contain only name and price, with no client-photo l
    assert(title?.children[0]?.startsWith('Ball Gown '));
    assert.equal(caption.children.length,2);
    assert.equal(caption.children[0].attrs.class,'redcarpert-catalogue-price');
-   assert.equal(caption.children[0].children[0],'Price to be confirmed');
+   assert.match(caption.children[0].children[0],/^Indicative range: R [\d ]+ – R [\d ]+$/);
    assert.equal(caption.children[1].attrs.class,'redcarpert-catalogue-condition-note');
    assert.match(caption.children[1].children[0],/new or pre-owned/);
    assert(!JSON.stringify(card).includes('Client photographs'));
