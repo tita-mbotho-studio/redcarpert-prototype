@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 const base = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/";
 try {
-  for (const width of [1440, 768, 390, 320]) {
+  for (const width of [1440, 1000, 768, 640, 390, 320]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     const galleryImageRequests = [];
@@ -45,6 +45,24 @@ try {
     assert.equal(await template.evaluate(el => el.content.children.length), 71,
       "remaining 71 media tiles stay inert until selected");
     assert.equal(await loadMore.count(), 1);
+    const loadMoreBox=await loadMore.boundingBox();
+    assert(loadMoreBox,'Load More control must be visible before pagination');
+    assert(loadMoreBox.height>=43.5,width+'px Load More needs a comfortable touch target');
+    assert(loadMoreBox.x>=-1&&loadMoreBox.x+loadMoreBox.width<=width+1,
+      width+'px Load More must remain within the viewport');
+    const maxLoadMoreWidth=width<=640?130.5:width<=1000?145.5:160.5;
+    assert(loadMoreBox.width<=maxLoadMoreWidth,
+      width+'px Load More button must scale with the viewport');
+    const loadMoreStyle=await loadMore.evaluate(el=>{
+      const style=getComputedStyle(el);
+      return {fontSize:parseFloat(style.fontSize),paddingLeft:parseFloat(style.paddingLeft),whiteSpace:style.whiteSpace};
+    });
+    assert.equal(loadMoreStyle.whiteSpace,'normal',
+      width+'px Load More label must not force an oversized button');
+    if(width<=640) {
+      assert(loadMoreStyle.fontSize<=11.25,width+'px Load More text must shrink on phones');
+      assert(loadMoreStyle.paddingLeft<=14.5,width+'px Load More padding must shrink on phones');
+    }
     const counter = page.locator("[data-wedding-count]");
     assert.equal(await counter.textContent(), "Showing 16 of 87 wedding moments");
     const assertCenteredCounter = async () => {

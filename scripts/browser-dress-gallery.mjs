@@ -78,7 +78,7 @@ try {
  await liveGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
  // The approved detail card must stay centre-aligned across screen sizes:
  // collection, dress name, price label and ZAR price above Book a Fitting.
- for(const width of [1280,390]){
+ for(const width of [1280,768,640,390,320]){
    await actual.setViewportSize({width,height:900});
    const alignment=await actual.locator('.redcarpert-detail-card').evaluate(card=>{
      const selectors=['.redcarpert-detail-collection','h1.redcarpert-detail-name',
@@ -90,6 +90,12 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
+   const fittingSize=await actual.locator('.redcarpert-detail-actions a.redcarpert-detail-fitting-button').evaluate(button=>{
+     const bounds=button.getBoundingClientRect();
+     return {width:bounds.width,height:bounds.height};
+   });
+   assert(fittingSize.height>=43.5,width+'px Book a Fitting must remain tappable');
+   if(width<=640)assert(fittingSize.width<=200.5,width+'px Book a Fitting should stay compact on mobile');
    const sideOverflow=await actual.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(sideOverflow,false,width+'px detail card must not cause horizontal scrolling');
  }
