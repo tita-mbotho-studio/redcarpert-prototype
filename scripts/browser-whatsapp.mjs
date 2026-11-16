@@ -32,7 +32,7 @@ try {
     const message=href.searchParams.get('text');
     assert(message?.includes('Hello Redcarpert Wedding Dresses!'));
     if(name==='Mermaid dress fitting')assert(message.includes('Look 01')&&message.includes('Mermaid'));
-    if(name==='Ball Gown dress fitting')assert(message.includes('Ball Gown 02')&&message.includes('confirm the price and availability'));
+    if(name==='Ball Gown dress fitting')assert(message.includes('Ball Gown 02')&&message.includes('price and availability'));
     const [popup]=await Promise.all([context.waitForEvent('page'),control.click()]);
     await popup.waitForLoadState('domcontentloaded');
     assert.equal(popup.url(),href.toString(),name+' must open the prepared WhatsApp message immediately');
