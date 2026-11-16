@@ -123,7 +123,7 @@ export function createProductDetailPreview(
         node("div", { class: "redcarpert-detail-pricing" }, [
           ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["EXAMPLE PRICE"])]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
-            [displayPriceForDress(product.id)]),
+            [displayPriceForDress(product.id, product.priceZar)]),
           node("p", { class: "redcarpert-detail-price-disclaimer" }, [PRICE_CONDITION_DISCLAIMER]),
         ]),
         node("div", { class: "redcarpert-detail-actions" }, [
