@@ -13,7 +13,17 @@ if(route==='/digital-lookbook'){
  await page.waitForTimeout(1100);
  assert.match(await page.locator('[data-book-status]').textContent(),/Page 1 of 29/);
 }
-await page.locator('#footer .redcarpert-footer-book').click();assert(await page.locator('#enquiry-preview').evaluate(d=>d.open));const approvedHref=new URL(await page.locator('#enquiry-preview [data-whatsapp-send]').getAttribute('href'));assert.equal(approvedHref.hostname,'wa.me');assert.equal(approvedHref.pathname,'/27680458811');assert(approvedHref.searchParams.get('text')?.includes('Redcarpert'),route+' WhatsApp message');await page.keyboard.press('Escape');assert(!(await page.locator('#enquiry-preview').evaluate(d=>d.open)));
+// The approved direct WhatsApp handoff has no on-site enquiry preview.
+const fitting=page.locator('#footer .redcarpert-footer-book');
+assert.equal(await fitting.evaluate(element=>element.tagName),'A',route+' fitting CTA must be a native link');
+assert.equal(await fitting.getAttribute('target'),'_blank',route+' fitting link must open WhatsApp in a new tab');
+assert.equal(await fitting.getAttribute('rel'),'noopener noreferrer',route+' fitting link must be isolated');
+assert.equal(await page.locator('#enquiry-preview').count(),0,route+' must not recreate the removed preview dialog');
+const approvedHref=new URL(await fitting.getAttribute('href'));
+assert.equal(approvedHref.protocol,'https:');
+assert.equal(approvedHref.hostname,'wa.me');
+assert.equal(approvedHref.pathname,'/27680458811');
+assert(approvedHref.searchParams.get('text')?.includes('Redcarpert'),route+' WhatsApp message');
 await page.reload({waitUntil:'domcontentloaded'});await page.waitForTimeout(2200);
 
 assert.deepEqual(errors,[],route+' JavaScript errors');assert.deepEqual(failed,[],route+' failed resources');assert.deepEqual(metrics.broken,[],route+' broken images');assert(metrics.bodyWidth<=width+1,route+' horizontal overflow');results.push({width,route,...metrics,errors,failed});await page.close();}
