@@ -411,7 +411,7 @@
   color: #725034;
   outline-offset: 3px;
 }
-.redcarpert-editorial .button[data-whatsapp-preview] {
+.redcarpert-editorial .button[data-whatsapp-send] {
   margin: 18px auto 8px;
   max-width: 100%;
   white-space: normal;
