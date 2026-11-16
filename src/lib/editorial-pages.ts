@@ -93,17 +93,17 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
   return [
     node("section", { class: "redcarpert-editorial-hero", "aria-labelledby": "redcarpert-contact-title" }, [
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["GET IN TOUCH"]),
-      node("h2", { id: "redcarpert-contact-title" }, ["Let's talk about your bridal look"]),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Found a silhouette you love? Begin with an enquiry."]),
-      p("Explore our collections, choose a dress that interests you and start a fitting conversation through WhatsApp. Share your questions and preferences so the next steps can be discussed directly with Redcarpert."),
+      node("h2", { id: "redcarpert-contact-title" }, ["Let's find your wedding dress"]),
+      node("p", { class: "redcarpert-editorial-lead" }, ["We're here to help you find a dress you love."]),
+      p("Browse our wedding dresses and message us on WhatsApp to ask questions or arrange a fitting."),
       fitting(),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-enquiry-steps" }, [
-      h("How to Enquire", "redcarpert-enquiry-steps"),
+      h("How to Book a Fitting", "redcarpert-enquiry-steps"),
       node("ol", { class: "redcarpert-editorial-steps" }, [
-        node("li", {}, [node("strong", {}, ["Explore"]), p("Browse the five bridal collections and open a dress you would like to enquire about.")]),
-        node("li", {}, [node("strong", {}, ["Open WhatsApp"]), p("Select the fitting enquiry link to open the prefilled message in WhatsApp, without an extra website preview.")]),
-        node("li", {}, [node("strong", {}, ["Send when ready"]), p("Review or edit your message in WhatsApp before sending. The exact address is shared only after Redcarpert confirms your fitting appointment.")]),
+        node("li", {}, [node("strong", {}, ["Find a Dress"]), p("Browse our wedding dresses and choose a style you love.")]),
+        node("li", {}, [node("strong", {}, ["Message Us"]), p("Contact us on WhatsApp to ask about the dress and book your fitting.")]),
+        node("li", {}, [node("strong", {}, ["Confirm Your Appointment"]), p("We'll confirm your appointment with you on WhatsApp.")]),
       ]),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Browse dresses and contact us" }, [
         node("a", { href: "/product/", class: "redcarpert-editorial-action" }, ["Browse Wedding Dresses"]),
@@ -111,13 +111,12 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-visiting-title" }, [
       h("Before Your Visit", "redcarpert-visiting-title"),
-      p("Redcarpert Wedding Dresses is based in the Pomona area of Kempton Park, Gauteng. Fittings are by confirmed appointment only. The exact studio address and directions will be shared via WhatsApp after your fitting appointment is confirmed. Please arrange your appointment before visiting."),
-      p("Other collections currently include illustrative styles. Enquire for current dress prices and availability."),
+      p("Fittings are by appointment only. Please book your fitting on WhatsApp before visiting."),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-location", "aria-labelledby": "redcarpert-map-title" }, [
       h("Our Location", "redcarpert-map-title"),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Pomona · Kempton Park · Gauteng · South Africa"]),
-      p("The map below shows the general Pomona area for orientation. It does not identify the studio or its exact street address."),
+      node("p", { class: "redcarpert-editorial-lead" }, ["Pomona · Kempton Park · Gauteng"]),
+      p("We're based in Pomona, Kempton Park. This map shows the general area."),
       node("div", { class: "redcarpert-editorial-map" }, [
         node("iframe", {
           title: "Map of the Pomona area in Kempton Park, Gauteng, South Africa",
@@ -130,7 +129,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("p", { class: "redcarpert-editorial-map-link" }, [
         node("a", { href: "https://www.google.com/maps/search/?api=1&query=Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa", target: "_blank", rel: "noopener noreferrer" }, ["View Pomona on Google Maps"]),
       ]),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["General location only. The exact studio address and directions are shared via WhatsApp after your fitting appointment is confirmed."]),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["We'll share the exact studio address and directions on WhatsApp once your fitting appointment is confirmed."]),
     ]),
   ];
 }
