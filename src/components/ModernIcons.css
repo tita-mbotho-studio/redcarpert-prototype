@@ -312,9 +312,10 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
     outline-offset: 2px;
   }
 
-  /* Interior pages use the solid #252525 header wrapper on mobile. */
+  /* Interior pages must match their rendered black header wrapper,
+     without altering the homepage's translucent dropdown below. */
   #header .mob-nav-menu {
-    background: #252525 !important;
+    background: #000 !important;
   }
 
   /* The homepage header is a 50%-opaque black overlay over its photos. */
