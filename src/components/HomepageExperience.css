@@ -338,11 +338,11 @@ body.redcarpert-home-native footer[data-homepage-footer] {
   body.redcarpert-home-native .fullpage-wrapper > .section .section-content > a.button {
     min-width: 0;
     min-height: 44px;
-    max-width: min(100%, 280px);
+    max-width: min(100%, 240px);
     margin-top: 18px !important;
-    padding: 10px 18px !important;
-    /* Match the subtitle's responsive font scale, retaining the 44px target. */
-    font-size: clamp(10px, calc(1.818vw + 4.18px), 12px) !important;
+    padding: 10px 16px !important;
+    /* Compact, readable mobile CTA; keep the approved 44px touch target. */
+    font-size: 12px !important;
   }
   body.redcarpert-home-native .fullpage-scroll-arrow {
     bottom: 14px;
