@@ -15,7 +15,7 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     const {document,product}=preparePage(route);
     const before=JSON.stringify(document);
     const message=product?sampleFittingMessage(product):
-      'Hello Redcarpert Wedding Dresses!\n\nI'd like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+      'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
     const href=buildWhatsAppUrl(message);
     const updated=directWhatsAppHandoffs(document,href);
     const oldControls=all(document.nodes).filter(node=>Object.hasOwn(node.attrs,'data-whatsapp-preview'));
@@ -57,7 +57,7 @@ test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and
   for(const route of ['/','/product/preview/sample-01-mermaid','/product/preview/ball-gown-02']){
     const {document,product}=preparePage(route);
     const message=product?sampleFittingMessage(product):
-      'Hello Redcarpert Wedding Dresses!\n\nI'd like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+      'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
     const href=buildWhatsAppUrl(message);
     const converted=directWhatsAppHandoffs(document,href);
     const links=all(converted.nodes).filter(node=>node.attrs['data-whatsapp-send']==='');
