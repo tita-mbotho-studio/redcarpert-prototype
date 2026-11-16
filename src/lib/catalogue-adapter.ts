@@ -54,7 +54,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       ? "Explore wedding dresses and style ideas. Message us about prices and fittings."
       : document.route.endsWith("/ball_gown")
         ? "Explore our Ball Gown dresses. Message us to ask about prices and fittings."
-         : "These are inspiration photos, not dresses confirmed in stock. Ask us what is available.",
+        : "These are inspiration photos, not dresses confirmed in stock. Ask us what is available.",
   ] });
   // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
