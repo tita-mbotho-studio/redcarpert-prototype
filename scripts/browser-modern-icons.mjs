@@ -72,7 +72,8 @@ try {
         assert.equal(metrics.menu.label,'Open menu',width+'px closed menu needs an accessible name');
         assert.equal(metrics.menu.expanded,'false',width+'px initial menu state');
         assert(metrics.menu.columnWidth>=43 && metrics.menu.columnHeight>=43,
-          width+'px mobile menu touch target is too small');
+          width+'px mobile menu touch target is too small: '
+            +metrics.menu.columnWidth+'x'+metrics.menu.columnHeight);
         assert(Math.abs(metrics.menu.iconCenterX-metrics.menu.columnCenterX)<=1.5 &&
           Math.abs(metrics.menu.iconCenterY-metrics.menu.columnCenterY)<=1.5,
           width+'px Font Awesome icon must be centered within its column');

@@ -279,8 +279,12 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
     box-sizing: border-box;
     display: flex;
     float: right;
-    width: 44px;
-    height: 44px;
+    /* Protect the full tap target when the 320px header gets crowded. */
+    flex: 0 0 44px;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
     margin: 0 !important;
     align-items: center;
     justify-content: center;
