@@ -216,6 +216,7 @@
   letter-spacing: .045em;
   text-align: center;
   text-transform: none;
+  text-decoration: none !important;
   cursor: pointer;
   white-space: normal;
   transition: background-color .2s ease, border-color .2s ease;
