@@ -262,3 +262,23 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
   display: inline-block;
   font-size: .95em;
 }
+
+/* Implementation 34 — mobile dropdown matches the visible header, rather
+ * than the inherited almost-black overlay. Keep the independent submenu
+ * toggle at the far right; hide only the redundant chevron after the label. */
+@media (max-width: 1000px) {
+  /* Interior pages use the solid #252525 header wrapper on mobile. */
+  #header .mob-nav-menu {
+    background: #252525 !important;
+  }
+
+  /* The homepage header is a 50%-opaque black overlay over its photos. */
+  body.redcarpert-home-native #header .mob-nav-menu {
+    background: rgba(0, 0, 0, .50) !important;
+  }
+
+  /* The right-hand .mob-nav-arrow remains the functional category toggle. */
+  #header .mob-nav-menu #menu-item-15821 > a > .fa-chevron-down {
+    display: none !important;
+  }
+}
