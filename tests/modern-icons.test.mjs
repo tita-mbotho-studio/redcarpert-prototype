@@ -30,7 +30,7 @@ test('every approved editorial footer has modern Brands social icons, minimal fi
     const columns=cols.children.filter(n=>typeof n!=='string');
     assert.equal(columns.length,3,route+' must retain three columns');
     assert(getText(columns[2]).includes('FITTINGS'));
-    assert(getText(columns[2]).includes('Book a fitting'));
+    assert(getText(columns[2]).includes('Book a Fitting'));
     assert(!getText(columns[2]).includes('Via WhatsApp'));
     const list=all([columns[0]]).find(n=>n.tag==='ul'&&n.attrs.class==='social-icons');
     assert.equal(list.children.filter(n=>typeof n!=='string').length,6);

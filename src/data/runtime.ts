@@ -1,4 +1,4 @@
 export const runtimeContent = {
-  formSuccess: "Thank you. Your message has been received in this website preview.",
+  formSuccess: "Please message us on WhatsApp to book a fitting.",
   whatsAppLabel: "WhatsApp",
 };

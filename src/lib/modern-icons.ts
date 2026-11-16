@@ -94,7 +94,7 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
     node("button", {
       type: "button", class: "redcarpert-whatsapp-float-dismiss",
       "data-dismiss-whatsapp": "", "aria-label": "Hide floating WhatsApp button",
-      title: "Dismiss WhatsApp widget",
+      title: "Close WhatsApp button",
     }, [icon("solid", "xmark")]),
   ]);
 

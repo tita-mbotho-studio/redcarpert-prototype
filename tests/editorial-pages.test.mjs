@@ -32,6 +32,8 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     if (route === '/digital-lookbook') {
       assert.equal(nodes(content.children).filter(n => n.attrs['data-lookbook-viewer'] === 'true').length, 1);
       assert(nodes(content.children).some(n => n.attrs.id === 'redcarpert-lookbook-title'));
+      assert.match(JSON.stringify(content),/Some photos show style ideas, not dresses confirmed in stock/);
+      assert.doesNotMatch(JSON.stringify(content),/illustrative|prototype|demonstration/i);
     }
     if (route === '/about-us' || route === '/contact-us' || route === '/digital-lookbook') {
       assert(rendered.some(n => n.attrs.class === 'page-title redcarpert-editorial-page-title'));
@@ -39,11 +41,17 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     }
     if (route === '/about-us') {
       const team=nodes(content.children).filter(n => n.attrs.class === 'redcarpert-editorial-team-card');
-      assert.equal(team.length,3,'Meet the Team requires three placeholder cards');
+      assert.equal(team.length,3,'Meet the Team must preserve all three photo cards');
+      assert.match(JSON.stringify(content),/Your Dream Dress Starts Here/);
+      assert.match(JSON.stringify(content),/Book Your Fitting/);
+      assert.doesNotMatch(JSON.stringify(content),/prefilled|illustrative|demonstration|prototype/i,
+        'About Us must use clear customer wording');
+      assert.match(JSON.stringify(content),/photos below are for inspiration and do not show Redcarpert staff/);
       for(const card of team){
         const image=nodes(card.children).find(n=>n.tag==='img');
         assert(image.attrs.src.startsWith('https://images.pexels.com/photos/'), 'team photographs must remain remote placeholders');
-        assert.match(JSON.stringify(card),/Not Redcarpert staff/);
+        assert.match(image.attrs.alt,/not Redcarpert staff/);
+        assert.match(JSON.stringify(card),/Photo by .* on Pexels/);
       }
     }
     if (route === '/contact-us') {
@@ -92,8 +100,8 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   const online=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   for(const statement of [
     'Walking on red carpet with confidence',
-    'A considered edit of bridal inspiration for the moment that feels like yours.',
-    'Find your silhouette.'
+    'Discover the wedding dress styles you love.',
+    'Find your wedding dress.'
   ]) {
     assert(online.includes(statement)&&html.includes(statement),'online/PDF edition mismatch: '+statement);
   }
@@ -111,7 +119,7 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert(cover, 'PDF cover is present');
   assert.equal((cover.match(/<img /g) || []).length, 1, 'PDF front cover uses only the official logo');
   assert.match(cover, /Walking on red carpet with confidence/);
-  assert.match(cover, /A considered edit of bridal inspiration for the moment that feels like yours\./);
+  assert.match(cover, /Discover the wedding dress styles you love\./);
   assert.doesNotMatch(cover, /cover-photo|Bridal cover inspiration|data:image\/jpeg/);
   assert.match(html, /\.cover\{background:linear-gradient\(155deg,#FDFBF8,#F5F0E9\)\}/);
   assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
@@ -119,15 +127,15 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
   assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
   assert.equal((html.match(/class="amount-label"/g)||[]).length,16);
-  assert.match(html, /Style inspiration only/);
+  assert.match(html, /Inspiration photo and example price/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
-  assert.match(back, /Find your silhouette\./);
+  assert.match(back, /Find your wedding dress\./);
   assert.match(back, /Browse Wedding Dresses/);
-  assert.match(back, /Fitting enquiries/);
+  assert.match(back, /Book a Fitting/);
   assert.match(html,/Photography Credits/);
   assert.doesNotMatch(html,/Client-supplied photography/);
-  assert.match(html,/Ball Gown collection: Redcarpert Wedding Dresses/);
+  assert.match(html,/Ball Gown photos: Redcarpert Wedding Dresses/);
   assert.match(html,/Price to be confirmed/);
   for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
     assert(html.includes('href="#collection-'+id+'">'+

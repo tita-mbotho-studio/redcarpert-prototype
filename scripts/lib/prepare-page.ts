@@ -21,34 +21,34 @@ export function preparePage(route: string) {
  const product = catalogueProducts.find(p=>p.previewRoute===route);
  const newCategory = catalogueCategories.slice(2).find(c => c.route.replace(/\/$/, '') === route);
  const categoryTemplate = newCategory ? {...sitePages['/product-category/mermaid'], route} : undefined;
- let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Explore five bridal collections in the interactive Digital Lookbook, with a downloadable editorial PDF.'} : sitePages[route]);
+ let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Browse wedding dress styles online or in our downloadable lookbook.'} : sitePages[route]);
  // Replace inherited Bridal Vanesa catalogue browser-tab metadata without
  // modifying any approved page structure, product card or visual style.
  const listingMetadata: Record<string, {title:string; description:string}> = {
   '/product': {
    title: 'Wedding Dresses | Redcarpert Wedding Dresses',
-   description: 'Browse Redcarpert wedding dresses across five collections. View each dress and enquire about fittings and prices.',
+   description: 'Explore wedding dresses and style ideas across five collections. Message us about fittings and prices.',
   },
   '/product-category/mermaid': {
    title: 'Mermaid Wedding Dresses | Redcarpert',
-   description: 'Browse illustrative Mermaid wedding dress photographs in the Redcarpert bridal collection preview.',
+   description: 'See Mermaid wedding dress inspiration and ask Redcarpert about available dresses and prices.',
   },
   '/product-category/ball_gown': {
    title: 'Ball Gown Wedding Dresses | Redcarpert',
-   description: 'Explore eleven Ball Gown wedding dresses with multiple gallery photographs and fitting enquiries.',
+   description: 'Explore Redcarpert Ball Gown dresses and message us to book a fitting.',
   },
  };
  for (const category of catalogueCategories.slice(2)) {
   const key = category.route.replace(/\/$/, '');
   listingMetadata[key] = {
    title: category.name + ' | Redcarpert Wedding Dresses',
-   description: 'Explore illustrative ' + category.name + ' and indicative ZAR prices. Stock photos and prices are demonstration content only.',
+   description: 'Explore ' + category.name + ' style ideas and ask Redcarpert about available dresses and prices.',
   };
  }
  if (!original) throw new Error('Unknown public route: '+route);
  if(Object.hasOwn(listingMetadata,route)) original={...original,...listingMetadata[route]};
  if(route === '/') original = {...original, title:siteMetadata.title, description:siteMetadata.description};
- if(['/about-us','/contact-us','/wedding-moments'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Wedding Moments | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about Redcarpert's bridal collections and fitting enquiries.":route==='/contact-us'?'Contact and fitting enquiry information for the Redcarpert prototype.':'Wedding Moments: a celebration of couples, family, friends, photographs and films. Stock inspiration is labelled until real wedding stories are available.'};
+ if(['/about-us','/contact-us','/wedding-moments'].includes(route)) original = {...original,title:route==='/about-us'?'About Us | Redcarpert Wedding Dresses':route==='/contact-us'?'Contact Us | Redcarpert Wedding Dresses':'Wedding Moments | Redcarpert Wedding Dresses',description:route==='/about-us'?"Learn about our wedding dress collections and book a fitting on WhatsApp.":route==='/contact-us'?'Book a wedding dress fitting in Pomona, Kempton Park. The exact address is shared on WhatsApp after confirmation.':'Browse wedding photos and videos in the Wedding Moments gallery.'};
  const editorial = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptHomepageCollectionYears(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations))),sitePages['/about-us']))))));
  // Final icon pass runs only after the canonical layout/branding guards.
  const document = modernizeSiteIcons(editorial);

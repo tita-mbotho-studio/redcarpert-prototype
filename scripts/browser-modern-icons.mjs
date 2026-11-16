@@ -124,7 +124,7 @@ try {
         await page.locator('#header .mob-nav-menu .sub-menu').waitFor({state:'visible'});
       }
       assert.equal(metrics.fittingTitle,'FITTINGS');
-      assert.equal(metrics.fittingText,'Book a fitting');
+      assert.equal(metrics.fittingText,'Book a Fitting');
       assert.deepEqual(metrics.socials,[
         'fa-brands fa-instagram','fa-brands fa-youtube','fa-brands fa-x-twitter',
         'fa-brands fa-pinterest-p','fa-brands fa-tiktok','fa-brands fa-whatsapp',

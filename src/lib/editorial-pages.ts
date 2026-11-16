@@ -19,9 +19,9 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     node("section", { class: "redcarpert-editorial-hero", "aria-labelledby": "redcarpert-lookbook-title" }, [
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["THE BRIDAL EDIT"]),
       node("h2", { id: "redcarpert-lookbook-title" }, ["Digital Lookbook"]),
-      node("p", { class: "redcarpert-editorial-lead" }, ["A closer look at five bridal collections"]),
-      p("Explore our bridal collections and discover the silhouettes that speak to you."),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Other collections currently include illustrative styles. Ask us about current availability and pricing."]),
+      node("p", { class: "redcarpert-editorial-lead" }, ["Explore Our Wedding Dress Collections"]),
+      p("Browse wedding dress styles and find the looks you love."),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Some photos show style ideas, not dresses confirmed in stock. Message us to check availability and prices."]),
     ]),
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
@@ -35,13 +35,13 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
   if (route === "/about-us") return [
     node("section", { class: "redcarpert-editorial-hero", "aria-labelledby": "redcarpert-story-title" }, [
       node("p", { class: "redcarpert-editorial-eyebrow" }, ["OUR STORY"]),
-      node("h2", { id: "redcarpert-story-title" }, ["A thoughtful start to your bridal journey"]),
-      node("p", { class: "redcarpert-editorial-lead" }, ["Discover the look you love, one silhouette at a time."]),
-      p("Redcarpert Wedding Dresses is creating a welcoming online space to explore bridal inspiration before enquiring about a fitting. Browse at your own pace, compare different shapes and share the styles you would like to discuss."),
+      node("h2", { id: "redcarpert-story-title" }, ["Your Dream Dress Starts Here"]),
+      node("p", { class: "redcarpert-editorial-lead" }, ["Find a dress that feels like you."]),
+      p("Browse our wedding dress collections, find styles you love and message us on WhatsApp to ask about a dress or book a fitting."),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-collections-title" }, [
       h("Our Collections", "redcarpert-collections-title"),
-      p("Every bride has her own sense of style. Explore Mermaid, Ball Gown, Ruffled, Modern Tradition and 2 in 1 bridal inspiration. Each listing provides a starting point for a conversation about your style."),
+      p("Explore Mermaid, Ball Gown, Ruffled, Modern Tradition and 2 in 1 styles. Find your favourite and ask us what is available."),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Explore bridal collections" }, [
         node("a", { href: "/product-category/mermaid/", class: "redcarpert-editorial-action" }, ["Explore Mermaid"]),
         node("a", { href: "/product-category/ball_gown/", class: "redcarpert-editorial-action" }, ["Explore Ball Gown"]),
@@ -51,40 +51,40 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       ]),
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-fitting-title" }, [
-      h("A Personal Fitting Conversation", "redcarpert-fitting-title"),
-      p("When a dress catches your eye, select its fitting enquiry option to open a prefilled WhatsApp message directly. You can review or edit the message in WhatsApp, then choose whether to send it. Nothing is sent automatically."),
-      fitting(),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Other collections currently include styling inspiration. Prices and fitting arrangements can be confirmed when you enquire."]),
+      h("Book Your Fitting", "redcarpert-fitting-title"),
+      p("Found a dress you love? Message us on WhatsApp to ask about the style and arrange your fitting."),
+      fitting("Book a Fitting"),
+      node("p", { class: "redcarpert-editorial-disclosure" }, ["Some photos are for inspiration only. Ask us about dress availability and prices."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
       h("Meet the Team", "redcarpert-team-title"),
-      p("The people behind the bridal experience will be introduced here. Until official team portraits and names are supplied, the photographs below illustrate the kind of creative and personal work associated with bridal styling."),
+      p("We will introduce our team here soon. The photos below are for inspiration and do not show Redcarpert staff."),
       node("div", { class: "redcarpert-editorial-team-grid" }, [
         ...[
           {
             title: "Bridal Styling",
             image: requireImageLink(imageLinks.about_us.team, "bridal-styling").url,
-            alt: "Illustrative stock photograph of a fashion designer in her workshop",
+            alt: "Bridal designer in a workshop — inspiration photo, not Redcarpert staff",
             credit: "Antoni Shkraba",
           },
           {
             title: "Atelier Craft",
             image: requireImageLink(imageLinks.about_us.team, "atelier-craft").url,
-            alt: "Illustrative stock photograph of designers working in an atelier",
+            alt: "Designers at work — inspiration photo, not Redcarpert staff",
             credit: "Ron Lach",
           },
           {
             title: "Thoughtful Details",
             image: requireImageLink(imageLinks.about_us.team, "thoughtful-details").url,
-            alt: "Illustrative stock photograph of a dressmaker adjusting a bridal gown",
+            alt: "Dressmaker adjusting a bridal gown — inspiration photo, not Redcarpert staff",
             credit: "Gustavo Fring",
           },
         ].map((item) => node("figure", { class: "redcarpert-editorial-team-card" }, [
           node("img", { src: item.image, alt: item.alt, loading: "lazy", decoding: "async", width: "540", height: "660" }, []),
           node("figcaption", {}, [
             node("h3", {}, [item.title]),
-            node("p", {}, ["Team introduction coming soon"]),
-            node("small", {}, ["Illustrative Pexels photo by " + item.credit + " · Not Redcarpert staff"]),
+            node("p", {}, ["Bridal inspiration"]),
+            node("small", {}, ["Photo by " + item.credit + " on Pexels"]),
           ]),
         ])),
       ]),

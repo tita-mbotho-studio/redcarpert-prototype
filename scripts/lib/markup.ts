@@ -17,7 +17,7 @@ function lookbook() {
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
      '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayDressPrice(product.priceZar)) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Style inspiration only · Image and price are illustrative</small>') + '</div>' +
+     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Inspiration photo and example price · Ask what is available</small>') + '</div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
  const logo = '/redcarpert/brand/redcarpert-logo.png';
@@ -25,19 +25,19 @@ function lookbook() {
    '<img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert Wedding Dresses logo" width="400" height="200">' +
    '<span class="redcarpert-book-cover-rule" aria-hidden="true"></span>' +
    '<h3>Walking on red carpet with confidence</h3>' +
-   '<p class="redcarpert-book-cover-description">A considered edit of bridal inspiration for the moment that feels like yours.</p></div></article>';
+   '<p class="redcarpert-book-cover-description">Discover the wedding dress styles you love.</p></div></article>';
  const back = '<article class="redcarpert-book-page redcarpert-book-back" data-density="hard" data-book-page="' + pageCount + '"><div class="redcarpert-book-back-inner">' +
    '<span class="redcarpert-book-kicker">WALKING ON RED CARPET WITH CONFIDENCE</span><img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert logo" width="400" height="200">' +
-   '<h3>Find your silhouette.</h3><p>Explore five bridal collections, then enquire about a fitting.</p>' +
-   '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Fitting enquiries</a></div>' +
+   '<h3>Find your wedding dress.</h3><p>Explore our collections and message us to book a fitting.</p>' +
+   '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Book a Fitting</a></div>' +
    '</div></article>';
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
-   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress designs across five collections. Other collections currently include style inspiration.</p>' +
+   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress looks across five collections. Some photos are for inspiration, not confirmed stock.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
-   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A ' + pdfPageCount + '-page editorial publication featuring the five bridal collections, client Ball Gowns and illustrative designs.</p></div>' +
+   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections and style ideas.</p></div>' +
    '</section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));

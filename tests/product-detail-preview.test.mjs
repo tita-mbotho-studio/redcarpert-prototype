@@ -14,7 +14,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
  for(const product of catalogueProducts){
   const source=sitePages['/product/arabella'];const output=createProductDetailPreview(source,product);const nodes=all(output.nodes);
   assert.equal(output.route,product.previewRoute);assert.equal(sitePages[output.route],undefined);assert(!routes.has(output.route));routes.add(output.route);
-  assert.equal(product.detailReference,null);assert(output.title.includes(product.status==='client'?'Redcarpert Wedding Dresses':'Sample Preview'));
+  assert.equal(product.detailReference,null);assert(output.title.includes(product.status==='client'?'Redcarpert Wedding Dresses':'Wedding Dress Inspiration'));
   for(const n of all(source.nodes).filter(n=>['header','footer','ht-ctc-chat'].includes(n.attrs.id)))assert(nodes.includes(n));
   assert.equal(output.styles,source.styles);assert.equal(output.scripts,source.scripts);assert.equal(output.themeConfig,source.themeConfig);
   const root=nodes.find(n=>n.attrs['data-detail-preview']);const content=all([root]);
@@ -32,7 +32,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert.equal(content.find(n=>n.tag==='img').attrs.width,String(gallery.width));assert.equal(content.find(n=>n.tag==='img').attrs.height,String(gallery.height));
   assert(!nodes.some(n=>n.attrs.class==='social-share'||n.attrs.class?.includes('share-item')));
   assert.equal(all(source.nodes).filter(n=>n.attrs.class==='social-share').length,1);
-  assert.equal(content.find(n=>n.tag==='h1').children[0],product.name);
+  assert.equal(content.find(n=>n.tag==='h1').children[0],product.status==='client'?product.name:product.name.replace(/^Sample /,'Look '));
   const card=content.find(n=>n.attrs.class==='redcarpert-detail-card');
   assert(card,'detail information must be inside a floating card');
   if(product.status==='client'){
@@ -60,9 +60,9 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(!content.some(n=>n.attrs.id==='wpgis-gallery'));
   const text=JSON.stringify(root);assert(!/Arabella|Worldwide Shipping|French|satin|checkout|payment|woocommerce_loop_add_to_cart/i.test(text));
   if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
-  else assert(text.includes('Style inspiration only'));
+  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE PRICE')); }
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
-  const message=sampleFittingMessage(product);assert(message.includes(sampleDetailTitle(product)));assert(message.includes(product.status==='client'?'confirm the price and availability':'not confirmed Redcarpert inventory'));assert(!/wa\.me|whatsapp\.com|\+\d/.test(message));
+  const message=sampleFittingMessage(product);assert(message.includes(sampleDetailTitle(product)));assert(message.includes(product.status==='client'?'price and availability':'similar dress available'));assert(!/wa\.me|whatsapp\.com|\+\d/.test(message));
  }
  assert.equal(JSON.stringify(sitePages),before);
 });
