@@ -221,12 +221,15 @@ body.redcarpert-home-native .fullpage-scroll-arrow .fa-chevron-down {
   font-size: 16px;
 }
 
-.redcarpert-book-controls .fa-solid {
-  font-size: .9em;
-  vertical-align: -0.025em;
+/* Icon-only page turns use the same centred 14px chevrons as dress photos.
+   Remove the margins once needed for the old Previous/Next text. */
+.redcarpert-book-controls button > .fa-solid {
+  display: block;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1;
+  vertical-align: middle;
 }
-.redcarpert-book-controls [data-book-previous] .fa-arrow-left { margin-right: 8px; }
-.redcarpert-book-controls [data-book-next] .fa-arrow-right { margin-left: 8px; }
 
 @media (prefers-reduced-motion: reduce) {
   #redcarpert-floating-whatsapp .redcarpert-whatsapp-float-trigger,
