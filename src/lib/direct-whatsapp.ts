@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "../types/site";
-import { WHATSAPP_NUMBER } from "../config/whatsapp";
+import { WHATSAPP_NUMBER } from "../config/whatsapp.ts";
 
 /**
  * Replace every website-level WhatsApp preview button with a real external link.
