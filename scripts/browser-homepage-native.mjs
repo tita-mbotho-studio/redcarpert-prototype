@@ -148,8 +148,10 @@ try {
         assert(s.button.x>=0&&s.button.right<=width+1,width+'px button '+i+' clips');
         assert(s.button.height>=43,width+'px button '+i+' lacks touch target');
         assert(s.button.y>=s.box.y&&s.button.bottom<=s.box.bottom,width+'px button '+i+' not inside photo');
-        assert(Math.abs(s.buttonFont-expectedSecondary)<=.11,
-          width+'px button '+i+' must match responsive font size: '+s.buttonFont+' != '+expectedSecondary);
+        const expectedButtonFont=width<=640?12:expectedSecondary;
+        assert(Math.abs(s.buttonFont-expectedButtonFont)<=.11,
+          width+'px button '+i+' must stay readable without oversized text: '+s.buttonFont+' != '+expectedButtonFont);
+        if(width<=640)assert(s.button.width<=240.5,width+'px homepage button must remain compact on phones');
       }
       if(s.subtitle&&s.title){
         assert(s.subtitle.y>=s.title.bottom-1,width+'px subtitle should follow title');
