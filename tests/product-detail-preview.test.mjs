@@ -37,7 +37,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(card,'detail information must be inside a floating card');
   if(product.status==='client'){
     assert(!content.some(n=>n.attrs.class==='redcarpert-detail-collection'),'no duplicate collection label for a real gown');
-    assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-label'),'client price status needs no extra heading');
+    assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'INDICATIVE PRICE RANGE');
     assert(!content.some(n=>n.attrs.class==='redcarpert-detail-enquiry-note'),'CTA already identifies fitting enquiry');
   }else{
     assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
@@ -174,8 +174,8 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,expected[index]>1?1:0);
   assert(output.title.includes(product.name));
   assert(!output.title.includes('Sample Preview'));
-  assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-label'));
-  assert(content.some(n=>Object.hasOwn(n.attrs,'data-dress-price')&&n.children[0]==='Price to be confirmed'));
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'INDICATIVE PRICE RANGE');
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-dress-price')&&n.children[0]===displayPriceForDress(product.id)));
   assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
   assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
   assert(!sampleFittingMessage(product).includes('demonstration'));
