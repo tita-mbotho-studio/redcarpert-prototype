@@ -5,6 +5,7 @@ import { catalogueProducts } from '../src/data/catalogue.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp.ts';
+import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const all = nodes => nodes.flatMap(node => typeof node === 'string' ? [] : [node,...all(node.children)]);
 
@@ -49,4 +50,31 @@ test('rejects invalid WhatsApp destinations and unexpected preview widgets',()=>
   assert(control);
   control.attrs['aria-haspopup']='menu';
   assert.throws(()=>directWhatsAppHandoffs(changed,buildWhatsAppUrl('Hello')),/Unexpected WhatsApp preview/);
+});
+
+test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and dress controls',()=>{
+  const render=createNodeRenderer([]);
+  for(const route of ['/','/product/preview/sample-01-mermaid/','/product/preview/ball-gown-02/']){
+    const {document,product}=preparePage(route);
+    const message=product?sampleFittingMessage(product):
+      'Hello Redcarpert Wedding Dresses!\\n\\nI would like to enquire about your wedding dresses and arrange a fitting.\\n\\nCould you please provide more information?\\n\\nThank you.';
+    const href=buildWhatsAppUrl(message);
+    const converted=directWhatsAppHandoffs(document,href);
+    const links=all(converted.nodes).filter(node=>node.attrs['data-whatsapp-send']==='');
+    assert(links.length>=3,route+' expected several native WhatsApp controls');
+    for(const link of links){
+      const html=render(link);
+      assert(html.includes('href="'+href.replaceAll('&','&amp;')+'"'),route+' lost WhatsApp href during rendering');
+      assert(html.includes('data-whatsapp-send=""'),route+' lost approved direct-link marker');
+      assert(html.includes('target="_blank"'),route+' lost safe external target');
+      assert(!html.includes('data-whatsapp-preview'),route+' unexpectedly recreated the on-site preview');
+    }
+  }
+});
+
+test('renderer still blocks unapproved captured WhatsApp links',()=>{
+  const render=createNodeRenderer([]);
+  const html=render({tag:'a',attrs:{href:'https://wa.me/27680458811?text=Hello'},children:['Legacy reference']});
+  assert(!html.includes('href='),'unmarked legacy WhatsApp links must not become clickable');
+  assert(html.includes('data-whatsapp-preview=""'),'legacy safety guard must remain in place');
 });
