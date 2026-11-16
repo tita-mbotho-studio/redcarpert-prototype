@@ -31,7 +31,7 @@ try {
     assert.equal(href.pathname,'/27680458811');
     const message=href.searchParams.get('text');
     assert(message?.includes('Hello Redcarpert Wedding Dresses!'));
-    if(name==='Mermaid dress fitting')assert(message.includes('Sample 01')&&message.includes('Mermaid'));
+    if(name==='Mermaid dress fitting')assert(message.includes('Look 01')&&message.includes('Mermaid'));
     if(name==='Ball Gown dress fitting')assert(message.includes('Ball Gown 02')&&message.includes('confirm the price and availability'));
     const [popup]=await Promise.all([context.waitForEvent('page'),control.click()]);
     await popup.waitForLoadState('domcontentloaded');
