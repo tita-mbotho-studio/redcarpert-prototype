@@ -8,9 +8,9 @@ const STORAGE_KEY = 'redcarpert-floating-whatsapp-dismissed';
 export function initializeFloatingWhatsApp() {
   const widget = document.querySelector('#redcarpert-floating-whatsapp.redcarpert-whatsapp-float');
   if (!widget) return;
-  const open = widget.querySelector('[data-whatsapp-preview]');
+  const open = widget.querySelector('[data-whatsapp-send]');
   const dismiss = widget.querySelector('[data-dismiss-whatsapp]');
-  if (!(open instanceof HTMLButtonElement) || !(dismiss instanceof HTMLButtonElement)) {
+  if (!(open instanceof HTMLAnchorElement) || !(dismiss instanceof HTMLButtonElement)) {
     throw new Error('Modern floating WhatsApp controls are incomplete');
   }
   let hidden = false;
