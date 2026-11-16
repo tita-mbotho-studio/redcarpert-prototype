@@ -34,8 +34,8 @@ function lookbook() {
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
    '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress designs across five collections. Other collections currently include style inspiration.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
-   '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i>Previous</button>' +
-   '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page">Next<i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button></div>' +
+   '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
+   '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
    '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A ' + pdfPageCount + '-page editorial publication featuring the five bridal collections, client Ball Gowns and illustrative designs.</p></div>' +
    '</section>';
