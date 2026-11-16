@@ -81,7 +81,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,29);
  assert.equal((book.match(/data-book-price=/g)||[]).length,27);
- assert.equal((book.match(/redcarpert-book-condition-note/g)||[]).length,27);
+ assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
  assert(book.includes(PRICE_CONDITION_DISCLAIMER));
  for(const product of catalogueProducts){
   assert(book.includes('data-book-price="'+product.id+'">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
