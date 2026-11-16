@@ -150,7 +150,9 @@ try {
    assert(alignment.every(item=>item.title==='center' && item.price==='center' && item.note==='center'),
      width+'px Wedding Dresses cards must centre all text: '+JSON.stringify(alignment));
    const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
-   assert.equal((await clientCard.locator('.catalogue-sample-note').textContent()).trim(),'Price to be confirmed');
+   assert.equal((await clientCard.locator('.redcarpert-catalogue-price').textContent()).trim(),
+     'Indicative range: '+displayPriceForDress('ball-gown-03'));
+   assert.match(await clientCard.locator('.redcarpert-catalogue-condition-note').textContent(),/new or pre-owned/);
    assert.equal(await clientCard.locator('h2.woocommerce-loop-product__title').textContent(),'Ball Gown 03');
  }
  await actual.close();
