@@ -9,8 +9,8 @@ import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp.ts';
 const all = nodes => nodes.flatMap(node => typeof node === 'string' ? [] : [node,...all(node.children)]);
 
 test('every approved page converts all on-site enquiry previews to native WhatsApp links',()=>{
-  for(const route of ['/','/product/','/contact-us/','/about-us/','/wedding-moments/','/digital-lookbook/',
-    '/product-category/ball_gown/',...catalogueProducts.map(item=>item.previewRoute)]){
+  for(const route of ['/','/product','/contact-us','/about-us','/wedding-moments','/digital-lookbook',
+    '/product-category/ball_gown',...catalogueProducts.map(item=>item.previewRoute)]){
     const {document,product}=preparePage(route);
     const before=JSON.stringify(document);
     const message=product?sampleFittingMessage(product):
