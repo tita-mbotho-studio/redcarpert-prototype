@@ -8,9 +8,9 @@ import { contentAdaptations } from "../src/data/content-adaptations.ts";
 import { sitePages } from "../src/data/site.ts";
 
 const expectedImages = [
-  ["/site-assets/ec8b6b2c4222396c44.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794351596508"],
-  ["/site-assets/9def3725208290c4ef.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp?updatedAt=1794351597603"],
-  ["/site-assets/46f8a1c412d65fd42b.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp?updatedAt=1794351600184"],
+  ["/site-assets/ec8b6b2c4222396c44.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp"],
+  ["/site-assets/9def3725208290c4ef.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp"],
+  ["/site-assets/46f8a1c412d65fd42b.png", "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp"],
 ];
 const at = (document, section) => document.nodes[1].children[1].children[4].children[1].children[1].children[section];
 const freeze = (value) => {
@@ -81,8 +81,7 @@ test("all three homepage photos are client-supplied remote WebP assets in natura
     assert.equal(url.protocol,"https:");
     assert.equal(url.hostname,"ik.imagekit.io");
     assert.equal(url.pathname,`/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-${i+1}.webp`);
-    assert(/^[0-9]+$/.test(url.searchParams.get("updatedAt")??""),"keep the supplied asset version");
-    assert.equal(url.searchParams.size,1);
+    assert.equal(url.searchParams.size,0,"use the exact supplied ImageKit URLs without stale version parameters");
   });
   assert.equal(new Set(homepageBackgrounds.map(x=>x.replacement)).size,3);
 });
