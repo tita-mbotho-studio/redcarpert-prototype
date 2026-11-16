@@ -6,7 +6,11 @@ const base = 'http://localhost:4173/redcarpert-prototype';
 const routes = ['/digital-lookbook/', '/about-us/', '/contact-us/'];
 const viewports = [
   {width: 1440, height: 900},
+  {width: 1024, height: 768},
+  {width: 1000, height: 800},
   {width: 768, height: 900},
+  {width: 640, height: 800},
+  {width: 560, height: 760},
   {width: 390, height: 844},
   {width: 375, height: 667},
   {width: 320, height: 568},
@@ -75,7 +79,7 @@ try {
       for (const button of metrics.fittingButtons) {
         assert(button.height>=43.5,width+'px '+route+' fitting button needs a comfortable touch target');
         assert(button.right<=width+1&&button.x>=-1,width+'px '+route+' fitting button must not overflow');
-        if(width<=560)assert(button.width<=250.5,width+'px '+route+' fitting button must stay compact');
+        if(width<=640)assert(button.width<=250.5,width+'px '+route+' fitting button must stay compact');
       }
       for (const action of metrics.actionButtons) {
         assert(action.height>=43.5,width+'px '+route+' collection action must be tappable');
@@ -83,14 +87,15 @@ try {
       }
       if (route === '/about-us/') {
         assert.equal(metrics.actionButtons.length,5,'all five collection links must remain');
-        const expectedColumns=width<=560?2:width<=900?3:4;
+        const expectedColumns=width<=640?2:width<=1000?3:5;
         const rows=[];
         for(const action of metrics.actionButtons){
           const existing=rows.find(row=>Math.abs(row[0].y-action.y)<=1);
           if(existing)existing.push(action);else rows.push([action]);
         }
-        assert.equal(rows[0].length,expectedColumns,width+'px About Us collection columns');
-        assert(rows.every(row=>row.length<=expectedColumns),width+'px too many collection buttons in one row');
+        const expectedRows=expectedColumns===5?[5]:expectedColumns===3?[3,2]:[2,2,1];
+        assert.deepEqual(rows.map(row=>row.length),expectedRows,
+          width+'px About Us must use five / three-two / two-two-one responsive columns');
         if(rows.at(-1).length===1){
           assert(Math.abs(rows.at(-1)[0].center-metrics.actionGroup.center)<=2,
             width+'px final collection button must be centred');
@@ -119,7 +124,7 @@ try {
       } else {
         assert(metrics.downloadButton,'lookbook download action must be present');
         assert(metrics.downloadButton.height>=43.5,width+'px lookbook download must be tappable');
-        if(width<=560)assert(metrics.downloadButton.width<=250.5,width+'px lookbook download must not become oversized');
+        if(width<=640)assert(metrics.downloadButton.width<=250.5,width+'px lookbook download must not become oversized');
         assert.equal(metrics.bookPages, products.dresses.length+2, 'flippable book must remain intact');
       }
       assert(metrics.scrollWidth <= width+1.5, width + 'px ' + route + ' horizontal overflow: ' + metrics.scrollWidth);
