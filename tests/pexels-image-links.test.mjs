@@ -42,7 +42,7 @@ test("catalogue photos and lookbook links stay identical", () => {
     const ref = requireImageLink(imageLinks.products[product.category], product.id);
     assert.equal(product.image, ref.url);
     assert.equal(product.imageCredit.sourceUrl, ref.sourceUrl);
-    assert.match(product.imageAlt, /not Redcarpert inventory/);
+    assert.match(product.imageAlt, /not confirmed Redcarpert stock/);
   }
   assert.equal(imageLinks.products.ball_gown.length,0,'retired sample Ball Gown photo URLs should not remain');
   assert.equal(catalogueProducts.filter(product=>product.status==='client').length,11);
