@@ -28,9 +28,11 @@ test('actual Ball Gown cards contain only name and price, with no client-photo l
    const title=nodes.find(node=>node.tag==='h2'&&node.attrs.class==='woocommerce-loop-product__title');
    const caption=nodes.find(node=>node.attrs.class==='catalogue-sample-note');
    assert(title?.children[0]?.startsWith('Ball Gown '));
-   assert.equal(caption.children.length,1);
+   assert.equal(caption.children.length,2);
    assert.equal(caption.children[0].attrs.class,'redcarpert-catalogue-price');
    assert.equal(caption.children[0].children[0],'Price to be confirmed');
+   assert.equal(caption.children[1].attrs.class,'redcarpert-catalogue-condition-note');
+   assert.match(caption.children[1].children[0],/new or pre-owned/);
    assert(!JSON.stringify(card).includes('Client photographs'));
  }
 });
