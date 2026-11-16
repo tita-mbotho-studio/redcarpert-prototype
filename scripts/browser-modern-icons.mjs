@@ -16,7 +16,7 @@ try {
         const socials=brand.querySelector('.social-icons');
         const float=document.querySelector('#redcarpert-floating-whatsapp');
         const text=n=>n?.textContent.trim().replace(/\s+/g,' ');
-        const bounds=n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width};};
+        const bounds=n=>{const r=n.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom,height:r.height};};
         const sample=footer.querySelector('.fa-brands.fa-whatsapp');
         const menu=document.querySelector('#header .mob-nav-btn');
         const menuStyle=getComputedStyle(menu);
