@@ -411,11 +411,12 @@
   align-items: stretch;
   gap: 12px;
   width: 100%;
+  max-width: 900px;
   margin: 24px auto 0;
 }
 .redcarpert-editorial .redcarpert-editorial-action {
   display: inline-flex;
-  flex: 0 0 calc((100% - 48px) / 5);
+  flex: 0 0 calc((100% - 36px) / 4);
   justify-content: center;
   align-items: center;
   min-height: 44px;
@@ -572,8 +573,9 @@
   max-width: 740px;
   text-align: center;
 }
-/* Three compact actions per row on tablets; two remaining actions stay centred. */
+/* Three compact actions per row on tablets; the final row stays centred. */
 @media (max-width: 1000px) {
+  .redcarpert-editorial-actions { max-width: 690px; }
   .redcarpert-editorial .redcarpert-editorial-action {
     flex-basis: calc((100% - 24px) / 3);
     padding-inline: 10px;
@@ -602,6 +604,7 @@
   .redcarpert-editorial-actions {
     flex-direction: row;
     gap: 10px;
+    max-width: 420px;
   }
   .redcarpert-editorial .redcarpert-editorial-action {
     flex-basis: calc((100% - 10px) / 2);
