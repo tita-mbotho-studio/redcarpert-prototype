@@ -87,6 +87,16 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
+ // The lookbook adopts the approved dress-detail chevrons without visible labels.
+ const prevArrow=book.match(/<button\b[^>]*\bdata-book-previous\b[^>]*>[\s\S]*?<\/button>/)?.[0];
+ const nextArrow=book.match(/<button\b[^>]*\bdata-book-next\b[^>]*>[\s\S]*?<\/button>/)?.[0];
+ assert(prevArrow&&nextArrow,'both lookbook page arrows must render');
+ assert.match(prevArrow,/aria-label="Previous page"/);
+ assert.match(nextArrow,/aria-label="Next page"/);
+ assert.match(prevArrow,/<i class="fa-solid fa-chevron-left" aria-hidden="true"><\/i><\/button>$/);
+ assert.match(nextArrow,/<i class="fa-solid fa-chevron-right" aria-hidden="true"><\/i><\/button>$/);
+ assert.doesNotMatch(prevArrow,/>Previous</);
+ assert.doesNotMatch(nextArrow,/>Next</);
  const gallery=readFileSync('dist/product/index.html','utf8');
  assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,27);
  for(const [category,count] of [['mermaid',4],['ball_gown',11],['ruffled',4],['modern_tradition',4],['two_in_one',4]]) {
