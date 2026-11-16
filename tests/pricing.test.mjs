@@ -8,9 +8,15 @@ import { createNodeRenderer } from "../scripts/lib/markup.ts";
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
   assert.equal(products.priceStatus, "mixed");
+  assert.equal(products.priceRangeStatus, "illustrative");
   assert.equal(products.dresses.length, 27);
   assert.equal(typeof products.priceRangesZar, "object");
   assert(products.priceRangesZar !== null);
+  assert.equal(Object.keys(products.priceRangesZar).length, 27);
+  for(const range of Object.values(products.priceRangesZar)) {
+    assert(Number.isSafeInteger(range.minZar) && range.minZar > 0);
+    assert(Number.isSafeInteger(range.maxZar) && range.maxZar > range.minZar);
+  }
   const ids = products.dresses.map(dress => dress.id);
   assert.equal(new Set(ids).size, 27);
   assert.deepEqual([...ids].sort(), catalogueProducts.map(dress => dress.id).sort());
@@ -57,8 +63,10 @@ test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed pri
     "book dress classes may include additional class names");
   for (const product of catalogueProducts) {
     assert(html.includes('data-book-price="' + product.id + '"'));
-    assert(html.includes(displayDressPrice(product.priceZar)));
+    assert(html.includes(displayPriceForDress(product.id)));
+    assert(html.includes(PRICE_CONDITION_DISCLAIMER));
   }
-  assert.equal((html.match(/Price to be confirmed/g)||[]).length>=11,true);
+  assert.equal((html.match(/class="redcarpert-book-range-label"/g)||[]).length,27);
+  assert(!html.includes("Price to be confirmed"),"all customer-facing book prices should show placeholder ranges");
   assert(!html.includes("R 0"), "never invent a zero-price dress");
 });
