@@ -31,7 +31,7 @@ test('static deployment contains complete approved pages, local paths and no app
   assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
   const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
   const expectedMessage=product ? sampleFittingMessage(product)
-    : 'Hello Redcarpert Wedding Dresses!\n\nI'd like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+    : 'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
   const expectedUrl=buildWhatsAppUrl(expectedMessage);
   for(const [,href] of handoffs){
     const linkUrl=new URL(href.replaceAll('&amp;','&'));
