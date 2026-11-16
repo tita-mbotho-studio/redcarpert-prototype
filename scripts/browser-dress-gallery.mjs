@@ -90,6 +90,12 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
+   const fittingSize=await actual.locator('.redcarpert-detail-actions a.redcarpert-detail-fitting-button').evaluate(button=>{
+     const bounds=button.getBoundingClientRect();
+     return {width:bounds.width,height:bounds.height};
+   });
+   assert(fittingSize.height>=43.5,width+'px Book a Fitting must remain tappable');
+   if(width<=560)assert(fittingSize.width<=200.5,width+'px Book a Fitting should stay compact on mobile');
    const sideOverflow=await actual.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(sideOverflow,false,width+'px detail card must not cause horizontal scrolling');
  }
