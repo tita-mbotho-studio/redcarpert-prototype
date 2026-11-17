@@ -60,6 +60,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     'rental prices remain pending until supplied by the client');
   const relatedSection=content.find(n=>n.attrs.class==='redcarpert-related-dresses');
   assert(relatedSection,'each detail page must display related dresses in a separate section');
+  assert.equal(relatedSection.attrs['data-related-count'],String(related.length));
   const relatedCards=all([relatedSection]).filter(n=>n.attrs.class==='redcarpert-related-card');
   assert.equal(relatedCards.length,Math.min(4,catalogueProducts.filter(p=>p.category===product.category).length-1));
   assert.deepEqual(relatedCards.map(n=>n.attrs['data-related-dress']),related.map(d=>d.id));
