@@ -18,6 +18,14 @@ Every card is **square** (four across on desktop, two on mobile), and contains *
 
 **Video thumbnail:** The first frame of `wedding-moments-88.mp4` is used as its poster through ImageKit's documented `/ik-thumbnail.jpg` suffix. The original video URL is played on demand.
 
+## Media-loading performance (Implementation 42)
+
+Gallery cards display **small, aspect-ratio-preserving ImageKit derivatives** (maximum 640×640, quality 72, automatic format) instead of downloading the 86 full-resolution JPGs. The original images are still recorded unchanged in the JSON and in each card's source/fallback metadata. A photo opened in the popup uses a larger, uncropped derivative (maximum 1920×1920, quality 82, automatic format); if either derivative cannot load, the browser falls back to the original client image. Video playback continues to use the original MP4 with sound and native controls; only its static thumbnail is resized.
+
+The first four cards retain eager loading, with the first tile prioritized; the next twelve remain native-lazy. The other 71 cards remain inert until Load More is clicked. The page makes a preconnect to ImageKit, and the global loading screen no longer waits for a full remote Wedding Moments image to decode before revealing the page. The tile backgrounds remain in place as images arrive.
+
+These are on-demand ImageKit transformations, so a first-ever request can involve CDN processing. They must be inspected with real network requests on desktop and mobile before merging or deploying. No exact speedup is claimed without measurements. See ImageKit's official resize and video-thumbnail documentation for the supported `c-at_max` and `tr` parameters.
+
 **Internal grouping:** Because the supplied links weren't separated by individual weddings, they are stored under an internal batch `client-upload-batch-01`, not falsely assigned to a particular couple or event. New approved upload batches can be appended to the JSON; the newest batch appears first without a visible grouping.
 
 **Input inventory:** All 86 supplied JPGs are distinct. There is no `wedding-moments-55.jpg` in the supplied list, so no link was fabricated.
@@ -72,6 +80,6 @@ Run `npm run check` and preview using `npm run dev`. GitHub Actions and deployme
 
 ## Image URLs and local verification
 
-The original ImageKit JPG, MP4 and `/ik-thumbnail.jpg` URLs must remain **unchanged** in the generated HTML. `scripts/lib/assets.ts` rewrites local site paths to the GitHub Pages base, but must never rewrite `/wedding-moments/` inside the ImageKit CDN URLs. This is covered by `tests/routing-prefix.test.mjs` and the production HTML checks.
+The original ImageKit JPG, MP4 and `/ik-thumbnail.jpg` URLs must remain **unchanged** in the JSON and gallery `data-wedding-src` / `data-wedding-original-thumbnail` metadata. The generated `img src` URLs intentionally add ImageKit transformations for faster delivery. `scripts/lib/assets.ts` rewrites local site paths to the GitHub Pages base, but must never rewrite `/wedding-moments/` inside the ImageKit CDN URLs. This is covered by `tests/routing-prefix.test.mjs` and the production HTML checks.
 
 Use `npm run check` locally. This command now lints, type-checks and **builds first**, then runs the unit and generated-site tests against the current output, not a stale `dist/` from an earlier page name. No GitHub Actions dispatch is required.
