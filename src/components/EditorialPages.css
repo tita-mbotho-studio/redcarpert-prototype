@@ -557,30 +557,20 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
+  aspect-ratio: 3 / 4;
+  object-fit: contain;
   object-position: center;
   background: #f0eae4;
 }
 .redcarpert-editorial-team-card figcaption {
   box-sizing: border-box;
-  min-height: 122px;
-  padding: 20px 12px;
+  min-height: 64px;
+  padding: 18px 12px;
 }
 .redcarpert-editorial-team-card h3 {
-  margin: 0 0 10px;
+  margin: 0;
   font: 500 16px/1.4 Montserrat, sans-serif;
   color: #735e49;
-}
-.redcarpert-editorial-team-card p {
-  margin: 0 auto 10px;
-  font-size: 13px;
-}
-.redcarpert-editorial-team-card small {
-  display: block;
-  color: #8a8177;
-  font-size: 11px;
-  line-height: 1.6;
 }
 .redcarpert-editorial-steps {
   display: grid;
@@ -666,7 +656,7 @@
     max-width: 520px;
   }
 }
-/* The third team placeholder should remain centred when tablets show two columns. */
+/* Centre an unmatched final model card when future galleries contain an odd number. */
 @media (min-width: 561px) and (max-width: 800px) {
   .redcarpert-editorial-team-card:last-child:nth-child(odd) {
     grid-column: 1 / -1;
