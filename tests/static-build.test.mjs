@@ -315,12 +315,21 @@ test('Implementation 22: every static page starts with a bounded, branded global
 });
 
 
-test('Wedding Moments production HTML preserves ImageKit URLs and visible pagination status',{skip:!available},()=>{
+test('Wedding Moments production HTML uses CDN thumbnails, preserves originals and visible pagination status',{skip:!available},()=>{
  const html=readFileSync('dist/wedding-moments/index.html','utf8');
  const base='https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/';
- assert(html.includes('src="'+base+'wedding-moments-56.jpg"'), 'real image URL was modified during HTML generation');
- assert(html.includes('data-wedding-src="'+base+'wedding-moments-88.mp4"'), 'client video URL was modified during HTML generation');
- assert(html.includes('src="'+base+'wedding-moments-88.mp4/ik-thumbnail.jpg"'), 'ImageKit video poster URL was modified');
+ assert(html.includes('src="'+base+'wedding-moments-56.jpg?tr=w-640,h-640,c-at_max,q-72,f-auto"'),
+   'photo tiles must load optimized derivatives');
+ assert(html.includes('data-wedding-src="'+base+'wedding-moments-56.jpg"'),
+   'original high-resolution source must remain unchanged for fallback');
+ assert(html.includes('data-wedding-preview-src="'+base+'wedding-moments-56.jpg?tr=w-1920,h-1920,c-at_max,q-82,f-auto"'),
+   'photo previews must use screen-sized uncropped derivatives');
+ assert(html.includes('data-wedding-src="'+base+'wedding-moments-88.mp4"'),
+   'video playback URL must remain the original client media');
+ assert(html.includes('src="'+base+'wedding-moments-88.mp4/ik-thumbnail.jpg?tr=w-640,h-640,c-at_max,q-72,f-auto"'),
+   'video poster must be an optimized still, never a video download');
+ assert(html.includes('<link rel="preconnect" href="https://ik.imagekit.io">'),
+   'page should open an ImageKit connection before its media requests');
  assert(html.includes('Showing 16 of 87 wedding moments'), 'initial gallery counter missing');
  assert(html.includes('data-wedding-moments-remaining'), 'deferred media template missing');
  assert(html.includes('data-wedding-load-more'), 'pagination control missing');
