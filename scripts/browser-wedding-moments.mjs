@@ -32,7 +32,8 @@ try {
     await page.route("https://ik.imagekit.io/**", route => {
       const url = route.request().url();
       if (url.includes("/wedding-moments/") &&
-          (url.endsWith(".jpg") || url.endsWith("/ik-thumbnail.jpg"))) {
+          (new URL(url).pathname.endsWith(".jpg") ||
+           new URL(url).pathname.endsWith("/ik-thumbnail.jpg"))) {
         galleryImageRequests.push(url);
       }
       if (route.request().resourceType() === "media") {
@@ -100,6 +101,18 @@ try {
     await assertCenteredCounter();
     assert.equal(await gallery.locator("button[data-wedding-media=video]").count(), 1);
     assert.equal(await gallery.locator("button[data-wedding-media=photo]").count(), 15);
+    const firstTiles = await gallery.locator('img').evaluateAll(images => images.map(img => ({
+      source: img.getAttribute('src'),
+      original: img.dataset.weddingOriginalThumbnail,
+      loading: img.loading,
+    })));
+    assert.equal(firstTiles.length,16);
+    assert(firstTiles.every(tile => tile.source?.includes('?tr=w-640,h-640,c-at_max,q-72,f-auto')),
+      'visible tiles should request compact ImageKit versions, not original JPG files');
+    assert(firstTiles.every(tile => tile.original?.startsWith(base)),
+      'all client original media URLs must remain accessible as fallbacks');
+    assert.equal(firstTiles.filter(tile => tile.loading === 'eager').length,4);
+    assert.equal(firstTiles.filter(tile => tile.loading === 'lazy').length,12);
     assert.equal(await gallery.locator("a[href*='pexels.com']").count(), 0,
       "no stock video links after switching to real client media");
     assert.equal(await gallery.locator("button[data-wedding-media=video]").first()
@@ -156,6 +169,8 @@ try {
     const firstPhoto = gallery.locator("button[data-wedding-media=photo]").first();
     assert.equal(await firstPhoto.getAttribute("data-wedding-src"),
       base + "wedding-moments-56.jpg");
+    assert.equal(await firstPhoto.getAttribute("data-wedding-preview-src"),
+      base + "wedding-moments-56.jpg?tr=w-1920,h-1920,c-at_max,q-82,f-auto");
     await firstPhoto.click();
     const dialog = page.locator("#redcarpert-wedding-preview");
     assert(await dialog.evaluate(el => el.open));
