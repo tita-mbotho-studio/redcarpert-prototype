@@ -147,8 +147,17 @@ export function createProductDetailPreview(
           ]),
           node("p", { class: "redcarpert-detail-price-disclaimer" }, [SALE_RENTAL_DISCLAIMER]),
         ]),
-        node("div", { class: "redcarpert-detail-actions" }, [
-          node("button", { type: "button", class: "button redcarpert-detail-fitting-button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Book a Fitting"]),
+        node("div", { class: "redcarpert-detail-actions redcarpert-icon-cta" }, [
+          node("p", { class: "redcarpert-icon-cta-label" }, ["Book a Fitting"]),
+          node("button", {
+            type: "button",
+            class: "button redcarpert-icon-cta-button redcarpert-detail-fitting-button",
+            "data-whatsapp-preview": "",
+            "aria-haspopup": "dialog",
+            "aria-label": "Book a Fitting via WhatsApp",
+          }, [
+            node("i", { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, []),
+          ]),
         ]),
       ]),
       ...(client ? [] : [node("p", { class: "sample-detail-notice" },
