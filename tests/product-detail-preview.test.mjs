@@ -91,7 +91,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(!content.some(n=>n.attrs.id==='wpgis-gallery'));
   const text=JSON.stringify(root);assert(!/Arabella|Worldwide Shipping|French|satin|checkout|payment|woocommerce_loop_add_to_cart/i.test(text));
   if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
-  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE PRICE')); }
+  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE SALE PRICE')); }
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
   const message=sampleFittingMessage(product);
   assert(message.includes("*Dress:* "+(product.status==="client"?product.name:product.name.replace(/^Sample /,"Look "))));
@@ -214,8 +214,9 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,expected[index]>1?1:0);
   assert(output.title.includes(product.name));
   assert(!output.title.includes('Sample Preview'));
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'INDICATIVE PRICE RANGE');
-  assert(content.some(n=>Object.hasOwn(n.attrs,'data-dress-price')&&n.children[0]===displayPriceForDress(product.id)));
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-sale-price')&&n.children[0]===PRICE_PENDING_LABEL));
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-rental-price')&&n.children[0]===PRICE_PENDING_LABEL));
   assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
   assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
   assert(!sampleFittingMessage(product).includes('demonstration'));
