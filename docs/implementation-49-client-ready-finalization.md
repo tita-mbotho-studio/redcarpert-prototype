@@ -6,7 +6,7 @@ This implementation builds on the already merged Implementation 48, from the lat
 
 1. Keep all existing images and site layouts while new photographs are prepared.
 2. Use clean, natural customer-facing language without temporary preview, inspiration, stock-image or provenance notices. Image-source records, authors and URLs remain in the internal catalogue for correct asset tracking.
-3. Show a fixed **Sale Price** and a **Rental Price Range** everywhere that dress pricing is shown; no visible example/provisional/pending disclaimers.
+3. Show a fixed **Sale Price** and a **Rental Price Range** everywhere that dress pricing is shown; no visible example/provisional/pending disclaimers. Retain the short condition note: **“Rental prices may vary depending on whether the dress is new or pre-owned.”** on dress details, related-dress pricing, both lookbooks and dress-specific WhatsApp enquiries.
 4. Keep the main catalogue/category tiles as photograph-and-title cards without prices.
 5. Use the same formatted WhatsApp templates for footer, floating, About Us, Contact Us, dress details and the PDF's booking action. All native links open WhatsApp directly with a prefilled message.
 6. Preserve the interactive lookbook (29 leaves) and the A4 PDF edition (39 pages), including all photographs, navigation and links.

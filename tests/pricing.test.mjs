@@ -5,7 +5,7 @@ import {catalogueProducts} from '../src/data/catalogue.ts';
 import {
   priceForDress,displayDressPrice,displayPriceForDress,salePriceForDress,
   rentalPriceRangeForDress,displaySalePriceForDress,displayRentalPriceForDress,
-  salePriceLabelForDress
+  salePriceLabelForDress,RENTAL_CONDITION_NOTE
 } from '../src/lib/pricing.ts';
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
 import {lookbookEntries} from '../src/client/lookbook.js';
@@ -56,6 +56,8 @@ test('digital lookbook contains the same labelled fixed sale and rental prices a
   assert.equal((html.match(/data-book-rental-price=/g)||[]).length,27);
   assert.equal((html.match(/data-book-sale-label=/g)||[]).length,27);
   assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,27);
+  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,27);
   assert.equal(lookbookEntries.length,27);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover&&cover.includes('Walking on red carpet with confidence'));

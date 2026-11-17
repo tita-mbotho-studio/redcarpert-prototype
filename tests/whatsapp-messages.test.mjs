@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { generalFittingMessage, dressFittingMessage, dressPageUrl } from '../src/lib/whatsapp-messages.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
@@ -40,6 +40,8 @@ test('every one of the 27 dresses uses the SAME neutral and accurately priced en
     assert(message.includes('*Rental Price Range:* '+displayRentalPriceForDress(product.id)),
       product.id+' must show its full rental range');
     assert(message.includes('*Dress Link:* '+dressPageUrl(product)));
+    assert.equal(message.split(RENTAL_CONDITION_NOTE).length-1,1,
+      'dress enquiry must include the condition-based rental qualification once');
     assert.equal((message.match(/\*Rental Price Range:\*/g)||[]).length,1);
     assert(!/example|provisional|quotation|to be confirmed/i.test(message),
       'enquiry must not contain temporary pricing notices');

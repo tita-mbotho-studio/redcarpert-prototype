@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress } from '../../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../../src/lib/pricing.ts';
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
 import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../../src/lib/media-delivery.ts';
@@ -25,6 +25,7 @@ function lookbook() {
      '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental Price Range</span>' +
      '<p class="redcarpert-book-price" data-book-rental-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayRentalPriceForDress(product.id)) + '</p></div></div>' +
+     '<p class="redcarpert-book-condition-note">' + escapeHtml(RENTAL_CONDITION_NOTE) + '</p>' +
      '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');

@@ -170,8 +170,7 @@
   text-align: center;
 }
 
-/* Distinguish fixed example sale prices from unconfirmed rental ranges.
-   Both options belong to the same elevated information card. */
+/* Keep fixed sale prices and rental ranges in the same elevated information card. */
 #main-container [data-detail-preview] .redcarpert-detail-price-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

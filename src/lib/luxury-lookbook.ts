@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress } from "./pricing.ts";
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
 import { generalFittingMessage } from "./whatsapp-messages.ts";
 import { buildWhatsAppUrl } from "../config/whatsapp.ts";
 
@@ -169,6 +169,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<p class="amount" data-pdf-sale-price="'+esc(dress.id)+'">'+salePrice(dress)+'</p></div>'+
         '<div class="price-item"><p class="amount-label">Rental Price Range</p>'+
         '<p class="amount" data-pdf-rental-price="'+esc(dress.id)+'">'+rentalPrice(dress)+'</p></div></div>'+
+        '<p class="price-condition">'+esc(RENTAL_CONDITION_NOTE)+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a></div>'));
     }
   }

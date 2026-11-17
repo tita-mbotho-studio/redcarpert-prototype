@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {createLuxuryLookbookHtml} from '../src/lib/luxury-lookbook.ts';
+import {RENTAL_CONDITION_NOTE} from '../src/lib/pricing.ts';
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
 
 const banned=/\b(?:inspiration|inspirational|illustrative|demonstration|provisional|not confirmed|stock photos?|example (?:sale |rental )?prices?|to be confirmed|sample (?:dress|photo|imagery))\b/i;
@@ -18,6 +19,7 @@ test('interactive Bridal Edit shows full prices and no preview or temporary word
   assert.doesNotMatch(visible(html),banned);
   assert.equal((html.match(/data-book-sale-price=/g)||[]).length,27);
   assert.equal((html.match(/data-book-rental-price=/g)||[]).length,27);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,27);
 });
 
 test('PDF source contains no development copy, fictional ownership claims or separate WhatsApp text',()=>{
@@ -26,6 +28,7 @@ test('PDF source contains no development copy, fictional ownership claims or sep
   assert.equal((html.match(/<section class="page /g)||[]).length,39);
   assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,27);
   assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,27);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,27);
   assert.doesNotMatch(visible(html),banned);
   assert.doesNotMatch(visible(html),/Photo on Pexels|client[- ]owned/i);
   assert.match(html,/Your Fitting Journey/);

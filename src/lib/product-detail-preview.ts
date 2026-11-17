@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
 import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
@@ -145,6 +145,7 @@ export function createProductDetailPreview(
                 [displayRentalPriceForDress(product.id)]),
             ]),
           ]),
+          node("p", { class: "redcarpert-detail-price-disclaimer" }, [RENTAL_CONDITION_NOTE]),
         ]),
         node("div", { class: "redcarpert-detail-actions redcarpert-icon-cta" }, [
           node("p", { class: "redcarpert-icon-cta-label" }, ["Book a Fitting"]),
@@ -200,6 +201,7 @@ export function createProductDetailPreview(
             ]),
           ),
         ),
+        node("p", { class: "redcarpert-related-disclaimer" }, [RENTAL_CONDITION_NOTE]),
       ]),
     ] : []),
   ] };

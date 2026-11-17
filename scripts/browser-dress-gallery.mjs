@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -179,7 +179,10 @@ try {
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
- assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').count(),0,'no temporary price disclaimer');
+ assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
+   'dress detail must show the new/pre-owned rental pricing qualification');
+ assert.equal(await actual.locator('.redcarpert-related-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
+   'related dress prices must show the same qualification');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').first().textContent(),'SALE PRICE');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').nth(1).textContent(),'RENTAL PRICE RANGE');
  assert.equal(await actual.locator('[data-related-dress]').count(),4);

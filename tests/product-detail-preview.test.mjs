@@ -3,7 +3,7 @@ import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages,relatedDressesFor} from '../src/lib/product-detail-preview.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -52,7 +52,8 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     displaySalePriceForDress(product.id));
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-rental-price')).children[0],
     displayRentalPriceForDress(product.id));
-  assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-disclaimer'),'no customer-facing price disclaimer');
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-disclaimer')?.children[0],RENTAL_CONDITION_NOTE,
+    'dress detail must explain the rental range without provisional wording');
   assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-price-option').length,2,
     'sale and rental prices have separate slots');
   assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
@@ -63,6 +64,8 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   const relatedCards=all([relatedSection]).filter(n=>n.attrs.class==='redcarpert-related-card');
   assert.equal(relatedCards.length,Math.min(4,catalogueProducts.filter(p=>p.category===product.category).length-1));
   assert.deepEqual(relatedCards.map(n=>n.attrs['data-related-dress']),related.map(d=>d.id));
+  assert.equal(all([relatedSection]).find(n=>n.attrs.class==='redcarpert-related-disclaimer')?.children[0],RENTAL_CONDITION_NOTE,
+    'related dress rental ranges share the same condition note');
   for(const [index,card] of relatedCards.entries()){
     const expected=related[index];
     const components=all([card]);

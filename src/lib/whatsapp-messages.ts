@@ -1,6 +1,6 @@
 import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { REPOSITORY_BASE } from "../config/site.ts";
-import { displayRentalPriceForDress, displaySalePriceForDress } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
 
 /**
  * One WhatsApp message policy for all page actions.
@@ -45,6 +45,8 @@ export function dressFittingMessage(product: CatalogueProduct): string {
     `*Sale Price:* ${displaySalePriceForDress(product.id)}`,
     `*Rental Price Range:* ${displayRentalPriceForDress(product.id)}`,
     `*Dress Link:* ${dressPageUrl(product)}`,
+    "",
+    RENTAL_CONDITION_NOTE,
     "",
     "Please share available sizes, fitting appointment dates and any details I should know before booking.",
     "",
