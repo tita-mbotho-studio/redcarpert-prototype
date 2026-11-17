@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
-import {displayPriceForDress, displaySalePriceForDress, displayRentalPriceForDress, SALE_RENTAL_DISCLAIMER, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
+import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, LOOKBOOK_PRICING_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
@@ -82,12 +82,18 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
 test('twenty-nine-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,29);
- assert.equal((book.match(/data-book-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-sale-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-rental-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-sale-label=/g)||[]).length,27);
  assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
- assert(book.includes(PRICE_CONDITION_DISCLAIMER));
+ assert(book.includes(LOOKBOOK_PRICING_DISCLAIMER));
  for(const product of catalogueProducts){
-  assert(book.includes('data-book-price="'+product.id+'">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
-    'book price does not match products.json for '+product.id);
+  assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
+    'book sale price does not match products.json for '+product.id);
+  assert(book.includes('data-book-rental-price="'+product.id+'">'+displayRentalPriceForDress(product.id)+'</p>'),
+    'book rental status does not match products.json for '+product.id);
+  assert(book.includes('data-book-sale-label="'+product.id+'">'+salePriceLabelForDress(product.id)+'</span>'),
+    'book must distinguish example sale amounts from pending sales for '+product.id);
  }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
@@ -123,8 +129,9 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
- assert.doesNotMatch(book,/Price to be confirmed/);
- assert.match(book,/Indicative range/);
+ assert.equal((book.match(/To be confirmed/g)||[]).length,38,'all 27 rental and 11 sale prices pending');
+ assert.doesNotMatch(book,/data-book-price=|redcarpert-book-range-label|Indicative range/,
+   'online book may not show the old single illustrative price range');
  assert.match(book,/Inspiration photo and example price/);
  assert.doesNotMatch(book,/Image and price are illustrative/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
