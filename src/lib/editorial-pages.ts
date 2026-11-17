@@ -33,7 +33,6 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("h2", { id: "redcarpert-lookbook-title" }, ["Digital Lookbook"]),
       node("p", { class: "redcarpert-editorial-lead" }, ["Explore Our Wedding Dress Collections"]),
       p("Browse wedding dress styles and find the looks you love."),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Some photos show style ideas, not dresses confirmed in stock. Message us to check availability and prices."]),
     ]),
     node("div", { "data-lookbook-viewer": "true" }, []),
   ];
@@ -53,7 +52,7 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
     ]),
     node("section", { class: "redcarpert-editorial-panel", "aria-labelledby": "redcarpert-collections-title" }, [
       h("Our Collections", "redcarpert-collections-title"),
-      p("Explore Mermaid, Ball Gown, Ruffled, Modern Tradition and 2 in 1 styles. Find your favourite and ask us what is available."),
+      p("Explore Mermaid, Ball Gown, Ruffled, Modern Tradition and 2 in 1 collections and discover your favourite style."),
       node("nav", { class: "redcarpert-editorial-actions", "aria-label": "Explore bridal collections" }, [
         node("a", { href: "/product-category/mermaid/", class: "redcarpert-editorial-action" }, ["Explore Mermaid"]),
         node("a", { href: "/product-category/ball_gown/", class: "redcarpert-editorial-action" }, ["Explore Ball Gown"]),
@@ -66,7 +65,6 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       h("Book Your Fitting", "redcarpert-fitting-title"),
       p("Found a dress you love? Message us on WhatsApp to ask about the style and arrange your fitting."),
       fitting("Book a Fitting"),
-      node("p", { class: "redcarpert-editorial-disclosure" }, ["Some photos are for inspiration only. Ask us about dress availability and prices."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
       h("Meet Our Models", "redcarpert-team-title"),
