@@ -1,6 +1,6 @@
 import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { REPOSITORY_BASE } from "../config/site.ts";
-import { displayPriceForDress } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceForDress } from "./pricing.ts";
 
 /**
  * One WhatsApp message policy for all page actions.
@@ -35,6 +35,8 @@ export function dressFittingMessage(product: CatalogueProduct): string {
     ? product.name
     : product.name.replace(/^Sample /, "Look ");
 
+  const saleIsExample = salePriceForDress(product.id) !== null;
+
   return [
     "Hello Redcarpert Wedding Dresses,",
     "",
@@ -42,10 +44,13 @@ export function dressFittingMessage(product: CatalogueProduct): string {
     "",
     `*Dress:* ${dressName}`,
     `*Collection:* ${category.name}`,
-    `*Indicative price range:* ${displayPriceForDress(product.id, product.priceZar)}`,
+    `*${saleIsExample ? "Example sale price" : "Sale price"}:* ${displaySalePriceForDress(product.id)}`,
+    `*Rental price range:* ${displayRentalPriceForDress(product.id)}`,
     `*Dress link:* ${dressPageUrl(product)}`,
     "",
-    "Could you please confirm whether this dress or a similar style is available, the final price, available sizes, and fitting appointment dates? Please also let me know whether the dress is new or pre-owned.",
+    "Any sale price shown is an example only, not a final quotation.",
+    "",
+    "Could you please confirm whether this dress or a similar style is available, the final sale price, rental price range, available sizes, and fitting appointment dates? Please also let me know whether the dress is new or pre-owned.",
     "",
     "Thank you.",
   ].join("\n");
