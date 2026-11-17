@@ -2,6 +2,7 @@ import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue
 import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../../src/lib/pricing.ts';
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
+import { mediaDeliveryUrl, mediaImageAttrs } from '../../src/lib/media-delivery.ts';
 
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -13,8 +14,11 @@ function lookbook() {
  const dresses = catalogueProducts.map((product, i) => {
    const category = (catalogueCategories.find(c => c.id === product.category)?.name ?? 'WEDDING DRESSES').toUpperCase();
    const pageNumber = i + 2;
+   const optimizedImage = mediaDeliveryUrl(product.image, "lookbook");
+   const fallbackAttr = optimizedImage === product.image ? "" :
+     ' data-media-original="' + escapeHtml(product.image) + '"';
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
-     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(product.image) + '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
+     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr + ' alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
      '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<span class="redcarpert-book-range-label">' + (product.status === 'client' ? 'Indicative range' : 'Example range') + '</span>' +
      '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayPriceForDress(product.id, product.priceZar)) + '</p>' +
@@ -22,7 +26,7 @@ function lookbook() {
      '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Inspiration photo and example price · Ask what is available</small>') + '</div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
- const logo = '/redcarpert/brand/redcarpert-logo.png';
+ const logo = '/redcarpert/brand/redcarpert-logo-optimized.webp';
  const cover = '<article class="redcarpert-book-page redcarpert-book-cover is-current" data-density="hard" data-book-page="1"><div class="redcarpert-book-cover-inner">' +
    '<img class="redcarpert-book-logo" src="' + logo + '" alt="Redcarpert Wedding Dresses logo" width="400" height="200">' +
    '<span class="redcarpert-book-cover-rule" aria-hidden="true"></span>' +
@@ -48,7 +52,8 @@ function render(node: DocumentNode): string {
  if(typeof node === 'string') return escapeHtml(node);
  if(['script','noscript'].includes(node.tag)) return '';
  if(node.attrs['data-lookbook-viewer'] === 'true') return lookbook();
- const attrs = {...node.attrs};
+ const attrs = node.tag === 'img' ? mediaImageAttrs(node.attrs) : {...node.attrs};
+ if(node.tag === 'video' && attrs.preload === undefined) attrs.preload = 'none';
  if (attrs.href && routes.includes(attrs.href) && attrs.href !== '/') attrs.href += '/';
  if(attrs.class?.split(/\s+/).includes('ht_ctc_chat_data')) delete attrs['data-settings'];
  // Preserve only the explicitly approved, fully validated native wa.me links
