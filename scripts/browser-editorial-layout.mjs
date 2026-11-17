@@ -64,7 +64,8 @@ try {
           teamCount: team?.querySelectorAll('figure').length ?? 0,
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
           teamCardBoxes: team ? [...team.querySelectorAll('figure')].map(box) : [],
-          teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
+          teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('data-media-original')) : [],
+          teamOptimizedSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           teamNames: team ? [...team.querySelectorAll('figure figcaption h3')].map(name => name.textContent.trim()) : [],
           teamImageAlts: team ? [...team.querySelectorAll('figure img')].map(image => image.getAttribute('alt')) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
@@ -171,6 +172,12 @@ try {
         assert.deepEqual(metrics.teamNames, ['Shantel', 'Mapaseka', 'Defny', 'Refiloe', 'Olga', 'Paula']);
         assert.deepEqual(metrics.teamSources, ['https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg']);
         assert.deepEqual(metrics.teamImageAlts, metrics.teamNames.map(name => 'Portrait of '+name+', Redcarpert bridal model'));
+        assert(metrics.teamOptimizedSources.every((src,i)=>{
+          const url=new URL(src);
+          return url.hostname==='ik.imagekit.io'
+            && url.pathname===new URL(metrics.teamSources[i]).pathname
+            && url.searchParams.has('tr');
+        }),width+'px About Us model portraits must use optimized ImageKit delivery');
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
         if (metrics.teamColumns===2) {
           const lastPair=metrics.teamCardBoxes.slice(-2);
