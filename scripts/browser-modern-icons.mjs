@@ -50,7 +50,8 @@ try {
           fittingTitle:text(footer.querySelector('.redcarpert-footer-columns > .col:last-child .redcarpert-footer-heading')),
           fittingText:text(footer.querySelector('.redcarpert-footer-book')),
           socials:[...socials.querySelectorAll('li')].map(li=>li.querySelector('i')?.className),
-          socialLinks:[...socials.querySelectorAll('a')].map(a=>({
+          // Footer WhatsApp is also a direct <a> after publication; it is not a social profile.
+          socialLinks:[...socials.querySelectorAll('a.redcarpert-footer-social-link')].map(a=>({
             href:a.href,ariaLabel:a.getAttribute('aria-label'),title:a.getAttribute('title'),
             target:a.getAttribute('target'),rel:a.getAttribute('rel'),
           })),
