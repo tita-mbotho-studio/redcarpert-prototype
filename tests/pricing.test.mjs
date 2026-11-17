@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import products from "../src/data/products.json" with { type: "json" };
 import { catalogueProducts } from "../src/data/catalogue.ts";
-import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "../src/lib/pricing.ts";
+import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER, SALE_RENTAL_DISCLAIMER, PRICE_PENDING_LABEL, salePriceForDress, rentalPriceRangeForDress, displaySalePriceForDress, displayRentalPriceForDress } from "../src/lib/pricing.ts";
 import { createNodeRenderer } from "../scripts/lib/markup.ts";
 import { lookbookEntries } from "../src/client/lookbook.js";
 
@@ -27,6 +27,28 @@ test("central products.json has one ZAR price slot per approved dress", () => {
       "prices must be unassigned or positive whole-rand amounts");
   }
   assert.throws(() => priceForDress("unknown-dress"), /missing price/);
+});
+
+test("sale and rental prices remain distinct, with unsupplied rental ranges pending", () => {
+  assert.equal(products.dresses.length,27);
+  assert.equal(products.dresses.filter(x=>x.priceZar!==null).length,16);
+  assert.equal(products.dresses.filter(x=>x.priceZar===null).length,11);
+  assert.match(SALE_RENTAL_DISCLAIMER,/examples only/);
+  assert.match(SALE_RENTAL_DISCLAIMER,/rental prices/i);
+  assert.match(SALE_RENTAL_DISCLAIMER,/new or pre-owned/i);
+  for(const record of products.dresses){
+    assert(Object.hasOwn(record,'rentalPriceRangeZar'));
+    assert.equal(record.rentalPriceRangeZar,null,'no rental prices may be invented');
+    assert.equal(salePriceForDress(record.id),record.priceZar);
+    assert.equal(rentalPriceRangeForDress(record.id),null);
+    assert.equal(displayRentalPriceForDress(record.id),PRICE_PENDING_LABEL);
+    assert.equal(displaySalePriceForDress(record.id),
+      record.priceZar===null?PRICE_PENDING_LABEL:displayDressPrice(record.priceZar));
+    assert.notEqual(displayPriceForDress(record.id),displayRentalPriceForDress(record.id),
+      'legacy lookbook indicative range is NOT a rental price');
+  }
+  assert.throws(()=>rentalPriceRangeForDress('unknown-dress'),/missing rental price/);
+  assert.throws(()=>salePriceForDress('unknown-dress'),/missing price/);
 });
 
 test("price formatting works for unassigned and verified integer ZAR prices", () => {
