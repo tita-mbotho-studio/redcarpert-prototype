@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
+import { catalogueProducts } from '../src/data/catalogue.ts';
+import { weddingMomentEvents } from '../src/lib/wedding-moments.ts';
 
 /** Exercise the centralized fallback with deliberately failed CDN derivatives.
  * Run after npm run preview, against http://localhost:4173. */
@@ -19,9 +21,8 @@ try {
 
   await page.goto(root+'/product/preview/ball-gown-01/',{waitUntil:'domcontentloaded'});
   const detail=page.locator('[data-gallery-active-image]');
-  const original=await detail.getAttribute('data-media-original');
-  assert(original?.startsWith('https://ik.imagekit.io/'),
-    'detail uses the new centralized image delivery policy');
+  const original=catalogueProducts.find(item=>item.id==='ball-gown-01')?.image;
+  assert(original?.startsWith('https://ik.imagekit.io/'));
   await page.waitForFunction(expected=>{
     const img=document.querySelector('[data-gallery-active-image]');
     return img && img.getAttribute('src')===expected && img.naturalWidth>0;
@@ -31,7 +32,7 @@ try {
 
   await page.goto(root+'/wedding-moments/',{waitUntil:'domcontentloaded'});
   const tile=page.locator('[data-wedding-moments-grid] img').first();
-  const tileOriginal=await tile.getAttribute('data-wedding-original-thumbnail');
+  const tileOriginal=weddingMomentEvents[0].media[0].poster;
   assert(tileOriginal?.includes('/ik-thumbnail.jpg'));
   await page.waitForFunction(expected=>{
     const img=document.querySelector('[data-wedding-moments-grid] img');
