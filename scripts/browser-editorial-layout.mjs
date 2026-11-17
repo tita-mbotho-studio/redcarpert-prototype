@@ -63,8 +63,20 @@ try {
           mapLink: wrap.querySelector('a[href^="https://www.google.com/maps/search/"]')?.href ?? null,
           teamCount: team?.querySelectorAll('figure').length ?? 0,
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
-          teamLast: team ? box(team.lastElementChild) : null,
-          teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
+          teamCardBoxes: team ? [...team.querySelectorAll('figure')].map(box) : [],
+          teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('data-media-original')) : [],
+          teamOptimizedSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
+          teamNames: team ? [...team.querySelectorAll('figure figcaption h3')].map(name => name.textContent.trim()) : [],
+          teamImageAlts: team ? [...team.querySelectorAll('figure img')].map(image => image.getAttribute('alt')) : [],
+          teamImageGeometry: team ? [...team.querySelectorAll('figure img')].map(image => ({
+            image: box(image),
+            card: box(image.closest('figure')),
+            sourceWidth: Number(image.getAttribute('width')),
+            sourceHeight: Number(image.getAttribute('height')),
+            aspectRatio: getComputedStyle(image).aspectRatio,
+            objectFit: getComputedStyle(image).objectFit,
+            backgroundColor: getComputedStyle(image).backgroundColor,
+          })) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
           actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
           iconCtas: [...wrap.querySelectorAll('[data-redcarpert-icon-cta]')].map(group => {
@@ -165,12 +177,37 @@ try {
           assert(Math.abs(center-metrics.actionGroup.center)<=2,
             width+'px partial last button row must be centred');
         }
-        assert.equal(metrics.teamCount, 3);
-        assert(metrics.teamSources.every(s => s.startsWith('https://images.pexels.com/photos/')));
+        assert.equal(metrics.teamCount, 6, 'all six models must be visible');
+        assert.deepEqual(metrics.teamNames, ['Shantel', 'Refiloe', 'Olga', 'Mapaseka', 'Defny', 'Paula']);
+        assert.deepEqual(metrics.teamSources, ['https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg']);
+        assert.deepEqual(metrics.teamImageAlts, metrics.teamNames.map(name => 'Portrait of '+name+', Redcarpert bridal model'));
+        assert(metrics.teamOptimizedSources.every((src,i)=>{
+          const url=new URL(src);
+          return url.hostname==='ik.imagekit.io'
+            && url.pathname===new URL(metrics.teamSources[i]).pathname
+            && url.searchParams.has('tr');
+        }),width+'px About Us model portraits must use optimized ImageKit delivery');
+        assert.equal(metrics.teamImageGeometry.length, 6);
+        for (const layout of metrics.teamImageGeometry) {
+          assert.equal(layout.aspectRatio, 'auto',
+            width+'px team photo must use its natural aspect ratio');
+          assert.equal(layout.objectFit, 'fill',
+            width+'px team photo must not be letterboxed or cropped by object-fit');
+          assert.equal(layout.backgroundColor, 'rgba(0, 0, 0, 0)',
+            width+'px team photo must not paint shaded side strips');
+          assert(Math.abs(layout.image.height - layout.image.width * layout.sourceHeight / layout.sourceWidth) < 2,
+            width+'px team photo must retain full natural proportions');
+          assert(Math.abs(layout.image.width - (layout.card.width - 2)) < 2,
+            width+'px team photo must fill the full available card width');
+        }
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
         if (metrics.teamColumns===2) {
-          assert(Math.abs(metrics.teamLast.center - metrics.root.center)<=2,
-            width + 'px the last team card must be centred on tablet');
+          const lastPair=metrics.teamCardBoxes.slice(-2);
+          assert.equal(lastPair.length,2);
+          assert(Math.abs(lastPair[0].y-lastPair[1].y)<=1,
+            width + 'px six model cards must form complete tablet rows');
+          assert(Math.abs((lastPair[0].center+lastPair[1].center)/2-metrics.root.center)<=2,
+            width + 'px final pair of model cards must be centred on tablet');
         }
       } else if (route === '/contact-us/') {
         assert.equal(metrics.actionButtons.length,1,'Contact Us keeps its browse-dresses action');

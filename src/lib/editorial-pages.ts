@@ -1,6 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 import imageLinks from "../data/image-links.json" with { type: "json" };
-import { requireImageLink } from "./image-links.ts";
 import { weddingMomentEvents, flattenWeddingMomentEvents, renderWeddingMomentGallery } from "./wedding-moments.ts";
 
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[]): DocumentElement => ({ tag, attrs, children });
@@ -70,37 +69,25 @@ function editorialContent(route: EditorialRoute): DocumentNode[] {
       node("p", { class: "redcarpert-editorial-disclosure" }, ["Some photos are for inspiration only. Ask us about dress availability and prices."]),
     ]),
     node("section", { class: "redcarpert-editorial-panel redcarpert-editorial-team", "aria-labelledby": "redcarpert-team-title" }, [
-      h("Meet the Team", "redcarpert-team-title"),
-      p("We will introduce our team here soon. The photos below are for inspiration and do not show Redcarpert staff."),
-      node("div", { class: "redcarpert-editorial-team-grid" }, [
-        ...[
-          {
-            title: "Bridal Styling",
-            image: requireImageLink(imageLinks.about_us.team, "bridal-styling").url,
-            alt: "Bridal designer in a workshop — inspiration photo, not Redcarpert staff",
-            credit: "Antoni Shkraba",
-          },
-          {
-            title: "Atelier Craft",
-            image: requireImageLink(imageLinks.about_us.team, "atelier-craft").url,
-            alt: "Designers at work — inspiration photo, not Redcarpert staff",
-            credit: "Ron Lach",
-          },
-          {
-            title: "Thoughtful Details",
-            image: requireImageLink(imageLinks.about_us.team, "thoughtful-details").url,
-            alt: "Dressmaker adjusting a bridal gown — inspiration photo, not Redcarpert staff",
-            credit: "Gustavo Fring",
-          },
-        ].map((item) => node("figure", { class: "redcarpert-editorial-team-card" }, [
-          node("img", { src: item.image, alt: item.alt, loading: "lazy", decoding: "async", width: "540", height: "660" }, []),
-          node("figcaption", {}, [
-            node("h3", {}, [item.title]),
-            node("p", {}, ["Bridal inspiration"]),
-            node("small", {}, ["Photo by " + item.credit + " on Pexels"]),
+      h("Meet Our Models", "redcarpert-team-title"),
+      p("Meet the models featured in our bridal photographs."),
+      node("div", { class: "redcarpert-editorial-team-grid" },
+        imageLinks.about_us.team.map((model) =>
+          node("figure", { class: "redcarpert-editorial-team-card" }, [
+            node("img", {
+              src: model.url,
+              alt: `Portrait of ${model.name}, Redcarpert bridal model`,
+              loading: "lazy",
+              decoding: "async",
+              width: String(model.width),
+              height: String(model.height),
+            }, []),
+            node("figcaption", {}, [
+              node("h3", {}, [model.name]),
+            ]),
           ]),
-        ])),
-      ]),
+        ),
+      ),
     ]),
   ];
   return [

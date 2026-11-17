@@ -38,6 +38,25 @@ test("homepage uses manifest URLs directly, in the approved order", () => {
   assert.equal(new Set(photos.map((photo) => photo.url)).size, 3);
 });
 
+test("About Us uses six distinct named ImageKit portraits in the approved order", () => {
+  const expected = ["Shantel", "Refiloe", "Olga", "Mapaseka", "Defny", "Paula"];
+  const portraits = imageLinks.about_us.team;
+  assert.equal(portraits.length, expected.length);
+  assert.deepEqual(portraits.map(photo => photo.name), expected);
+  assert.equal(new Set(portraits.map(photo => photo.id)).size, 6);
+  assert.equal(new Set(portraits.map(photo => photo.url)).size, 6);
+  for (const photo of portraits) {
+    isSafeImageUrl(photo.url);
+    const url = new URL(photo.url);
+    assert.equal(url.hostname, "ik.imagekit.io");
+    assert.equal(url.pathname,
+      "/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-" + photo.id + ".jpg");
+    assert.equal(photo.name.toLowerCase(), photo.id);
+    assert(Number.isSafeInteger(photo.width) && photo.width > 0);
+    assert(Number.isSafeInteger(photo.height) && photo.height > 0);
+  }
+});
+
 test("future photo groups accept empty lists but require well-formed records when populated", () => {
   const entries = [
     ...Object.values(imageLinks.products).flat(),

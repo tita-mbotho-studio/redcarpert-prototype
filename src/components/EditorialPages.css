@@ -541,7 +541,8 @@
 .redcarpert-editorial-team-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0,1fr));
-  align-items: stretch;
+  /* Mixed portrait proportions must not stretch the shorter photo cards. */
+  align-items: start;
   gap: clamp(12px, 2vw, 24px);
   margin-top: 30px;
 }
@@ -557,30 +558,20 @@
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  object-position: center;
-  background: #f0eae4;
+  /* Match each source photo's own proportions: no side bars or cropping. */
+  aspect-ratio: auto;
+  object-fit: initial;
+  background: transparent;
 }
 .redcarpert-editorial-team-card figcaption {
   box-sizing: border-box;
-  min-height: 122px;
-  padding: 20px 12px;
+  min-height: 64px;
+  padding: 18px 12px;
 }
 .redcarpert-editorial-team-card h3 {
-  margin: 0 0 10px;
+  margin: 0;
   font: 500 16px/1.4 Montserrat, sans-serif;
   color: #735e49;
-}
-.redcarpert-editorial-team-card p {
-  margin: 0 auto 10px;
-  font-size: 13px;
-}
-.redcarpert-editorial-team-card small {
-  display: block;
-  color: #8a8177;
-  font-size: 11px;
-  line-height: 1.6;
 }
 .redcarpert-editorial-steps {
   display: grid;
@@ -666,7 +657,7 @@
     max-width: 520px;
   }
 }
-/* The third team placeholder should remain centred when tablets show two columns. */
+/* Centre an unmatched final model card when future galleries contain an odd number. */
 @media (min-width: 561px) and (max-width: 800px) {
   .redcarpert-editorial-team-card:last-child:nth-child(odd) {
     grid-column: 1 / -1;
