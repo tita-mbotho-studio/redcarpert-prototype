@@ -138,12 +138,13 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
     assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
     assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
-    assert.match(html,/INDICATIVE PRICE RANGE/);
+    assert.match(html,/SALE PRICE/);
+    assert.match(html,/RENTAL PRICE RANGE/);
     assert.match(html,/new or pre-owned/);
   }else{
     assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
     assert.match(html,/not confirmed as available/i);
-    assert.match(html,/EXAMPLE PRICE/);
+    assert.match(html,/EXAMPLE SALE PRICE/);
     assert.match(html,/Look \d{2}/);
   }
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
@@ -165,6 +166,19 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
   assert(html.includes('data-rental-price="">'+displayRentalPriceForDress(product.id)+'</p>'),
     'detail rental price must remain pending until supplied for '+route);
   assert(html.includes(SALE_RENTAL_DISCLAIMER),'detail price disclaimer missing for '+route);
+  const categoryMatches=catalogueProducts.filter(d=>d.category===product.category&&d.id!==product.id);
+  const relatedIds=[...html.matchAll(/data-related-dress="([^"]+)"/g)].map(match=>match[1]);
+  assert.equal(relatedIds.length,Math.min(4,categoryMatches.length),
+    'unexpected related dress card count for '+route);
+  assert.equal(new Set(relatedIds).size,relatedIds.length,
+    'related dress section may not repeat a gown');
+  for(const id of relatedIds){
+    const dress=categoryMatches.find(item=>item.id===id);
+    assert(dress,'related dress must belong to the same category and exclude current gown');
+    assert(html.includes('href="/redcarpert-prototype'+dress.previewRoute+'/"'),
+      'related dress must link to the correct detail page');
+    assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
+  }
   assert.match(html,/Book a Fitting/);
  }
 });
