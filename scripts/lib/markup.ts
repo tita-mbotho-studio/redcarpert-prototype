@@ -23,7 +23,7 @@ function lookbook() {
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
      '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
-     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental price range</span>' +
+     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental Price Range</span>' +
      '<p class="redcarpert-book-price" data-book-rental-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayRentalPriceForDress(product.id)) + '</p></div></div>' +
      '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
