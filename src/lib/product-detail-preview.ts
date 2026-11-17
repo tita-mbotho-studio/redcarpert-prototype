@@ -186,10 +186,19 @@ export function createProductDetailPreview(
                 }, []),
                 node("span", { class: "redcarpert-related-name" },
                   [dress.status === "client" ? dress.name : dress.name.replace(/^Sample /, "Look ")]),
-                node("span", { class: "redcarpert-related-price-label" },
-                  [salePriceLabelForDress(dress.id)]),
-                node("span", { class: "redcarpert-related-price-value" },
-                  [displaySalePriceForDress(dress.id)]),
+                node("div", { class: "redcarpert-related-prices", "aria-label": "Sale and rental pricing" }, [
+                  node("div", { class: "redcarpert-related-price-pair" }, [
+                    node("span", { class: "redcarpert-related-price-label" },
+                      [salePriceLabelForDress(dress.id)]),
+                    node("span", { class: "redcarpert-related-price-value", "data-related-sale-price": dress.id },
+                      [displaySalePriceForDress(dress.id)]),
+                  ]),
+                  node("div", { class: "redcarpert-related-price-pair" }, [
+                    node("span", { class: "redcarpert-related-price-label" }, ["Rental price range"]),
+                    node("span", { class: "redcarpert-related-price-value", "data-related-rental-price": dress.id },
+                      [displayRentalPriceForDress(dress.id)]),
+                  ]),
+                ]),
               ]),
             ]),
           ),
