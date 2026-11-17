@@ -368,3 +368,28 @@ test('all produced pages apply shared delivery to dress, lookbook, and homepage 
   assert(homepage.includes('href="'+mediaDeliveryUrl(heroes[0].url,'hero')+'" as="image" fetchpriority="high"'),
     'homepage preload and CSS should point to the same optimized resource');
 });
+
+test('future HTML image additions inherit provider-safe media delivery defaults',{skip:!available},()=>{
+ const htmlFiles=walk('dist').filter(file=>file.endsWith('.html'));
+ let checked=0;
+ for(const file of htmlFiles){
+  const html=readFileSync(file,'utf8');
+  for(const match of html.matchAll(/<img\\b[^>]*?\\bsrc="([^"]+)"/g)){
+   const src=match[1].replaceAll('&amp;','&');
+   if(!/^https:\\/\\//.test(src)) continue;
+   const url=new URL(src);
+   if(url.hostname==='ik.imagekit.io'){
+    assert(url.searchParams.has('tr')||url.pathname.startsWith('/tr:'),
+      file+' contains an unoptimized ImageKit <img>: '+src);
+    checked++;
+   }else if(url.hostname==='images.pexels.com'){
+    assert.equal(url.searchParams.get('auto'),'compress',
+      file+' Pexels photograph must be compressed');
+    assert(Number(url.searchParams.get('w'))>0,
+      file+' Pexels photograph must have an explicit width');
+    checked++;
+   }
+  }
+ }
+ assert(checked>=80,'expected optimized wedding, dress, lookbook and editorial photos');
+});
