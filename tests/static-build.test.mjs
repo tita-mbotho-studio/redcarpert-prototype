@@ -11,6 +11,7 @@ import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
 import {generalFittingMessage} from '../src/lib/whatsapp-messages.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
+import {OFFICIAL_SOCIAL_LINKS} from '../src/config/social-links.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
@@ -203,6 +204,10 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
           assert.equal(outbound.searchParams.size,2,'external map link must not contain tracking parameters');
           continue;
         }
+        if(OFFICIAL_SOCIAL_LINKS.some(profile=>profile.url===outbound.href)){
+          assert.equal(outbound.search,'',route+' social profile URL must not contain tracking parameters');
+          continue;
+        }
         assert(['images.pexels.com','ik.imagekit.io','wa.me'].includes(host),
           route+' links to an unapproved external site: '+href);
         if(outbound.hostname==='wa.me') {
@@ -212,6 +217,18 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
         }
       }
     }
+    const socialTags=[...html.matchAll(/<a\b[^>]*\bclass="redcarpert-footer-social-link"[^>]*><i class="fa-brands fa-([^"]+)" aria-hidden="true"><\/i><\/a>/g)];
+    assert.equal(socialTags.length,4,route+' must show four approved social profiles');
+    OFFICIAL_SOCIAL_LINKS.forEach((profile,index)=>{
+      const [markup,icon]=socialTags[index];
+      assert.equal(icon,profile.icon,route+' wrong icon for '+profile.handle);
+      assert(markup.includes('href="'+profile.url+'"'),route+' wrong social profile '+profile.handle);
+      assert(markup.includes('aria-label="'+profile.platform+' '+profile.handle+'"'),route+' inaccessible social profile');
+      assert(markup.includes('target="_blank"') && markup.includes('rel="noopener noreferrer"'),
+        route+' external social links must open safely');
+    });
+    assert(!/fa-youtube|fa-x-twitter|fa-pinterest-p|redcarpert-footer-social-placeholder/.test(html),
+      route+' still shows removed or inactive social media icons');
     for(const [,resource] of html.matchAll(/<(?:img|link|script)\b[^>]*\b(?:href|src)="([^"]+)"/gi)){
       assert(!/(?:bridalvanesa\.com|nirvanatakipcim\.com|instagram\.com\/bridal_vanesa)/i.test(resource),
         route+' contains a reference-site asset: '+resource);

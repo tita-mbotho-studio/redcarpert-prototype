@@ -8,6 +8,7 @@ import {correctFooterLinks} from '../src/lib/footer-link-corrections.ts';
 import {adaptFooterBranding} from '../src/lib/footer-branding-adapter.ts';
 import {adaptEditorialDocument} from '../src/lib/editorial-pages.ts';
 import {modernizeSiteIcons} from '../src/lib/modern-icons.ts';
+import {OFFICIAL_SOCIAL_LINKS} from '../src/config/social-links.ts';
 
 const all=a=>a.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
 const find=(doc,predicate)=>all(doc.nodes).filter(predicate);
@@ -36,13 +37,27 @@ test('every approved editorial footer has modern Brands social icons, minimal fi
     assert.equal(list.children.filter(n=>typeof n!=='string').length,6);
     const logos=all([list]).filter(n=>n.tag==='i');
     assert.deepEqual(logos.map(n=>n.attrs.class),[
-      'fa-brands fa-instagram','fa-brands fa-youtube','fa-brands fa-x-twitter',
-      'fa-brands fa-pinterest-p','fa-brands fa-tiktok','fa-brands fa-whatsapp'
+      'fa-brands fa-instagram','fa-brands fa-tiktok','fa-brands fa-tiktok',
+      'fa-brands fa-facebook-f','fa-brands fa-whatsapp'
     ]);
     const active=all([footer]).filter(n=>n.attrs['data-whatsapp-preview']==='');
     assert.equal(active.length,2,'only fitting action and footer WhatsApp are live CTAs');
     assert(active.every(n=>n.tag==='button'&&n.attrs['aria-haspopup']==='dialog'));
-    assert.equal(all([list]).filter(n=>n.tag==='a').length,0,'do not restore unconfirmed social links');
+    const profiles=all([list]).filter(n=>n.tag==='a');
+    assert.equal(profiles.length,4,route+' must show exactly four live social profiles');
+    profiles.forEach((link,index)=>{
+      const expected=OFFICIAL_SOCIAL_LINKS[index];
+      assert.deepEqual(link.attrs,{
+        href:expected.url,target:'_blank',rel:'noopener noreferrer',
+        class:'redcarpert-footer-social-link',
+        'aria-label':expected.platform+' '+expected.handle,
+        title:expected.platform+' '+expected.handle,
+      });
+      assert.deepEqual(all(link.children).map(n=>n.attrs.class),['fa-brands fa-'+expected.icon]);
+    });
+    assert(!logos.some(n=>/youtube|twitter|pinterest/i.test(n.attrs.class)),
+      'unapproved platforms must not appear in the published footer');
+    assert.equal(all([list]).filter(n=>n.tag==='button').length,1,'retain one existing footer WhatsApp action');
     const floating=find(doc,n=>n.attrs.id==='redcarpert-floating-whatsapp')[0];
     assert.equal(floating.attrs.class,'redcarpert-whatsapp-float');
     assert.equal(all([floating]).filter(n=>n.tag==='button').length,2);
