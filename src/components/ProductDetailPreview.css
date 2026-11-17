@@ -239,6 +239,11 @@
   padding: 0;
   list-style: none;
 }
+#main-container [data-detail-preview] > .redcarpert-related-dresses[data-related-count="3"] .redcarpert-related-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 900px;
+  margin-inline: auto;
+}
 #main-container [data-detail-preview] .redcarpert-related-grid > .redcarpert-related-card {
   box-sizing: border-box;
   display: block;
@@ -306,8 +311,15 @@
   text-align: center;
 }
 @media (max-width: 1000px) {
-  #main-container [data-detail-preview] .redcarpert-related-grid {
+  #main-container [data-detail-preview] .redcarpert-related-grid,
+  #main-container [data-detail-preview] > .redcarpert-related-dresses[data-related-count="3"] .redcarpert-related-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: none;
+  }
+  #main-container [data-detail-preview] > .redcarpert-related-dresses[data-related-count="3"] .redcarpert-related-card:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - clamp(12px, 2vw, 24px)) / 2);
   }
 }
 @media (max-width: 560px) {
