@@ -78,6 +78,9 @@ try {
               buttonText: link?.textContent?.trim(),
               icon: link?.querySelector('i')?.className,
               iconHidden: link?.querySelector('i')?.getAttribute('aria-hidden'),
+              iconBox: link?.querySelector('i') ? box(link.querySelector('i')) : null,
+              iconMarginLeft: link?.querySelector('i') ? parseFloat(getComputedStyle(link.querySelector('i')).marginLeft) : null,
+              iconMarginRight: link?.querySelector('i') ? parseFloat(getComputedStyle(link.querySelector('i')).marginRight) : null,
               ariaLabel: link?.getAttribute('aria-label'),
               href: link?.getAttribute('href'),
               target: link?.getAttribute('target'),
@@ -112,6 +115,15 @@ try {
         width+'px '+route+' text must sit above the icon');
       assert(Math.abs(cta.labelBox.center-cta.button.center)<2,
         width+'px '+route+' label and icon must be centred together');
+      assert(cta.iconBox,width+'px '+route+' Font Awesome glyph container must exist');
+      assert(Math.abs(cta.iconBox.center-cta.button.center)<=1.5,
+        width+'px '+route+' Font Awesome icon must be centred horizontally in the button');
+      assert(Math.abs((cta.iconBox.y+cta.iconBox.height/2)-(cta.button.y+cta.button.height/2))<=1.5,
+        width+'px '+route+' Font Awesome icon must be centred vertically in the button');
+      assert.equal(cta.iconMarginLeft,0,
+        width+'px '+route+' theme must not add a left icon margin');
+      assert.equal(cta.iconMarginRight,0,
+        width+'px '+route+' theme must not add a right icon margin');
       if(width<=640)assert(cta.button.fontSize<=18.5,
         width+'px '+route+' icon font must scale down on phones');
       if(route==='/digital-lookbook/'){
