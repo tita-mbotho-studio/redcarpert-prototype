@@ -18,10 +18,11 @@ Edit only the appropriate entry under `priceRangesZar` in `src/data/products.jso
 The above numbers are placeholders. Replace both amounts with client-provided ZAR figures. `minZar` is the lower end and `maxZar` is the higher end; both must be positive whole rand amounts and `maxZar` must exceed `minZar`. The range may reflect new versus pre-owned condition, but the client must confirm the meaning and price levels.
 
 The same price source feeds:
-- Wedding Dresses and category catalogue cards
 - Individual dress detail pages
 - Digital lookbook
 - Downloadable PDF lookbook, regenerated during the build
+
+**The Wedding Dresses catalogue and all category listing cards intentionally omit prices and the condition disclaimer.** Client gown cards show only the dress image and name. Inspiration cards retain the "Inspiration photo" caption. This avoids repetitive pricing disclosures on every listing card.
 
 All displays include the condition disclaimer:
 > Prices vary depending on whether the dress is new or pre-owned.
