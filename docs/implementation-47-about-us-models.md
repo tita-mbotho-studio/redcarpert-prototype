@@ -2,15 +2,15 @@
 
 ## Source of truth
 
-The client supplied six original images uploaded to ImageKit. Use the exact URLs and names in `src/data/image-links.json` → `about_us.team`.
+The client supplied six original images uploaded to ImageKit, shown in the order of the supplied links. Use the exact URLs and names in `src/data/image-links.json` → `about_us.team`.
 
 | Model | ImageKit asset |
 | --- | --- |
 | Shantel | `redcarpert-about-us-shantel.jpg` |
-| Mapaseka | `redcarpert-about-us-mapaseka.jpg` |
-| Defny | `redcarpert-about-us-defny.jpg` |
 | Refiloe | `redcarpert-about-us-refiloe.jpg` |
 | Olga | `redcarpert-about-us-olga.jpg` |
+| Mapaseka | `redcarpert-about-us-mapaseka.jpg` |
+| Defny | `redcarpert-about-us-defny.jpg` |
 | Paula | `redcarpert-about-us-paula.jpg` |
 
 The About Us section now reads **Meet Our Models**, not “Meet the Team”: the provided names identify models, not necessarily employees. Each photograph displays the matching **model's first name** in its caption. Old Pexels placeholders, “inspiration / not staff” copy and Pexels credit text are removed from this section only.
