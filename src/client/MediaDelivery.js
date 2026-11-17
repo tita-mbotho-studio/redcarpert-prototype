@@ -19,6 +19,34 @@ export function initializeMediaDelivery() {
     img.removeAttribute('sizes');
     if (img.getAttribute('src') !== original) img.src = original;
   }, true);
+
+  // CSS background images have no native error event. Verify the delivered
+  // version only when its homepage panel is near the viewport; retry the
+  // original URL on failure without touching the approved crop/blur styling.
+  const panels = document.querySelectorAll('[data-media-background-src][data-media-background-original]');
+  const verifyBackground = panel => {
+    const optimized = panel.dataset.mediaBackgroundSrc;
+    const original = panel.dataset.mediaBackgroundOriginal;
+    if (!optimized || !original || optimized === original) return;
+    const probe = new Image();
+    probe.onerror = () => {
+      panel.style.backgroundImage = 'url("' + original + '")';
+      panel.style.setProperty('--redcarpert-home-photo','url("' + original + '")');
+    };
+    probe.src = optimized;
+  };
+  if (typeof IntersectionObserver !== 'undefined') {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        verifyBackground(entry.target);
+      }
+    }, { rootMargin: '250px 0px' });
+    panels.forEach(panel => observer.observe(panel));
+  } else {
+    panels.forEach(verifyBackground);
+  }
 }
 
 /** For all interactive image galleries: original is kept for fallback/zoom. */
