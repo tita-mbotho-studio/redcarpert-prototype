@@ -17,7 +17,7 @@ The `src/data/products.json` `dresses` list now contains `rentalPriceRangeZar` f
 - `rentalPriceRangeForDress`, `displayRentalPriceForDress`
 - `SALE_RENTAL_DISCLAIMER` and `PRICE_PENDING_LABEL`
 
-The **previous** `priceRangesZar` collection and `displayPriceForDress` remain in place for existing PDF/Digital Lookbook compatibility. These are legacy *illustrative* ranges, **not rental prices**. Do not treat them as confirmed sale prices either. The lookbooks can be aligned to a final approved sale/rental pricing scheme once the client supplies and approves actual prices.
+The **previous** `priceRangesZar` collection and `displayPriceForDress` remain only as legacy illustrative data and helper code; they are **not used as customer-facing prices** on the website, in the interactive book, or in the PDF. They are neither sale prices nor rental prices. Every published price comes from the same `priceZar` / `rentalPriceRangeZar` dress records.
 
 ### Customer-facing disclaimer
 
@@ -34,6 +34,31 @@ Keep the existing portrait gallery on the left and elevated information card on 
 Display both side-by-side where space permits and stack them on narrow mobile viewports. The **Book a Fitting** wording sits above an **icon-only, compact WhatsApp link**, matching the approved About Us / Contact Us CTA design (48 × 48 px on desktop, 44 × 44 px on small screens). The icon is centred, has an accessible `aria-label`, and continues to open the dress-specific WhatsApp enquiry directly. **Do not restore the old wide filled text button.** Photography zoom/gallery and the direct enquiry behaviour remain unchanged.
 
 The dress-specific WhatsApp text now carries the same example sale price or pending sale state, and a pending rental range, and requests final confirmation of both. General enquiry templates remain unchanged.
+
+## Digital and downloadable PDF Lookbooks
+
+The same two price fields now appear on **every one of the 27 dress pages** in both editions:
+
+- Interactive Digital Lookbook: **29 leaves** (cover, 27 dresses, back cover).
+- Downloadable A4 Bridal Edit PDF: **39 pages** (collection openers and editorial matter retained).
+- `salePriceLabelForDress`, `displaySalePriceForDress` and `displayRentalPriceForDress` control values everywhere, including dress details, related dress cards and WhatsApp messages.
+- Each book displays **Example sale price** plus the existing fixed amount where present, or **Sale price — To be confirmed** when absent. Every **Rental price range** remains **To be confirmed** until the business supplies an approved range.
+- A shared `LOOKBOOK_PRICING_DISCLAIMER` identifies examples and unconfirmed rental/final-sale amounts in both editions. The longer `SALE_RENTAL_DISCLAIMER` remains on the dress-detail page.
+- Replaced the old single **Indicative range / Example range** line in both book editions; those legacy illustrative ranges are not displayed or reinterpreted as rental prices.
+- Kept the book covers, ordering, photography, dress links and page counts. Tightened price typography and spacing to keep two amounts readable inside existing page dimensions.
+- Updated the browser and static tests for dual prices and aligned digital / PDF content.
+
+### Review price parity and PDF page fit
+
+After `npm run check`, run `npm run preview` and `npm run test:browser` in a separate terminal. To review actual PDF page screenshots during the build, run:
+
+```powershell
+$env:REDCARPERT_BOOK_PREVIEW = '1'
+npm run build
+Remove-Item Env:REDCARPERT_BOOK_PREVIEW
+```
+
+Review `.generated/lookbook-previews/look-ball-gown-01.png` and `look-sample-mermaid.png`, plus the entire generated PDF, especially the price blocks, disclaimers and dress links. The build should not be merged or deployed before these checks pass.
 
 ## Related dresses
 
