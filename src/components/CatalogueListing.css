@@ -1,24 +1,72 @@
-/* Centre the catalogue card wording on Wedding Dresses and every category,
-   independent of inherited WooCommerce desktop/mobile text alignment. */
-#main-container ul.products[data-catalogue-preview] li.product .woocommerce-loop-product__title {
-  text-align: center !important;
-  width: 100%;
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap");
+
+/* One editorial card for the main catalogue and all five collections.
+   Preserve the approved grid, square crops, image sources and linked routes. */
+#main-container ul.products[data-catalogue-preview] li.product {
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #f2ede7;
+  box-shadow: 0 6px 24px rgba(64, 48, 36, .055);
+  transition: box-shadow 180ms ease;
+}
+#main-container ul.products[data-catalogue-preview] li.product:hover,
+#main-container ul.products[data-catalogue-preview] li.product:focus-within {
+  box-shadow: 0 10px 30px rgba(64, 48, 36, .105);
 }
 #main-container ul.products[data-catalogue-preview] li.product > a.woocommerce-LoopProduct-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  text-decoration: none !important;
+}
+#main-container ul.products[data-catalogue-preview] li.product > a.woocommerce-LoopProduct-link:focus-visible {
+  outline: 2px solid #9a7652;
+  outline-offset: 3px;
+}
+#main-container ul.products[data-catalogue-preview] li.product .woocommerce-loop-product__title.redcarpert-catalogue-title {
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  min-height: 116px;
+  margin: 0 !important;
+  padding: 14px 9px 16px !important;
+  text-align: center !important;
+  text-transform: none !important;
+  color: #493d36 !important;
+  background: #fff;
+}
+#main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-collection {
   display: block;
+  width: 100%;
+  color: #493d36;
+  font: 500 clamp(22px, 2.15vw, 30px)/1.12 "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  letter-spacing: .005em;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+#main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-divider {
+  display: block;
+  flex: 0 0 1px;
+  width: 58px;
+  height: 1px;
+  margin: 5px 0;
+  background: #b39169;
+}
+#main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-number {
+  display: block;
+  color: #a07e56;
+  font: 500 12px/1.3 Montserrat, "Open Sans", sans-serif;
+  letter-spacing: .22em;
+  padding-left: .22em;
   text-align: center;
 }
-
-/* Fit the longer catalogue title within the captured narrow-screen title box. */
-@media screen and (max-width: 768px) {
-  #main-container .page-title h1[data-catalogue-heading] {
-    font-size: min(38px, 9.9vw);
-  }
-}
-
-/* The same square photo crop is used by the Wedding Dresses landing page and
-   all five category listings. Captions remain beneath the photo.
-   Product-detail zoom frames intentionally retain their original portrait ratio. */
+/* Keep the already-approved square photo crop unchanged. */
 .woocommerce ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img,
 .woocommerce-page ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img {
   display: block;
@@ -27,4 +75,26 @@
   aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center 25%;
+  margin: 0 !important;
+}
+@media (max-width: 640px) {
+  #main-container ul.products[data-catalogue-preview] li.product .woocommerce-loop-product__title.redcarpert-catalogue-title {
+    min-height: 110px;
+    gap: 4px;
+    padding: 12px 6px 14px !important;
+  }
+  #main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-collection {
+    font-size: clamp(20px, 5.6vw, 25px);
+    line-height: 1.07;
+  }
+  #main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-divider {
+    width: 48px;
+    margin: 4px 0;
+  }
+  #main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-number {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #main-container ul.products[data-catalogue-preview] li.product { transition: none; }
 }

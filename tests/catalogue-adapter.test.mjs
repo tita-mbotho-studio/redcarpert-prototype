@@ -41,7 +41,16 @@ test('only approved listing documents change; other routes and all protected sub
   for(const n of all(input.nodes).filter(n=>n.attrs.id==='header'||n.tag==='footer'||n.attrs.id==='ht-ctc-chat'))assert(all(output.nodes).includes(n));
   const nodes=all(output.nodes),grid=nodes.find(n=>n.attrs['data-catalogue-preview']);assert.equal(grid.attrs.class,'products columns-4');
   const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?27:input.route==='/product-category/ball_gown'?11:4);
-  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);assert.equal(n.find(n=>n.tag==='h2').children[0],p.status==='client'?p.name:p.name.replace(/^Sample /,'Look '));const note=n.find(n=>n.attrs.class==='catalogue-sample-note');
+  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);const title=n.find(n=>n.tag==='h2');const collection=catalogueCategories.find(c=>c.id===p.category)?.name.replace(/ Dresses$/,'');const number=p.name.match(/(\d{2})$/)?.[1];
+    assert.equal(title.attrs.class,'woocommerce-loop-product__title redcarpert-catalogue-title');
+    assert.deepEqual(title.children.map(child=>child.attrs.class),[
+      'redcarpert-catalogue-collection','redcarpert-catalogue-divider','redcarpert-catalogue-number'
+    ]);
+    assert.equal(title.children[0].children[0],collection);
+    assert.equal(title.children[1].attrs['aria-hidden'],'true');
+    assert.equal(title.children[1].children.length,0);
+    assert.equal(title.children[2].children[0],number);
+    assert.equal(n.find(n=>n.tag==='a').attrs['aria-label'],`${collection} ${number}: view dress photographs`);const note=n.find(n=>n.attrs.class==='catalogue-sample-note');
     assert.equal(note,undefined,'all catalogue cards must contain only image and name');
     assert(!n.some(n=>Object.hasOwn(n.attrs,'data-dress-price') || n.attrs.class==='redcarpert-catalogue-condition-note' || n.attrs.class==='redcarpert-catalogue-price'));
     assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
