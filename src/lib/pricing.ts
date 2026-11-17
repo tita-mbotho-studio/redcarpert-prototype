@@ -1,7 +1,7 @@
 import products from "../data/products.json" with { type: "json" };
 
 /** Currency-safe formatting for the editable dress pricing schedule. */
-export type PriceZar = number | null;
+export type PriceZar = number;
 export interface PriceRangeZar { readonly minZar: number; readonly maxZar: number; }
 /** Legacy price provenance remains internal; never expose a pricing notice in the UI. */
 const priceEntries = products.dresses;
@@ -48,7 +48,6 @@ export function priceForDress(id: string): PriceZar {
 }
 
 export function displayDressPrice(priceZar: PriceZar | PriceRangeZar): string {
-  if (priceZar === null) return "Price to be confirmed";
   if (typeof priceZar === "object") {
     if (!Number.isSafeInteger(priceZar.minZar) || !Number.isSafeInteger(priceZar.maxZar)
       || priceZar.minZar <= 0 || priceZar.maxZar <= priceZar.minZar) {
@@ -77,10 +76,10 @@ export function salePriceForDress(id: string): PriceZar {
   return priceForDress(id);
 }
 
-export function rentalPriceRangeForDress(id: string): PriceRangeZar | null {
+export function rentalPriceRangeForDress(id: string): PriceRangeZar {
   const record = priceEntries.find(entry => entry.id === id);
   if (!record) throw new Error("products.json: missing rental price for " + id);
-  return record.rentalPriceRangeZar as PriceRangeZar | null;
+  return record.rentalPriceRangeZar as PriceRangeZar;
 }
 
 export function displaySalePriceForDress(id: string): string {
