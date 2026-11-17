@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
-import { sampleFittingMessage, sampleDetailTitle } from '../src/lib/product-detail-preview.ts';
+import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
+import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { dressPageUrl, generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 test('client-authorized South African WhatsApp number is formatted correctly',()=>{
   assert.equal(WHATSAPP_NUMBER,'27680458811');
@@ -20,17 +22,30 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all 27 dress enquiries identify their gown and distinguish client photos from samples',()=>{
+test('all 27 dress enquiries use one readable template and match published indicative ranges',()=>{
   assert.equal(catalogueProducts.length,27);
   for(const dress of catalogueProducts){
-    const url=new URL(buildWhatsAppUrl(sampleFittingMessage(dress)));
-    const message=url.searchParams.get('text');
-    assert(message.includes(sampleDetailTitle(dress)),dress.name+' missing');
-    assert(message.includes(catalogueCategories.find(c=>c.id===dress.category).name),dress.name+' category missing');
-    if(dress.status==='sample') assert(message.includes('your inspiration collection') && message.includes('similar dress available'),dress.name+' must ask about similar dresses, not assume stock');
-    else {
-      assert(message.includes('price and availability'),dress.name+' missing client price question');
-      assert(!message.includes('sample imagery'),'client gown cannot be labelled sample imagery');
-    }
+    const message=sampleFittingMessage(dress);
+    const url=new URL(buildWhatsAppUrl(message));
+    assert.equal(url.searchParams.get('text'),message);
+    const name=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
+    const category=catalogueCategories.find(c=>c.id===dress.category);
+    assert(category);
+    assert(message.includes('*Dress:* '+name),dress.id+' missing dress name');
+    assert(message.includes('*Collection:* '+category.name),dress.id+' missing category');
+    assert(message.includes('*Indicative price range:* '+displayPriceForDress(dress.id,dress.priceZar)),
+      dress.id+' missing or incorrect indicative price');
+    assert(message.includes('*Dress link:* '+dressPageUrl(dress)),dress.id+' missing dress link');
+    assert(message.includes('the final price'),dress.id+' must request price confirmation');
+    assert(message.includes('whether this dress or a similar style is available'),
+      dress.id+' must not assume a gown is in stock');
+    assert(!message.includes('inspiration collection'),dress.id+' should not have a separate inspiration-only message');
   }
+});
+
+test('general enquiry is reused across all non-dress actions',()=>{
+  const message=generalFittingMessage();
+  assert(message.includes('book a fitting'));
+  assert(message.includes('available appointment dates'));
+  assert.equal(new URL(buildWhatsAppUrl(message)).searchParams.get('text'),message);
 });
