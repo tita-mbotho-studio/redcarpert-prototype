@@ -3,7 +3,7 @@ import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages,relatedDressesFor} from '../src/lib/product-detail-preview.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, PRICE_PENDING_LABEL } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -14,7 +14,8 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
  for(const product of catalogueProducts){
   const source=sitePages['/product/arabella'];const output=createProductDetailPreview(source,product);const nodes=all(output.nodes);
   assert.equal(output.route,product.previewRoute);assert.equal(sitePages[output.route],undefined);assert(!routes.has(output.route));routes.add(output.route);
-  assert.equal(product.detailReference,null);assert(output.title.includes(product.status==='client'?'Redcarpert Wedding Dresses':'Wedding Dress Inspiration'));
+  assert.equal(product.detailReference,null);assert(output.title.includes('Redcarpert Wedding Dresses'));
+  assert.doesNotMatch(output.title,/Inspiration|Sample Preview/i);
   for(const n of all(source.nodes).filter(n=>['header','footer','ht-ctc-chat'].includes(n.attrs.id)))assert(nodes.includes(n));
   assert.equal(output.styles,source.styles);assert.equal(output.scripts,source.scripts);assert.equal(output.themeConfig,source.themeConfig);
   const root=nodes.find(n=>n.attrs['data-detail-preview']);const content=all([root]);
@@ -51,13 +52,11 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     displaySalePriceForDress(product.id));
   assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-rental-price')).children[0],
     displayRentalPriceForDress(product.id));
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-disclaimer').children[0],SALE_RENTAL_DISCLAIMER);
+  assert(!content.some(n=>n.attrs.class==='redcarpert-detail-price-disclaimer'),'no customer-facing price disclaimer');
   assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-price-option').length,2,
     'sale and rental prices have separate slots');
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],
-    salePriceForDress(product.id)===null?'SALE PRICE':'EXAMPLE SALE PRICE');
-  assert.equal(displayRentalPriceForDress(product.id), PRICE_PENDING_LABEL,
-    'rental prices remain pending until supplied by the client');
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
+  assert.match(displayRentalPriceForDress(product.id),/^R /,'rental range must be populated');
   const relatedSection=content.find(n=>n.attrs.class==='redcarpert-related-dresses');
   assert(relatedSection,'each detail page must display related dresses in a separate section');
   assert.equal(relatedSection.attrs['data-related-count'],String(related.length));
@@ -84,7 +83,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   }
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
     'stock image disclosure must sit outside the floating card');
-  assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),product.status==='sample','only illustrative styles need notices');
+  assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),false,'no temporary image notices');
   const fitting=content.find(n=>n.attrs.class==='redcarpert-detail-actions redcarpert-icon-cta');
   assert(fitting&&all([card]).includes(fitting),
     'fitting action stays inside the elevated card');
@@ -108,17 +107,17 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(!content.some(n=>n.attrs.class==='tabs wc-tabs'),'remove inherited sample description tabs');
   assert(!content.some(n=>n.attrs.id==='wpgis-gallery'));
   const text=JSON.stringify(root);assert(!/Arabella|Worldwide Shipping|French|satin|checkout|payment|woocommerce_loop_add_to_cart/i.test(text));
-  if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
-  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE SALE PRICE')); }
+  assert.doesNotMatch(text,/inspiration|unverified|not confirmed|example sale price|example price|client-supplied dress photographs/i,
+    'customer-facing dress descriptions must not contain development disclaimers');
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
   const message=sampleFittingMessage(product);
   assert(message.includes("*Dress:* "+(product.status==="client"?product.name:product.name.replace(/^Sample /,"Look "))));
-  assert(message.includes('*'+(salePriceForDress(product.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(product.id)));
-  assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(product.id)));
+  assert(message.includes('*Sale Price:* '+displaySalePriceForDress(product.id)));
+  assert(message.includes('*Rental Price Range:* '+displayRentalPriceForDress(product.id)));
   assert(message.includes("*Collection:* "));
-  assert(message.includes("confirm whether this dress or a similar style is available"));
-  assert(message.includes("the final sale price"));
-  assert(message.includes("not a final quotation"));
+  assert(message.includes("available sizes"));
+  assert(message.includes("fitting appointment dates"));
+  assert(!/quotation|example|provisional/i.test(message),'no temporary pricing notices');
   assert(!message.includes("in your inspiration collection"),"no separate inspiration-only message");
   assert(!/wa\.me|whatsapp\.com|\+\d/.test(message),"message must not contain the WhatsApp destination");
  }
@@ -219,7 +218,7 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   const product=catalogueProducts.find(entry=>entry.id===gown.id);
   assert(product);
   assert.equal(product.status,'client');
-  assert.equal(product.priceZar,null);
+  assert(Number.isSafeInteger(product.priceZar) && product.priceZar>0);
   assert.equal(product.image,gown.photos[0].url);
   assert.equal(product.name,'Ball Gown '+String(index+1).padStart(2,'0'));
   const photos=photosForDress(product);
@@ -233,8 +232,8 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   assert(output.title.includes(product.name));
   assert(!output.title.includes('Sample Preview'));
   assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
-  assert(content.some(n=>Object.hasOwn(n.attrs,'data-sale-price')&&n.children[0]===PRICE_PENDING_LABEL));
-  assert(content.some(n=>Object.hasOwn(n.attrs,'data-rental-price')&&n.children[0]===PRICE_PENDING_LABEL));
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-sale-price')&&n.children[0]===displaySalePriceForDress(product.id)));
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-rental-price')&&n.children[0]===displayRentalPriceForDress(product.id)));
   assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
   assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
   assert(!sampleFittingMessage(product).includes('demonstration'));
