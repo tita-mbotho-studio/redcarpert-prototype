@@ -650,20 +650,6 @@
         "height": 1599
       },
       {
-        "id": "mapaseka",
-        "name": "Mapaseka",
-        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg",
-        "width": 899,
-        "height": 1599
-      },
-      {
-        "id": "defny",
-        "name": "Defny",
-        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg",
-        "width": 899,
-        "height": 1599
-      },
-      {
         "id": "refiloe",
         "name": "Refiloe",
         "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg",
@@ -674,6 +660,20 @@
         "id": "olga",
         "name": "Olga",
         "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg",
+        "width": 899,
+        "height": 1599
+      },
+      {
+        "id": "mapaseka",
+        "name": "Mapaseka",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg",
+        "width": 899,
+        "height": 1599
+      },
+      {
+        "id": "defny",
+        "name": "Defny",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg",
         "width": 899,
         "height": 1599
       },
