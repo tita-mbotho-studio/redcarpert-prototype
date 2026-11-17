@@ -63,7 +63,7 @@ try {
           mapLink: wrap.querySelector('a[href^="https://www.google.com/maps/search/"]')?.href ?? null,
           teamCount: team?.querySelectorAll('figure').length ?? 0,
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
-          teamLast: team ? box(team.lastElementChild) : null,
+          teamCardBoxes: team ? [...team.querySelectorAll('figure')].map(box) : [],
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           teamNames: team ? [...team.querySelectorAll('figure figcaption h3')].map(name => name.textContent.trim()) : [],
           teamImageAlts: team ? [...team.querySelectorAll('figure img')].map(image => image.getAttribute('alt')) : [],
@@ -173,8 +173,12 @@ try {
         assert.deepEqual(metrics.teamImageAlts, metrics.teamNames.map(name => 'Portrait of '+name+', Redcarpert bridal model'));
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
         if (metrics.teamColumns===2) {
-          assert(Math.abs(metrics.teamLast.center - metrics.root.center)<=2,
-            width + 'px the last team card must be centred on tablet');
+          const lastPair=metrics.teamCardBoxes.slice(-2);
+          assert.equal(lastPair.length,2);
+          assert(Math.abs(lastPair[0].y-lastPair[1].y)<=1,
+            width + 'px six model cards must form complete tablet rows');
+          assert(Math.abs((lastPair[0].center+lastPair[1].center)/2-metrics.root.center)<=2,
+            width + 'px final pair of model cards must be centred on tablet');
         }
       } else if (route === '/contact-us/') {
         assert.equal(metrics.actionButtons.length,1,'Contact Us keeps its browse-dresses action');
