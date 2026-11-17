@@ -31,7 +31,7 @@ Keep the existing portrait gallery on the left and elevated information card on 
 - **Example sale price** (fixed ZAR value, where assigned) or **Sale price — To be confirmed**
 - **Rental price range — To be confirmed**
 
-Display both side-by-side where space permits and stack them on narrow mobile viewports. Preserve the centred Book a Fitting action, photography zoom/gallery, WhatsApp deep links and direct enquiry behaviour.
+Display both side-by-side where space permits and stack them on narrow mobile viewports. The **Book a Fitting** wording sits above an **icon-only, compact WhatsApp link**, matching the approved About Us / Contact Us CTA design (48 × 48 px on desktop, 44 × 44 px on small screens). The icon is centred, has an accessible `aria-label`, and continues to open the dress-specific WhatsApp enquiry directly. **Do not restore the old wide filled text button.** Photography zoom/gallery and the direct enquiry behaviour remain unchanged.
 
 The dress-specific WhatsApp text now carries the same example sale price or pending sale state, and a pending rental range, and requests final confirmation of both. General enquiry templates remain unchanged.
 
