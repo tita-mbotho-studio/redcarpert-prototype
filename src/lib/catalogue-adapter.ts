@@ -79,19 +79,29 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   }
   const children = products.map((product, index): DocumentElement => {
     const { card, anchor, image, title, price } = cardParts[index];
-    const name = product.status === "client" ? product.name : product.name.replace(/^Sample /, "Look ");
+    // Cards show the collection and existing dress number. Product IDs, names,
+    // detail routes and WhatsApp handoffs remain unchanged.
+    const category = catalogueCategories.find(item => item.id === product.category);
+    const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
+    if (!category || !number) fail("card collection or dress number");
+    const collection = category.name.replace(/ Dresses$/, "");
+    const accessibleName = `${collection} ${number}`;
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
     return { ...card, attrs: { class: `product${index % 4 === 0 ? " first" : index % 4 === 3 ? " last" : ""}`, "data-catalogue-id": product.id, "data-catalogue-category": product.category }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
-      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${name}: view dress photographs`, style: "cursor: pointer" };
+      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${accessibleName}: view dress photographs`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children
         // Catalogue tiles contain photographs and names, not price notices.
         .filter(child => child !== price)
         .map(child => child === image ? { ...image, attrs: imageAttrs }
-          : child === title ? { ...title, children: [name] }
+          : child === title ? { ...title, attrs: { ...title.attrs, class: "woocommerce-loop-product__title redcarpert-catalogue-title" }, children: [
+            { tag: "span", attrs: { class: "redcarpert-catalogue-collection" }, children: [collection] },
+            { tag: "span", attrs: { class: "redcarpert-catalogue-divider", "aria-hidden": "true" }, children: [] },
+            { tag: "span", attrs: { class: "redcarpert-catalogue-number" }, children: [number] },
+          ] }
           : child) }];
     }) };
   });

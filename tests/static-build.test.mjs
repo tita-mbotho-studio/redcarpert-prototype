@@ -117,6 +117,14 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
   listingPages.push(html);
  }
  for(const html of listingPages) {
+   const cardCount=(html.match(/data-catalogue-id=/g)||[]).length;
+   assert.equal((html.match(/class="woocommerce-loop-product__title redcarpert-catalogue-title"/g)||[]).length,cardCount);
+   for(const name of ['redcarpert-catalogue-collection','redcarpert-catalogue-divider','redcarpert-catalogue-number']){
+     assert.equal((html.match(new RegExp('class="'+name+'"','g'))||[]).length,cardCount,
+       'all published catalogue cards must contain '+name);
+   }
+   assert.doesNotMatch(html,/class="redcarpert-catalogue-collection">(?:Sample|Look|Ball Gown \d{2})/,
+     'catalogue headings should show collection names only');
    assert.doesNotMatch(html,/data-dress-price=|class="redcarpert-catalogue-price"|class="redcarpert-catalogue-condition-note"/,
      'catalogue cards must not repeat detail-page pricing');
    assert.doesNotMatch(html,/Prices vary depending on whether the dress is new or pre-owned/,
