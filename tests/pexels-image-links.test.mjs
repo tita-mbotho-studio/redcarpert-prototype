@@ -10,14 +10,11 @@ import { sitePages } from "../src/data/site.ts";
 const descendants = children => children.flatMap(node =>
   typeof node === "string" ? [] : [node, ...descendants(node.children)]);
 
-test("remaining Pexels stock imagery is limited to catalogue and team illustrations", () => {
-  const collection = [
-    ...Object.values(imageLinks.products).flat(),
-    ...imageLinks.about_us.team,
-  ];
-  assert.equal(collection.length, 19);
-  assert.equal(new Set(collection.map(item => item.id)).size, 19);
-  assert.equal(new Set(collection.map(item => item.url)).size, 19);
+test("remaining Pexels stock imagery is limited to inspiration catalogue photographs", () => {
+  const collection = Object.values(imageLinks.products).flat();
+  assert.equal(collection.length, 16);
+  assert.equal(new Set(collection.map(item => item.id)).size, 16);
+  assert.equal(new Set(collection.map(item => item.url)).size, 16);
   for (const item of collection) {
     const url = new URL(item.url);
     assert.equal(url.hostname, "images.pexels.com");
@@ -48,12 +45,16 @@ test("catalogue photos and lookbook links stay identical", () => {
   assert.equal(catalogueProducts.filter(product=>product.status==='client').length,11);
 });
 
-test("About Us stock illustrations are preserved", () => {
+test("About Us displays all six named, client-supplied ImageKit models", () => {
   const nodes = descendants(adaptEditorialDocument(sitePages["/about-us"]).nodes);
   const cards = nodes.filter(node => node.attrs.class === "redcarpert-editorial-team-card");
-  assert.equal(cards.length, 3);
+  assert.equal(cards.length, 6);
   assert.deepEqual(cards.map(card => descendants(card.children)
     .find(node => node.tag === "img")?.attrs.src), imageLinks.about_us.team.map(item => item.url));
+  assert.deepEqual(cards.map(card => descendants(card.children)
+    .find(node => node.tag === "h3")?.children[0]), imageLinks.about_us.team.map(item => item.name));
+  assert(cards.every(card => descendants(card.children)
+    .some(node => node.tag === "img" && node.attrs.src.startsWith("https://ik.imagekit.io/"))));
 });
 
 test("live modules contain no duplicate Pexels image URLs outside the manifest", () => {
