@@ -68,6 +68,15 @@ try {
           teamOptimizedSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           teamNames: team ? [...team.querySelectorAll('figure figcaption h3')].map(name => name.textContent.trim()) : [],
           teamImageAlts: team ? [...team.querySelectorAll('figure img')].map(image => image.getAttribute('alt')) : [],
+          teamImageGeometry: team ? [...team.querySelectorAll('figure img')].map(image => ({
+            image: box(image),
+            card: box(image.closest('figure')),
+            sourceWidth: Number(image.getAttribute('width')),
+            sourceHeight: Number(image.getAttribute('height')),
+            aspectRatio: getComputedStyle(image).aspectRatio,
+            objectFit: getComputedStyle(image).objectFit,
+            backgroundColor: getComputedStyle(image).backgroundColor,
+          })) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
           actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
           iconCtas: [...wrap.querySelectorAll('[data-redcarpert-icon-cta]')].map(group => {
@@ -178,6 +187,19 @@ try {
             && url.pathname===new URL(metrics.teamSources[i]).pathname
             && url.searchParams.has('tr');
         }),width+'px About Us model portraits must use optimized ImageKit delivery');
+        assert.equal(metrics.teamImageGeometry.length, 6);
+        for (const layout of metrics.teamImageGeometry) {
+          assert.equal(layout.aspectRatio, 'auto',
+            width+'px team photo must use its natural aspect ratio');
+          assert.equal(layout.objectFit, 'fill',
+            width+'px team photo must not be letterboxed or cropped by object-fit');
+          assert.equal(layout.backgroundColor, 'rgba(0, 0, 0, 0)',
+            width+'px team photo must not paint shaded side strips');
+          assert(Math.abs(layout.image.height - layout.image.width * layout.sourceHeight / layout.sourceWidth) < 2,
+            width+'px team photo must retain full natural proportions');
+          assert(Math.abs(layout.image.width - (layout.card.width - 2)) < 2,
+            width+'px team photo must fill the full available card width');
+        }
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
         if (metrics.teamColumns===2) {
           const lastPair=metrics.teamCardBoxes.slice(-2);
