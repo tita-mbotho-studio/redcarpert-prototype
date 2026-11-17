@@ -169,8 +169,8 @@ try {
             width+'px partial last button row must be centred');
         }
         assert.equal(metrics.teamCount, 6, 'all six models must be visible');
-        assert.deepEqual(metrics.teamNames, ['Shantel', 'Mapaseka', 'Defny', 'Refiloe', 'Olga', 'Paula']);
-        assert.deepEqual(metrics.teamSources, ['https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg']);
+        assert.deepEqual(metrics.teamNames, ['Shantel', 'Refiloe', 'Olga', 'Mapaseka', 'Defny', 'Paula']);
+        assert.deepEqual(metrics.teamSources, ['https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg']);
         assert.deepEqual(metrics.teamImageAlts, metrics.teamNames.map(name => 'Portrait of '+name+', Redcarpert bridal model'));
         assert(metrics.teamOptimizedSources.every((src,i)=>{
           const url=new URL(src);
