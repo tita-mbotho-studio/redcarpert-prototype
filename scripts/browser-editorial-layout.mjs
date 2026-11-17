@@ -67,8 +67,23 @@ try {
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
           actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
-          fittingButtons: [...wrap.querySelectorAll('a.button[data-whatsapp-send]')].map(control),
-          downloadButton: wrap.querySelector('.redcarpert-lookbook-download a.button') ? control(wrap.querySelector('.redcarpert-lookbook-download a.button')) : null,
+          iconCtas: [...wrap.querySelectorAll('[data-redcarpert-icon-cta]')].map(group => {
+            const label = group.querySelector('.redcarpert-icon-cta-label');
+            const link = group.querySelector('a.redcarpert-icon-cta-button');
+            return {
+              kind: group.dataset.redcarpertIconCta,
+              label: label?.textContent?.trim(),
+              labelBox: label ? box(label) : null,
+              button: link ? control(link) : null,
+              buttonText: link?.textContent?.trim(),
+              icon: link?.querySelector('i')?.className,
+              iconHidden: link?.querySelector('i')?.getAttribute('aria-hidden'),
+              ariaLabel: link?.getAttribute('aria-label'),
+              href: link?.getAttribute('href'),
+              target: link?.getAttribute('target'),
+              download: link?.getAttribute('download'),
+            };
+          }),
           bookPages: wrap.querySelectorAll('#redcarpert-flipbook [data-book-page]').length,
           scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
         };
@@ -82,13 +97,37 @@ try {
         assert(Math.abs(panel.center - metrics.root.center) <= 2, width + 'px ' + route + ' panel is off centre');
         assert(panel.width <= metrics.root.width + 1, width + 'px ' + route + ' panel exceeds root width');
       }
-      for (const button of metrics.fittingButtons) {
-        assert(button.height>=43.5,width+'px '+route+' fitting button needs a comfortable touch target');
-        assert(button.right<=width+1&&button.x>=-1,width+'px '+route+' fitting button must not overflow');
-        const maxFittingWidth=width<=640?205.5:width<=1000?230.5:260.5;
-        assert(button.width<=maxFittingWidth,width+'px '+route+' fitting button must stay compact');
-        assert.equal(button.whiteSpace,'normal',width+'px '+route+' fitting label must wrap if needed');
-        if(width<=640)assert(button.fontSize<=11.75,width+'px '+route+' fitting label must be phone-sized');
+      assert.equal(metrics.iconCtas.length,1,route+' must have one approved compact icon action');
+      const cta=metrics.iconCtas[0];
+      assert(cta.labelBox && cta.button,width+'px '+route+' must show a label above an icon link');
+      assert.equal(cta.buttonText,'',route+' button itself must be icon-only');
+      assert.equal(cta.iconHidden,'true',route+' decorative icon must be hidden from assistive technology');
+      assert(cta.button.height>=43.5 && cta.button.height<=48.5,
+        width+'px '+route+' must keep the icon touch target compact');
+      assert(cta.button.width>=43.5 && cta.button.width<=48.5,
+        width+'px '+route+' icon width must stay compact');
+      assert(cta.button.x>=-1 && cta.button.right<=width+1,
+        width+'px '+route+' icon must fit inside the viewport');
+      assert(cta.labelBox.bottom<=cta.button.y+1,
+        width+'px '+route+' text must sit above the icon');
+      assert(Math.abs(cta.labelBox.center-cta.button.center)<2,
+        width+'px '+route+' label and icon must be centred together');
+      if(width<=640)assert(cta.button.fontSize<=18.5,
+        width+'px '+route+' icon font must scale down on phones');
+      if(route==='/digital-lookbook/'){
+        assert.equal(cta.kind,'download');
+        assert.equal(cta.label,'Download The Bridal Edit (PDF)');
+        assert.equal(cta.ariaLabel,cta.label);
+        assert(cta.icon?.includes('fa-solid fa-file-arrow-down'));
+        assert.match(cta.href,/^\/redcarpert-prototype\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf$/);
+        assert(cta.download?.endsWith('.pdf'),'PDF button must keep its download attribute');
+      }else{
+        assert.equal(cta.kind,'fitting');
+        assert.equal(cta.label,'Book a Fitting');
+        assert.equal(cta.ariaLabel,'Book a Fitting via WhatsApp');
+        assert(cta.icon?.includes('fa-brands fa-whatsapp'));
+        assert(cta.href?.startsWith('https://wa.me/'),'WhatsApp link must remain direct');
+        assert.equal(cta.target,'_blank');
       }
       for (const action of metrics.actionButtons) {
         assert(action.height>=43.5,width+'px '+route+' collection action must be tappable');
@@ -131,19 +170,6 @@ try {
         assert(metrics.mapSrc.includes('Pomona%2C%20Kempton%20Park%2C%20Gauteng%2C%20South%20Africa'));
         assert(metrics.mapLink.includes('Pomona'));
       } else {
-        assert(metrics.downloadButton,'lookbook download action must be present');
-        assert(metrics.downloadButton.height>=43.5,width+'px lookbook download must be tappable');
-        const maxDownloadWidth=width<=640?225.5:width<=1000?250.5:280.5;
-        assert(metrics.downloadButton.width<=maxDownloadWidth,
-          width+'px lookbook download must shrink with the viewport');
-        assert.equal(metrics.downloadButton.whiteSpace,'normal',
-          width+'px lookbook download must wrap rather than overflow');
-        if(width<=640) {
-          assert(metrics.downloadButton.fontSize<=11.25,
-            width+'px lookbook download font must scale down on phones');
-          assert(metrics.downloadButton.paddingLeft<=12.5,
-            width+'px lookbook download padding must scale down on phones');
-        }
         assert.equal(metrics.bookPages, products.dresses.length+2, 'flippable book must remain intact');
       }
       assert(metrics.scrollWidth <= width+1.5, width + 'px ' + route + ' horizontal overflow: ' + metrics.scrollWidth);
