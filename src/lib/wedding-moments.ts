@@ -1,5 +1,6 @@
 import imageLinks from "../data/image-links.json" with { type: "json" };
 import type { DocumentElement, DocumentNode } from "../types/site.ts";
+import { weddingMomentDeliveryImage } from "./wedding-moment-image-delivery.ts";
 
 export const WEDDING_MOMENTS_PAGE_SIZE = 16;
 
@@ -103,12 +104,15 @@ function mediaCard(media: WeddingMomentMedia, index: number): DocumentElement {
   const label = media.type === "photo"
     ? "Enlarge " + (media.caption || media.alt)
     : "Watch " + media.caption;
+  const thumbnailOriginal = media.type === "photo" ? media.url : media.poster;
   const thumbnail = node("img", {
-    src: media.type === "photo" ? media.url : media.poster,
+    src: weddingMomentDeliveryImage(thumbnailOriginal, "tile"),
+    "data-wedding-original-thumbnail": thumbnailOriginal,
     alt: media.type === "photo" ? media.alt : "",
     width: "370", height: "370",
     loading: index < 4 ? "eager" : "lazy",
     decoding: "async",
+    ...(index === 0 ? { fetchpriority: "high" } : {}),
   });
   const play = media.type === "video" ? [
     node("span", { class: "redcarpert-moment-play", "aria-hidden": "true" }, [
@@ -119,6 +123,9 @@ function mediaCard(media: WeddingMomentMedia, index: number): DocumentElement {
     type: "button",
     "data-wedding-media": media.type,
     "data-wedding-src": media.url,
+    ...(media.type === "photo" ? {
+      "data-wedding-preview-src": weddingMomentDeliveryImage(media.url, "preview"),
+    } : {}),
     "aria-haspopup": "dialog",
     "aria-label": label,
   }, [thumbnail, ...play]);
