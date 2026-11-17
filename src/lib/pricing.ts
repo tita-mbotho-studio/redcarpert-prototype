@@ -1,16 +1,11 @@
 import products from "../data/products.json" with { type: "json" };
 
-/** ZAR fallback prices plus explicitly illustrative ranges, pending client confirmation. */
+/** Currency-safe formatting for the editable dress pricing schedule. */
 export type PriceZar = number | null;
 export interface PriceRangeZar { readonly minZar: number; readonly maxZar: number; }
-export const PRICE_CONDITION_DISCLAIMER = "Prices vary depending on whether the dress is new or pre-owned.";
-/** Detail-page policy: no presented amount is a verified sale or rental quote. */
-export const SALE_RENTAL_DISCLAIMER = "Displayed sale prices are examples only, not confirmed quotes. Rental prices, final sale prices and availability must be confirmed with Redcarpert. Prices may vary depending on whether a dress is new or pre-owned.";
-export const PRICE_PENDING_LABEL = "To be confirmed";
-/** Space-conscious notice for the online and downloadable lookbooks. */
-export const LOOKBOOK_PRICING_DISCLAIMER = "Sale prices shown are examples only. Rental prices and final sale prices must be confirmed with Redcarpert. Availability and dress condition may affect pricing.";
+/** Legacy price provenance remains internal; never expose a pricing notice in the UI. */
 const priceEntries = products.dresses;
-if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 27) {
+if (products.currency !== "ZAR" || products.priceStatus !== "draft" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 27) {
   throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
 }
 const priceRangesZar: Record<string, PriceRangeZar> = products.priceRangesZar;
@@ -20,19 +15,19 @@ for (const entry of priceEntries) {
     throw new Error("products.json: duplicate or invalid dress ID");
   }
   ids.add(entry.id);
-  if (entry.priceZar !== null && (!Number.isSafeInteger(entry.priceZar) || entry.priceZar <= 0)) {
-    throw new Error("products.json: prices must be positive integer rand amounts or null");
+  if (!Number.isSafeInteger(entry.priceZar) || entry.priceZar <= 0) {
+    throw new Error("products.json: every dress must have a positive sale price");
   }
   if (!Object.prototype.hasOwnProperty.call(entry, "rentalPriceRangeZar")) {
     throw new Error("products.json: missing rental price range slot for " + entry.id);
   }
   const rental = entry.rentalPriceRangeZar as PriceRangeZar | null;
-  if (rental !== null && (
+  if (rental === null || (
     typeof rental !== "object" ||
     !Number.isSafeInteger(rental.minZar) || !Number.isSafeInteger(rental.maxZar) ||
     rental.minZar <= 0 || rental.maxZar <= rental.minZar
   )) {
-    throw new Error("products.json: rental price must be null or a valid increasing ZAR range");
+    throw new Error("products.json: every dress must have a valid increasing rental range");
   }
 }
 
@@ -75,9 +70,8 @@ export function displayPriceForDress(id: string, fallbackPrice?: PriceZar): stri
 }
 
 /**
- * Fixed values in the existing priceZar field are EXAMPLES, not sale quotes.
- * The older priceRangesZar field is not used by the published website,
- * PDF or interactive lookbook: it is NOT a rental price range.
+ * Sale and rental values are maintained centrally in products.json. The
+ * legacy illustrative priceRangesZar map is not customer-facing.
  */
 export function salePriceForDress(id: string): PriceZar {
   return priceForDress(id);
@@ -91,16 +85,17 @@ export function rentalPriceRangeForDress(id: string): PriceRangeZar | null {
 
 export function displaySalePriceForDress(id: string): string {
   const price = salePriceForDress(id);
-  return price === null ? PRICE_PENDING_LABEL : displayDressPrice(price);
+  return displayDressPrice(price);
 }
 
 /** Labels are shared by the dress page, interactive book and PDF. */
 export function salePriceLabelForDress(id: string): string {
-  return salePriceForDress(id) === null ? "Sale price" : "Example sale price";
+  salePriceForDress(id);
+  return "Sale Price";
 }
 
 export function displayRentalPriceForDress(id: string): string {
   const rental = rentalPriceRangeForDress(id);
-  return rental === null ? PRICE_PENDING_LABEL : displayDressPrice(rental);
+  return displayDressPrice(rental);
 }
 
