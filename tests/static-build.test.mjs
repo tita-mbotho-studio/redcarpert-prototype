@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
-import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, LOOKBOOK_PRICING_DISCLAIMER} from '../src/lib/pricing.ts';
+import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
@@ -45,7 +45,7 @@ test('static deployment contains complete approved pages, local paths and no app
     assert.match(markup,/rel="noopener noreferrer"/);
     assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
   }
-  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Rental price range:*') && expectedMessage.includes('sale price'),route+' must identify its gown, sale and rental pricing');
+  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Rental Price Range:*') && expectedMessage.includes('*Sale Price:*'),route+' must identify its gown, sale and rental pricing');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));
@@ -85,15 +85,15 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.equal((book.match(/data-book-sale-price=/g)||[]).length,27);
  assert.equal((book.match(/data-book-rental-price=/g)||[]).length,27);
  assert.equal((book.match(/data-book-sale-label=/g)||[]).length,27);
- assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
- assert(book.includes(LOOKBOOK_PRICING_DISCLAIMER));
+ assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,0);
+ assert.doesNotMatch(book,/Inspiration photo|Example sale price|price disclaimer|not confirmed|To be confirmed/i);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
     'book sale price does not match products.json for '+product.id);
   assert(book.includes('data-book-rental-price="'+product.id+'">'+displayRentalPriceForDress(product.id)+'</p>'),
     'book rental status does not match products.json for '+product.id);
   assert(book.includes('data-book-sale-label="'+product.id+'">'+salePriceLabelForDress(product.id)+'</span>'),
-    'book must distinguish example sale amounts from pending sales for '+product.id);
+    'book must show a fixed sale-price label for '+product.id);
  }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
@@ -129,10 +129,10 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
- assert.equal((book.match(/To be confirmed/g)||[]).length,38,'all 27 rental and 11 sale prices pending');
+ assert.doesNotMatch(book,/To be confirmed|provisional|illustrative sale|example sale price/i);
  assert.doesNotMatch(book,/data-book-price=|redcarpert-book-range-label|Indicative range/,
    'online book may not show the old single illustrative price range');
- assert.match(book,/Inspiration photo and example price/);
+ assert.doesNotMatch(book,/Inspiration photo and example price|not confirmed stock/i);
  assert.doesNotMatch(book,/Image and price are illustrative/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
@@ -147,11 +147,11 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
     assert.match(html,/SALE PRICE/);
     assert.match(html,/RENTAL PRICE RANGE/);
-    assert.match(html,/new or pre-owned/);
+    assert.doesNotMatch(html,/new or pre-owned|price disclaimer|Example sale price/i);
   }else{
     assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
-    assert.match(html,/not confirmed as available/i);
-    assert.match(html,/EXAMPLE SALE PRICE/);
+    assert.doesNotMatch(html,/not confirmed as available|EXAMPLE SALE PRICE|Inspiration photo/i);
+    assert.match(html,/SALE PRICE/);
     assert.match(html,/Look \d{2}/);
   }
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
@@ -171,8 +171,9 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
   assert(html.includes('data-sale-price="">'+displaySalePriceForDress(product.id)+'</p>'),
     'detail sale price does not match products.json for '+route);
   assert(html.includes('data-rental-price="">'+displayRentalPriceForDress(product.id)+'</p>'),
-    'detail rental price must remain pending until supplied for '+route);
-  assert(html.includes(SALE_RENTAL_DISCLAIMER),'detail price disclaimer missing for '+route);
+    'detail rental price must match the central ZAR schedule for '+route);
+  assert.doesNotMatch(html,/class="redcarpert-detail-price-disclaimer"|class="redcarpert-related-disclaimer"|To be confirmed|EXAMPLE SALE PRICE|This photo is for inspiration/i,
+    'detail page must not display temporary development disclaimers');
   const categoryMatches=catalogueProducts.filter(d=>d.category===product.category&&d.id!==product.id);
   const relatedIds=[...html.matchAll(/data-related-dress="([^"]+)"/g)].map(match=>match[1]);
   assert.equal(relatedIds.length,Math.min(4,categoryMatches.length),
