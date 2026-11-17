@@ -38,7 +38,8 @@ test('all 27 dress enquiries use one readable template with example sale and pen
     assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(dress.id)),
       dress.id+' missing rental price status');
     assert(message.includes('*Dress link:* '+dressPageUrl(dress)),dress.id+' missing dress link');
-    assert(message.includes('the final price'),dress.id+' must request price confirmation');
+    assert(message.includes('the final sale price'),dress.id+' must request sale price confirmation');
+    assert(message.includes('rental price range'),dress.id+' must request rental pricing');
     assert(message.includes('whether this dress or a similar style is available'),
       dress.id+' must not assume a gown is in stock');
     assert(!message.includes('inspiration collection'),dress.id+' should not have a separate inspiration-only message');
