@@ -137,6 +137,19 @@ try {
        gridCenter:container.x+container.width/2};
    });
    assert.equal(relatedLayout.count,3,width+'px three same-category styles should be suggested');
+   const relatedPricing=await actual.locator('[data-related-dress]').evaluateAll(cards=>cards.map(card=>({
+     id:card.getAttribute('data-related-dress'),
+     sale:card.querySelector('[data-related-sale-price]')?.textContent?.trim(),
+     rental:card.querySelector('[data-related-rental-price]')?.textContent?.trim(),
+     labels:[...card.querySelectorAll('.redcarpert-related-price-label')]
+       .map(label=>label.textContent.trim()),
+   })));
+   for(const entry of relatedPricing){
+     assert.equal(entry.sale,displaySalePriceForDress(entry.id),width+'px related sale price mismatch');
+     assert.equal(entry.rental,displayRentalPriceForDress(entry.id),width+'px related rental mismatch');
+     assert.equal(entry.labels.length,2,width+'px related dress needs both price labels');
+     assert.equal(entry.labels[1],'Rental price range');
+   }
    assert.equal(relatedLayout.columns,width>1000?3:2,width+'px related cards must use the intended responsive columns');
    if(width<=1000)assert(Math.abs(relatedLayout.lastCenter-relatedLayout.gridCenter)<=2,
      width+'px final related dress must be centred when three items span two columns');
