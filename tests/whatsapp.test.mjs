@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
-import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress } from '../src/lib/pricing.ts';
 import { dressPageUrl, generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 test('client-authorized South African WhatsApp number is formatted correctly',()=>{
@@ -22,7 +22,7 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all 27 dress enquiries use one readable template and match published indicative ranges',()=>{
+test('all 27 dress enquiries use one readable template with example sale and pending rental prices',()=>{
   assert.equal(catalogueProducts.length,27);
   for(const dress of catalogueProducts){
     const message=sampleFittingMessage(dress);
@@ -33,8 +33,10 @@ test('all 27 dress enquiries use one readable template and match published indic
     assert(category);
     assert(message.includes('*Dress:* '+name),dress.id+' missing dress name');
     assert(message.includes('*Collection:* '+category.name),dress.id+' missing category');
-    assert(message.includes('*Indicative price range:* '+displayPriceForDress(dress.id,dress.priceZar)),
-      dress.id+' missing or incorrect indicative price');
+    assert(message.includes('*'+(salePriceForDress(dress.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(dress.id)),
+      dress.id+' missing or incorrect sale price');
+    assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(dress.id)),
+      dress.id+' missing rental price status');
     assert(message.includes('*Dress link:* '+dressPageUrl(dress)),dress.id+' missing dress link');
     assert(message.includes('the final price'),dress.id+' must request price confirmation');
     assert(message.includes('whether this dress or a similar style is available'),
