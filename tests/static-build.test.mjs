@@ -180,6 +180,14 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
   }
   assert.match(html,/Book a Fitting/);
+  assert(html.includes('<p class="redcarpert-icon-cta-label">Book a Fitting</p>'),
+    'fitting label must be above the icon on '+route);
+  const detailCta=html.match(/<a\\b[^>]*class="button redcarpert-icon-cta-button redcarpert-detail-fitting-button"[^>]*>[\\s\\S]*?<\\/a>/)?.[0];
+  assert(detailCta,'missing compact direct WhatsApp fitting link for '+route);
+  assert(detailCta.includes('aria-label="Book a Fitting via WhatsApp"'));
+  assert(detailCta.includes('<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'),
+    'fitting link must contain only the WhatsApp glyph');
+  assert(!detailCta.includes('>Book a Fitting<'),'fitting link must not contain visible button wording');
  }
 });
 
