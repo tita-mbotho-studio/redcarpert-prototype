@@ -179,7 +179,7 @@ try {
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
- assert.match(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),/new or pre-owned/);
+ assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').count(),0,'no temporary price disclaimer');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').first().textContent(),'SALE PRICE');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').nth(1).textContent(),'RENTAL PRICE RANGE');
  assert.equal(await actual.locator('[data-related-dress]').count(),4);
@@ -207,7 +207,7 @@ try {
      };
    }));
    assert(alignment.every(item=>item.title==='center' && (item.note===null || item.note==='center')),
-     width+'px Wedding Dresses names and inspiration labels stay centered: '+JSON.stringify(alignment));
+     width+'px Wedding Dresses names must stay centered: '+JSON.stringify(alignment));
    assert.equal(await cards.locator('[data-dress-price]').count(),0);
    assert.equal(await cards.locator('.redcarpert-catalogue-price').count(),0);
    assert.equal(await cards.locator('.redcarpert-catalogue-condition-note').count(),0);
