@@ -83,9 +83,20 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     // detail routes and WhatsApp handoffs remain unchanged.
     const category = catalogueCategories.find(item => item.id === product.category);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
-    if (!category || !number) fail("card collection or dress number");
+    if (!category || !number) return fail("card collection or dress number");
     const collection = category.name.replace(/ Dresses$/, "");
     const accessibleName = `${collection} ${number}`;
+    // Explicitly type the title subtree: each child has string-valued
+    // attributes, including the decorative divider's aria-hidden flag.
+    const editorialTitle: DocumentElement = {
+      ...title,
+      attrs: { ...title.attrs, class: "woocommerce-loop-product__title redcarpert-catalogue-title" },
+      children: [
+        { tag: "span", attrs: { class: "redcarpert-catalogue-collection" }, children: [collection] },
+        { tag: "span", attrs: { class: "redcarpert-catalogue-divider", "aria-hidden": "true" }, children: [] },
+        { tag: "span", attrs: { class: "redcarpert-catalogue-number" }, children: [number] },
+      ],
+    };
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
@@ -97,11 +108,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
         // Catalogue tiles contain photographs and names, not price notices.
         .filter(child => child !== price)
         .map(child => child === image ? { ...image, attrs: imageAttrs }
-          : child === title ? { ...title, attrs: { ...title.attrs, class: "woocommerce-loop-product__title redcarpert-catalogue-title" }, children: [
-            { tag: "span", attrs: { class: "redcarpert-catalogue-collection" }, children: [collection] },
-            { tag: "span", attrs: { class: "redcarpert-catalogue-divider", "aria-hidden": "true" }, children: [] },
-            { tag: "span", attrs: { class: "redcarpert-catalogue-number" }, children: [number] },
-          ] }
+          : child === title ? editorialTitle
           : child) }];
     }) };
   });
