@@ -3,6 +3,7 @@ import test from 'node:test';
 import sharp from 'sharp';
 import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
+import imageLinks from '../src/data/image-links.json' with { type: 'json' };
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
 import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
@@ -41,17 +42,27 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     }
     if (route === '/about-us') {
       const team=nodes(content.children).filter(n => n.attrs.class === 'redcarpert-editorial-team-card');
-      assert.equal(team.length,3,'Meet the Team must preserve all three photo cards');
+      const names=['Shantel','Mapaseka','Defny','Refiloe','Olga','Paula'];
+      assert.equal(team.length,6,'About Us must display all six client-supplied models');
       assert.match(JSON.stringify(content),/Your Dream Dress Starts Here/);
       assert.match(JSON.stringify(content),/Book Your Fitting/);
-      assert.doesNotMatch(JSON.stringify(content),/prefilled|illustrative|demonstration|prototype/i,
-        'About Us must use clear customer wording');
-      assert.match(JSON.stringify(content),/photos below are for inspiration and do not show Redcarpert staff/);
-      for(const card of team){
+      assert.match(JSON.stringify(content),/Meet Our Models/);
+      assert.doesNotMatch(JSON.stringify(content),/prefilled|illustrative|demonstration|prototype|Photo by .* on Pexels|not Redcarpert staff/i,
+        'About Us must remove legacy placeholder copy and photo credits');
+      for(const [i,card] of team.entries()){
         const image=nodes(card.children).find(n=>n.tag==='img');
-        assert(image.attrs.src.startsWith('https://images.pexels.com/photos/'), 'team photographs must remain remote placeholders');
-        assert.match(image.attrs.alt,/not Redcarpert staff/);
-        assert.match(JSON.stringify(card),/Photo by .* on Pexels/);
+        const model=imageLinks.about_us.team[i];
+        const caption=nodes(card.children).find(n=>n.tag==='h3');
+        assert.equal(model.name,names[i]);
+        assert.equal(image.attrs.src,model.url,'portrait must come from its ImageKit record');
+        assert.equal(image.attrs.alt,'Portrait of '+names[i]+', Redcarpert bridal model');
+        assert.equal(image.attrs.loading,'lazy');
+        assert.equal(image.attrs.decoding,'async');
+        assert.equal(image.attrs.width,String(model.width));
+        assert.equal(image.attrs.height,String(model.height));
+        assert.equal(caption.children[0],names[i],'caption must show the model name');
+        assert.equal(nodes(card.children).filter(n=>n.tag==='small'||n.tag==='p').length,0,
+          'do not display placeholder descriptions or Pexels credits');
       }
     }
     if (route === '/contact-us') {
