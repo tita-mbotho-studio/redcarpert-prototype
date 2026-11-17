@@ -100,8 +100,7 @@
   white-space: nowrap;
 }
 
-/* Six brand icons occupy the same existing footer row under the tagline.
- * The five unconfirmed social destinations are labels, not fake links. */
+/* Five approved active footer icons: Instagram, two TikToks, Facebook, WhatsApp. */
 #footer[data-redcarpert-footer] .widget_media_image .social-icons {
   gap: 4px;
 }
@@ -111,7 +110,7 @@
   justify-content: center;
 }
 #footer[data-redcarpert-footer] .widget_media_image .social-icons
-.redcarpert-footer-social-placeholder,
+.redcarpert-footer-social-link,
 #footer[data-redcarpert-footer] .widget_media_image .social-icons
 .redcarpert-footer-social-whatsapp {
   display: grid;
@@ -130,9 +129,19 @@
   text-decoration: none;
 }
 #footer[data-redcarpert-footer] .widget_media_image
-.redcarpert-footer-social-placeholder {
-  opacity: .62;
-  cursor: default;
+.redcarpert-footer-social-link {
+  opacity: 1;
+  color: #f1f1f1;
+  cursor: pointer;
+}
+#footer[data-redcarpert-footer] .widget_media_image
+.redcarpert-footer-social-link:hover {
+  color: #e1b77e;
+}
+#footer[data-redcarpert-footer] .widget_media_image
+.redcarpert-footer-social-link:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
 }
 #footer[data-redcarpert-footer] .widget_media_image
 .redcarpert-footer-social-whatsapp {
@@ -150,7 +159,7 @@
 }
 @media (max-width: 1000px) {
   #footer[data-redcarpert-footer] .widget_media_image .social-icons
-  .redcarpert-footer-social-placeholder,
+  .redcarpert-footer-social-link,
   #footer[data-redcarpert-footer] .widget_media_image .social-icons
   .redcarpert-footer-social-whatsapp {
     font-size: 15px;
@@ -161,7 +170,7 @@
     gap: 2px;
   }
   #footer[data-redcarpert-footer] .widget_media_image .social-icons
-  .redcarpert-footer-social-placeholder,
+  .redcarpert-footer-social-link,
   #footer[data-redcarpert-footer] .widget_media_image .social-icons
   .redcarpert-footer-social-whatsapp {
     font-size: 12px;
