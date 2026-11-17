@@ -67,8 +67,9 @@ Each detail page now adds a separate **More from the [Category] Collection** sec
 - Exclude the current dress.
 - Show up to four **other** items from the **same category**, in stable catalogue order, wrapping from the end.
 - Ball Gown (11): four suggestions; all remaining categories (four each): three suggestions.
-- Cards contain square catalogue images, the dress name and a labelled example sale price (or pending sale status).
+- Cards contain square catalogue images, the dress name, and **both** labelled price types: a fixed example sale price (or pending sale status) plus the rental range (currently pending).
 - Cards link to the corresponding dress detail page; image delivery uses the existing optimized `card` preset.
+- Both related-card amounts come directly from the same pricing helpers used by the detail page, interactive/PDF books and dress-specific WhatsApp messages.
 - Desktop uses four cards where available; the three-card collections use a centred three-column row. Tablet/mobile uses two columns with the unmatched final card centred.
 
 ## Review and release
