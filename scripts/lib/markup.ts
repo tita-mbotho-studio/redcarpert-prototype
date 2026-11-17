@@ -17,8 +17,11 @@ function lookbook() {
    const optimizedImage = mediaDeliveryUrl(product.image, "lookbook");
    const fallbackAttr = optimizedImage === product.image ? "" :
      ' data-media-original="' + escapeHtml(product.image) + '"';
+   const previewImage = mediaDeliveryUrl(product.image, "preview");
+   const displayName = product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ');
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
-     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr + ' alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
+     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><button type="button" class="redcarpert-book-zoom-trigger" data-book-image-zoom="" data-book-zoom-original="' + escapeHtml(product.image) + '" data-book-zoom-preview="' + escapeHtml(previewImage) + '" aria-haspopup="dialog" aria-label="Enlarge ' + escapeHtml(displayName) + ' photograph">' +
+     '<img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr + ' alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></button></div>' +
      '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
@@ -45,13 +48,21 @@ function lookbook() {
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
-   '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
+   '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Tap a photograph to enlarge it, or select View dress details.</p>' +
    '<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">' +
    '<p class="redcarpert-icon-cta-label">Download The Bridal Edit (PDF)</p>' +
    '<a class="button redcarpert-icon-cta-button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '" aria-label="Download The Bridal Edit (PDF)">' +
    '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>' +
    '<p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections.</p></div>' +
-   '</section>';
+   '<dialog id="redcarpert-book-photo-dialog" class="redcarpert-image-zoom-dialog" aria-label="Enlarged wedding dress photograph">' +
+   '<div class="redcarpert-image-zoom-inner"><div class="redcarpert-image-zoom-stage" data-image-zoom-stage><img data-image-zoom-photo alt="" decoding="async"></div>' +
+   '<button type="button" class="redcarpert-image-zoom-close" data-book-image-close aria-label="Close enlarged photograph"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
+   '<div class="redcarpert-image-zoom-controls" data-image-zoom-controls hidden>' +
+   '<button type="button" data-image-zoom-out aria-label="Zoom out"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>' +
+   '<output data-image-zoom-percent aria-live="polite">100%</output>' +
+   '<button type="button" data-image-zoom-in aria-label="Zoom in"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>' +
+   '<button type="button" data-image-zoom-reset aria-label="Reset zoom"><i class="fa-solid fa-rotate-left" aria-hidden="true"></i></button>' +
+   '</div></div></dialog></section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));
 export function createNodeRenderer(routes: readonly string[]) {

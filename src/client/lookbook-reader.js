@@ -1,4 +1,5 @@
 import { lookbookEntries } from './lookbook.js';
+import { initializeImageZoom } from './image-zoom.js';
 
 const PAGE_FLIP_CDN = 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js';
 
@@ -63,6 +64,44 @@ export function initializeLookbookReader() {
   const previous = viewer.querySelector('[data-book-previous]');
   const next = viewer.querySelector('[data-book-next]');
   const status = viewer.querySelector('[data-book-status]');
+  const dialog = viewer.querySelector('#redcarpert-book-photo-dialog');
+  const zoom = initializeImageZoom(dialog);
+  const enlarged = dialog?.querySelector('[data-image-zoom-photo]');
+  const closePhoto = dialog?.querySelector('[data-book-image-close]');
+  let photoOpener = null;
+  if (zoom && enlarged && closePhoto) {
+    // A photo opens over the book; the underlying page index is untouched.
+    // Capture the click before the optional page-flip engine handles it.
+    book.addEventListener('click', event => {
+      if (!(event.target instanceof Element)) return;
+      const trigger = event.target.closest('[data-book-image-zoom]');
+      if (!trigger || !book.contains(trigger)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const original = trigger.dataset.bookZoomOriginal;
+      const preview = trigger.dataset.bookZoomPreview || original;
+      if (!original || !preview) return;
+      photoOpener = trigger;
+      enlarged.alt = trigger.querySelector('img')?.alt || 'Wedding dress photograph';
+      if (preview !== original) enlarged.dataset.mediaOriginal = original;
+      else enlarged.removeAttribute('data-media-original');
+      enlarged.src = preview;
+      zoom.setActive(true);
+      dialog.showModal();
+    }, true);
+    closePhoto.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', event => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      zoom.setActive(false);
+      enlarged.removeAttribute('src');
+      enlarged.removeAttribute('data-media-original');
+      enlarged.alt = '';
+      if (photoOpener?.isConnected) photoOpener.focus({ preventScroll: true });
+      photoOpener = null;
+    });
+  }
   let index = 0, engine = null;
   const announce = () => {
     status.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
@@ -86,7 +125,7 @@ export function initializeLookbookReader() {
   next.addEventListener('click', () => turn(1));
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
-    if (event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
+    if (event.target.closest('dialog[open],input,textarea,select,[contenteditable="true"]')) return;
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);
   });
@@ -116,6 +155,8 @@ export function initializeLookbookReader() {
       minHeight: 336, maxHeight: 728, showCover: true, usePortrait: true,
       drawShadow: true, maxShadowOpacity: .27, flippingTime: 780,
       mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
+      // Clicking the photograph opens its lightbox; swipe/drag and arrows turn pages.
+      disableFlipByClick: true,
       autoSize: true,
     });
     // StPageFlip requires complete physical spreads when showCover is true.
