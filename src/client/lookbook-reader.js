@@ -69,6 +69,7 @@ export function initializeLookbookReader() {
   const enlarged = dialog?.querySelector('[data-image-zoom-photo]');
   const closePhoto = dialog?.querySelector('[data-book-image-close]');
   let photoOpener = null;
+  let suppressZoomUntil = 0;
   if (zoom && enlarged && closePhoto) {
     // A photo opens over the book; the underlying page index is untouched.
     // Capture the click before the optional page-flip engine handles it.
@@ -78,6 +79,9 @@ export function initializeLookbookReader() {
       if (!trigger || !book.contains(trigger)) return;
       event.preventDefault();
       event.stopPropagation();
+      // StPageFlip and the fallback both support swiping on photographs.
+      // A synthetic click after a swipe must never unexpectedly open zoom.
+      if (Date.now() < suppressZoomUntil) return;
       const original = trigger.dataset.bookZoomOriginal;
       const preview = trigger.dataset.bookZoomPreview || original;
       if (!original || !preview) return;
@@ -129,13 +133,21 @@ export function initializeLookbookReader() {
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);
   });
-  let touchX = null;
+  let touchX = null, zoomTouchX = null;
   book.addEventListener('touchstart', event => {
-    if (!engine && event.touches.length === 1) touchX = event.touches[0].clientX;
+    if (event.touches.length !== 1) return;
+    zoomTouchX = event.touches[0].clientX;
+    if (!engine) touchX = zoomTouchX;
   }, {passive: true});
   book.addEventListener('touchend', event => {
-    if (engine || touchX == null || !event.changedTouches.length) return;
-    const delta = event.changedTouches[0].clientX - touchX;
+    if (!event.changedTouches.length) return;
+    const endX = event.changedTouches[0].clientX;
+    if (zoomTouchX != null && Math.abs(endX - zoomTouchX) > 35) {
+      suppressZoomUntil = Date.now() + 450;
+    }
+    zoomTouchX = null;
+    if (engine || touchX == null) return;
+    const delta = endX - touchX;
     if (Math.abs(delta) > 45) turn(delta < 0 ? 1 : -1);
     touchX = null;
   }, {passive: true});
