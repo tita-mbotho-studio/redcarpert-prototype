@@ -73,5 +73,7 @@ export function setMediaImage(image, original, preset) {
   const delivery = mediaDeliveryUrl(original, preset);
   if (delivery !== original) image.dataset.mediaOriginal = original;
   else image.removeAttribute('data-media-original');
+  image.removeAttribute('srcset');
+  image.removeAttribute('sizes');
   image.src = delivery;
 }
