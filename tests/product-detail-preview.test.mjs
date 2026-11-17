@@ -81,9 +81,22 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
     'stock image disclosure must sit outside the floating card');
   assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),product.status==='sample','only illustrative styles need notices');
-  assert(content.some(n=>n.attrs.class==='redcarpert-detail-actions'),
-    'fitting action is inside card');
-  assert(content.some(n=>n.tag==='button'&&n.children[0]==='Book a Fitting'&&Object.hasOwn(n.attrs,'data-whatsapp-preview')));
+  const fitting=content.find(n=>n.attrs.class==='redcarpert-detail-actions redcarpert-icon-cta');
+  assert(fitting&&all([card]).includes(fitting),
+    'fitting action stays inside the elevated card');
+  const fittingElements=all(fitting.children);
+  const label=fittingElements.find(n=>n.tag==='p'&&n.attrs.class==='redcarpert-icon-cta-label');
+  const action=fittingElements.find(n=>n.tag==='button'&&Object.hasOwn(n.attrs,'data-whatsapp-preview'));
+  assert.equal(label?.children[0],'Book a Fitting','wording must sit above the icon, not inside its button');
+  assert.equal(action?.attrs.class,'button redcarpert-icon-cta-button redcarpert-detail-fitting-button');
+  assert.equal(action.attrs['aria-label'],'Book a Fitting via WhatsApp');
+  assert.equal(action.attrs['aria-haspopup'],'dialog');
+  assert.equal(action.attrs.type,'button');
+  assert.deepEqual(action.children,[{
+    tag:'i',attrs:{class:'fa-brands fa-whatsapp','aria-hidden':'true'},children:[],
+  }],'the CTA must contain only a decorative WhatsApp glyph');
+  assert.equal(content.filter(n=>n.attrs.class==='redcarpert-icon-cta-label').length,1);
+  assert.equal(content.filter(n=>n.attrs.class?.includes('redcarpert-detail-fitting-button')).length,1);
   assert(!content.some(n=>n.attrs.class==='product_meta'),'collection should never repeat');
   assert(!content.some(n=>['form','input','select','textarea'].includes(n.tag)));
   assert(!content.some(n=>/\b(stock|instock|cart|quantity|reviews_tab)\b/.test(n.attrs.class||'')));
