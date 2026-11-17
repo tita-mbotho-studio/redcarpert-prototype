@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
+import {OFFICIAL_SOCIAL_LINKS} from '../src/config/social-links.ts';
 
 const browser=await chromium.launch({args:['--no-sandbox']});
 const base='http://localhost:4173/redcarpert-prototype';
@@ -49,6 +50,10 @@ try {
           fittingTitle:text(footer.querySelector('.redcarpert-footer-columns > .col:last-child .redcarpert-footer-heading')),
           fittingText:text(footer.querySelector('.redcarpert-footer-book')),
           socials:[...socials.querySelectorAll('li')].map(li=>li.querySelector('i')?.className),
+          socialLinks:[...socials.querySelectorAll('a')].map(a=>({
+            href:a.href,ariaLabel:a.getAttribute('aria-label'),title:a.getAttribute('title'),
+            target:a.getAttribute('target'),rel:a.getAttribute('rel'),
+          })),
           socialBox:bounds(socials),
           brandBox:bounds(brand),
           footerWhatsApp:!!footer.querySelector('.redcarpert-footer-social-whatsapp .fa-brands.fa-whatsapp'),
@@ -127,9 +132,14 @@ try {
       assert.equal(metrics.fittingTitle,'FITTINGS');
       assert.equal(metrics.fittingText,'Book a Fitting');
       assert.deepEqual(metrics.socials,[
-        'fa-brands fa-instagram','fa-brands fa-youtube','fa-brands fa-x-twitter',
-        'fa-brands fa-pinterest-p','fa-brands fa-tiktok','fa-brands fa-whatsapp',
+        'fa-brands fa-instagram','fa-brands fa-tiktok','fa-brands fa-tiktok',
+        'fa-brands fa-facebook-f','fa-brands fa-whatsapp',
       ]);
+      assert.deepEqual(metrics.socialLinks,OFFICIAL_SOCIAL_LINKS.map(profile=>({
+        href:profile.url,ariaLabel:profile.platform+' '+profile.handle,
+        title:profile.platform+' '+profile.handle,target:'_blank',
+        rel:'noopener noreferrer',
+      })),width+'px '+route+' social links must match client-approved profile handles');
       assert(metrics.socialBox.left>=metrics.brandBox.left-1 && metrics.socialBox.right<=metrics.brandBox.right+1,
         width+'px social icons exceed branding column');
       assert(metrics.footerWhatsApp && metrics.floatDismiss);
