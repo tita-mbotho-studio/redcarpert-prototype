@@ -7,7 +7,9 @@ import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import imageLinks from '../src/data/image-links.json' with { type: 'json' };
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress } from '../src/lib/pricing.ts';
+import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
+import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
@@ -47,7 +49,7 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     if (route === '/digital-lookbook') {
       assert.equal(nodes(content.children).filter(n => n.attrs['data-lookbook-viewer'] === 'true').length, 1);
       assert(nodes(content.children).some(n => n.attrs.id === 'redcarpert-lookbook-title'));
-      assert.match(JSON.stringify(content),/Some photos show style ideas, not dresses confirmed in stock/);
+      assert.doesNotMatch(JSON.stringify(content),/not confirmed in stock|inspiration|illustrative/i);
       assert.doesNotMatch(JSON.stringify(content),/illustrative|prototype|demonstration/i);
     }
     if (route === '/about-us' || route === '/contact-us' || route === '/digital-lookbook') {
@@ -156,19 +158,21 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,27);
   assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,27);
   assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,27);
-  assert.equal((html.match(/class="price-condition"/g)||[]).length,27);
-  assert(html.includes(LOOKBOOK_PRICING_DISCLAIMER));
-  assert.match(html, /Inspiration photo and example price/);
+  assert.equal((html.match(/class="price-condition"/g)||[]).length,0);
+  assert.doesNotMatch(html,/Inspiration photo and example price|to be confirmed|provisional pricing/i);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
   assert.match(back, /Find your wedding dress\./);
   assert.match(back, /Browse Wedding Dresses/);
   assert.match(back, /Book a Fitting/);
-  assert.match(html,/Photography Credits/);
+  assert.match(html,/Your Fitting Journey/);
+  assert(html.includes('https://wa.me/27680458811?text='));
+  assert(html.includes(buildWhatsAppUrl(generalFittingMessage()).replaceAll('&','&amp;')),
+    'PDF booking action must use the canonical formatted general message');
   assert.doesNotMatch(html,/Client-supplied photography/);
-  assert.match(html,/Ball Gown photos: Redcarpert Wedding Dresses/);
-  assert.equal((html.match(/To be confirmed/g)||[]).length,38,
-    'PDF must show 27 pending rentals and 11 pending sale prices');
+  assert.doesNotMatch(html,/Photo on Pexels|Ball Gown photos: Redcarpert Wedding Dresses/);
+  assert.doesNotMatch(html,/To be confirmed|EXAMPLE SALE PRICE|Example sale price/i,
+    'all PDF sale and rental figures must be populated');
   assert.doesNotMatch(html,/Indicative range|Example range/,
     'PDF must not display stale illustrative single-price ranges');
   for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
