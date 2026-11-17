@@ -167,7 +167,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<div class="price-pair" aria-label="Sale and rental prices">'+
         '<div class="price-item"><p class="amount-label" data-pdf-sale-label="'+esc(dress.id)+'">'+esc(salePriceLabelForDress(dress.id))+'</p>'+
         '<p class="amount" data-pdf-sale-price="'+esc(dress.id)+'">'+salePrice(dress)+'</p></div>'+
-        '<div class="price-item"><p class="amount-label">Rental price range</p>'+
+        '<div class="price-item"><p class="amount-label">Rental Price Range</p>'+
         '<p class="amount" data-pdf-rental-price="'+esc(dress.id)+'">'+rentalPrice(dress)+'</p></div></div>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a></div>'));
     }
