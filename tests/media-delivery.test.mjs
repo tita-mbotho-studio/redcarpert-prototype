@@ -99,7 +99,7 @@ test('page-specific files cannot drift into duplicate transformation size rules'
  ];
  for(const path of usesSharedPolicy){
   const content=readFileSync(path,'utf8');
-  assert(!/w-\\d+,h-\\d+,c-at_max/.test(content),
+  assert(!/w-\d+,h-\d+,c-at_max/.test(content),
    path+' must use the site-wide media helper, not hardcoded ImageKit sizing');
  }
 });
