@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import test from "node:test";
 import { adaptHomepageBackgrounds, homepageBackgrounds } from "../src/lib/homepage-backgrounds.ts";
+import { mediaDeliveryUrl } from "../src/lib/media-delivery.ts";
 import { adaptSiteDocument } from "../src/lib/content-adapter.ts";
 import { contentAdaptations } from "../src/data/content-adaptations.ts";
 import { sitePages } from "../src/data/site.ts";
@@ -28,7 +29,10 @@ test("only the three approved inline URL substrings change; text, layout, CSS an
   expectedImages.forEach(([oldUrl, newUrl], index) => {
     const node = at(expected, index);
     assert.equal(node.attrs.style, `background-image:url("${oldUrl}");background-position:center center;`);
-    node.attrs.style = `background-image:url("${newUrl}");background-position:center center;--redcarpert-home-photo:url("${newUrl}");`;
+    const delivery = mediaDeliveryUrl(newUrl,"hero");
+    node.attrs.style = `background-image:url("${delivery}");background-position:center center;--redcarpert-home-photo:url("${delivery}");`;
+    node.attrs["data-media-background-original"] = newUrl;
+    node.attrs["data-media-background-src"] = delivery;
   });
   const result = adaptHomepageBackgrounds(textAdapted);
   assert.deepEqual(result, expected);
@@ -77,6 +81,7 @@ test("all three homepage photos are client-supplied remote WebP assets in natura
   homepageBackgrounds.forEach((item,i)=>{
     assert.equal(item.section,i);
     assert.deepEqual([item.original,item.replacement],expectedImages[i]);
+    assert.equal(item.delivery,mediaDeliveryUrl(item.replacement,"hero"));
     const url=new URL(item.replacement);
     assert.equal(url.protocol,"https:");
     assert.equal(url.hostname,"ik.imagekit.io");
