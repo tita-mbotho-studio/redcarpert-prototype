@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayRentalPriceForDress, displaySalePriceForDress, salePriceForDress, SALE_RENTAL_DISCLAIMER } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER } from "./pricing.ts";
 import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
@@ -135,7 +135,7 @@ export function createProductDetailPreview(
           node("div", { class: "redcarpert-detail-price-options" }, [
             node("div", { class: "redcarpert-detail-price-option" }, [
               node("span", { class: "redcarpert-detail-price-label" },
-                [salePriceForDress(product.id) === null ? "SALE PRICE" : "EXAMPLE SALE PRICE"]),
+                [salePriceLabelForDress(product.id).toUpperCase()]),
               node("p", { class: "redcarpert-detail-price-value", "data-sale-price": "" },
                 [displaySalePriceForDress(product.id)]),
             ]),
@@ -187,7 +187,7 @@ export function createProductDetailPreview(
                 node("span", { class: "redcarpert-related-name" },
                   [dress.status === "client" ? dress.name : dress.name.replace(/^Sample /, "Look ")]),
                 node("span", { class: "redcarpert-related-price-label" },
-                  [salePriceForDress(dress.id) === null ? "Sale price" : "Example sale price"]),
+                  [salePriceLabelForDress(dress.id)]),
                 node("span", { class: "redcarpert-related-price-value" },
                   [displaySalePriceForDress(dress.id)]),
               ]),
