@@ -185,6 +185,10 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert(html.includes('href="/redcarpert-prototype'+dress.previewRoute+'/"'),
       'related dress must link to the correct detail page');
     assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
+    assert(html.includes('data-related-sale-price="'+id+'">'+displaySalePriceForDress(id)+'</span>'),
+      'related sale price must match the detail page for '+id);
+    assert(html.includes('data-related-rental-price="'+id+'">'+displayRentalPriceForDress(id)+'</span>'),
+      'related rental price must match the detail page for '+id);
   }
   assert.match(html,/Book a Fitting/);
   assert(html.includes('<p class="redcarpert-icon-cta-label">Book a Fitting</p>'),
