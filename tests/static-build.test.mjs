@@ -217,7 +217,7 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
         }
       }
     }
-    const socialTags=[...html.matchAll(/<a\\b[^>]*\\bclass="redcarpert-footer-social-link"[^>]*><i class="fa-brands fa-([^"]+)" aria-hidden="true"><\\/i><\\/a>/g)];
+    const socialTags=[...html.matchAll(/<a\b[^>]*\bclass="redcarpert-footer-social-link"[^>]*><i class="fa-brands fa-([^"]+)" aria-hidden="true"><\/i><\/a>/g)];
     assert.equal(socialTags.length,4,route+' must show four approved social profiles');
     OFFICIAL_SOCIAL_LINKS.forEach((profile,index)=>{
       const [markup,icon]=socialTags[index];
