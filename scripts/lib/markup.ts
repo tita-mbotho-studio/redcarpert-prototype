@@ -43,7 +43,11 @@ function lookbook() {
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
    '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Select a dress to view its details.</p>' +
-   '<div class="redcarpert-lookbook-download"><a class="button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '">Download The Bridal Edit (PDF)</a><p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections and style ideas.</p></div>' +
+   '<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">' +
+   '<p class="redcarpert-icon-cta-label">Download The Bridal Edit (PDF)</p>' +
+   '<a class="button redcarpert-icon-cta-button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '" aria-label="Download The Bridal Edit (PDF)">' +
+   '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>' +
+   '<p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections and style ideas.</p></div>' +
    '</section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));

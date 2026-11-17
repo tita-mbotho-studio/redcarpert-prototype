@@ -12,7 +12,20 @@ const editorialRoutes: readonly EditorialRoute[] = ["/digital-lookbook", "/weddi
 
 const p = (text: string) => node("p", {}, [text]);
 const h = (text: string, id?: string) => node("h2", id ? { id } : {}, [text]);
-const fitting = (label = "Enquire about a fitting") => node("button", { type: "button", class: "button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, [label]);
+/** The approved editorial fitting CTAs show their wording above one small icon link. */
+const fitting = (label = "Book a Fitting") => node("div", {
+  class: "redcarpert-icon-cta",
+  "data-redcarpert-icon-cta": "fitting",
+}, [
+  node("p", { class: "redcarpert-icon-cta-label" }, [label]),
+  node("button", {
+    type: "button",
+    class: "button redcarpert-icon-cta-button",
+    "data-whatsapp-preview": "",
+    "aria-haspopup": "dialog",
+    "aria-label": label + " via WhatsApp",
+  }, [node("i", { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, [])]),
+]);
 
 function editorialContent(route: EditorialRoute): DocumentNode[] {
   if (route === "/digital-lookbook") return [

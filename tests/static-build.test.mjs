@@ -393,3 +393,38 @@ test('future HTML image additions inherit provider-safe media delivery defaults'
  }
  assert(checked>=80,'expected optimized wedding, dress, lookbook and editorial photos');
 });
+
+test('only the three approved published CTAs use label-above, icon-only actions',{skip:!available},()=>{
+ const published=[
+  {route:'/about-us',kind:'fitting',label:'Book a Fitting',icon:'fa-brands fa-whatsapp'},
+  {route:'/contact-us',kind:'fitting',label:'Book a Fitting',icon:'fa-brands fa-whatsapp'},
+  {route:'/digital-lookbook',kind:'download',label:'Download The Bridal Edit (PDF)',icon:'fa-solid fa-file-arrow-down'},
+ ];
+ for(const {route,kind,label,icon} of published){
+  const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+  const groups=[...html.matchAll(/data-redcarpert-icon-cta="([^"]+)"/g)];
+  assert.deepEqual(groups.map(x=>x[1]),[kind],route+' must have exactly one approved icon CTA');
+  assert(html.includes('<p class="redcarpert-icon-cta-label">'+label+'</p>'),
+   route+' needs a visible label outside the action');
+  const area=html.slice(html.indexOf('data-redcarpert-icon-cta="'+kind+'"'));
+  const link=area.match(/<a class="button redcarpert-icon-cta-button"([^>]*)><i class="([^"]+)" aria-hidden="true"><\/i><\/a>/);
+  assert(link,route+' must use an icon-only anchor with no visible button text');
+  assert.equal(link[2],icon);
+  if(kind==='fitting'){
+   assert(link[1].includes('data-whatsapp-send=""'));
+   assert(link[1].includes('href="https://wa.me/'));
+   assert(link[1].includes('aria-label="Book a Fitting via WhatsApp"'));
+   assert(link[1].includes('target="_blank"'));
+  }else{
+   assert(link[1].includes('aria-label="Download The Bridal Edit (PDF)"'));
+   assert.match(link[1],/href="\/redcarpert-prototype\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf"/);
+   assert.match(link[1],/download="Redcarpert-The-Bridal-Edit-\d{4}\.pdf"/);
+  }
+ }
+ const distinct=['/product','/wedding-moments','/product/preview/ball-gown-01'];
+ for(const route of distinct){
+  const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+  assert(!html.includes('data-redcarpert-icon-cta='),
+   route+' must retain the existing CTA style');
+ }
+});

@@ -158,3 +158,44 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 27 dresses/);
 });
+
+test('only the approved editorial fittings use label-above, icon-only WhatsApp controls', () => {
+  for (const route of ['/about-us','/contact-us','/digital-lookbook','/wedding-moments']) {
+    const capture=sitePages[route==='/digital-lookbook'?'/about-us':route];
+    const doc=adaptEditorialDocument({...capture,route});
+    const groups=nodes(doc.nodes).filter(n=>Object.hasOwn(n.attrs,'data-redcarpert-icon-cta'));
+    assert.equal(groups.length,route==='/about-us'||route==='/contact-us'?1:0,
+      route+' must not introduce icon-only actions outside the agreed sections');
+    if(!groups.length)continue;
+    const group=groups[0];
+    assert.equal(group.attrs.class,'redcarpert-icon-cta');
+    assert.equal(group.attrs['data-redcarpert-icon-cta'],'fitting');
+    const [label,button]=group.children;
+    assert.equal(label.tag,'p');
+    assert.equal(label.attrs.class,'redcarpert-icon-cta-label');
+    assert.deepEqual(label.children,['Book a Fitting']);
+    assert.equal(button.tag,'button');
+    assert.equal(button.attrs['data-whatsapp-preview'],'');
+    assert.equal(button.attrs['aria-haspopup'],'dialog');
+    assert.equal(button.attrs['aria-label'],'Book a Fitting via WhatsApp');
+    assert.equal(button.children.length,1);
+    const icon=button.children[0];
+    assert.equal(icon.tag,'i');
+    assert.equal(icon.attrs.class,'fa-brands fa-whatsapp');
+    assert.equal(icon.attrs['aria-hidden'],'true');
+    assert.deepEqual(icon.children,[],'visible button copy must stay outside the icon');
+  }
+});
+
+test('digital lookbook download label is outside the button, with accessible Font Awesome icon and unchanged PDF target',()=>{
+  const source=adaptEditorialDocument({...sitePages['/about-us'],route:'/digital-lookbook'});
+  const viewer=nodes(source.nodes).find(n=>n.attrs['data-lookbook-viewer']==='true');
+  assert(viewer);
+  const html=createNodeRenderer([])(viewer);
+  const block=html.match(/<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">([\s\S]*?)<\/div>/);
+  assert(block,'lookbook download must use the agreed compact icon group');
+  assert.match(block[1],/<p class="redcarpert-icon-cta-label">Download The Bridal Edit \(PDF\)<\/p>/);
+  assert.match(block[1],/<a class="button redcarpert-icon-cta-button" href="\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf" download="Redcarpert-The-Bridal-Edit-\d{4}\.pdf" aria-label="Download The Bridal Edit \(PDF\)">/);
+  assert.match(block[1],/<i class="fa-solid fa-file-arrow-down" aria-hidden="true"><\/i><\/a>/);
+  assert.doesNotMatch(block[1],/<a[^>]*>Download The Bridal Edit/,'download label must not be inside the clickable control');
+});
