@@ -23,8 +23,12 @@ export function initializePageLoader() {
       const r = img.getBoundingClientRect();
       return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight;
     });
-  const criticalUrl = loader.dataset.heroUrl || firstContentImage?.currentSrc
-    || firstContentImage?.src || '';
+  // Wedding Moments is a progressive grid: show the page immediately and
+  // let individual thumbnails stream in rather than hiding the whole gallery
+  // until the first remote ImageKit image finishes downloading.
+  const galleryIsProgressive = Boolean(document.querySelector('[data-wedding-moments-grid]'));
+  const criticalUrl = galleryIsProgressive ? '' : (loader.dataset.heroUrl ||
+    firstContentImage?.currentSrc || firstContentImage?.src || '');
   const decode = () => {
     if (!criticalUrl) return Promise.resolve();
     const img = new Image();
