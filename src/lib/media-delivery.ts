@@ -59,10 +59,11 @@ export function mediaImageAttrs(
 ): Record<string, string> {
   if (!attrs.src || attrs["data-media-skip"] === "true") return { ...attrs };
   const cls = attrs.class ?? "";
-  const preset: MediaImagePreset =
-    Object.prototype.hasOwnProperty.call(attrs,"data-gallery-active-image") ? "detail"
+  const requested = attrs["data-media-preset"];
+  const preset: MediaImagePreset = requested && Object.prototype.hasOwnProperty.call(presets, requested)
+    ? requested as MediaImagePreset
+    : Object.prototype.hasOwnProperty.call(attrs,"data-gallery-active-image") ? "detail"
     : /(?:woocommerce_thumbnail|redcarpert-catalogue)/.test(cls) ? "card"
-    : /(?:team|atelier)/.test(cls) ? "team"
     : "team";
   const optimized = mediaDeliveryUrl(attrs.src,preset);
   const out = { ...attrs };
@@ -79,6 +80,24 @@ export function mediaImageAttrs(
     if (!out.loading) out.loading = out.fetchpriority === "high" ||
       Object.prototype.hasOwnProperty.call(out,"data-gallery-active-image")
       ? "eager" : "lazy";
+  }
+  return out;
+}
+
+/** Native videos never download ahead of a real click; optional poster images
+ * share the small thumbnail policy and preserve their original URL. */
+export function mediaVideoAttrs(
+  attrs: Readonly<Record<string,string>>,
+): Record<string,string> {
+  const out = {...attrs};
+  if (!out.preload && !Object.prototype.hasOwnProperty.call(out,"autoplay"))
+    out.preload = "none";
+  if (out.poster) {
+    const optimized = mediaDeliveryUrl(out.poster,"tile");
+    if (optimized !== out.poster) {
+      out["data-media-poster-original"] = out.poster;
+      out.poster = optimized;
+    }
   }
   return out;
 }
