@@ -77,7 +77,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     assert.equal(components.find(n=>n.attrs['data-related-rental-price']===expected.id)?.children[0],
       displayRentalPriceForDress(expected.id),'related dress must show the same rental price');
     assert.deepEqual(components.filter(n=>n.attrs.class==='redcarpert-related-price-label')
-      .map(n=>n.children[0]),[salePriceLabelForDress(expected.id),'Rental price range']);
+      .map(n=>n.children[0]),[salePriceLabelForDress(expected.id),'Rental Price Range']);
     assert.notEqual(expected.id,product.id,'current dress must never recommend itself');
     assert.equal(expected.category,product.category,'related dresses must match category');
   }
