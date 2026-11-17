@@ -22,13 +22,18 @@ export function initializeLookbookReader() {
   const pages = [...book.querySelectorAll('[data-book-page]')];
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
 
-  // Pricing is rendered into the static book during generation, so it remains
-  // visible without JavaScript. Verify it agrees with the catalogue data.
+  // Prices are pre-rendered, but stale HTML or a cached bundle must never
+  // prevent navigation. The central catalogue price formatter is authoritative.
+  const priceLabels = new Map([...book.querySelectorAll('[data-book-price]')]
+    .map(element => [element.dataset.bookPrice, element]));
   for (const entry of lookbookEntries) {
-    const label = [...book.querySelectorAll('[data-book-price]')]
-      .find(element => element.dataset.bookPrice === entry.id);
-    if (!label || label.textContent !== entry.priceDisplay) {
-      throw new Error('Lookbook price does not match products.json for ' + entry.id);
+    const label = priceLabels.get(entry.id);
+    if (!label) {
+      console.warn('Lookbook price label missing for ' + entry.id);
+      continue;
+    }
+    if (label.textContent !== entry.priceDisplay) {
+      label.textContent = entry.priceDisplay;
     }
   }
   const previous = viewer.querySelector('[data-book-previous]');
