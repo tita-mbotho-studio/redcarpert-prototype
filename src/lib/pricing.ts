@@ -68,7 +68,7 @@ export function displayDressPrice(priceZar: PriceZar | PriceRangeZar): string {
   return "R " + new Intl.NumberFormat("en-ZA", { maximumFractionDigits: 0 }).format(priceZar);
 }
 
-/** Every catalogue display uses indicative ranges until the client supplies final values. */
+/** Retained only for historic illustrative-range fixtures; not a customer-facing price. */
 export function displayPriceForDress(id: string, fallbackPrice?: PriceZar): string {
   const storedPrice = priceForDress(id);
   return displayDressPrice(priceRangesZar[id] ?? (fallbackPrice === undefined ? storedPrice : fallbackPrice));
@@ -76,8 +76,8 @@ export function displayPriceForDress(id: string, fallbackPrice?: PriceZar): stri
 
 /**
  * Fixed values in the existing priceZar field are EXAMPLES, not sale quotes.
- * The older priceRangesZar field remains reserved for the existing lookbook:
- * it is NOT a rental price range.
+ * The older priceRangesZar field is not used by the published website,
+ * PDF or interactive lookbook: it is NOT a rental price range.
  */
 export function salePriceForDress(id: string): PriceZar {
   return priceForDress(id);
