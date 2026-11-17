@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mediaDeliveryUrl, mediaImageAttrs } from '../src/lib/media-delivery.ts';
+import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../src/lib/media-delivery.ts';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
 import imageLinks from '../src/data/image-links.json' with {type:'json'};
@@ -76,4 +76,14 @@ test('all current and future ImageKit sources pass through central delivery rule
  for(const item of imageLinks.about_us.team){
   assert(mediaDeliveryUrl(item.url,'team').startsWith('https://images.pexels.com/'));
  }
+});
+
+test('future video posters are optimized, native MP4s remain on demand',()=>{
+ const poster=mediaVideoAttrs({src:'https://cdn.example/film.mp4',poster:imagekit});
+ assert.equal(poster.src,'https://cdn.example/film.mp4');
+ assert.equal(poster.preload,'none');
+ assert.equal(poster.poster,mediaDeliveryUrl(imagekit,'tile'));
+ assert.equal(poster['data-media-poster-original'],imagekit);
+ const noPoster=mediaVideoAttrs({src:'https://cdn.example/film.mp4',controls:''});
+ assert.equal(noPoster.preload,'none');
 });
