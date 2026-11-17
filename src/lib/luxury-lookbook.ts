@@ -210,6 +210,27 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     await tab.evaluate(async()=>{await document.fonts.ready;});
     const missing=await tab.evaluate(()=>Array.from(document.images).filter(image=>!image.complete||!image.naturalWidth).map(image=>image.alt));
     if(missing.length)throw new Error("Lookbook images failed to render: "+missing.join(", "));
+    // Check actual Chromium layout before printing: the two prices, disclaimer
+    // and dress link must remain within the fixed A4 editorial page on all 27
+    // dress pages. Do not silently hide clipped pricing behind overflow:hidden.
+    const clipped=await tab.evaluate(()=>{
+      return [...document.querySelectorAll<HTMLElement>("section.page.dress")].flatMap(section=>{
+        const bottom=section.querySelector<HTMLElement>(".dress-bottom");
+        const pair=section.querySelector<HTMLElement>(".price-pair");
+        const fields=section.querySelectorAll<HTMLElement>(".price-item");
+        if(!bottom || !pair || fields.length!==2) return [section.id+": missing pricing"];
+        const frame=bottom.getBoundingClientRect();
+        const children=[...bottom.children] as HTMLElement[];
+        const outside=children.some(child=>{
+          const rect=child.getBoundingClientRect();
+          return rect.top<frame.top-2 || rect.bottom>frame.bottom+2 ||
+            rect.left<frame.left-2 || rect.right>frame.right+2;
+        });
+        return outside || bottom.scrollHeight>bottom.clientHeight+2
+          ? [section.id+": pricing or disclaimer overflows PDF frame"] : [];
+      });
+    });
+    if(clipped.length)throw new Error("Lookbook PDF content clipped: "+clipped.join(", "));
     const count=await tab.locator("section.page").count();
     if(count!==products.length+catalogueCategories.length+7)throw new Error("Wrong rendered book page count "+count);
     if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {
