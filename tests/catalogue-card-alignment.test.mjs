@@ -7,11 +7,10 @@ import { sitePages } from '../src/data/site.ts';
 
 const descend = nodes => nodes.flatMap(node => typeof node === 'string' ? [] : [node, ...descend(node.children)]);
 
-test('catalogue cards keep centred dress names and simple inspiration labels', () => {
+test('catalogue cards keep centred dress names without temporary photo captions', () => {
  const css=readFileSync('src/components/CatalogueListing.css','utf8');
- for(const selector of ['.woocommerce-loop-product__title','.catalogue-sample-note']) {
-   assert(css.includes('#main-container ul.products[data-catalogue-preview] li.product ' + selector));
- }
+ assert(css.includes('#main-container ul.products[data-catalogue-preview] li.product .woocommerce-loop-product__title'));
+ assert(!css.includes('.catalogue-sample-note'),'obsolete temporary captions must not ship');
  assert.match(css,/text-align:\s*center\s*!important/);
  assert(!css.includes('redcarpert-catalogue-condition-note'));
  assert(!css.includes('redcarpert-catalogue-price'));
