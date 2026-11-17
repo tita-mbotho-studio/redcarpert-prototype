@@ -19,7 +19,8 @@ The About Us section now reads **Meet Our Models**, not “Meet the Team”: the
 
 - Three responsive columns on desktop, two on tablets and one on mobile.
 - Six figures form two even desktop rows and three even tablet rows.
-- Uniform 3:4 image frames, `object-fit: contain`, so the full portraits aren't cropped.
+- Full-width images use their original dimensions and natural aspect ratios (`height: auto`, `aspect-ratio: auto`), with no colored background or `object-fit: contain` letterboxing. This removes the shaded strips beside tall portraits without cropping the models.
+- Mixed portrait proportions can produce different image heights; cards align from the top so the shorter image does not leave a stretched, empty card.
 - Small centred name captions; original team-card visual language retained.
 - The ordinary image renderer automatically applies the existing ImageKit `team` preset for delivery, preserving the original URL in `data-media-original` and emitting an optimized `src` with `tr`.
 - Lazy loading and async decoding remain in place.
