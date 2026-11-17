@@ -7,22 +7,8 @@ export function initializeWeddingMomentsGallery() {
   const grid = document.querySelector('[data-wedding-moments-grid]');
   if (!grid) return;
 
-  // The CDN thumbnails are an optimization, never a single point of failure.
-  // Restore the original if a transformation fails (including a cached failure).
-  const watchThumbnail = img => {
-    const restoreOriginal = () => {
-      const original = img.dataset.weddingOriginalThumbnail;
-      if (original && img.src !== original) {
-        img.removeAttribute('data-wedding-original-thumbnail');
-        img.src = original;
-      }
-    };
-    img.addEventListener('error', restoreOriginal, { once: true });
-    // Do not wake off-screen native-lazy thumbnails just to inspect them.
-    if (img.loading === 'eager' && img.complete && !img.naturalWidth) restoreOriginal();
-  };
-  grid.querySelectorAll('img[data-wedding-original-thumbnail]').forEach(watchThumbnail);
-
+  // A delegated site-wide image error listener handles all thumbnail fallbacks,
+  // including cards appended by Load More.
   const template = document.querySelector('template[data-wedding-moments-remaining]');
   const loadMore = document.querySelector('[data-wedding-load-more]');
   const batchSize = 16;
@@ -40,9 +26,7 @@ export function initializeWeddingMomentsGallery() {
       if (!next.length) return;
       const fragment = document.createDocumentFragment();
       fragment.append(...next);
-      const images = [...fragment.querySelectorAll('img[data-wedding-original-thumbnail]')];
       grid.append(fragment);
-      images.forEach(watchThumbnail);
       updateCount();
       if (!template.content.firstElementChild) {
         const controls = loadMore.closest('.redcarpert-moments-more');
@@ -74,10 +58,8 @@ export function initializeWeddingMomentsGallery() {
       // Display a screen-sized full photograph without downloading the massive
       // original. Fall back once if ImageKit cannot deliver the derivative.
       const preview = button.dataset.weddingPreviewSrc || url;
-      photo.onerror = () => {
-        photo.onerror = null;
-        if (photo.src !== url) photo.src = url;
-      };
+      if (preview !== url) photo.dataset.mediaOriginal = url;
+      else photo.removeAttribute('data-media-original');
       photo.src = preview;
       photo.alt = button.querySelector('img')?.alt ||
         button.getAttribute('aria-label') || 'Wedding photograph';
@@ -104,7 +86,7 @@ export function initializeWeddingMomentsGallery() {
     video.pause();
     video.removeAttribute('src');
     video.load();
-    photo.onerror = null;
+    photo.removeAttribute('data-media-original');
     photo.removeAttribute('src');
     photo.alt = '';
     photo.hidden = true;
