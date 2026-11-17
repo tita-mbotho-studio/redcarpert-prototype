@@ -1,4 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
+import { OFFICIAL_SOCIAL_LINKS } from "../config/social-links.ts";
 
 const direct = (nodes: DocumentNode[]): DocumentElement[] =>
   nodes.filter((n): n is DocumentElement => typeof n !== "string");
@@ -47,24 +48,32 @@ export function modernizeSiteIcons(document: SiteDocumentData): SiteDocumentData
   }
 
   const socials = one(elements([cols[0]]), n => n.tag === "ul" && n.attrs.class === "social-icons", "footer socials");
-  const platforms = [
+  // Validate five legacy captured placeholders before rendering the final,
+  // client-authorized profiles. None of the obsolete third-party links ship.
+  const legacyPlatforms = [
     ["Instagram", "instagram"], ["YouTube", "youtube"], ["Twitter", "x-twitter"],
     ["Pinterest", "pinterest-p"], ["TikTok", "tiktok"],
   ] as const;
   const previous = direct(socials.children);
-  if (previous.length !== platforms.length) fail("five original social placeholders");
-  const items: DocumentNode[] = previous.map((item, index) => {
+  if (previous.length !== legacyPlatforms.length) fail("five original social placeholders");
+  previous.forEach((item, index) => {
     const anchor = one(elements(item.children), n => n.tag === "a", "social placeholder anchor");
-    const [label, symbol] = platforms[index];
-    if (anchor.attrs["aria-disabled"] !== "true" || anchor.attrs["aria-label"] !== `${label}: destination not yet available`
-      && anchor.attrs["aria-label"] !== `${label}: destination to be confirmed`) fail("social placeholder identity");
-    return node("li", {}, [
-      node("span", {
-        class: "redcarpert-footer-social-placeholder", "aria-label": `${label} (coming soon)`,
-        title: `${label} (coming soon)`,
-      }, [icon("brands", symbol)]),
-    ]);
+    const [label] = legacyPlatforms[index];
+    if (anchor.attrs["aria-disabled"] !== "true" || (anchor.attrs["aria-label"] !== `${label}: destination not yet available`
+      && anchor.attrs["aria-label"] !== `${label}: destination to be confirmed`)) fail("social placeholder identity");
   });
+  const items: DocumentNode[] = OFFICIAL_SOCIAL_LINKS.map(profile =>
+    node("li", {}, [
+      node("a", {
+        href: profile.url,
+        target: "_blank",
+        rel: "noopener noreferrer",
+        class: "redcarpert-footer-social-link",
+        "aria-label": `${profile.platform} ${profile.handle}`,
+        title: `${profile.platform} ${profile.handle}`,
+      }, [icon("brands", profile.icon)]),
+    ]),
+  );
   items.push(node("li", {}, [
     node("button", {
       type: "button", class: "redcarpert-footer-social-whatsapp",
