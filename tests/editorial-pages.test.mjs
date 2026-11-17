@@ -42,7 +42,7 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     }
     if (route === '/about-us') {
       const team=nodes(content.children).filter(n => n.attrs.class === 'redcarpert-editorial-team-card');
-      const names=['Shantel','Mapaseka','Defny','Refiloe','Olga','Paula'];
+      const names=['Shantel','Refiloe','Olga','Mapaseka','Defny','Paula'];
       assert.equal(team.length,6,'About Us must display all six client-supplied models');
       assert.match(JSON.stringify(content),/Your Dream Dress Starts Here/);
       assert.match(JSON.stringify(content),/Book Your Fitting/);
