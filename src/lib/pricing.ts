@@ -7,6 +7,8 @@ export const PRICE_CONDITION_DISCLAIMER = "Prices vary depending on whether the 
 /** Detail-page policy: no presented amount is a verified sale or rental quote. */
 export const SALE_RENTAL_DISCLAIMER = "Displayed sale prices are examples only, not confirmed quotes. Rental prices, final sale prices and availability must be confirmed with Redcarpert. Prices may vary depending on whether a dress is new or pre-owned.";
 export const PRICE_PENDING_LABEL = "To be confirmed";
+/** Space-conscious notice for the online and downloadable lookbooks. */
+export const LOOKBOOK_PRICING_DISCLAIMER = "Sale prices shown are examples only. Rental prices and final sale prices must be confirmed with Redcarpert. Availability and dress condition may affect pricing.";
 const priceEntries = products.dresses;
 if (products.currency !== "ZAR" || products.priceStatus !== "mixed" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 27) {
   throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
@@ -90,6 +92,11 @@ export function rentalPriceRangeForDress(id: string): PriceRangeZar | null {
 export function displaySalePriceForDress(id: string): string {
   const price = salePriceForDress(id);
   return price === null ? PRICE_PENDING_LABEL : displayDressPrice(price);
+}
+
+/** Labels are shared by the dress page, interactive book and PDF. */
+export function salePriceLabelForDress(id: string): string {
+  return salePriceForDress(id) === null ? "Sale price" : "Example sale price";
 }
 
 export function displayRentalPriceForDress(id: string): string {
