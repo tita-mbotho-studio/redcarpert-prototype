@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import { catalogueProducts } from '../src/data/catalogue.ts';
-import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress } from '../src/lib/pricing.ts';
 import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 // All WhatsApp handoffs are native links, not website review dialogs.
@@ -40,10 +40,12 @@ try {
         ? catalogueProducts.find(d=>d.id==='sample-mermaid')
         : catalogueProducts.find(d=>d.id==='ball-gown-02');
       assert(dress,'browser test dress fixture is missing');
-      assert(message.includes('*Indicative price range:* '+displayPriceForDress(dress.id,dress.priceZar)),
-        name+' must include its on-page indicative range');
+      assert(message.includes('*'+(salePriceForDress(dress.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(dress.id)),
+        name+' must include the same example sale price as its detail page');
+      assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(dress.id)),
+        name+' must include the pending rental range');
       assert(message.includes('*Collection:* '),name+' must identify the collection');
-      assert(message.includes('the final price'),name+' must ask the business to confirm price');
+      assert(message.includes('the final sale price'),name+' must ask the business to confirm price');
       assert(!message.includes('inspiration collection'),name+' must not use a separate inspiration message');
     } else {
       assert.equal(message,generalFittingMessage(),name+' must use the standardized general fitting message');
