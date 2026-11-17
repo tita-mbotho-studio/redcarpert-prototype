@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
+import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage,sampleDetailTitle} from '../src/lib/product-detail-preview.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
@@ -297,9 +298,10 @@ test('Implementation 22: every static page starts with a bounded, branded global
      'homepage should preconnect to client ImageKit image host');
    const imagekitUrls=JSON.parse(readFileSync("src/data/image-links.json","utf8")).home_page.hero.map(image=>image.url);
    assert.equal(imagekitUrls.length,3,"homepage manifest must list three approved photos");
-   assert(html.includes('href="'+imagekitUrls[0]+'" as="image" type="image/webp" fetchpriority="high"'),
+   const heroDelivery=mediaDeliveryUrl(imagekitUrls[0],"hero");
+   assert(html.includes('href="'+heroDelivery+'" as="image" fetchpriority="high"'),
      'first client photograph should be priority-preloaded');
-   assert(html.includes('data-hero-url="'+imagekitUrls[0]+'"'),
+   assert(html.includes('data-hero-url="'+heroDelivery+'"'),
      'homepage loader should wait for first client photograph');
    for(const url of imagekitUrls)assert(html.includes(url),'homepage missing approved photo '+url);
    assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
