@@ -9,8 +9,21 @@ function loadPageFlip() {
     const script = document.createElement('script');
     script.src = PAGE_FLIP_CDN;
     script.async = true;
-    script.addEventListener('load', () => window.St?.PageFlip ? resolve(window.St.PageFlip) : reject(new Error('PageFlip unavailable')));
-    script.addEventListener('error', () => reject(new Error('PageFlip network unavailable')));
+    let settled = false;
+    const complete = (error, PageFlip) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(deadline);
+      if (error) {
+        script.remove();
+        reject(error);
+      } else resolve(PageFlip);
+    };
+    // A stalled CDN request must not prevent the built-in reader from working.
+    const deadline = window.setTimeout(() => complete(new Error('PageFlip CDN timed out')), 8500);
+    script.addEventListener('load', () => window.St?.PageFlip
+      ? complete(null, window.St.PageFlip) : complete(new Error('PageFlip unavailable')));
+    script.addEventListener('error', () => complete(new Error('PageFlip network unavailable')));
     document.head.append(script);
   });
 }
@@ -82,6 +95,7 @@ export function initializeLookbookReader() {
       img.closest('.redcarpert-book-photo,.redcarpert-book-cover-photo')?.classList.add('redcarpert-photo-failed');
     });
   }
+  book.dataset.engine = 'fallback';
   announce();
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
   loadPageFlip().then(PageFlip => {
