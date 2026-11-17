@@ -3,6 +3,7 @@ name: One-time verified Pages deployment
 # This temporary workflow only runs on changes to its own file on main.
 # Remove after verified publication; normal pages.yml stays manual-only.
 # Retry after PR #50 fixed the browser social-profile selector to exclude WhatsApp.
+# Retry after PR #51 stabilized About Us ImageKit portrait test image loading.
 on:
   push:
     branches:
