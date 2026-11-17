@@ -102,6 +102,19 @@ try {
    });
    assert(fittingSize.height>=43.5,width+'px Book a Fitting must remain tappable');
    if(width<=640)assert(fittingSize.width<=200.5,width+'px Book a Fitting should stay compact on mobile');
+   const relatedLayout=await actual.locator('.redcarpert-related-dresses').evaluate(section=>{
+     const grid=section.querySelector('.redcarpert-related-grid');
+     const cards=[...grid.querySelectorAll('[data-related-dress]')];
+     const columns=getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length;
+     const last=cards.at(-1).getBoundingClientRect();
+     const container=grid.getBoundingClientRect();
+     return {count:cards.length,columns,lastCenter:last.x+last.width/2,
+       gridCenter:container.x+container.width/2};
+   });
+   assert.equal(relatedLayout.count,3,width+'px three same-category styles should be suggested');
+   assert.equal(relatedLayout.columns,width>1000?3:2,width+'px related cards must use the intended responsive columns');
+   if(width<=1000)assert(Math.abs(relatedLayout.lastCenter-relatedLayout.gridCenter)<=2,
+     width+'px final related dress must be centred when three items span two columns');
    const sideOverflow=await actual.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(sideOverflow,false,width+'px detail card must not cause horizontal scrolling');
  }
