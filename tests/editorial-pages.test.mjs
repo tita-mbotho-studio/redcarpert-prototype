@@ -192,10 +192,10 @@ test('digital lookbook download label is outside the button, with accessible Fon
   const viewer=nodes(source.nodes).find(n=>n.attrs['data-lookbook-viewer']==='true');
   assert(viewer);
   const html=createNodeRenderer([])(viewer);
-  const block=html.match(/<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">([\\s\\S]*?)<\\/div>/);
+  const block=html.match(/<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">([\s\S]*?)<\/div>/);
   assert(block,'lookbook download must use the agreed compact icon group');
-  assert.match(block[1],/<p class="redcarpert-icon-cta-label">Download The Bridal Edit \\(PDF\\)<\\/p>/);
-  assert.match(block[1],/<a class="button redcarpert-icon-cta-button" href="\\/digital-lookbook\\/Redcarpert-The-Bridal-Edit-\\d{4}\\.pdf" download="Redcarpert-The-Bridal-Edit-\\d{4}\\.pdf" aria-label="Download The Bridal Edit \\(PDF\\)">/);
-  assert.match(block[1],/<i class="fa-solid fa-file-arrow-down" aria-hidden="true"><\\/i><\\/a>/);
+  assert.match(block[1],/<p class="redcarpert-icon-cta-label">Download The Bridal Edit \(PDF\)<\/p>/);
+  assert.match(block[1],/<a class="button redcarpert-icon-cta-button" href="\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf" download="Redcarpert-The-Bridal-Edit-\d{4}\.pdf" aria-label="Download The Bridal Edit \(PDF\)">/);
+  assert.match(block[1],/<i class="fa-solid fa-file-arrow-down" aria-hidden="true"><\/i><\/a>/);
   assert.doesNotMatch(block[1],/<a[^>]*>Download The Bridal Edit/,'download label must not be inside the clickable control');
 });
