@@ -1,6 +1,6 @@
 import { catalogueCategories, type CatalogueProduct } from '../data/catalogue.ts';
 
-/** Validate mixed client photography and still-illustrative sample dresses before site generation. */
+/** Validate catalogue references, source attribution and edited customer-facing data. */
 export function validateCatalogue(products: readonly CatalogueProduct[]): void {
   if (products.length !== 27) throw new Error('Catalogue must contain eleven client Ball Gowns and sixteen sample dresses');
   const ids = new Set<string>(), routes = new Set<string>(), photos = new Set<string>();
@@ -10,7 +10,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     ids.add(product.id);
     if (!catalogueCategories.some(c => c.id === product.category)) throw new Error('Unapproved category for ' + product.id);
     counts[product.category] += 1;
-    if (product.priceZar !== null && (!Number.isSafeInteger(product.priceZar) || product.priceZar <= 0))
+    if (!Number.isSafeInteger(product.priceZar) || product.priceZar <= 0)
       throw new Error('Invalid catalogue price for ' + product.id);
     if (product.detailReference !== null || !['sample','client'].includes(product.status))
       throw new Error('Unverified catalogue status for ' + product.id);
@@ -21,7 +21,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     photos.add(product.image);
     if (product.status === 'client') {
       if (product.category !== 'ball_gown' || !/^ball-gown-(0[1-9]|1[01])$/.test(product.id) ||
-        product.name !== 'Ball Gown ' + product.id.slice(-2) || product.priceZar !== null ||
+        product.name !== 'Ball Gown ' + product.id.slice(-2) ||
         product.previewRoute !== '/product/preview/' + product.id)
         throw new Error('Incorrect client Ball Gown mapping: ' + product.id);
       const expected = 'https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/' +
@@ -38,8 +38,8 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
       if (!product.imageCredit || !new RegExp('^https://www\\.pexels\\.com/photo/[a-z0-9-]+-' + image[1] + '/$').test(product.imageCredit.sourceUrl) ||
         !product.imageCredit.photographer.trim() || product.imageCredit.provenance !== 'docs/asset-credits.md')
         throw new Error('Missing image provenance: ' + product.id);
-      if (!/^Sample (0[1-9]|1\d|20)$/.test(product.name) || !product.imageAlt.includes('not confirmed Redcarpert stock'))
-        throw new Error('Missing sample disclosure: ' + product.id);
+      if (!/^Sample (0[1-9]|1\d|20)$/.test(product.name) || !product.imageAlt.includes('wedding dress photograph'))
+        throw new Error('Missing descriptive bridal photograph alt text: ' + product.id);
     }
   }
   for(const c of catalogueCategories) {
