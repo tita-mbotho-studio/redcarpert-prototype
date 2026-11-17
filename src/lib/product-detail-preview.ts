@@ -76,6 +76,7 @@ export function createProductDetailPreview(
   const client = product.status === "client";
   const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
   const photos = photosForDress(product, galleryMappings);
+  const relatedDresses = relatedDressesFor(product);
   const hasGallery = photos.length > 1;
   const arrow = (direction: "previous" | "next") =>
     node("button", {
@@ -153,7 +154,7 @@ export function createProductDetailPreview(
       ...(client ? [] : [node("p", { class: "sample-detail-notice" },
         ["This photo is for inspiration. The dress is not confirmed as available, and the price is an example."])]),
     ] },
-    ...(relatedDressesFor(product).length > 0 ? [
+    ...(relatedDresses.length > 0 ? [
       node("section", {
         class: "redcarpert-related-dresses",
         "aria-labelledby": "redcarpert-related-title-" + product.id,
@@ -161,7 +162,7 @@ export function createProductDetailPreview(
         node("h2", { id: "redcarpert-related-title-" + product.id },
           ["More from the " + category + " Collection"]),
         node("ul", { class: "redcarpert-related-grid" },
-          relatedDressesFor(product).map(dress =>
+          relatedDresses.map(dress =>
             node("li", { class: "redcarpert-related-card", "data-related-dress": dress.id }, [
               node("a", { href: dress.previewRoute + "/", "aria-label": "View " + sampleDetailTitle(dress) }, [
                 node("img", {
