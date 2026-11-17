@@ -27,11 +27,11 @@ export function preparePage(route: string) {
  const listingMetadata: Record<string, {title:string; description:string}> = {
   '/product': {
    title: 'Wedding Dresses | Redcarpert Wedding Dresses',
-   description: 'Explore wedding dresses and style ideas across five collections. Message us about fittings and prices.',
+   description: 'Explore our wedding dress collections, view sale and rental prices, and book your fitting.',
   },
   '/product-category/mermaid': {
    title: 'Mermaid Wedding Dresses | Redcarpert',
-   description: 'See Mermaid wedding dress inspiration and ask Redcarpert about available dresses and prices.',
+   description: 'Discover Mermaid wedding dresses, view sale and rental prices, and book your fitting.',
   },
   '/product-category/ball_gown': {
    title: 'Ball Gown Wedding Dresses | Redcarpert',
@@ -42,7 +42,7 @@ export function preparePage(route: string) {
   const key = category.route.replace(/\/$/, '');
   listingMetadata[key] = {
    title: category.name + ' | Redcarpert Wedding Dresses',
-   description: 'Explore ' + category.name + ' style ideas and ask Redcarpert about available dresses and prices.',
+   description: 'Explore ' + category.name + ', view dress details, and book your fitting with Redcarpert.',
   };
  }
  if (!original) throw new Error('Unknown public route: '+route);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -148,7 +148,7 @@ try {
      assert.equal(entry.sale,displaySalePriceForDress(entry.id),width+'px related sale price mismatch');
      assert.equal(entry.rental,displayRentalPriceForDress(entry.id),width+'px related rental mismatch');
      assert.equal(entry.labels.length,2,width+'px related dress needs both price labels');
-     assert.equal(entry.labels[1],'Rental price range');
+     assert.equal(entry.labels[1],'Rental Price Range');
    }
    assert.equal(relatedLayout.columns,width>1000?3:2,width+'px related cards must use the intended responsive columns');
    if(width<=1000)assert(Math.abs(relatedLayout.lastCenter-relatedLayout.gridCenter)<=2,
@@ -179,7 +179,10 @@ try {
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
- assert.match(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),/new or pre-owned/);
+ assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
+   'dress detail must show the new/pre-owned rental pricing qualification');
+ assert.equal(await actual.locator('.redcarpert-related-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
+   'related dress prices must show the same qualification');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').first().textContent(),'SALE PRICE');
  assert.equal(await actual.locator('.redcarpert-detail-price-label').nth(1).textContent(),'RENTAL PRICE RANGE');
  assert.equal(await actual.locator('[data-related-dress]').count(),4);
@@ -207,7 +210,7 @@ try {
      };
    }));
    assert(alignment.every(item=>item.title==='center' && (item.note===null || item.note==='center')),
-     width+'px Wedding Dresses names and inspiration labels stay centered: '+JSON.stringify(alignment));
+     width+'px Wedding Dresses names must stay centered: '+JSON.stringify(alignment));
    assert.equal(await cards.locator('[data-dress-price]').count(),0);
    assert.equal(await cards.locator('.redcarpert-catalogue-price').count(),0);
    assert.equal(await cards.locator('.redcarpert-catalogue-condition-note').count(),0);

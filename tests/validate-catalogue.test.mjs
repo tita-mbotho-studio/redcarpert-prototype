@@ -13,7 +13,7 @@ test('twenty-seven dresses validate: eleven client Ball Gowns and sixteen Pexels
  assert.equal(records.filter(p=>p.status==='sample').length,16);
  for(const category of ['mermaid','ruffled','modern_tradition','two_in_one'])
    assert.equal(records.filter(p=>p.category===category).length,4);
- assert(records.filter(p=>p.status==='client').every(p=>p.priceZar===null));
+ assert(records.every(p=>Number.isSafeInteger(p.priceZar) && p.priceZar>0));
 });
 
 test('duplicate IDs, image URLs and routes fail before generation',()=>{
@@ -35,8 +35,8 @@ test('Pexels samples reject bad hosts, missing attribution and status claims',()
   [{image:'https://images.pexels.com.evil.com/photos/1/pexels-photo-1.jpeg'},/Unapproved Pexels image/],
   [{image:'/redcarpert/../bad.webp'},/Unapproved Pexels image/],
   [{category:'other'},/Unapproved category/],
-  [{name:''},/Missing sample disclosure/],
-  [{imageAlt:'missing'},/Missing sample disclosure/],
+  [{name:''},/Missing descriptive bridal photograph alt text/],
+  [{imageAlt:'missing'},/Missing descriptive bridal photograph alt text/],
   [{imageCredit:{...products[0].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
  ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===0?{...p,...change}:p)),message);
 });
@@ -48,10 +48,10 @@ test('client Ball Gown mapping rejects wrong URLs, names and invented prices',()
  for(const change of [
   {image:'https://example.com/bad.webp'},
   {image:'https://ik.imagekit.io/kw8awoqvwi/wrong/ball-gown-01-main.webp'},
-  {priceZar:10000},
+  {priceZar:0},
   {name:'Sample 01'},
   {imageAlt:'Not a valid client photo'},
   {imageCredit:{...products[index].imageCredit,photographer:'Unknown'}},
  ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===index?{...p,...change}:p)),
-   /Incorrect client Ball Gown mapping|Invalid client photo metadata/);
+   /Incorrect client Ball Gown mapping|Invalid client photo metadata|Invalid catalogue price/);
 });

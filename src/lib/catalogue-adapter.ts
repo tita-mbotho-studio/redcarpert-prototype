@@ -50,10 +50,10 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: [
     document.route === "/product"
-      ? "Explore wedding dresses and style ideas. Message us about prices and fittings."
+      ? "Discover our wedding dresses across five collections and find your favourite."
       : document.route.endsWith("/ball_gown")
-        ? "Explore our Ball Gown dresses. Message us to ask about prices and fittings."
-        : "These are inspiration photos, not dresses confirmed in stock. Ask us what is available.",
+        ? "Discover our Ball Gown wedding dresses and find your perfect look."
+        : "Explore the collection and discover your perfect wedding dress.",
   ] });
   // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
@@ -74,7 +74,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     });
   } else {
     replacements.set(ordering, { tag: "div", attrs: { class: "woocommerce-ordering", "aria-hidden": "true", style: "visibility: hidden; pointer-events: none; width: 237px; max-width: 100%" }, children: [
-      { ...select, attrs: { disabled: "", "aria-label": "Catalogue ordering unavailable", style: "width: 100%" }, children: [{ tag: "option", attrs: {}, children: ["Catalogue preview"] }] },
+      { ...select, attrs: { disabled: "", "aria-label": "Catalogue ordering unavailable", style: "width: 100%" }, children: [{ tag: "option", attrs: {}, children: ["Wedding Dresses"] }] },
     ] });
   }
   const children = products.map((product, index): DocumentElement => {
@@ -86,14 +86,12 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     return { ...card, attrs: { class: `product${index % 4 === 0 ? " first" : index % 4 === 3 ? " last" : ""}`, "data-catalogue-id": product.id, "data-catalogue-category": product.category }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
-      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${name}: ${product.status === "client" ? "view dress photos" : "view an inspiration photo"}`, style: "cursor: pointer" };
+      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${name}: view dress photographs`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children
-        // Listing cards are intentionally image + name only for client gowns;
-        // inspiration cards retain their photo disclosure, but no prices.
-        .filter(child => child !== price || product.status === "sample")
+        // Catalogue tiles contain photographs and names, not price notices.
+        .filter(child => child !== price)
         .map(child => child === image ? { ...image, attrs: imageAttrs }
           : child === title ? { ...title, children: [name] }
-          : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: ["Inspiration photo"] }
           : child) }];
     }) };
   });

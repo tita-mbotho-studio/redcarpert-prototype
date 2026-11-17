@@ -4,140 +4,221 @@
     {
       "id": "sample-mermaid",
       "priceZar": 12900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 3000,
+        "maxZar": 4600
+      }
     },
     {
       "id": "sample-mermaid-02",
       "priceZar": 14500,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 3300,
+        "maxZar": 5200
+      }
     },
     {
       "id": "sample-mermaid-03",
       "priceZar": 16900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 3900,
+        "maxZar": 6100
+      }
     },
     {
       "id": "sample-mermaid-04",
       "priceZar": 18900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 4300,
+        "maxZar": 6800
+      }
     },
     {
       "id": "ball-gown-01",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 22900,
+      "rentalPriceRangeZar": {
+        "minZar": 5300,
+        "maxZar": 8200
+      }
     },
     {
       "id": "ball-gown-02",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 24900,
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
     },
     {
       "id": "ball-gown-03",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 32900,
+      "rentalPriceRangeZar": {
+        "minZar": 7600,
+        "maxZar": 11800
+      }
     },
     {
       "id": "ball-gown-04",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
     },
     {
       "id": "ball-gown-05",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 36900,
+      "rentalPriceRangeZar": {
+        "minZar": 8500,
+        "maxZar": 13300
+      }
     },
     {
       "id": "ball-gown-06",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 29900,
+      "rentalPriceRangeZar": {
+        "minZar": 6900,
+        "maxZar": 10800
+      }
     },
     {
       "id": "ball-gown-07",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 19900,
+      "rentalPriceRangeZar": {
+        "minZar": 4600,
+        "maxZar": 7200
+      }
     },
     {
       "id": "ball-gown-08",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 23900,
+      "rentalPriceRangeZar": {
+        "minZar": 5500,
+        "maxZar": 8600
+      }
     },
     {
       "id": "ball-gown-09",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 38900,
+      "rentalPriceRangeZar": {
+        "minZar": 8900,
+        "maxZar": 14000
+      }
     },
     {
       "id": "ball-gown-10",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 25900,
+      "rentalPriceRangeZar": {
+        "minZar": 6000,
+        "maxZar": 9300
+      }
     },
     {
       "id": "ball-gown-11",
-      "priceZar": null,
-      "rentalPriceRangeZar": null
+      "priceZar": 31900,
+      "rentalPriceRangeZar": {
+        "minZar": 7300,
+        "maxZar": 11500
+      }
     },
     {
       "id": "sample-ruffled-01",
       "priceZar": 14900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 3400,
+        "maxZar": 5400
+      }
     },
     {
       "id": "sample-ruffled-02",
       "priceZar": 16900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 3900,
+        "maxZar": 6100
+      }
     },
     {
       "id": "sample-ruffled-03",
       "priceZar": 18900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 4300,
+        "maxZar": 6800
+      }
     },
     {
       "id": "sample-ruffled-04",
       "priceZar": 22900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 5300,
+        "maxZar": 8200
+      }
     },
     {
       "id": "sample-modern-tradition-01",
       "priceZar": 17900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 4100,
+        "maxZar": 6400
+      }
     },
     {
       "id": "sample-modern-tradition-02",
       "priceZar": 21500,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 4900,
+        "maxZar": 7700
+      }
     },
     {
       "id": "sample-modern-tradition-03",
       "priceZar": 24900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
     },
     {
       "id": "sample-modern-tradition-04",
       "priceZar": 28900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
     },
     {
       "id": "sample-two-in-one-01",
       "priceZar": 21900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
     },
     {
       "id": "sample-two-in-one-02",
       "priceZar": 24900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
     },
     {
       "id": "sample-two-in-one-03",
       "priceZar": 28900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
     },
     {
       "id": "sample-two-in-one-04",
       "priceZar": 33900,
-      "rentalPriceRangeZar": null
+      "rentalPriceRangeZar": {
+        "minZar": 7800,
+        "maxZar": 12200
+      }
     }
   ],
-  "priceStatus": "mixed",
+  "priceStatus": "draft",
   "priceRangesZar": {
     "sample-mermaid": {
       "minZar": 8900,
@@ -248,5 +329,7 @@
       "maxZar": 33900
     }
   },
-  "priceRangeStatus": "illustrative"
+  "priceRangeStatus": "illustrative",
+  "rentalPriceStatus": "draft",
+  "priceApproval": "pending-client-review"
 }

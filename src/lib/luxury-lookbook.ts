@@ -2,7 +2,9 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from "./pricing.ts";
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
+import { generalFittingMessage } from "./whatsapp-messages.ts";
+import { buildWhatsAppUrl } from "../config/whatsapp.ts";
 
 /** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + one page per dress + three closing pages. */
 export interface LuxuryLookbookImage {
@@ -140,7 +142,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">Explore our wedding dress styles and find your favourite look.</p>'));
   pages.push(page(3,"welcome","welcome",tag("A note from Redcarpert")+
     '<h2>Your dream dress starts here.</h2><p>Browse our styles and find a dress you love. Message us on WhatsApp to ask about fittings.</p>'+
-    '<p>Our Ball Gowns are from Redcarpert. Other photos show style ideas, not dresses confirmed in stock. Sale prices shown are examples; rental prices are to be confirmed.</p>'+tag("Redcarpert Wedding Dresses")));
+    '<p>Explore five bridal collections, discover the details you love and book your fitting with Redcarpert.</p>'+tag("Redcarpert Wedding Dresses")));
   pages.push(page(4,"contents","contents",tag("The bridal edit")+'<h2>Contents</h2>'+
     catalogueCategories.map((cat,i)=>'<div class="entry"><span class="num">0'+(i+1)+'</span><a href="#collection-'+cat.id+'">'+esc(cat.name)+'</a><span class="page-number">'+two(sectionStarts.get(cat.id)??0)+'</span></div>').join("")+
     '<p class="tiny" style="margin-top:15mm">'+products.length+' wedding dress looks across five collections.</p>'));
@@ -153,7 +155,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
-        : "Explore "+dresses.length+" wedding dress ideas. These photos do not show dresses confirmed in stock.")+'</p>'));
+        : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
     for (const dress of dresses) {
       const look=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
       const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
@@ -165,29 +167,30 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<div class="price-pair" aria-label="Sale and rental prices">'+
         '<div class="price-item"><p class="amount-label" data-pdf-sale-label="'+esc(dress.id)+'">'+esc(salePriceLabelForDress(dress.id))+'</p>'+
         '<p class="amount" data-pdf-sale-price="'+esc(dress.id)+'">'+salePrice(dress)+'</p></div>'+
-        '<div class="price-item"><p class="amount-label">Rental price range</p>'+
+        '<div class="price-item"><p class="amount-label">Rental Price Range</p>'+
         '<p class="amount" data-pdf-rental-price="'+esc(dress.id)+'">'+rentalPrice(dress)+'</p></div></div>'+
-        '<p class="price-condition">'+esc(LOOKBOOK_PRICING_DISCLAIMER)+'</p>'+
-        '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
-        (dress.status==="client"?"":'<p class="disclosure">Inspiration photo and example price. Ask what is available.</p>')+'</div>'));
+        '<p class="price-condition">'+esc(RENTAL_CONDITION_NOTE)+'</p>'+
+        '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a></div>'));
     }
   }
   if(pageNumber!==nextStart)throw new Error("Incorrect collection page sequence");
-  const enquiry="https://wa.me/27680458811?text="+encodeURIComponent("Hello Redcarpert Wedding Dresses! I'd like to book a fitting. Could you please help me?");
+  const enquiry=buildWhatsAppUrl(generalFittingMessage());
   pages.push(page(pageNumber++,"contact","fittings",tag("Your bridal story")+
     '<h2>Found a dress?<br>Book a fitting.</h2><p>Message us on WhatsApp to ask about prices, available dresses and fittings.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">BOOK A FITTING ON WHATSAPP</a><p class="tiny">Fittings by appointment only.</p>'+
     '<a class="web" href="'+esc(website)+'">'+esc(website)+'</a>'));
-  const credits=products.map(dress=>{
-    const name=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
-    return '<div class="credit"><span class="n">'+esc(name)+'</span>'+
-      (dress.status==="client" ? 'Redcarpert Wedding Dresses' :
-        esc(dress.imageCredit.photographer)+'<a href="'+esc(dress.imageCredit.sourceUrl)+'">Photo on Pexels</a>')+'</div>';
-  });
-  const split=Math.ceil(credits.length/2);
-  pages.push(page(pageNumber++,"credits","credits",tag("With thanks")+
-    '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,split).join("")+'</div><div>'+credits.slice(split).join("")+'</div></div>'+
-    '<p class="note">Ball Gown photos: Redcarpert Wedding Dresses. Other photos: Pexels, for inspiration only. Sale prices are examples, and rental prices are to be confirmed. Ask us about available dresses and whether a 2 in 1 style can change its look.</p>'));
+  // Keep image attribution in catalogue metadata and docs/asset-credits.md.
+  // The printed page focuses on the visitor's fitting journey.
+  pages.push(page(pageNumber++,"credits","credits",tag("The Redcarpert experience")+
+    '<h2>Your Fitting Journey</h2><div class="credit-columns">'+
+    '<div>'+
+    '<div class="credit"><span class="n">01</span> Explore our five bridal collections</div>'+
+    '<div class="credit"><span class="n">02</span> Discover your favourite dress</div>'+
+    '</div><div>'+
+    '<div class="credit"><span class="n">03</span> Browse sale and rental prices</div>'+
+    '<div class="credit"><span class="n">04</span> Book a fitting on WhatsApp</div>'+
+    '</div></div>'+
+    '<p class="note">Our team is here to help you explore the collections and arrange your bridal fitting.</p>'));
   pages.push(page(pageNumber++,"back","back-cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<p class="brand-slogan">Walking on red carpet with confidence</p>'+

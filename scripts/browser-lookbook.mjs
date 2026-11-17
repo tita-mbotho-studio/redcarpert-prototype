@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import products from '../src/data/products.json' with { type: 'json' };
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 
 /** Test deterministic book behaviour without relying on third-party CDN availability. */
 const pageCount=products.dresses.length+2;
@@ -27,14 +27,14 @@ try {
     sale:card.querySelector('[data-book-sale-price]')?.textContent,
     rental:card.querySelector('[data-book-rental-price]')?.textContent,
     saleLabel:card.querySelector('[data-book-sale-label]')?.textContent,
-    disclaimer:card.querySelector('.redcarpert-book-condition-note')?.textContent,
+    conditionNote:card.querySelector('.redcarpert-book-condition-note')?.textContent,
   })));
   assert.equal(new Set(displayed.map(item=>item.id)).size,products.dresses.length);
   for(const entry of displayed){
     assert.equal(entry.sale,displaySalePriceForDress(entry.id),entry.id+' sale price mismatch');
     assert.equal(entry.rental,displayRentalPriceForDress(entry.id),entry.id+' rental price mismatch');
     assert.equal(entry.saleLabel,salePriceLabelForDress(entry.id),entry.id+' sale label mismatch');
-    assert.equal(entry.disclaimer,LOOKBOOK_PRICING_DISCLAIMER,entry.id+' pricing disclaimer mismatch');
+    assert.equal(entry.conditionNote,RENTAL_CONDITION_NOTE,entry.id+' must show the condition-based rental note');
   }
   assert.equal(await page.locator('.redcarpert-book-logo').count(),2);
   const cover=page.locator('.redcarpert-book-cover');

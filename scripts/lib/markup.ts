@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../../src/lib/pricing.ts';
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
 import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../../src/lib/media-delivery.ts';
@@ -23,10 +23,10 @@ function lookbook() {
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
      '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
-     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental price range</span>' +
+     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental Price Range</span>' +
      '<p class="redcarpert-book-price" data-book-rental-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayRentalPriceForDress(product.id)) + '</p></div></div>' +
-     '<p class="redcarpert-book-condition-note">' + escapeHtml(LOOKBOOK_PRICING_DISCLAIMER) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Inspiration photo and example price · Ask what is available</small>') + '</div>' +
+     '<p class="redcarpert-book-condition-note">' + escapeHtml(RENTAL_CONDITION_NOTE) + '</p>' +
+     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
  const logo = '/redcarpert/brand/redcarpert-logo-optimized.webp';
@@ -41,7 +41,7 @@ function lookbook() {
    '<div class="redcarpert-book-back-links"><a href="/product/">Browse Wedding Dresses</a><a href="/contact-us/">Book a Fitting</a></div>' +
    '</div></article>';
  return '<section class="redcarpert-lookbook" aria-label="Interactive Redcarpert bridal book">' +
-   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress looks across five collections. Some photos are for inspiration, not confirmed stock.</p>' +
+   '<p class="redcarpert-book-intro">Explore ' + catalogueProducts.length + ' wedding dress looks across five bridal collections.</p>' +
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
@@ -50,7 +50,7 @@ function lookbook() {
    '<p class="redcarpert-icon-cta-label">Download The Bridal Edit (PDF)</p>' +
    '<a class="button redcarpert-icon-cta-button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '" aria-label="Download The Bridal Edit (PDF)">' +
    '<i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i></a>' +
-   '<p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections and style ideas.</p></div>' +
+   '<p>A ' + pdfPageCount + '-page editorial publication featuring five wedding dress collections.</p></div>' +
    '</section>';
 }
 const voids = new Set('area base br col embed hr img input link meta param source track wbr'.split(' '));

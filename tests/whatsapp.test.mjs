@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
 import { dressPageUrl, generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 test('client-authorized South African WhatsApp number is formatted correctly',()=>{
@@ -33,22 +33,22 @@ test('all 27 dress enquiries use one readable template with example sale and pen
     assert(category);
     assert(message.includes('*Dress:* '+name),dress.id+' missing dress name');
     assert(message.includes('*Collection:* '+category.name),dress.id+' missing category');
-    assert(message.includes('*'+(salePriceForDress(dress.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(dress.id)),
-      dress.id+' missing or incorrect sale price');
-    assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(dress.id)),
-      dress.id+' missing rental price status');
-    assert(message.includes('*Dress link:* '+dressPageUrl(dress)),dress.id+' missing dress link');
-    assert(message.includes('the final sale price'),dress.id+' must request sale price confirmation');
-    assert(message.includes('rental price range'),dress.id+' must request rental pricing');
-    assert(message.includes('whether this dress or a similar style is available'),
-      dress.id+' must not assume a gown is in stock');
+    assert(message.includes('*Sale Price:* '+displaySalePriceForDress(dress.id)),
+      dress.id+' missing or incorrect fixed sale price');
+    assert(message.includes('*Rental Price Range:* '+displayRentalPriceForDress(dress.id)),
+      dress.id+' missing its rental price range');
+    assert(message.includes('*Dress Link:* '+dressPageUrl(dress)),dress.id+' missing dress link');
+    assert(message.includes('available sizes'),dress.id+' must ask about fitting details');
+    assert(message.includes('fitting appointment dates'),dress.id+' must request fitting dates');
+    assert(!/example|provisional|quotation|not confirmed/i.test(message),
+      dress.id+' should not contain temporary price notices');
     assert(!message.includes('inspiration collection'),dress.id+' should not have a separate inspiration-only message');
   }
 });
 
 test('general enquiry is reused across all non-dress actions',()=>{
   const message=generalFittingMessage();
-  assert(message.includes('book a fitting'));
-  assert(message.includes('available appointment dates'));
+  assert(message.includes('book a wedding dress fitting'));
+  assert(message.includes('available fitting dates and times'));
   assert.equal(new URL(buildWhatsAppUrl(message)).searchParams.get('text'),message);
 });
