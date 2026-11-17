@@ -8,7 +8,8 @@ import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
-import {sampleFittingMessage,sampleDetailTitle} from '../src/lib/product-detail-preview.ts';
+import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
+import {generalFittingMessage} from '../src/lib/whatsapp-messages.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
 const available = existsSync('dist/index.html');
@@ -31,8 +32,7 @@ test('static deployment contains complete approved pages, local paths and no app
   const handoffs=[...html.matchAll(/<a\b[^>]*\bdata-whatsapp-send\b[^>]*\bhref="([^"]+)"[^>]*>/gi)];
   assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
   const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
-  const expectedMessage=product ? sampleFittingMessage(product)
-    : 'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+  const expectedMessage=product ? sampleFittingMessage(product) : generalFittingMessage();
   const expectedUrl=buildWhatsAppUrl(expectedMessage);
   for(const [,href] of handoffs){
     const linkUrl=new URL(href.replaceAll('&amp;','&'));
@@ -44,7 +44,7 @@ test('static deployment contains complete approved pages, local paths and no app
     assert.match(markup,/rel="noopener noreferrer"/);
     assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
   }
-  if(product)assert(expectedMessage.includes(sampleDetailTitle(product)),route+' must identify its specific gown');
+  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Indicative price range:*'),route+' must identify its gown and price');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));

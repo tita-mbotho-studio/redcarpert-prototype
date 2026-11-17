@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
+import { catalogueProducts } from '../src/data/catalogue.ts';
+import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 // All WhatsApp handoffs are native links, not website review dialogs.
 // Intercept wa.me before network access: never contact or message the business.
@@ -30,9 +33,21 @@ try {
     assert.equal(href.hostname,'wa.me');
     assert.equal(href.pathname,'/27680458811');
     const message=href.searchParams.get('text');
-    assert(message?.includes('Hello Redcarpert Wedding Dresses!'));
-    if(name==='Mermaid dress fitting')assert(message.includes('Look 01')&&message.includes('Mermaid'));
-    if(name==='Ball Gown dress fitting')assert(message.includes('Ball Gown 02')&&message.includes('price and availability'));
+    assert(message?.startsWith('Hello Redcarpert Wedding Dresses,\n\n'),
+      name+' must start with a readable greeting and blank line');
+    if(name.includes('dress fitting')){
+      const dress=name==='Mermaid dress fitting'
+        ? catalogueProducts.find(d=>d.id==='sample-mermaid')
+        : catalogueProducts.find(d=>d.id==='ball-gown-02');
+      assert(dress,'browser test dress fixture is missing');
+      assert(message.includes('*Indicative price range:* '+displayPriceForDress(dress.id,dress.priceZar)),
+        name+' must include its on-page indicative range');
+      assert(message.includes('*Collection:* '),name+' must identify the collection');
+      assert(message.includes('the final price'),name+' must ask the business to confirm price');
+      assert(!message.includes('inspiration collection'),name+' must not use a separate inspiration message');
+    } else {
+      assert.equal(message,generalFittingMessage(),name+' must use the standardized general fitting message');
+    }
     const [popup]=await Promise.all([context.waitForEvent('page'),control.click()]);
     await popup.waitForLoadState('domcontentloaded');
     assert.equal(popup.url(),href.toString(),name+' must open the prepared WhatsApp message immediately');

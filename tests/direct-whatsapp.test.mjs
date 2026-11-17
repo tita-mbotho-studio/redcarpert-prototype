@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { preparePage } from '../scripts/lib/prepare-page.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
-import { sampleFittingMessage, sampleDetailTitle } from '../src/lib/product-detail-preview.ts';
+import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
+import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
@@ -15,7 +16,7 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     const {document,product}=preparePage(route);
     const before=JSON.stringify(document);
     const message=product?sampleFittingMessage(product):
-      'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+      generalFittingMessage();
     const href=buildWhatsAppUrl(message);
     const updated=directWhatsAppHandoffs(document,href);
     const oldControls=all(document.nodes).filter(node=>Object.hasOwn(node.attrs,'data-whatsapp-preview'));
@@ -33,7 +34,7 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     }
     assert.equal(JSON.stringify(document),before,'conversion must never mutate source document');
     assert.equal(new URL(href).searchParams.get('text'),message);
-    if(product)assert(message.includes(sampleDetailTitle(product)),route+' missing specific dress');
+    if(product)assert(message.includes('*Indicative price range:*') && message.includes('*Collection:*'),route+' missing the price and collection');
   }
 });
 
@@ -57,7 +58,7 @@ test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and
   for(const route of ['/','/product/preview/sample-01-mermaid','/product/preview/ball-gown-02']){
     const {document,product}=preparePage(route);
     const message=product?sampleFittingMessage(product):
-      'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+      generalFittingMessage();
     const href=buildWhatsAppUrl(message);
     const converted=directWhatsAppHandoffs(document,href);
     const links=all(converted.nodes).filter(node=>node.attrs['data-whatsapp-send']==='');

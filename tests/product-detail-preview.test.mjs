@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
-import {createProductDetailPreview,sampleDetailTitle,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
+import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
 import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
@@ -63,7 +63,14 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
   else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE PRICE')); }
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
-  const message=sampleFittingMessage(product);assert(message.includes(sampleDetailTitle(product)));assert(message.includes(product.status==='client'?'price and availability':'similar dress available'));assert(!/wa\.me|whatsapp\.com|\+\d/.test(message));
+  const message=sampleFittingMessage(product);
+  assert(message.includes("*Dress:* "+(product.status==="client"?product.name:product.name.replace(/^Sample /,"Look "))));
+  assert(message.includes("*Indicative price range:* "+displayPriceForDress(product.id,product.priceZar)));
+  assert(message.includes("*Collection:* "));
+  assert(message.includes("confirm whether this dress or a similar style is available"));
+  assert(message.includes("the final price"));
+  assert(!message.includes("in your inspiration collection"),"no separate inspiration-only message");
+  assert(!/wa\.me|whatsapp\.com|\+\d/.test(message),"message must not contain the WhatsApp destination");
  }
  assert.equal(JSON.stringify(sitePages),before);
 });

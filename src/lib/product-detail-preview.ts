@@ -1,5 +1,6 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
+import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
@@ -17,9 +18,9 @@ export function sampleDetailTitle(product: CatalogueProduct): string {
   return product.status === "client" ? product.name : `${product.name.replace(/^Sample /, "Look ")} — ${categoryName(product)}`;
 }
 
+/** Compatibility name retained for existing callers; all dresses use one template. */
 export function sampleFittingMessage(product: CatalogueProduct): string {
-  if(product.status === "client") return `Hello Redcarpert Wedding Dresses!\n\nI am interested in ${sampleDetailTitle(product)}. Can I book a fitting? Please let me know the price and availability.\n\nThank you.`;
-  return `Hello Redcarpert Wedding Dresses!\n\nI saw ${sampleDetailTitle(product)} in your inspiration collection. Do you have a similar dress available for a fitting? Please let me know the price.\n\nThank you.`;
+  return dressFittingMessage(product);
 }
 
 /** Dress detail document from one guarded source capture; legacy routes stay intact. */
