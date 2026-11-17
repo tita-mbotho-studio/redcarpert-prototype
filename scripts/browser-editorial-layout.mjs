@@ -25,7 +25,26 @@ try {
       // CSS geometry is independent of provider availability or consent state.
       await page.route('https://www.google.com/maps/**', r => r.abort());
       await page.route('https://images.pexels.com/**', r => r.abort());
+      // CI must not depend on ImageKit availability or the timing of lazy images.
+      // Serve deterministic, correctly proportioned test portraits to verify
+      // the actual CSS layout without changing any published image URLs.
+      await page.route('**/red-carpet-wedding-dresses/about-us/redcarpert-about-us-*.jpg*', async request => {
+        const isPaula=request.request().url().includes('redcarpert-about-us-paula.jpg');
+        const w=isPaula?1080:899, h=isPaula?1440:1599;
+        await request.fulfill({
+          status:200,contentType:'image/svg+xml',
+          body:'<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><rect width="'+w+'" height="'+h+'" fill="#efe9e3"/></svg>',
+        });
+      });
       await page.goto(base + route, {waitUntil: 'domcontentloaded'});
+      if(route==='/about-us/') {
+        const portraits=page.locator('.redcarpert-editorial-team-grid img');
+        await portraits.evaluateAll(images=>Promise.all(images.map(image=>{
+          image.loading='eager';
+          return image.decode();
+        })));
+        assert.equal(await portraits.count(),6,'all six test portraits must render before checking proportions');
+      }
       const metrics = await page.evaluate(() => {
         const wrap = document.querySelector('.redcarpert-editorial');
         const title = document.querySelector('.redcarpert-editorial-page-title h1');
@@ -73,6 +92,8 @@ try {
             card: box(image.closest('figure')),
             sourceWidth: Number(image.getAttribute('width')),
             sourceHeight: Number(image.getAttribute('height')),
+            naturalWidth: image.naturalWidth,
+            naturalHeight: image.naturalHeight,
             aspectRatio: getComputedStyle(image).aspectRatio,
             objectFit: getComputedStyle(image).objectFit,
             backgroundColor: getComputedStyle(image).backgroundColor,
@@ -189,6 +210,10 @@ try {
         }),width+'px About Us model portraits must use optimized ImageKit delivery');
         assert.equal(metrics.teamImageGeometry.length, 6);
         for (const layout of metrics.teamImageGeometry) {
+          assert.equal(layout.naturalWidth,layout.sourceWidth,
+            width+'px model test image must load at its recorded source width');
+          assert.equal(layout.naturalHeight,layout.sourceHeight,
+            width+'px model test image must load at its recorded source height');
           assert.equal(layout.aspectRatio, 'auto',
             width+'px team photo must use its natural aspect ratio');
           assert.equal(layout.objectFit, 'fill',
