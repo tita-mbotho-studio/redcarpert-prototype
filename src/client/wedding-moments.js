@@ -18,7 +18,8 @@ export function initializeWeddingMomentsGallery() {
       }
     };
     img.addEventListener('error', restoreOriginal, { once: true });
-    if (img.complete && !img.naturalWidth) restoreOriginal();
+    // Do not wake off-screen native-lazy thumbnails just to inspect them.
+    if (img.loading === 'eager' && img.complete && !img.naturalWidth) restoreOriginal();
   };
   grid.querySelectorAll('img[data-wedding-original-thumbnail]').forEach(watchThumbnail);
 
