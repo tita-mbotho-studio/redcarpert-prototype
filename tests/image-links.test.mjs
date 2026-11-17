@@ -39,7 +39,7 @@ test("homepage uses manifest URLs directly, in the approved order", () => {
 });
 
 test("About Us uses six distinct named ImageKit portraits in the approved order", () => {
-  const expected = ["Shantel", "Mapaseka", "Defny", "Refiloe", "Olga", "Paula"];
+  const expected = ["Shantel", "Refiloe", "Olga", "Mapaseka", "Defny", "Paula"];
   const portraits = imageLinks.about_us.team;
   assert.equal(portraits.length, expected.length);
   assert.deepEqual(portraits.map(photo => photo.name), expected);
