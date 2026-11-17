@@ -4,6 +4,7 @@ name: One-time verified Pages deployment
 # Remove after verified publication; normal pages.yml stays manual-only.
 # Retry after PR #50 fixed the browser social-profile selector to exclude WhatsApp.
 # Retry after PR #51 stabilized About Us ImageKit portrait test image loading.
+# Retry after PR #52 aligned homepage preload test with optimized ImageKit delivery.
 on:
   push:
     branches:
