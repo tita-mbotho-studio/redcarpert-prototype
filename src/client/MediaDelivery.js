@@ -35,17 +35,29 @@ export function initializeMediaDelivery() {
     };
     probe.src = optimized;
   };
+  const videoPosters = document.querySelectorAll('video[data-media-poster-original]');
+  const verifyPoster = video => {
+    const original = video.dataset.mediaPosterOriginal;
+    const delivered = video.getAttribute('poster');
+    if (!original || !delivered || original === delivered) return;
+    const probe = new Image();
+    probe.onerror = () => { video.poster = original; };
+    probe.src = delivered;
+  };
   if (typeof IntersectionObserver !== 'undefined') {
     const observer = new IntersectionObserver(entries => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         observer.unobserve(entry.target);
-        verifyBackground(entry.target);
+        if (entry.target.matches('video')) verifyPoster(entry.target);
+        else verifyBackground(entry.target);
       }
     }, { rootMargin: '250px 0px' });
     panels.forEach(panel => observer.observe(panel));
+    videoPosters.forEach(video => observer.observe(video));
   } else {
     panels.forEach(verifyBackground);
+    videoPosters.forEach(verifyPoster);
   }
 }
 
