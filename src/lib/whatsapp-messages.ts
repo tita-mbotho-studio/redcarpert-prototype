@@ -1,6 +1,6 @@
 import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { REPOSITORY_BASE } from "../config/site.ts";
-import { displayRentalPriceForDress, displaySalePriceForDress, salePriceForDress } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress } from "./pricing.ts";
 
 /**
  * One WhatsApp message policy for all page actions.
@@ -35,8 +35,6 @@ export function dressFittingMessage(product: CatalogueProduct): string {
     ? product.name
     : product.name.replace(/^Sample /, "Look ");
 
-  const saleIsExample = salePriceForDress(product.id) !== null;
-
   return [
     "Hello Redcarpert Wedding Dresses,",
     "",
@@ -44,7 +42,7 @@ export function dressFittingMessage(product: CatalogueProduct): string {
     "",
     `*Dress:* ${dressName}`,
     `*Collection:* ${category.name}`,
-    `*${saleIsExample ? "Example sale price" : "Sale price"}:* ${displaySalePriceForDress(product.id)}`,
+    `*${salePriceLabelForDress(product.id)}:* ${displaySalePriceForDress(product.id)}`,
     `*Rental price range:* ${displayRentalPriceForDress(product.id)}`,
     `*Dress link:* ${dressPageUrl(product)}`,
     "",
