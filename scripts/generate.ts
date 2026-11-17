@@ -7,6 +7,7 @@ import { publicStaticRoutes } from '../src/lib/public-routes';
 import { createLuxuryLookbookPdf } from '../src/lib/luxury-lookbook';
 import { prepareLookbookImages } from './lib/lookbook-assets';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview';
+import { generalFittingMessage } from '../src/lib/whatsapp-messages';
 import { siteMetadata } from '../src/data/metadata';
 import { pageLoaderCss, pageLoaderMarkup, pageLoaderFallback } from '../src/lib/page-loader';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds';
@@ -56,7 +57,7 @@ await sharp('public/redcarpert/brand/redcarpert-logo.png')
   .toFile(path.join(faviconRoot,'redcarpert-logo-optimized.webp'));
 for(const route of routes) {
  const {document: preparedDocument,product} = preparePage(route);
- const message = product ? sampleFittingMessage(product) : 'Hello Redcarpert Wedding Dresses!\n\nI would like to ask about your wedding dresses and book a fitting. Could you please help me?\n\nThank you.';
+ const message = product ? sampleFittingMessage(product) : generalFittingMessage();
  const whatsappHref = buildWhatsAppUrl(message);
  const document = directWhatsAppHandoffs(preparedDocument,whatsappHref);
  // Apply homepage-only rules on the very first paint, before client scripts
