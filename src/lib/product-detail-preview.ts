@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress } from "./pricing.ts";
 import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
@@ -145,7 +145,6 @@ export function createProductDetailPreview(
                 [displayRentalPriceForDress(product.id)]),
             ]),
           ]),
-          node("p", { class: "redcarpert-detail-price-disclaimer" }, [SALE_RENTAL_DISCLAIMER]),
         ]),
         node("div", { class: "redcarpert-detail-actions redcarpert-icon-cta" }, [
           node("p", { class: "redcarpert-icon-cta-label" }, ["Book a Fitting"]),
@@ -160,8 +159,6 @@ export function createProductDetailPreview(
           ]),
         ]),
       ]),
-      ...(client ? [] : [node("p", { class: "sample-detail-notice" },
-        ["This photo is for inspiration. The dress is not confirmed as available, and the price is an example."])]),
     ] },
     ...(relatedDresses.length > 0 ? [
       node("section", {
@@ -203,8 +200,6 @@ export function createProductDetailPreview(
             ]),
           ),
         ),
-        node("p", { class: "redcarpert-related-disclaimer" },
-          ["Sale prices shown are examples only. Confirm the final price, rental options and availability with Redcarpert."]),
       ]),
     ] : []),
   ] };
@@ -216,9 +211,7 @@ export function createProductDetailPreview(
     return children.length !== n.children.length || children.some((c, i) => c !== n.children[i]) ? { ...n, children } : n;
   };
   return { ...source, route: product.previewRoute,
-    title: client ? `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses` : `${sampleDetailTitle(product)} | Wedding Dress Inspiration | Redcarpert`,
-    description: client
-      ? "View " + product.name + " and message Redcarpert to book a fitting."
-      : "Explore this dress style for inspiration. Ask Redcarpert about similar dresses, prices and fittings.",
+    title: `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses`,
+    description: "Explore " + sampleDetailTitle(product) + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
     nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
 }
