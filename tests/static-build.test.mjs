@@ -374,9 +374,9 @@ test('future HTML image additions inherit provider-safe media delivery defaults'
  let checked=0;
  for(const file of htmlFiles){
   const html=readFileSync(file,'utf8');
-  for(const match of html.matchAll(/<img\\b[^>]*?\\bsrc="([^"]+)"/g)){
+  for(const match of html.matchAll(/<img\b[^>]*?\bsrc="([^"]+)"/g)){
    const src=match[1].replaceAll('&amp;','&');
-   if(!/^https:\\/\\//.test(src)) continue;
+   if(!/^https:\/\//.test(src)) continue;
    const url=new URL(src);
    if(url.hostname==='ik.imagekit.io'){
     assert(url.searchParams.has('tr')||url.pathname.startsWith('/tr:'),
