@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import sharp from 'sharp';
+import { readFileSync } from 'node:fs';
 import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import imageLinks from '../src/data/image-links.json' with { type: 'json' };
@@ -10,6 +11,19 @@ import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pri
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
+test('About Us model portraits fill their width without shaded side strips or cropping', () => {
+  const css=readFileSync('src/components/EditorialPages.css','utf8');
+  const match=css.match(/\\.redcarpert-editorial-team-card img \\{([^}]+)\\}/);
+  assert(match,'missing model image presentation styles');
+  const rules=match[1];
+  assert.match(rules,/width:\\s*100%/);
+  assert.match(rules,/height:\\s*auto/);
+  assert.match(rules,/aspect-ratio:\\s*auto/);
+  assert.match(rules,/object-fit:\\s*initial/);
+  assert.match(rules,/background:\\s*transparent/);
+  assert.doesNotMatch(rules,/object-fit:\\s*contain|object-fit:\\s*cover|aspect-ratio:\\s*3\\s*\\/\\s*4/);
+});
+
 test('new Redcarpert editorial content reuses source shell and never exposes original business copy', () => {
   for (const route of ['/about-us', '/contact-us', '/wedding-moments', '/digital-lookbook']) {
     const capture = sitePages[route === '/digital-lookbook' ? '/about-us' : route];
