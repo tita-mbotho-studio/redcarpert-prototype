@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../src/lib/media-delivery.ts';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
@@ -86,4 +87,19 @@ test('future video posters are optimized, native MP4s remain on demand',()=>{
  assert.equal(poster['data-media-poster-original'],imagekit);
  const noPoster=mediaVideoAttrs({src:'https://cdn.example/film.mp4',controls:''});
  assert.equal(noPoster.preload,'none');
+});
+
+test('page-specific files cannot drift into duplicate transformation size rules',()=>{
+ const usesSharedPolicy=[
+  'src/lib/wedding-moment-image-delivery.ts',
+  'src/lib/homepage-backgrounds.ts',
+  'src/lib/wedding-moments.ts',
+  'scripts/lib/markup.ts',
+  'src/client/dress-gallery.js',
+ ];
+ for(const path of usesSharedPolicy){
+  const content=readFileSync(path,'utf8');
+  assert(!/w-\\d+,h-\\d+,c-at_max/.test(content),
+   path+' must use the site-wide media helper, not hardcoded ImageKit sizing');
+ }
 });
