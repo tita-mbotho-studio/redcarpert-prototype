@@ -157,6 +157,7 @@ export function createProductDetailPreview(
     ...(relatedDresses.length > 0 ? [
       node("section", {
         class: "redcarpert-related-dresses",
+        "data-related-count": String(relatedDresses.length),
         "aria-labelledby": "redcarpert-related-title-" + product.id,
       }, [
         node("h2", { id: "redcarpert-related-title-" + product.id },
