@@ -4,7 +4,7 @@ import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {adaptCatalogue} from '../src/lib/catalogue-adapter.ts';
-import {displayDressPrice} from '../src/lib/pricing.ts';
+
 const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const listingRoutes=['/product',...catalogueCategories.map(c=>c.route.replace(/\/$/,''))];
@@ -42,12 +42,13 @@ test('only approved listing documents change; other routes and all protected sub
   const nodes=all(output.nodes),grid=nodes.find(n=>n.attrs['data-catalogue-preview']);assert.equal(grid.attrs.class,'products columns-4');
   const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?27:input.route==='/product-category/ball_gown'?11:4);
   for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);assert.equal(n.find(n=>n.tag==='h2').children[0],p.status==='client'?p.name:p.name.replace(/^Sample /,'Look '));const note=n.find(n=>n.attrs.class==='catalogue-sample-note');
-    assert(note,'card price/inspiration caption should remain');
-    if(p.status==='client'){
-      assert.equal(note.children.length,1,'real gowns show only price, without photograph labels');
-      assert.equal(note.children[0].attrs.class,'redcarpert-catalogue-price');
-      assert.equal(note.children[0].children[0],'Price to be confirmed');
-    } else assert.equal(note.children[0],'Inspiration photo');assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
+    if(p.status==='client') assert.equal(note,undefined,'client gowns show only the dress photo and title');
+    else {
+      assert(note,'inspiration gowns retain the photo disclosure');
+      assert.deepEqual(note.children,['Inspiration photo']);
+    }
+    assert(!n.some(n=>Object.hasOwn(n.attrs,'data-dress-price') || n.attrs.class==='redcarpert-catalogue-condition-note' || n.attrs.class==='redcarpert-catalogue-price'));
+    assert(!n.some(n=>n.attrs.class==='price'||n.attrs.class?.includes('add_to_cart')));}
   assert(!nodes.some(n=>n.attrs.class==='woocommerce-pagination'));const order=nodes.find(n=>(n.attrs.class||'').split(' ').includes('woocommerce-ordering'));assert.equal(order.tag,'div');assert(!all([order]).some(n=>n.tag==='form'||n.attrs.name==='orderby'||n.attrs.value==='price'));if(input.route==='/product'){const buttons=all([order]).filter(n=>n.tag==='button'&&n.attrs['data-filter-category']);assert.deepEqual(buttons.map(n=>n.attrs['data-filter-category']),['all',...catalogueCategories.map(c=>c.id)]);assert.equal(buttons.filter(n=>n.attrs['aria-pressed']==='true').length,1);}else{assert.equal(order.attrs['aria-hidden'],'true');}
  }
  assert.equal(JSON.stringify(sitePages),before);
@@ -64,22 +65,21 @@ test('unexpected structures/counts, commerce slots and unready data fail closed'
  }
 });
 
-test('verified catalogue prices appear only when a ZAR amount is present',()=>{
+test('catalogue and category cards omit prices and condition notes even when price ranges exist',()=>{
  const products=catalogueProducts.map((p,i)=>i===0?{...p,priceZar:14999}:p);
- const doc=adaptCatalogue(sitePages['/product'],products);
- const cards=all(doc.nodes).filter(n=>n.attrs['data-catalogue-id']);
- assert.equal(cards.length,27);
- for(const [i,card] of cards.entries()){
-  const prices=all([card]).filter(n=>Object.hasOwn(n.attrs,'data-dress-price'));
-  const amount=products.find(product=>product.id===card.attrs['data-catalogue-id'])?.priceZar;
-  assert(amount!==undefined);
-  const status=products.find(product=>product.id===card.attrs['data-catalogue-id'])?.status;
-  if(status==='client'){
-    assert.equal(prices.length,1);
-    assert.equal(prices[0].children[0],displayDressPrice(amount));
-  }else if(amount!==null){
-    assert.equal(prices.length,1);
-    assert.equal(prices[0].children[0],'Example price: '+displayDressPrice(amount));
-  }else assert.equal(prices.length,0,'unassigned sample prices remain hidden');
+ for(const route of listingRoutes){
+   const doc=adaptCatalogue(categorySource(route),products);
+   const cards=all(doc.nodes).filter(n=>n.attrs['data-catalogue-id']);
+   assert.equal(cards.length,route==='/product'?27:route.endsWith('/ball_gown')?11:4);
+   for(const card of cards){
+     const nodes=all([card]);
+     assert.equal(nodes.filter(n=>Object.hasOwn(n.attrs,'data-dress-price')).length,0);
+     assert.equal(nodes.filter(n=>n.attrs.class==='redcarpert-catalogue-condition-note').length,0);
+     assert.equal(nodes.filter(n=>n.attrs.class==='redcarpert-catalogue-price').length,0);
+     const product=products.find(p=>p.id===card.attrs['data-catalogue-id']);
+     const note=nodes.find(n=>n.attrs.class==='catalogue-sample-note');
+     if(product.status==='client') assert.equal(note,undefined);
+     else assert.deepEqual(note?.children,['Inspiration photo']);
+   }
  }
 });

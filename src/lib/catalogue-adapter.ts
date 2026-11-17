@@ -1,6 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayDressPrice } from "./pricing.ts";
 
 const routes: Record<string, readonly [number, string, string]> = {
   "/product": [100, "PRODUCTS", "Wedding Dresses"],
@@ -88,16 +87,14 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
       const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${name}: ${product.status === "client" ? "view dress photos" : "view an inspiration photo"}`, style: "cursor: pointer" };
-      return [{ ...anchor, attrs, children: anchor.children.map(child => child === image ? { ...image, attrs: imageAttrs } : child === title ? { ...title, children: [name] } : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: [
-        ...(product.status === "client" ? [] : ["Inspiration photo"]),
-        ...(product.status === "client" ? [{
-          tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: [displayDressPrice(product.priceZar)],
-        }] : product.priceZar === null ? [] : [{
-          tag: "span", attrs: { class: "redcarpert-catalogue-price", "data-dress-price": "" },
-          children: ["Example price: " + displayDressPrice(product.priceZar)],
-        }]),
-      ] } : child) }];
+      return [{ ...anchor, attrs, children: anchor.children
+        // Listing cards are intentionally image + name only for client gowns;
+        // inspiration cards retain their photo disclosure, but no prices.
+        .filter(child => child !== price || product.status === "sample")
+        .map(child => child === image ? { ...image, attrs: imageAttrs }
+          : child === title ? { ...title, children: [name] }
+          : child === price ? { ...price, attrs: { class: "catalogue-sample-note" }, children: ["Inspiration photo"] }
+          : child) }];
     }) };
   });
   replacements.set(grid, { ...grid, attrs: { ...grid.attrs, "data-catalogue-preview": "true" }, children });

@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
-import { displayDressPrice } from "./pricing.ts";
+import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
 
 /** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + one page per dress + three closing pages. */
 export interface LuxuryLookbookImage {
@@ -19,7 +19,7 @@ const esc = (s: string): string => s.replaceAll("&","&amp;").replaceAll("<","&lt
 const two = (n: number): string => String(n).padStart(2, "0");
 const imageData = (data: Buffer, mime: "image/jpeg" | "image/png"): string =>
   "data:" + mime + ";base64," + data.toString("base64");
-const price = (p: CatalogueProduct): string => esc(displayDressPrice(p.priceZar));
+const price = (p: CatalogueProduct): string => esc(displayPriceForDress(p.id, p.priceZar));
 
 const style = [
   "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600&display=swap');",
@@ -75,6 +75,7 @@ const style = [
   ".dress-bottom h3{font:400 30pt/1.12 Georgia,serif;letter-spacing:-.015em}",
   ".amount{font:500 16pt/1.3 Montserrat,Arial,sans-serif;color:#65513D;white-space:nowrap}",
   ".amount-label{font:400 8pt/1.3 Montserrat,Arial,sans-serif;color:#85766A}",
+  ".price-condition{font:400 7pt/1.45 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;max-width:150mm}",
   ".dress-bottom .detail-link{font:500 9pt/1.4 Montserrat,Arial,sans-serif;color:#8D6845;text-decoration:underline;text-underline-offset:3px}",
   ".dress .disclosure{font:400 7.2pt/1.5 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;margin:0 auto;max-width:150mm}",
   ".contact .content{justify-content:center}",
@@ -157,7 +158,8 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
         '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
         '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
-        (dress.status==="client"?"":'<p class="amount-label">Example price</p>')+
+        '<p class="amount-label">'+(dress.status==="client"?"Indicative range":"Example range")+'</p>'+
+        '<p class="price-condition">'+esc(PRICE_CONDITION_DISCLAIMER)+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
         (dress.status==="client"?"":'<p class="disclosure">Inspiration photo and example price. Ask what is available.</p>')+'</div>'));
     }

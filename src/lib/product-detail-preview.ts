@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayDressPrice } from "./pricing.ts";
+import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
@@ -121,9 +121,10 @@ export function createProductDetailPreview(
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.status === "client" ? product.name : product.name.replace(/^Sample /, "Look ")] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing" }, [
-          ...(client ? [] : [node("span", { class: "redcarpert-detail-price-label" }, ["EXAMPLE PRICE"])]),
+          node("span", { class: "redcarpert-detail-price-label" }, [client ? "INDICATIVE PRICE RANGE" : "EXAMPLE PRICE RANGE"]),
           node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
-            [displayDressPrice(product.priceZar)]),
+            [displayPriceForDress(product.id, product.priceZar)]),
+          node("p", { class: "redcarpert-detail-price-disclaimer" }, [PRICE_CONDITION_DISCLAIMER]),
         ]),
         node("div", { class: "redcarpert-detail-actions" }, [
           node("button", { type: "button", class: "button redcarpert-detail-fitting-button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Book a Fitting"]),

@@ -137,6 +137,13 @@
   text-align: center;
 }
 .redcarpert-book-copy p { margin: 0; text-align: center; }
+.redcarpert-book-copy .redcarpert-book-range-label {
+  color: #81746a;
+  font: 500 clamp(8px, .73vw, 10px)/1.3 Montserrat, sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: center;
+}
 .redcarpert-book-copy p.redcarpert-book-price {
   margin: 1px 0 0;
   color: #65513d;

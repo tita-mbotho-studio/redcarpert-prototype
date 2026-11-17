@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import products from '../src/data/products.json' with { type: 'json' };
+import { displayPriceForDress } from '../src/lib/pricing.ts';
 
 /** Test deterministic book behaviour without relying on third-party CDN availability. */
 const pageCount=products.dresses.length+2;
@@ -19,7 +20,7 @@ try {
   assert.equal(await page.locator('[data-book-page]').count(),pageCount);
   assert.equal(await page.locator('[data-book-price]').count(),products.dresses.length);
   const expectedPrices = new Map(products.dresses.map(({id,priceZar})=>[
-   id,priceZar===null?'Price to be confirmed':'R '+new Intl.NumberFormat('en-ZA',{maximumFractionDigits:0}).format(priceZar)
+   id,displayPriceForDress(id,priceZar)
   ]));
   const renderedPrices=await page.locator('[data-book-price]').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('data-book-price'),node.textContent]));
   assert.equal(new Set(renderedPrices.map(([id])=>id)).size,products.dresses.length);
