@@ -3,7 +3,7 @@ import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages,relatedDressesFor} from '../src/lib/product-detail-preview.ts';
-import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, SALE_RENTAL_DISCLAIMER, PRICE_PENDING_LABEL } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, PRICE_PENDING_LABEL } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -73,8 +73,12 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     assert.equal(image.attrs.src,expected.image);
     assert.equal(image.attrs.alt,expected.imageAlt);
     assert.equal(image.attrs['data-media-preset'],'card');
-    assert.equal(components.find(n=>n.attrs.class==='redcarpert-related-price-value').children[0],
-      displaySalePriceForDress(expected.id));
+    assert.equal(components.find(n=>n.attrs['data-related-sale-price']===expected.id)?.children[0],
+      displaySalePriceForDress(expected.id),'related dress must show the same example sale price');
+    assert.equal(components.find(n=>n.attrs['data-related-rental-price']===expected.id)?.children[0],
+      displayRentalPriceForDress(expected.id),'related dress must show the same rental price');
+    assert.deepEqual(components.filter(n=>n.attrs.class==='redcarpert-related-price-label')
+      .map(n=>n.children[0]),[salePriceLabelForDress(expected.id),'Rental price range']);
     assert.notEqual(expected.id,product.id,'current dress must never recommend itself');
     assert.equal(expected.category,product.category,'related dresses must match category');
   }
