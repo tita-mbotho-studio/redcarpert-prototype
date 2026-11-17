@@ -49,6 +49,6 @@ test('all 27 dress enquiries use one readable template with example sale and pen
 test('general enquiry is reused across all non-dress actions',()=>{
   const message=generalFittingMessage();
   assert(message.includes('book a wedding dress fitting'));
-  assert(message.includes('available appointment dates'));
+  assert(message.includes('available fitting dates and times'));
   assert.equal(new URL(buildWhatsAppUrl(message)).searchParams.get('text'),message);
 });
