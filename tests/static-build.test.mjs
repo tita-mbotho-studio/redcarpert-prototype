@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
-import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
+import {displayPriceForDress, displaySalePriceForDress, displayRentalPriceForDress, SALE_RENTAL_DISCLAIMER, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
@@ -45,7 +45,7 @@ test('static deployment contains complete approved pages, local paths and no app
     assert.match(markup,/rel="noopener noreferrer"/);
     assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
   }
-  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Indicative price range:*'),route+' must identify its gown and price');
+  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Rental price range:*') && expectedMessage.includes('sale price'),route+' must identify its gown, sale and rental pricing');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));
@@ -130,7 +130,8 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/class="redcarpert-detail-card"/);
-  assert.match(html,/data-dress-price=""/);
+  assert.match(html,/data-sale-price=""/);
+  assert.match(html,/data-rental-price=""/);
   const product=catalogueProducts.find(p=>p.previewRoute===route);
   assert(product,'unknown dress detail route: '+route);
   if(product.status==='client'){
@@ -159,8 +160,11 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
     assert.doesNotMatch(html,/data-gallery-index="/,'single-photo samples must not expose misleading dots');
   }
-  assert(html.includes('data-dress-price="">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
-    'detail price does not match products.json for '+route);
+  assert(html.includes('data-sale-price="">'+displaySalePriceForDress(product.id)+'</p>'),
+    'detail sale price does not match products.json for '+route);
+  assert(html.includes('data-rental-price="">'+displayRentalPriceForDress(product.id)+'</p>'),
+    'detail rental price must remain pending until supplied for '+route);
+  assert(html.includes(SALE_RENTAL_DISCLAIMER),'detail price disclaimer missing for '+route);
   assert.match(html,/Book a Fitting/);
  }
 });
