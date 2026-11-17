@@ -643,16 +643,46 @@
     "atelier": [],
     "team": [
       {
-        "id": "bridal-styling",
-        "url": "https://images.pexels.com/photos/6665034/pexels-photo-6665034.jpeg?auto=compress&cs=tinysrgb&w=900"
+        "id": "shantel",
+        "name": "Shantel",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg",
+        "width": 899,
+        "height": 1599
       },
       {
-        "id": "atelier-craft",
-        "url": "https://images.pexels.com/photos/9850065/pexels-photo-9850065.jpeg?auto=compress&cs=tinysrgb&w=900"
+        "id": "mapaseka",
+        "name": "Mapaseka",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg",
+        "width": 899,
+        "height": 1599
       },
       {
-        "id": "thoughtful-details",
-        "url": "https://images.pexels.com/photos/3984870/pexels-photo-3984870.jpeg?auto=compress&cs=tinysrgb&w=900"
+        "id": "defny",
+        "name": "Defny",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg",
+        "width": 899,
+        "height": 1599
+      },
+      {
+        "id": "refiloe",
+        "name": "Refiloe",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg",
+        "width": 899,
+        "height": 1599
+      },
+      {
+        "id": "olga",
+        "name": "Olga",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg",
+        "width": 899,
+        "height": 1599
+      },
+      {
+        "id": "paula",
+        "name": "Paula",
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg",
+        "width": 1080,
+        "height": 1440
       }
     ]
   },
