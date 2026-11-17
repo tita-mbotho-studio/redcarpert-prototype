@@ -1,8 +1,7 @@
 /* Centre the catalogue card wording on Wedding Dresses and every category,
    independent of inherited WooCommerce desktop/mobile text alignment. */
 #main-container ul.products[data-catalogue-preview] li.product .woocommerce-loop-product__title,
-#main-container ul.products[data-catalogue-preview] li.product .catalogue-sample-note,
-#main-container ul.products[data-catalogue-preview] li.product .redcarpert-catalogue-price {
+#main-container ul.products[data-catalogue-preview] li.product .catalogue-sample-note {
   text-align: center !important;
   width: 100%;
 }
@@ -10,14 +9,6 @@
   display: block;
   text-align: center;
 }
-/* Real Ball Gowns need only the dress name and unconfirmed price:
-   eliminate the legacy shipping-line border and extra caption padding. */
-#main-container ul.products[data-catalogue-preview] li.product[data-catalogue-category="ball_gown"] .catalogue-sample-note {
-  border-top: 0;
-  padding-top: 2px;
-  text-align: center !important;
-}
-
 /* Preserve the captured shipping-line footprint as a non-commerce sample caption. */
 .woocommerce ul.products[data-catalogue-preview] li.product .catalogue-sample-note,
 .woocommerce-page ul.products[data-catalogue-preview] li.product .catalogue-sample-note {
@@ -47,22 +38,4 @@
   aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center 25%;
-}
-
-/* Sample ZAR prices are illustrative, clearly labeled and shared with the lookbook. */
-#main-container .catalogue-sample-note .redcarpert-catalogue-price {
-  display: block;
-  margin-top: 7px;
-  color: #66503b;
-  font: 500 clamp(12px, 1.2vw, 15px)/1.4 Montserrat, sans-serif;
-}
-
-/* Compact condition note immediately below each catalogue price. */
-#main-container ul.products[data-catalogue-preview] li.product .redcarpert-catalogue-condition-note {
-  display: block;
-  margin: 5px auto 0;
-  max-width: 95%;
-  color: #8c8074;
-  font: 400 clamp(10px, .9vw, 11px)/1.45 "Open Sans", sans-serif;
-  text-align: center;
 }
