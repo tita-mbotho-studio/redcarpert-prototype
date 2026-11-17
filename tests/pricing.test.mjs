@@ -4,6 +4,7 @@ import products from "../src/data/products.json" with { type: "json" };
 import { catalogueProducts } from "../src/data/catalogue.ts";
 import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "../src/lib/pricing.ts";
 import { createNodeRenderer } from "../scripts/lib/markup.ts";
+import { lookbookEntries } from "../src/client/lookbook.js";
 
 test("central products.json has one ZAR price slot per approved dress", () => {
   assert.equal(products.currency, "ZAR");
@@ -49,6 +50,7 @@ test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed pri
   const html = render({ tag: "div", attrs: { "data-lookbook-viewer": "true" }, children: [] });
   assert.equal((html.match(/data-book-page=/g) || []).length, 29);
   assert.equal((html.match(/data-book-price=/g) || []).length, 27);
+  assert.equal(lookbookEntries.length,27);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover,'book cover missing');
   assert.equal((cover.match(/<img /g)||[]).length,1,'cover must contain the Redcarpert logo only');
@@ -63,6 +65,8 @@ test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed pri
     "book dress classes may include additional class names");
   for (const product of catalogueProducts) {
     assert(html.includes('data-book-price="' + product.id + '"'));
+    assert.equal(lookbookEntries.find(entry=>entry.id===product.id)?.priceDisplay,displayPriceForDress(product.id),
+      'reader and generated book must share one authoritative price range');
     assert(html.includes(displayPriceForDress(product.id)));
     assert(html.includes(PRICE_CONDITION_DISCLAIMER));
   }
