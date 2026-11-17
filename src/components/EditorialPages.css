@@ -716,3 +716,97 @@
   }
 }
 
+
+/* Approved compact CTA pattern: descriptive wording above an icon-only link.
+   Apply ONLY to the About/Contact fitting sections and lookbook PDF download.
+   These scoped rules override legacy .button sizing without affecting navigation
+   buttons, dress details, Wedding Moments pagination or book-page controls. */
+#main-container .redcarpert-editorial .redcarpert-icon-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto 8px;
+  text-align: center;
+}
+#main-container .redcarpert-editorial .redcarpert-icon-cta > .redcarpert-icon-cta-label {
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 0 !important;
+  padding: 0 10px;
+  color: #67564a;
+  font: 500 clamp(12px, 1.1vw, 14px)/1.5 Montserrat, sans-serif;
+  letter-spacing: .02em;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+#main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 1px solid #ab957e !important;
+  border-radius: 8px !important;
+  background: #f8f3ec !important;
+  color: #67543f !important;
+  box-shadow: 0 3px 10px rgba(41, 29, 22, .08);
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+}
+#main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button i {
+  display: block;
+  font-size: inherit;
+  line-height: 1;
+  pointer-events: none;
+}
+#main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button:hover {
+  background: #e8ddcf !important;
+  border-color: #8f765a !important;
+  color: #47392b !important;
+  box-shadow: 0 5px 14px rgba(41, 29, 22, .13);
+}
+#main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button:focus-visible {
+  outline: 2px solid #947b5c !important;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  #main-container .redcarpert-editorial .redcarpert-icon-cta {
+    gap: 8px;
+    margin-top: 16px;
+  }
+  #main-container .redcarpert-editorial .redcarpert-icon-cta > .redcarpert-icon-cta-label {
+    font-size: 12px;
+  }
+  #main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+    font-size: 18px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #main-container .redcarpert-editorial .redcarpert-icon-cta > a.button.redcarpert-icon-cta-button {
+    transition: none;
+  }
+}
