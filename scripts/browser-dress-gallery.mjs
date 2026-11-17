@@ -96,12 +96,37 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
-   const fittingSize=await actual.locator('.redcarpert-detail-actions a.redcarpert-detail-fitting-button').evaluate(button=>{
-     const bounds=button.getBoundingClientRect();
-     return {width:bounds.width,height:bounds.height};
+   const fitting=await actual.locator('.redcarpert-detail-actions').evaluate(group=>{
+     const label=group.querySelector('.redcarpert-icon-cta-label');
+     const button=group.querySelector('a.redcarpert-detail-fitting-button');
+     const icon=button?.querySelector('i');
+     const bounds=node=>{const rect=node.getBoundingClientRect();
+       return {x:rect.x,y:rect.y,width:rect.width,height:rect.height,
+         centerX:rect.x+rect.width/2,centerY:rect.y+rect.height/2,
+         bottom:rect.bottom};};
+     return {labelText:label?.textContent?.trim(),label:label&&bounds(label),
+       labelAlign:label&&getComputedStyle(label).textAlign,
+       button:button&&bounds(button),buttonText:button?.textContent?.trim(),
+       buttonLabel:button?.getAttribute('aria-label'),
+       iconClass:icon?.className,iconHidden:icon?.getAttribute('aria-hidden'),
+       icon:icon&&bounds(icon),buttonColor:button&&getComputedStyle(button).backgroundColor};
    });
-   assert(fittingSize.height>=43.5,width+'px Book a Fitting must remain tappable');
-   if(width<=640)assert(fittingSize.width<=200.5,width+'px Book a Fitting should stay compact on mobile');
+   assert.equal(fitting.labelText,'Book a Fitting');
+   assert.equal(fitting.buttonText,'',width+'px fitting action must be icon-only');
+   assert.equal(fitting.labelAlign,'center');
+   assert.equal(fitting.buttonLabel,'Book a Fitting via WhatsApp');
+   assert.equal(fitting.iconClass,'fa-brands fa-whatsapp');
+   assert.equal(fitting.iconHidden,'true');
+   const expectedSize=width<=640?44:48;
+   assert(Math.abs(fitting.button.width-expectedSize)<1 && Math.abs(fitting.button.height-expectedSize)<1,
+     width+'px fitting icon must match the compact editorial '+expectedSize+'px target');
+   assert(fitting.label.bottom<=fitting.button.y+1,width+'px label must be ABOVE the icon');
+   assert(Math.abs(fitting.label.centerX-fitting.button.centerX)<2,width+'px label and icon must be centred');
+   assert(Math.abs(fitting.icon.centerX-fitting.button.centerX)<=1.5
+     && Math.abs(fitting.icon.centerY-fitting.button.centerY)<=1.5,
+     width+'px WhatsApp glyph must be centred within the button');
+   assert.notEqual(fitting.buttonColor,'rgb(97, 80, 66)',
+     width+'px must not use the old filled fitting CTA');
    const relatedLayout=await actual.locator('.redcarpert-related-dresses').evaluate(section=>{
      const grid=section.querySelector('.redcarpert-related-grid');
      const cards=[...grid.querySelectorAll('[data-related-dress]')];
