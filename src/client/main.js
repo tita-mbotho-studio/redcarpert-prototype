@@ -8,9 +8,11 @@ import { initializeCatalogueFilter } from './catalogue-filter.js';
 import { initializeWeddingMomentsGallery } from './wedding-moments.js';
 import { initializeFloatingWhatsApp } from './WhatsAppFloating.js';
 import { initializePageLoader } from './PageLoader.js';
+import { initializeMediaDelivery } from './MediaDelivery.js';
 import { initializeHomepageHeaderScroll } from './HomepageHeaderScroll.js';
 
 // The branded HTML loading screen is already visible before this module loads.
+initializeMediaDelivery();
 initializePageLoader();
 const data = JSON.parse(document.getElementById('page-runtime').textContent);
 // Static Pages HTML keeps a build-time year as a fallback, and the visitor's

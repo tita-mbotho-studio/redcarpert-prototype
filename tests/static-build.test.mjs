@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
+import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage,sampleDetailTitle} from '../src/lib/product-detail-preview.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
@@ -115,11 +116,11 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
- assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
+ assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
- assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.doesNotMatch(book,/Price to be confirmed/);
  assert.match(book,/Indicative range/);
@@ -297,9 +298,10 @@ test('Implementation 22: every static page starts with a bounded, branded global
      'homepage should preconnect to client ImageKit image host');
    const imagekitUrls=JSON.parse(readFileSync("src/data/image-links.json","utf8")).home_page.hero.map(image=>image.url);
    assert.equal(imagekitUrls.length,3,"homepage manifest must list three approved photos");
-   assert(html.includes('href="'+imagekitUrls[0]+'" as="image" type="image/webp" fetchpriority="high"'),
+   const heroDelivery=mediaDeliveryUrl(imagekitUrls[0],"hero");
+   assert(html.includes('href="'+heroDelivery+'" as="image" fetchpriority="high"'),
      'first client photograph should be priority-preloaded');
-   assert(html.includes('data-hero-url="'+imagekitUrls[0]+'"'),
+   assert(html.includes('data-hero-url="'+heroDelivery+'"'),
      'homepage loader should wait for first client photograph');
    for(const url of imagekitUrls)assert(html.includes(url),'homepage missing approved photo '+url);
    assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
@@ -337,4 +339,57 @@ test('Wedding Moments production HTML uses CDN thumbnails, preserves originals a
    'external CDN URLs must never contain the GitHub Pages base');
  assert(!html.includes('red-carpet-wedding-dresses/redcarpert-prototype/wedding-moments/'),
    'prefix must not be inserted inside an ImageKit media URL');
+});
+
+test('all produced pages apply shared delivery to dress, lookbook, and homepage media',{skip:!available},()=>{
+  const escapeUrl = value=>value.replaceAll('&','&amp;');
+  const product=catalogueProducts.find(p=>p.id==='ball-gown-01');
+  assert(product);
+  const catalogue=readFileSync('dist/product/index.html','utf8');
+  const cardUrl=mediaDeliveryUrl(product.image,'card');
+  assert(catalogue.includes('src="'+escapeUrl(cardUrl)+'"'),'catalogue cards must use screen-sized photos');
+  assert(catalogue.includes('data-media-original="'+escapeUrl(product.image)+'"'),
+    'catalogue original source must remain accessible on delivery failure');
+  const detail=readFileSync('dist'+product.previewRoute+'/index.html','utf8');
+  assert(detail.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'detail'))+'"'),
+    'detail card must not load an oversized original');
+  assert(detail.includes('data-gallery-enlarge=""'),
+    'full source must still be available for zoom');
+  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
+  assert(book.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'lookbook'))+'"'),
+    'online lookbook should use a dedicated lightweight photograph');
+  const homepage=readFileSync('dist/index.html','utf8');
+  const heroes=JSON.parse(readFileSync('src/data/image-links.json','utf8')).home_page.hero;
+  for(const photo of heroes){
+    const optimized=mediaDeliveryUrl(photo.url,'hero');
+    assert(homepage.includes('data-media-background-original="'+photo.url+'"'));
+    assert(homepage.includes('data-media-background-src="'+optimized+'"'));
+  }
+  assert(homepage.includes('href="'+mediaDeliveryUrl(heroes[0].url,'hero')+'" as="image" fetchpriority="high"'),
+    'homepage preload and CSS should point to the same optimized resource');
+});
+
+test('future HTML image additions inherit provider-safe media delivery defaults',{skip:!available},()=>{
+ const htmlFiles=walk('dist').filter(file=>file.endsWith('.html'));
+ let checked=0;
+ for(const file of htmlFiles){
+  const html=readFileSync(file,'utf8');
+  for(const match of html.matchAll(/<img\b[^>]*?\bsrc="([^"]+)"/g)){
+   const src=match[1].replaceAll('&amp;','&');
+   if(!/^https:\/\//.test(src)) continue;
+   const url=new URL(src);
+   if(url.hostname==='ik.imagekit.io'){
+    assert(url.searchParams.has('tr')||url.pathname.startsWith('/tr:'),
+      file+' contains an unoptimized ImageKit <img>: '+src);
+    checked++;
+   }else if(url.hostname==='images.pexels.com'){
+    assert.equal(url.searchParams.get('auto'),'compress',
+      file+' Pexels photograph must be compressed');
+    assert(Number(url.searchParams.get('w'))>0,
+      file+' Pexels photograph must have an explicit width');
+    checked++;
+   }
+  }
+ }
+ assert(checked>=80,'expected optimized wedding, dress, lookbook and editorial photos');
 });

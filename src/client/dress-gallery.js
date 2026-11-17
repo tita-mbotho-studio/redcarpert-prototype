@@ -1,3 +1,5 @@
+import { setMediaImage } from './MediaDelivery.js';
+
 /**
  * Responsive dress photography controller. Never creates images or claims
  * additional dress angles unless the product's gallery data supplies them.
@@ -31,7 +33,7 @@ export function initializeDressGalleries() {
     const render = (requestedIndex) => {
       currentIndex = (requestedIndex + photos.length) % photos.length;
       const photo = photos[currentIndex];
-      image.src = photo.url;
+      setMediaImage(image, photo.url, 'detail');
       image.alt = photo.alt;
       enlarge.href = photo.url;
       enlarge.setAttribute('aria-label', 'Enlarge dress photograph ' + (currentIndex + 1) + ' of ' + photos.length);
