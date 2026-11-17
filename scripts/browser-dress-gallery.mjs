@@ -148,7 +148,7 @@ try {
      assert.equal(entry.sale,displaySalePriceForDress(entry.id),width+'px related sale price mismatch');
      assert.equal(entry.rental,displayRentalPriceForDress(entry.id),width+'px related rental mismatch');
      assert.equal(entry.labels.length,2,width+'px related dress needs both price labels');
-     assert.equal(entry.labels[1],'Rental price range');
+     assert.equal(entry.labels[1],'Rental Price Range');
    }
    assert.equal(relatedLayout.columns,width>1000?3:2,width+'px related cards must use the intended responsive columns');
    if(width<=1000)assert(Math.abs(relatedLayout.lastCenter-relatedLayout.gridCenter)<=2,
