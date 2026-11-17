@@ -2,6 +2,7 @@ name: One-time verified Pages deployment
 # Owner-authorized one-time release for the merged Implementation 48.
 # This temporary workflow only runs on changes to its own file on main.
 # Remove after verified publication; normal pages.yml stays manual-only.
+# Retry after PR #50 fixed the browser social-profile selector to exclude WhatsApp.
 on:
   push:
     branches:
