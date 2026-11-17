@@ -20,6 +20,8 @@ test('ImageKit tile transformations preserve entire image and source URLs', () =
     photo + '?updatedAt=42&tr=w-640,h-640,c-at_max,q-72,f-auto');
   assert.equal(weddingMomentDeliveryImage(photo + '?tr=w-100','tile'),
     photo + '?tr=w-100');
+  assert.equal(weddingMomentDeliveryImage(photo + '?v=2#details','tile'),
+    photo + '?v=2&tr=w-640,h-640,c-at_max,q-72,f-auto#details');
   assert.equal(weddingMomentDeliveryImage('https://another-cdn.example/photo.jpg','tile'),
     'https://another-cdn.example/photo.jpg');
 });
