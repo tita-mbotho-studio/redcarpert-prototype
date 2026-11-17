@@ -1,5 +1,6 @@
 import type { DocumentNode, SiteDocumentData } from "@/types/site";
 import imageLinks from "../data/image-links.json" with { type: "json" };
+import { mediaDeliveryUrl } from "./media-delivery.ts";
 
 // Keep all user-supplied image URLs in image-links.json, not in source code.
 // The three approved homepage panels have stable IDs and ordering. The same
@@ -20,9 +21,12 @@ function approvedHeroUrl(section: number, id: string): string {
   return image.url;
 }
 export const homepageBackgrounds = [
-  { section: 0, original: "/site-assets/ec8b6b2c4222396c44.png", replacement: approvedHeroUrl(0, "home-page-1") },
-  { section: 1, original: "/site-assets/9def3725208290c4ef.png", replacement: approvedHeroUrl(1, "home-page-2") },
-  { section: 2, original: "/site-assets/46f8a1c412d65fd42b.png", replacement: approvedHeroUrl(2, "home-page-3") },
+  { section: 0, original: "/site-assets/ec8b6b2c4222396c44.png", replacement: approvedHeroUrl(0, "home-page-1"),
+    delivery: mediaDeliveryUrl(approvedHeroUrl(0, "home-page-1"), "hero") },
+  { section: 1, original: "/site-assets/9def3725208290c4ef.png", replacement: approvedHeroUrl(1, "home-page-2"),
+    delivery: mediaDeliveryUrl(approvedHeroUrl(1, "home-page-2"), "hero") },
+  { section: 2, original: "/site-assets/46f8a1c412d65fd42b.png", replacement: approvedHeroUrl(2, "home-page-3"),
+    delivery: mediaDeliveryUrl(approvedHeroUrl(2, "home-page-3"), "hero") },
 ] as const;
 
 export function adaptHomepageBackgrounds(document: SiteDocumentData): SiteDocumentData {
@@ -42,8 +46,10 @@ export function adaptHomepageBackgrounds(document: SiteDocumentData): SiteDocume
           ? { ...node, attrs: { ...node.attrs,
               // CSS draws one blurred cover layer plus the uncropped original.
               // Keep the original background declaration as an image fallback.
-              style: expected.replace(background.original, background.replacement)
-                + `--redcarpert-home-photo:url("${background.replacement}");`,
+              style: expected.replace(background.original, background.delivery)
+                + `--redcarpert-home-photo:url("${background.delivery}");`,
+              "data-media-background-original": background.replacement,
+              "data-media-background-src": background.delivery,
             } }
           : child);
       }
