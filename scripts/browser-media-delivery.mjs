@@ -38,6 +38,8 @@ try {
     const img=document.querySelector('[data-wedding-moments-grid] img');
     return img && img.getAttribute('src')===expected && img.naturalWidth>0;
   },tileOriginal,{timeout:15000});
+  assert.equal(await tile.getAttribute('src'),tileOriginal,
+    'failed Wedding Moments thumbnail derivative must fall back to its original poster');
   assert.equal(await page.locator('[data-wedding-moments-grid] button[data-wedding-media=video]').count(),1,
     'video still opens by user interaction, rather than downloading eagerly');
 
