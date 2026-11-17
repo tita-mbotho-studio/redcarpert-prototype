@@ -6,6 +6,10 @@ import { displayPriceForDress } from '../src/lib/pricing.ts';
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
 const source=readFileSync('src/client/dress-gallery.js','utf8')
+  // The isolated navigation fixture mocks the shared media transport; the
+  // production page below exercises the actual imported delivery module.
+  .replace("import { setMediaImage } from './MediaDelivery.js';",
+    "const setMediaImage=(image,original)=>{image.dataset.mediaOriginal=original;image.src=original+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto';};")
   .replace('export function initializeDressGalleries()', 'function initializeDressGalleries()')
   + '\nwindow.testInitializeDressGalleries = initializeDressGalleries;';
 const photos=[
@@ -37,7 +41,8 @@ try {
   assert.equal(await counter.textContent(),'01 / 03');
   await gallery.locator('[data-gallery-next]').click();
   assert.equal(await current(),1);
-  assert.equal(await image.getAttribute('src'),photos[1].url);
+  assert.equal(await image.getAttribute('src'),photos[1].url+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');
+  assert.equal(await image.getAttribute('data-media-original'),photos[1].url);
   assert.equal(await image.getAttribute('alt'),photos[1].alt);
   assert.equal(await enlarge.getAttribute('href'),photos[1].url);
   assert.equal(await counter.textContent(),'02 / 03');
