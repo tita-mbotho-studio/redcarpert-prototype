@@ -92,7 +92,12 @@ test("gallery still supports client videos with accessible native controls and i
   assert.deepEqual(triggers.map(n => n.attrs["data-wedding-media"]), ["photo", "video"]);
   const videoButton = triggers[1];
   const thumbnail = allNodes(videoButton.children).find(n => n.tag === "img");
-  assert.equal(thumbnail.attrs.src, "https://ik.imagekit.io/example/events/dance-cover.webp");
+  assert.equal(thumbnail.attrs.src,
+    "https://ik.imagekit.io/example/events/dance-cover.webp?tr=w-640,h-640,c-at_max,q-72,f-auto");
+  assert.equal(thumbnail.attrs["data-wedding-original-thumbnail"],
+    "https://ik.imagekit.io/example/events/dance-cover.webp");
+  assert.equal(videoButton.attrs["data-wedding-src"],
+    "https://ik.imagekit.io/example/events/dance.mp4?updatedAt=2");
   assert(allNodes(videoButton.children).some(n => n.attrs.class === "redcarpert-moment-play"));
   const player = nodes.find(n => n.tag === "video");
   assert.equal(player.attrs.controls, "controls");
