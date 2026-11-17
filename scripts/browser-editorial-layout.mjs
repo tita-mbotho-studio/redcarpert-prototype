@@ -65,6 +65,8 @@ try {
           teamColumns: team ? getComputedStyle(team).gridTemplateColumns.split(' ').length : 0,
           teamLast: team ? box(team.lastElementChild) : null,
           teamSources: team ? [...team.querySelectorAll('img')].map(img => img.getAttribute('src')) : [],
+          teamNames: team ? [...team.querySelectorAll('figure figcaption h3')].map(name => name.textContent.trim()) : [],
+          teamImageAlts: team ? [...team.querySelectorAll('figure img')].map(image => image.getAttribute('alt')) : [],
           actionGroup: wrap.querySelector('.redcarpert-editorial-actions') ? box(wrap.querySelector('.redcarpert-editorial-actions')) : null,
           actionButtons: [...wrap.querySelectorAll('.redcarpert-editorial-actions .redcarpert-editorial-action')].map(box),
           iconCtas: [...wrap.querySelectorAll('[data-redcarpert-icon-cta]')].map(group => {
@@ -165,8 +167,10 @@ try {
           assert(Math.abs(center-metrics.actionGroup.center)<=2,
             width+'px partial last button row must be centred');
         }
-        assert.equal(metrics.teamCount, 3);
-        assert(metrics.teamSources.every(s => s.startsWith('https://images.pexels.com/photos/')));
+        assert.equal(metrics.teamCount, 6, 'all six models must be visible');
+        assert.deepEqual(metrics.teamNames, ['Shantel', 'Mapaseka', 'Defny', 'Refiloe', 'Olga', 'Paula']);
+        assert.deepEqual(metrics.teamSources, ['https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-shantel.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-mapaseka.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-defny.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-refiloe.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-olga.jpg','https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/about-us/redcarpert-about-us-paula.jpg']);
+        assert.deepEqual(metrics.teamImageAlts, metrics.teamNames.map(name => 'Portrait of '+name+', Redcarpert bridal model'));
         assert(metrics.teamColumns >= 1 && metrics.teamColumns <= 3);
         if (metrics.teamColumns===2) {
           assert(Math.abs(metrics.teamLast.center - metrics.root.center)<=2,
