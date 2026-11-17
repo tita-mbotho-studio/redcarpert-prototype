@@ -2,7 +2,7 @@ import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue
 import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../../src/lib/pricing.ts';
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
-import { mediaDeliveryUrl, mediaImageAttrs } from '../../src/lib/media-delivery.ts';
+import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../../src/lib/media-delivery.ts';
 
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -52,8 +52,8 @@ function render(node: DocumentNode): string {
  if(typeof node === 'string') return escapeHtml(node);
  if(['script','noscript'].includes(node.tag)) return '';
  if(node.attrs['data-lookbook-viewer'] === 'true') return lookbook();
- const attrs = node.tag === 'img' ? mediaImageAttrs(node.attrs) : {...node.attrs};
- if(node.tag === 'video' && attrs.preload === undefined) attrs.preload = 'none';
+ const attrs = node.tag === 'img' ? mediaImageAttrs(node.attrs)
+   : node.tag === 'video' ? mediaVideoAttrs(node.attrs) : {...node.attrs};
  if (attrs.href && routes.includes(attrs.href) && attrs.href !== '/') attrs.href += '/';
  if(attrs.class?.split(/\s+/).includes('ht_ctc_chat_data')) delete attrs['data-settings'];
  // Preserve only the explicitly approved, fully validated native wa.me links
