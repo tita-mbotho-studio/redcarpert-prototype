@@ -116,11 +116,11 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
- assert.equal((book.match(/https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
+ assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
- assert.equal((book.match(/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.doesNotMatch(book,/Price to be confirmed/);
  assert.match(book,/Indicative range/);
@@ -339,4 +339,32 @@ test('Wedding Moments production HTML uses CDN thumbnails, preserves originals a
    'external CDN URLs must never contain the GitHub Pages base');
  assert(!html.includes('red-carpet-wedding-dresses/redcarpert-prototype/wedding-moments/'),
    'prefix must not be inserted inside an ImageKit media URL');
+});
+
+test('all produced pages apply shared delivery to dress, lookbook, and homepage media',{skip:!available},()=>{
+  const escapeUrl = value=>value.replaceAll('&','&amp;');
+  const product=catalogueProducts.find(p=>p.id==='ball-gown-01');
+  assert(product);
+  const catalogue=readFileSync('dist/product/index.html','utf8');
+  const cardUrl=mediaDeliveryUrl(product.image,'card');
+  assert(catalogue.includes('src="'+escapeUrl(cardUrl)+'"'),'catalogue cards must use screen-sized photos');
+  assert(catalogue.includes('data-media-original="'+escapeUrl(product.image)+'"'),
+    'catalogue original source must remain accessible on delivery failure');
+  const detail=readFileSync('dist'+product.previewRoute+'/index.html','utf8');
+  assert(detail.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'detail'))+'"'),
+    'detail card must not load an oversized original');
+  assert(detail.includes('data-gallery-enlarge=""'),
+    'full source must still be available for zoom');
+  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
+  assert(book.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'lookbook'))+'"'),
+    'online lookbook should use a dedicated lightweight photograph');
+  const homepage=readFileSync('dist/index.html','utf8');
+  const heroes=JSON.parse(readFileSync('src/data/image-links.json','utf8')).home_page.hero;
+  for(const photo of heroes){
+    const optimized=mediaDeliveryUrl(photo.url,'hero');
+    assert(homepage.includes('data-media-background-original="'+photo.url+'"'));
+    assert(homepage.includes('data-media-background-src="'+optimized+'"'));
+  }
+  assert(homepage.includes('href="'+mediaDeliveryUrl(heroes[0].url,'hero')+'" as="image" fetchpriority="high"'),
+    'homepage preload and CSS should point to the same optimized resource');
 });
