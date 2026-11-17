@@ -7,7 +7,7 @@ import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import imageLinks from '../src/data/image-links.json' with { type: 'json' };
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { catalogueProducts } from '../src/data/catalogue.ts';
-import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../src/lib/pricing.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 
 const nodes = list => list.flatMap(n => typeof n === 'string' ? [] : [n, ...nodes(n.children)]);
@@ -151,9 +151,13 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
   assert.equal((html.match(/class="detail-link"/g)||[]).length,27);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,27);
-   assert.equal((html.match(/class="price-condition"/g)||[]).length,27);
-   assert(html.includes(PRICE_CONDITION_DISCLAIMER));
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,54);
+  assert.equal((html.match(/class="price-pair"/g)||[]).length,27);
+  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,27);
+  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,27);
+  assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,27);
+  assert.equal((html.match(/class="price-condition"/g)||[]).length,27);
+  assert(html.includes(LOOKBOOK_PRICING_DISCLAIMER));
   assert.match(html, /Inspiration photo and example price/);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
@@ -163,8 +167,10 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
   assert.match(html,/Photography Credits/);
   assert.doesNotMatch(html,/Client-supplied photography/);
   assert.match(html,/Ball Gown photos: Redcarpert Wedding Dresses/);
-  assert.doesNotMatch(html,/Price to be confirmed/);
-   assert.match(html,/Indicative range/);
+  assert.equal((html.match(/To be confirmed/g)||[]).length,38,
+    'PDF must show 27 pending rentals and 11 pending sale prices');
+  assert.doesNotMatch(html,/Indicative range|Example range/,
+    'PDF must not display stale illustrative single-price ranges');
   for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','27'],['two_in_one','32']]){
     assert(html.includes('href="#collection-'+id+'">'+
       (id==='ball_gown'?'Ball Gown':id==='mermaid'?'Mermaid':id==='ruffled'?'Ruffled Dresses':id==='modern_tradition'?'Modern Tradition Dresses':'2 in 1 Dresses')+
@@ -175,9 +181,21 @@ test('luxury editorial lookbook contains thirty-nine A4 pages with client gowns 
     const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
     assert(online.includes('<h3>'+label+'</h3>'),'online reader missing '+label);
-    assert(online.includes('data-book-price="'+dress.id+'">'+displayPriceForDress(dress.id, dress.priceZar)+'</p>'),
-      'online reader price mismatch '+label);
-    assert(html.includes('<p class="amount">'+displayPriceForDress(dress.id, dress.priceZar)+'</p>'), 'missing ZAR price '+label);
+    const sale=displaySalePriceForDress(dress.id);
+    const rental=displayRentalPriceForDress(dress.id);
+    const saleLabel=salePriceLabelForDress(dress.id);
+    assert(online.includes('data-book-sale-price="'+dress.id+'">'+sale+'</p>'),
+      'online reader sale price mismatch '+label);
+    assert(online.includes('data-book-rental-price="'+dress.id+'">'+rental+'</p>'),
+      'online reader rental price mismatch '+label);
+    assert(online.includes('data-book-sale-label="'+dress.id+'">'+saleLabel+'</span>'),
+      'online reader sale label mismatch '+label);
+    assert(html.includes('data-pdf-sale-price="'+dress.id+'">'+sale+'</p>'),
+      'PDF sale price must match the dress detail page for '+label);
+    assert(html.includes('data-pdf-rental-price="'+dress.id+'">'+rental+'</p>'),
+      'PDF rental price must match the dress detail page for '+label);
+    assert(html.includes('data-pdf-sale-label="'+dress.id+'">'+saleLabel+'</p>'),
+      'PDF must distinguish fixed example sale prices from unconfirmed sale prices for '+label);
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
-import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -96,12 +96,63 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
-   const fittingSize=await actual.locator('.redcarpert-detail-actions a.redcarpert-detail-fitting-button').evaluate(button=>{
-     const bounds=button.getBoundingClientRect();
-     return {width:bounds.width,height:bounds.height};
+   const fitting=await actual.locator('.redcarpert-detail-actions').evaluate(group=>{
+     const label=group.querySelector('.redcarpert-icon-cta-label');
+     const button=group.querySelector('a.redcarpert-detail-fitting-button');
+     const icon=button?.querySelector('i');
+     const bounds=node=>{const rect=node.getBoundingClientRect();
+       return {x:rect.x,y:rect.y,width:rect.width,height:rect.height,
+         centerX:rect.x+rect.width/2,centerY:rect.y+rect.height/2,
+         bottom:rect.bottom};};
+     return {labelText:label?.textContent?.trim(),label:label&&bounds(label),
+       labelAlign:label&&getComputedStyle(label).textAlign,
+       button:button&&bounds(button),buttonText:button?.textContent?.trim(),
+       buttonLabel:button?.getAttribute('aria-label'),
+       iconClass:icon?.className,iconHidden:icon?.getAttribute('aria-hidden'),
+       icon:icon&&bounds(icon),buttonColor:button&&getComputedStyle(button).backgroundColor};
    });
-   assert(fittingSize.height>=43.5,width+'px Book a Fitting must remain tappable');
-   if(width<=640)assert(fittingSize.width<=200.5,width+'px Book a Fitting should stay compact on mobile');
+   assert.equal(fitting.labelText,'Book a Fitting');
+   assert.equal(fitting.buttonText,'',width+'px fitting action must be icon-only');
+   assert.equal(fitting.labelAlign,'center');
+   assert.equal(fitting.buttonLabel,'Book a Fitting via WhatsApp');
+   assert.equal(fitting.iconClass,'fa-brands fa-whatsapp');
+   assert.equal(fitting.iconHidden,'true');
+   const expectedSize=width<=640?44:48;
+   assert(Math.abs(fitting.button.width-expectedSize)<1 && Math.abs(fitting.button.height-expectedSize)<1,
+     width+'px fitting icon must match the compact editorial '+expectedSize+'px target');
+   assert(fitting.label.bottom<=fitting.button.y+1,width+'px label must be ABOVE the icon');
+   assert(Math.abs(fitting.label.centerX-fitting.button.centerX)<2,width+'px label and icon must be centred');
+   assert(Math.abs(fitting.icon.centerX-fitting.button.centerX)<=1.5
+     && Math.abs(fitting.icon.centerY-fitting.button.centerY)<=1.5,
+     width+'px WhatsApp glyph must be centred within the button');
+   assert.notEqual(fitting.buttonColor,'rgb(97, 80, 66)',
+     width+'px must not use the old filled fitting CTA');
+   const relatedLayout=await actual.locator('.redcarpert-related-dresses').evaluate(section=>{
+     const grid=section.querySelector('.redcarpert-related-grid');
+     const cards=[...grid.querySelectorAll('[data-related-dress]')];
+     const columns=getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length;
+     const last=cards.at(-1).getBoundingClientRect();
+     const container=grid.getBoundingClientRect();
+     return {count:cards.length,columns,lastCenter:last.x+last.width/2,
+       gridCenter:container.x+container.width/2};
+   });
+   assert.equal(relatedLayout.count,3,width+'px three same-category styles should be suggested');
+   const relatedPricing=await actual.locator('[data-related-dress]').evaluateAll(cards=>cards.map(card=>({
+     id:card.getAttribute('data-related-dress'),
+     sale:card.querySelector('[data-related-sale-price]')?.textContent?.trim(),
+     rental:card.querySelector('[data-related-rental-price]')?.textContent?.trim(),
+     labels:[...card.querySelectorAll('.redcarpert-related-price-label')]
+       .map(label=>label.textContent.trim()),
+   })));
+   for(const entry of relatedPricing){
+     assert.equal(entry.sale,displaySalePriceForDress(entry.id),width+'px related sale price mismatch');
+     assert.equal(entry.rental,displayRentalPriceForDress(entry.id),width+'px related rental mismatch');
+     assert.equal(entry.labels.length,2,width+'px related dress needs both price labels');
+     assert.equal(entry.labels[1],'Rental price range');
+   }
+   assert.equal(relatedLayout.columns,width>1000?3:2,width+'px related cards must use the intended responsive columns');
+   if(width<=1000)assert(Math.abs(relatedLayout.lastCenter-relatedLayout.gridCenter)<=2,
+     width+'px final related dress must be centred when three items span two columns');
    const sideOverflow=await actual.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1);
    assert.equal(sideOverflow,false,width+'px detail card must not cause horizontal scrolling');
  }
@@ -126,9 +177,14 @@ try {
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
  assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
  assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
- assert.equal(await actual.locator('[data-dress-price]').textContent(),displayPriceForDress('ball-gown-03'));
+ assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
+ assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
  assert.match(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),/new or pre-owned/);
- assert.equal(await actual.locator('.redcarpert-detail-price-label').textContent(),'INDICATIVE PRICE RANGE');
+ assert.equal(await actual.locator('.redcarpert-detail-price-label').first().textContent(),'SALE PRICE');
+ assert.equal(await actual.locator('.redcarpert-detail-price-label').nth(1).textContent(),'RENTAL PRICE RANGE');
+ assert.equal(await actual.locator('[data-related-dress]').count(),4);
+ assert.equal(await actual.locator('[data-related-dress="ball-gown-03"]').count(),0);
+ assert.equal(await actual.locator('.redcarpert-related-grid a').count(),4);
  assert.equal(await actual.locator('.sample-detail-notice').count(),0,'client gown has no provenance notice');
  // Single-photo client gowns still show the full silhouette without empty arrows.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});

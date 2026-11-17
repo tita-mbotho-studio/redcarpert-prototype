@@ -34,7 +34,8 @@ test('every approved editorial footer has modern Brands social icons, minimal fi
     assert(getText(columns[2]).includes('Book a Fitting'));
     assert(!getText(columns[2]).includes('Via WhatsApp'));
     const list=all([columns[0]]).find(n=>n.tag==='ul'&&n.attrs.class==='social-icons');
-    assert.equal(list.children.filter(n=>typeof n!=='string').length,6);
+    assert.equal(list.children.filter(n=>typeof n!=='string').length,5,
+      route+' footer must have four linked social accounts plus one WhatsApp action');
     const logos=all([list]).filter(n=>n.tag==='i');
     assert.deepEqual(logos.map(n=>n.attrs.class),[
       'fa-brands fa-instagram','fa-brands fa-tiktok','fa-brands fa-tiktok',

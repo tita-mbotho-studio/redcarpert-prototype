@@ -34,7 +34,7 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     }
     assert.equal(JSON.stringify(document),before,'conversion must never mutate source document');
     assert.equal(new URL(href).searchParams.get('text'),message);
-    if(product)assert(message.includes('*Indicative price range:*') && message.includes('*Collection:*'),route+' missing the price and collection');
+    if(product)assert(message.includes('*Rental price range:*') && message.includes('*Collection:*') && message.includes('sale price'),route+' missing sale, rental and collection');
   }
 });
 

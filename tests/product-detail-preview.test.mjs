@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
 import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
-import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages} from '../src/lib/product-detail-preview.ts';
-import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../src/lib/pricing.ts';
+import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages,relatedDressesFor} from '../src/lib/product-detail-preview.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, PRICE_PENDING_LABEL } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
@@ -19,7 +19,9 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert.equal(output.styles,source.styles);assert.equal(output.scripts,source.scripts);assert.equal(output.themeConfig,source.themeConfig);
   const root=nodes.find(n=>n.attrs['data-detail-preview']);const content=all([root]);
   const gallery=sampleGalleryImages[product.id];
-  assert.equal(content.filter(n=>n.tag==='img').length,1);assert.equal(content.find(n=>n.tag==='img').attrs.src,gallery.src);
+  const related=relatedDressesFor(product);
+  assert.equal(content.filter(n=>n.tag==='img').length,1+related.length);
+  assert.equal(content.find(n=>n.tag==='img').attrs.src,gallery.src);
   assert.equal(content.find(n=>n.attrs['data-fancybox']).attrs.href,gallery.src);
   const imageGallery=content.find(n=>n.attrs['data-detail-gallery']===product.id);
   assert(imageGallery,'dress gallery metadata must be available');
@@ -37,7 +39,7 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   assert(card,'detail information must be inside a floating card');
   if(product.status==='client'){
     assert(!content.some(n=>n.attrs.class==='redcarpert-detail-collection'),'no duplicate collection label for a real gown');
-    assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'INDICATIVE PRICE RANGE');
+    assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
     assert(!content.some(n=>n.attrs.class==='redcarpert-detail-enquiry-note'),'CTA already identifies fitting enquiry');
   }else{
     assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-collection').length,1);
@@ -45,30 +47,78 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
     assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-collection').children[0],
       name.endsWith('Dresses')?name:name+' Collection');
   }
-  assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-dress-price')).children[0],
-    displayPriceForDress(product.id, product.priceZar));
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-disclaimer').children[0],PRICE_CONDITION_DISCLAIMER);
+  assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-sale-price')).children[0],
+    displaySalePriceForDress(product.id));
+  assert.equal(content.find(n=>Object.hasOwn(n.attrs,'data-rental-price')).children[0],
+    displayRentalPriceForDress(product.id));
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-disclaimer').children[0],SALE_RENTAL_DISCLAIMER);
+  assert.equal(content.filter(n=>n.attrs.class==='redcarpert-detail-price-option').length,2,
+    'sale and rental prices have separate slots');
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],
+    salePriceForDress(product.id)===null?'SALE PRICE':'EXAMPLE SALE PRICE');
+  assert.equal(displayRentalPriceForDress(product.id), PRICE_PENDING_LABEL,
+    'rental prices remain pending until supplied by the client');
+  const relatedSection=content.find(n=>n.attrs.class==='redcarpert-related-dresses');
+  assert(relatedSection,'each detail page must display related dresses in a separate section');
+  assert.equal(relatedSection.attrs['data-related-count'],String(related.length));
+  const relatedCards=all([relatedSection]).filter(n=>n.attrs.class==='redcarpert-related-card');
+  assert.equal(relatedCards.length,Math.min(4,catalogueProducts.filter(p=>p.category===product.category).length-1));
+  assert.deepEqual(relatedCards.map(n=>n.attrs['data-related-dress']),related.map(d=>d.id));
+  for(const [index,card] of relatedCards.entries()){
+    const expected=related[index];
+    const components=all([card]);
+    const link=components.find(n=>n.tag==='a');
+    const image=components.find(n=>n.tag==='img');
+    assert.equal(link.attrs.href,expected.previewRoute+'/');
+    assert.equal(image.attrs.src,expected.image);
+    assert.equal(image.attrs.alt,expected.imageAlt);
+    assert.equal(image.attrs['data-media-preset'],'card');
+    assert.equal(components.find(n=>n.attrs['data-related-sale-price']===expected.id)?.children[0],
+      displaySalePriceForDress(expected.id),'related dress must show the same example sale price');
+    assert.equal(components.find(n=>n.attrs['data-related-rental-price']===expected.id)?.children[0],
+      displayRentalPriceForDress(expected.id),'related dress must show the same rental price');
+    assert.deepEqual(components.filter(n=>n.attrs.class==='redcarpert-related-price-label')
+      .map(n=>n.children[0]),[salePriceLabelForDress(expected.id),'Rental price range']);
+    assert.notEqual(expected.id,product.id,'current dress must never recommend itself');
+    assert.equal(expected.category,product.category,'related dresses must match category');
+  }
   assert(!all([card]).some(n=>n.attrs.class==='sample-detail-notice'),
     'stock image disclosure must sit outside the floating card');
   assert.equal(content.some(n=>n.attrs.class==='sample-detail-notice'),product.status==='sample','only illustrative styles need notices');
-  assert(content.some(n=>n.attrs.class==='redcarpert-detail-actions'),
-    'fitting action is inside card');
-  assert(content.some(n=>n.tag==='button'&&n.children[0]==='Book a Fitting'&&Object.hasOwn(n.attrs,'data-whatsapp-preview')));
+  const fitting=content.find(n=>n.attrs.class==='redcarpert-detail-actions redcarpert-icon-cta');
+  assert(fitting&&all([card]).includes(fitting),
+    'fitting action stays inside the elevated card');
+  const fittingElements=all(fitting.children);
+  const label=fittingElements.find(n=>n.tag==='p'&&n.attrs.class==='redcarpert-icon-cta-label');
+  const action=fittingElements.find(n=>n.tag==='button'&&Object.hasOwn(n.attrs,'data-whatsapp-preview'));
+  assert.equal(label?.children[0],'Book a Fitting','wording must sit above the icon, not inside its button');
+  assert.equal(action?.attrs.class,'button redcarpert-icon-cta-button redcarpert-detail-fitting-button');
+  assert.equal(action.attrs['aria-label'],'Book a Fitting via WhatsApp');
+  assert.equal(action.attrs['aria-haspopup'],'dialog');
+  assert.equal(action.attrs.type,'button');
+  assert.deepEqual(action.children,[{
+    tag:'i',attrs:{class:'fa-brands fa-whatsapp','aria-hidden':'true'},children:[],
+  }],'the CTA must contain only a decorative WhatsApp glyph');
+  assert.equal(content.filter(n=>n.attrs.class==='redcarpert-icon-cta-label').length,1);
+  assert.equal(content.filter(n=>n.attrs.class?.includes('redcarpert-detail-fitting-button')).length,1);
   assert(!content.some(n=>n.attrs.class==='product_meta'),'collection should never repeat');
   assert(!content.some(n=>['form','input','select','textarea'].includes(n.tag)));
-  assert(!content.some(n=>/\b(stock|instock|cart|quantity|related|reviews_tab)\b/.test(n.attrs.class||'')));
+  assert(!content.some(n=>/\b(stock|instock|cart|quantity|reviews_tab)\b/.test(n.attrs.class||'')));
+  assert(!content.some(n=>n.attrs.class==='related products'),'inherited unrelated dresses must not leak');
   assert(!content.some(n=>n.attrs.class==='tabs wc-tabs'),'remove inherited sample description tabs');
   assert(!content.some(n=>n.attrs.id==='wpgis-gallery'));
   const text=JSON.stringify(root);assert(!/Arabella|Worldwide Shipping|French|satin|checkout|payment|woocommerce_loop_add_to_cart/i.test(text));
   if(product.status==='client') assert(!text.includes('Client-supplied dress photographs'));
-  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE PRICE')); }
+  else { assert(text.includes('This photo is for inspiration.')); assert(text.includes('not confirmed as available')); assert(text.includes('EXAMPLE SALE PRICE')); }
   assert(!content.some(n=>n.attrs.href?.startsWith('/product/')&&!n.attrs.href.startsWith('/product/preview/')));
   const message=sampleFittingMessage(product);
   assert(message.includes("*Dress:* "+(product.status==="client"?product.name:product.name.replace(/^Sample /,"Look "))));
-  assert(message.includes("*Indicative price range:* "+displayPriceForDress(product.id,product.priceZar)));
+  assert(message.includes('*'+(salePriceForDress(product.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(product.id)));
+  assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(product.id)));
   assert(message.includes("*Collection:* "));
   assert(message.includes("confirm whether this dress or a similar style is available"));
-  assert(message.includes("the final price"));
+  assert(message.includes("the final sale price"));
+  assert(message.includes("not a final quotation"));
   assert(!message.includes("in your inspiration collection"),"no separate inspiration-only message");
   assert(!/wa\.me|whatsapp\.com|\+\d/.test(message),"message must not contain the WhatsApp destination");
  }
@@ -130,7 +180,8 @@ test('multiple verified photos for one dress render discreet arrows, dots, posit
  assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-counter')).children[0],'01 / 03');
  assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image')).attrs.src,product.image);
  assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-enlarge')).attrs.href,product.image);
- assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-dress-price')).length,1,'price remains intact');
+ assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-sale-price')).length,1,'sale price remains intact');
+ assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-rental-price')).length,1,'rental price remains intact');
 });
 test('additional dress photographs reject unknown IDs, duplicates and unsafe or undescribed URLs',()=>{
  const product=catalogueProducts[0];
@@ -181,8 +232,9 @@ test('eleven client Ball Gowns map exactly twenty-eight real ImageKit photograph
   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,expected[index]>1?1:0);
   assert(output.title.includes(product.name));
   assert(!output.title.includes('Sample Preview'));
-  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'INDICATIVE PRICE RANGE');
-  assert(content.some(n=>Object.hasOwn(n.attrs,'data-dress-price')&&n.children[0]===displayPriceForDress(product.id)));
+  assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-sale-price')&&n.children[0]===PRICE_PENDING_LABEL));
+  assert(content.some(n=>Object.hasOwn(n.attrs,'data-rental-price')&&n.children[0]===PRICE_PENDING_LABEL));
   assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
   assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
   assert(!sampleFittingMessage(product).includes('demonstration'));

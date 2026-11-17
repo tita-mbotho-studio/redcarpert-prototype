@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
-import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
+import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER } from "./pricing.ts";
 import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
@@ -16,6 +16,15 @@ export const sampleGalleryImages: Record<string, {src: string; width: number; he
 const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
 export function sampleDetailTitle(product: CatalogueProduct): string {
   return product.status === "client" ? product.name : `${product.name.replace(/^Sample /, "Look ")} — ${categoryName(product)}`;
+}
+
+/** Same-category suggestions, excluding the current gown, in stable catalogue order. */
+export function relatedDressesFor(product: CatalogueProduct, limit = 4): readonly CatalogueProduct[] {
+  const group = catalogueProducts.filter(item => item.category === product.category);
+  const index = group.findIndex(item => item.id === product.id);
+  if (index < 0) throw new Error("Related dresses: unrecognized catalogue product " + product.id);
+  if (!Number.isSafeInteger(limit) || limit < 0) throw new Error("Related dresses: invalid display limit");
+  return [...group.slice(index + 1), ...group.slice(0, index)].slice(0, limit);
 }
 
 /** Compatibility name retained for existing callers; all dresses use one template. */
@@ -67,6 +76,7 @@ export function createProductDetailPreview(
   const client = product.status === "client";
   const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
   const photos = photosForDress(product, galleryMappings);
+  const relatedDresses = relatedDressesFor(product);
   const hasGallery = photos.length > 1;
   const arrow = (direction: "previous" | "next") =>
     node("button", {
@@ -121,19 +131,82 @@ export function createProductDetailPreview(
         ...(client ? [] : [node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"])]),
         { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.status === "client" ? product.name : product.name.replace(/^Sample /, "Look ")] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
-        node("div", { class: "redcarpert-detail-pricing" }, [
-          node("span", { class: "redcarpert-detail-price-label" }, [client ? "INDICATIVE PRICE RANGE" : "EXAMPLE PRICE RANGE"]),
-          node("p", { class: "redcarpert-detail-price-value", "data-dress-price": "" },
-            [displayPriceForDress(product.id, product.priceZar)]),
-          node("p", { class: "redcarpert-detail-price-disclaimer" }, [PRICE_CONDITION_DISCLAIMER]),
+        node("div", { class: "redcarpert-detail-pricing", "aria-label": "Sale and rental pricing" }, [
+          node("div", { class: "redcarpert-detail-price-options" }, [
+            node("div", { class: "redcarpert-detail-price-option" }, [
+              node("span", { class: "redcarpert-detail-price-label" },
+                [salePriceLabelForDress(product.id).toUpperCase()]),
+              node("p", { class: "redcarpert-detail-price-value", "data-sale-price": "" },
+                [displaySalePriceForDress(product.id)]),
+            ]),
+            node("div", { class: "redcarpert-detail-price-option" }, [
+              node("span", { class: "redcarpert-detail-price-label" }, ["RENTAL PRICE RANGE"]),
+              node("p", { class: "redcarpert-detail-price-value", "data-rental-price": "" },
+                [displayRentalPriceForDress(product.id)]),
+            ]),
+          ]),
+          node("p", { class: "redcarpert-detail-price-disclaimer" }, [SALE_RENTAL_DISCLAIMER]),
         ]),
-        node("div", { class: "redcarpert-detail-actions" }, [
-          node("button", { type: "button", class: "button redcarpert-detail-fitting-button", "data-whatsapp-preview": "", "aria-haspopup": "dialog" }, ["Book a Fitting"]),
+        node("div", { class: "redcarpert-detail-actions redcarpert-icon-cta" }, [
+          node("p", { class: "redcarpert-icon-cta-label" }, ["Book a Fitting"]),
+          node("button", {
+            type: "button",
+            class: "button redcarpert-icon-cta-button redcarpert-detail-fitting-button",
+            "data-whatsapp-preview": "",
+            "aria-haspopup": "dialog",
+            "aria-label": "Book a Fitting via WhatsApp",
+          }, [
+            node("i", { class: "fa-brands fa-whatsapp", "aria-hidden": "true" }, []),
+          ]),
         ]),
       ]),
       ...(client ? [] : [node("p", { class: "sample-detail-notice" },
         ["This photo is for inspiration. The dress is not confirmed as available, and the price is an example."])]),
     ] },
+    ...(relatedDresses.length > 0 ? [
+      node("section", {
+        class: "redcarpert-related-dresses",
+        "data-related-count": String(relatedDresses.length),
+        "aria-labelledby": "redcarpert-related-title-" + product.id,
+      }, [
+        node("h2", { id: "redcarpert-related-title-" + product.id },
+          ["More from the " + category + " Collection"]),
+        node("ul", { class: "redcarpert-related-grid" },
+          relatedDresses.map(dress =>
+            node("li", { class: "redcarpert-related-card", "data-related-dress": dress.id }, [
+              node("a", { href: dress.previewRoute + "/", "aria-label": "View " + sampleDetailTitle(dress) }, [
+                node("img", {
+                  src: dress.image,
+                  alt: dress.imageAlt,
+                  loading: "lazy",
+                  decoding: "async",
+                  width: "740",
+                  height: "740",
+                  "data-media-preset": "card",
+                }, []),
+                node("span", { class: "redcarpert-related-name" },
+                  [dress.status === "client" ? dress.name : dress.name.replace(/^Sample /, "Look ")]),
+                node("div", { class: "redcarpert-related-prices", "aria-label": "Sale and rental pricing" }, [
+                  node("div", { class: "redcarpert-related-price-pair" }, [
+                    node("span", { class: "redcarpert-related-price-label" },
+                      [salePriceLabelForDress(dress.id)]),
+                    node("span", { class: "redcarpert-related-price-value", "data-related-sale-price": dress.id },
+                      [displaySalePriceForDress(dress.id)]),
+                  ]),
+                  node("div", { class: "redcarpert-related-price-pair" }, [
+                    node("span", { class: "redcarpert-related-price-label" }, ["Rental price range"]),
+                    node("span", { class: "redcarpert-related-price-value", "data-related-rental-price": dress.id },
+                      [displayRentalPriceForDress(dress.id)]),
+                  ]),
+                ]),
+              ]),
+            ]),
+          ),
+        ),
+        node("p", { class: "redcarpert-related-disclaimer" },
+          ["Sale prices shown are examples only. Confirm the final price, rental options and availability with Redcarpert."]),
+      ]),
+    ] : []),
   ] };
   const visit = (n: DocumentNode): DocumentNode | null => {
     if (typeof n === "string") return n;

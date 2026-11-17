@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
-import {displayPriceForDress, PRICE_CONDITION_DISCLAIMER} from '../src/lib/pricing.ts';
+import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, SALE_RENTAL_DISCLAIMER, LOOKBOOK_PRICING_DISCLAIMER} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
 import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
@@ -45,7 +45,7 @@ test('static deployment contains complete approved pages, local paths and no app
     assert.match(markup,/rel="noopener noreferrer"/);
     assert.doesNotMatch(markup,/aria-haspopup="dialog"/);
   }
-  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Indicative price range:*'),route+' must identify its gown and price');
+  if(product)assert(expectedMessage.includes('*Dress:*') && expectedMessage.includes('*Rental price range:*') && expectedMessage.includes('sale price'),route+' must identify its gown, sale and rental pricing');
  }
  assert(!files.some(f=>f.includes('/api/')||f.includes('_next')||f.includes('documents/')));
  assert(!existsSync('dist/product/arabella/index.html'));
@@ -82,12 +82,18 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
 test('twenty-nine-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert.equal((book.match(/data-book-page=/g)||[]).length,29);
- assert.equal((book.match(/data-book-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-sale-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-rental-price=/g)||[]).length,27);
+ assert.equal((book.match(/data-book-sale-label=/g)||[]).length,27);
  assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
- assert(book.includes(PRICE_CONDITION_DISCLAIMER));
+ assert(book.includes(LOOKBOOK_PRICING_DISCLAIMER));
  for(const product of catalogueProducts){
-  assert(book.includes('data-book-price="'+product.id+'">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
-    'book price does not match products.json for '+product.id);
+  assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
+    'book sale price does not match products.json for '+product.id);
+  assert(book.includes('data-book-rental-price="'+product.id+'">'+displayRentalPriceForDress(product.id)+'</p>'),
+    'book rental status does not match products.json for '+product.id);
+  assert(book.includes('data-book-sale-label="'+product.id+'">'+salePriceLabelForDress(product.id)+'</span>'),
+    'book must distinguish example sale amounts from pending sales for '+product.id);
  }
  assert.equal((book.match(/class="redcarpert-book-logo"/g)||[]).length,2);
  assert.match(book,/data-book-next/); assert.match(book,/data-book-previous/);
@@ -123,26 +129,29 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
  assert.doesNotMatch(book,/Client-supplied photographs/);
- assert.doesNotMatch(book,/Price to be confirmed/);
- assert.match(book,/Indicative range/);
+ assert.equal((book.match(/To be confirmed/g)||[]).length,38,'all 27 rental and 11 sale prices pending');
+ assert.doesNotMatch(book,/data-book-price=|redcarpert-book-range-label|Indicative range/,
+   'online book may not show the old single illustrative price range');
  assert.match(book,/Inspiration photo and example price/);
  assert.doesNotMatch(book,/Image and price are illustrative/);
  for(const route of routes.filter(p=>p.startsWith('/product/preview/'))) {
   const html=readFileSync('dist'+route+'/index.html','utf8');
   assert.match(html,/class="redcarpert-detail-card"/);
-  assert.match(html,/data-dress-price=""/);
+  assert.match(html,/data-sale-price=""/);
+  assert.match(html,/data-rental-price=""/);
   const product=catalogueProducts.find(p=>p.previewRoute===route);
   assert(product,'unknown dress detail route: '+route);
   if(product.status==='client'){
     assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
     assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
     assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
-    assert.match(html,/INDICATIVE PRICE RANGE/);
+    assert.match(html,/SALE PRICE/);
+    assert.match(html,/RENTAL PRICE RANGE/);
     assert.match(html,/new or pre-owned/);
   }else{
     assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
     assert.match(html,/not confirmed as available/i);
-    assert.match(html,/EXAMPLE PRICE/);
+    assert.match(html,/EXAMPLE SALE PRICE/);
     assert.match(html,/Look \d{2}/);
   }
   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
@@ -159,9 +168,37 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
     assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
     assert.doesNotMatch(html,/data-gallery-index="/,'single-photo samples must not expose misleading dots');
   }
-  assert(html.includes('data-dress-price="">'+displayPriceForDress(product.id, product.priceZar)+'</p>'),
-    'detail price does not match products.json for '+route);
+  assert(html.includes('data-sale-price="">'+displaySalePriceForDress(product.id)+'</p>'),
+    'detail sale price does not match products.json for '+route);
+  assert(html.includes('data-rental-price="">'+displayRentalPriceForDress(product.id)+'</p>'),
+    'detail rental price must remain pending until supplied for '+route);
+  assert(html.includes(SALE_RENTAL_DISCLAIMER),'detail price disclaimer missing for '+route);
+  const categoryMatches=catalogueProducts.filter(d=>d.category===product.category&&d.id!==product.id);
+  const relatedIds=[...html.matchAll(/data-related-dress="([^"]+)"/g)].map(match=>match[1]);
+  assert.equal(relatedIds.length,Math.min(4,categoryMatches.length),
+    'unexpected related dress card count for '+route);
+  assert.equal(new Set(relatedIds).size,relatedIds.length,
+    'related dress section may not repeat a gown');
+  for(const id of relatedIds){
+    const dress=categoryMatches.find(item=>item.id===id);
+    assert(dress,'related dress must belong to the same category and exclude current gown');
+    assert(html.includes('href="/redcarpert-prototype'+dress.previewRoute+'/"'),
+      'related dress must link to the correct detail page');
+    assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
+    assert(html.includes('data-related-sale-price="'+id+'">'+displaySalePriceForDress(id)+'</span>'),
+      'related sale price must match the detail page for '+id);
+    assert(html.includes('data-related-rental-price="'+id+'">'+displayRentalPriceForDress(id)+'</span>'),
+      'related rental price must match the detail page for '+id);
+  }
   assert.match(html,/Book a Fitting/);
+  assert(html.includes('<p class="redcarpert-icon-cta-label">Book a Fitting</p>'),
+    'fitting label must be above the icon on '+route);
+  const detailCta=html.match(/<a\b[^>]*class="button redcarpert-icon-cta-button redcarpert-detail-fitting-button"[^>]*>[\s\S]*?<\/a>/)?.[0];
+  assert(detailCta,'missing compact direct WhatsApp fitting link for '+route);
+  assert(detailCta.includes('aria-label="Book a Fitting via WhatsApp"'));
+  assert(detailCta.includes('<i class="fa-brands fa-whatsapp" aria-hidden="true"></i>'),
+    'fitting link must contain only the WhatsApp glyph');
+  assert(!detailCta.includes('>Book a Fitting<'),'fitting link must not contain visible button wording');
  }
 });
 

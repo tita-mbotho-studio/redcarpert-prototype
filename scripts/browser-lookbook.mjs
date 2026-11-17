@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import products from '../src/data/products.json' with { type: 'json' };
-import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../src/lib/pricing.ts';
 
 /** Test deterministic book behaviour without relying on third-party CDN availability. */
 const pageCount=products.dresses.length+2;
@@ -18,14 +18,24 @@ try {
   await page.goto('http://localhost:4173/redcarpert-prototype/digital-lookbook/',{waitUntil:'domcontentloaded'});
   await page.locator('#redcarpert-flipbook[data-engine="fallback"]').waitFor({timeout:10000});
   assert.equal(await page.locator('[data-book-page]').count(),pageCount);
-  assert.equal(await page.locator('[data-book-price]').count(),products.dresses.length);
-  const expectedPrices = new Map(products.dresses.map(({id,priceZar})=>[
-   id,displayPriceForDress(id,priceZar)
-  ]));
-  const renderedPrices=await page.locator('[data-book-price]').evaluateAll(nodes=>nodes.map(node=>[node.getAttribute('data-book-price'),node.textContent]));
-  assert.equal(new Set(renderedPrices.map(([id])=>id)).size,products.dresses.length);
-  assert(renderedPrices.every(([id,price])=>expectedPrices.has(id)&&price===expectedPrices.get(id)),
-   'lookbook prices must match products.json');
+  assert.equal(await page.locator('[data-book-sale-price]').count(),products.dresses.length);
+  assert.equal(await page.locator('[data-book-rental-price]').count(),products.dresses.length);
+  assert.equal(await page.locator('[data-book-sale-label]').count(),products.dresses.length);
+  assert.equal(await page.locator('.redcarpert-book-price-pair').count(),products.dresses.length);
+  const displayed=await page.locator('.redcarpert-book-dress').evaluateAll(cards=>cards.map(card=>({
+    id:card.getAttribute('data-sample-id'),
+    sale:card.querySelector('[data-book-sale-price]')?.textContent,
+    rental:card.querySelector('[data-book-rental-price]')?.textContent,
+    saleLabel:card.querySelector('[data-book-sale-label]')?.textContent,
+    disclaimer:card.querySelector('.redcarpert-book-condition-note')?.textContent,
+  })));
+  assert.equal(new Set(displayed.map(item=>item.id)).size,products.dresses.length);
+  for(const entry of displayed){
+    assert.equal(entry.sale,displaySalePriceForDress(entry.id),entry.id+' sale price mismatch');
+    assert.equal(entry.rental,displayRentalPriceForDress(entry.id),entry.id+' rental price mismatch');
+    assert.equal(entry.saleLabel,salePriceLabelForDress(entry.id),entry.id+' sale label mismatch');
+    assert.equal(entry.disclaimer,LOOKBOOK_PRICING_DISCLAIMER,entry.id+' pricing disclaimer mismatch');
+  }
   assert.equal(await page.locator('.redcarpert-book-logo').count(),2);
   const cover=page.locator('.redcarpert-book-cover');
   assert.equal(await cover.locator('img').count(),1,'minimal cover contains only Redcarpert logo');
@@ -88,6 +98,10 @@ try {
         verticalAlignment:getComputedStyle(copy).justifyContent,
         centered:Math.abs(copyBox.left+copyBox.width/2-(leaf.left+leaf.width/2))<2,
         photoInside:photoBox.bottom<leaf.bottom,
+        copyFits:copy.scrollHeight<=copy.clientHeight+1,
+        priceFields:copy.querySelectorAll('.redcarpert-book-price-item').length,
+        pricesInside:[...copy.querySelectorAll('.redcarpert-book-price-item')]
+          .every(item=>item.getBoundingClientRect().bottom<=copyBox.bottom+1),
       };
     });
     assert(Math.abs(layout.left-layout.right)<=2,'dress image needs symmetric left/right book gutters');
@@ -96,6 +110,8 @@ try {
     assert.equal(layout.detailsAlign,'center','dress details must be centred');
     assert.equal(layout.verticalAlignment,'center','dress details must be vertically balanced');
     assert(layout.centered&&layout.photoInside,'book contents must stay centred inside the leaf');
+    assert.equal(layout.priceFields,2,'sale and rental price must both fit on the book leaf');
+    assert(layout.copyFits&&layout.pricesInside,width+'px book price text must not overflow or clip');
    }
   }
   assert(await next.isDisabled());

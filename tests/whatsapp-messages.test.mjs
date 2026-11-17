@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
-import { displayPriceForDress } from '../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress } from '../src/lib/pricing.ts';
 import { generalFittingMessage, dressFittingMessage, dressPageUrl } from '../src/lib/whatsapp-messages.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
@@ -35,11 +35,14 @@ test('every one of the 27 dresses uses the SAME neutral and accurately priced en
     assert(!message.includes('\n\n\n'),'avoid excessive whitespace');
     assert(message.includes('*Dress:* '+dressName),product.id+' missing dress label');
     assert(message.includes('*Collection:* '+category.name),product.id+' missing category');
-    assert(message.includes('*Indicative price range:* '+displayPriceForDress(product.id,product.priceZar)),
-      product.id+' must match the exact price shown on its detail page');
+    assert(message.includes('*'+(salePriceForDress(product.id)===null?'Sale price':'Example sale price')+':* '+displaySalePriceForDress(product.id)),
+      product.id+' must match the example sale price or its pending state');
+    assert(message.includes('*Rental price range:* '+displayRentalPriceForDress(product.id)),
+      product.id+' must show rental price as pending');
     assert(message.includes('*Dress link:* '+dressPageUrl(product)));
-    assert.equal((message.match(/\*Indicative price range:\*/g)||[]).length,1);
-    assert(message.includes('the final price'),'the business must confirm final prices');
+    assert.equal((message.match(/\*Rental price range:\*/g)||[]).length,1);
+    assert(message.includes('the final sale price'),'the business must confirm final prices');
+    assert(message.includes('not a final quotation'),'example prices require a clear disclaimer');
     assert(message.includes('available sizes'));
     assert(message.includes('fitting appointment dates'));
     assert(message.includes('new or pre-owned'));

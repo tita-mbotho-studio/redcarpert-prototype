@@ -75,7 +75,17 @@ test('all current and future ImageKit sources pass through central delivery rule
   assert.equal(hero.delivery,mediaDeliveryUrl(hero.replacement,'hero'));
  }
  for(const item of imageLinks.about_us.team){
-  assert(mediaDeliveryUrl(item.url,'team').startsWith('https://images.pexels.com/'));
+  const delivered=mediaDeliveryUrl(item.url,'team');
+  const original=new URL(item.url);
+  const transformed=new URL(delivered);
+  assert.equal(original.hostname,'ik.imagekit.io','About Us team uses client-supplied ImageKit portraits');
+  assert.equal(transformed.hostname,original.hostname);
+  assert.equal(transformed.pathname,original.pathname,'team optimization must preserve image identity');
+  assert.equal(transformed.searchParams.get('tr'),'w-900,h-1200,c-at_max,q-76,f-auto',
+    'About Us portraits must use the shared team preset');
+  const rendered=mediaImageAttrs({src:item.url,alt:'Portrait of '+item.name});
+  assert.equal(rendered['data-media-original'],item.url,'retain original ImageKit URL for fallback');
+  assert.equal(rendered.src,delivered);
  }
 });
 

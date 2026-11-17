@@ -1,5 +1,5 @@
 import { catalogueProducts, catalogueCategories } from '../../src/data/catalogue.ts';
-import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from '../../src/lib/pricing.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from '../../src/lib/pricing.ts';
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
 import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../../src/lib/media-delivery.ts';
@@ -20,9 +20,12 @@ function lookbook() {
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr + ' alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
      '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
-     '<span class="redcarpert-book-range-label">' + (product.status === 'client' ? 'Indicative range' : 'Example range') + '</span>' +
-     '<p class="redcarpert-book-price" data-book-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayPriceForDress(product.id, product.priceZar)) + '</p>' +
-     '<p class="redcarpert-book-condition-note">' + escapeHtml(PRICE_CONDITION_DISCLAIMER) + '</p>' +
+     '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
+     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
+     '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
+     '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental price range</span>' +
+     '<p class="redcarpert-book-price" data-book-rental-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayRentalPriceForDress(product.id)) + '</p></div></div>' +
+     '<p class="redcarpert-book-condition-note">' + escapeHtml(LOOKBOOK_PRICING_DISCLAIMER) + '</p>' +
      '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a>' + (product.status === 'client' ? '' : '<small>Inspiration photo and example price · Ask what is available</small>') + '</div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');

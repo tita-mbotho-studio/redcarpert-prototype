@@ -35,18 +35,29 @@ export function initializeLookbookReader() {
   const pages = [...book.querySelectorAll('[data-book-page]')];
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
 
-  // Prices are pre-rendered, but stale HTML or a cached bundle must never
-  // prevent navigation. The central catalogue price formatter is authoritative.
-  const priceLabels = new Map([...book.querySelectorAll('[data-book-price]')]
-    .map(element => [element.dataset.bookPrice, element]));
-  for (const entry of lookbookEntries) {
-    const label = priceLabels.get(entry.id);
-    if (!label) {
-      console.warn('Lookbook price label missing for ' + entry.id);
-      continue;
+  // The interactive reader must use the same central sale/rental records as
+  // the generated HTML and PDF. Never restore legacy illustrative price ranges.
+  for (const [attribute, field] of [
+    ['data-book-sale-price', 'salePriceDisplay'],
+    ['data-book-rental-price', 'rentalPriceDisplay'],
+  ]) {
+    const prices = new Map([...book.querySelectorAll('[' + attribute + ']')]
+      .map(element => [element.getAttribute(attribute), element]));
+    for (const entry of lookbookEntries) {
+      const element = prices.get(entry.id);
+      if (!element) {
+        console.warn('Lookbook ' + attribute + ' missing for ' + entry.id);
+        continue;
+      }
+      if (element.textContent !== entry[field]) element.textContent = entry[field];
     }
-    if (label.textContent !== entry.priceDisplay) {
-      label.textContent = entry.priceDisplay;
+  }
+  const saleLabels = new Map([...book.querySelectorAll('[data-book-sale-label]')]
+    .map(element => [element.dataset.bookSaleLabel, element]));
+  for (const entry of lookbookEntries) {
+    const label = saleLabels.get(entry.id);
+    if (label && label.textContent !== entry.salePriceLabel) {
+      label.textContent = entry.salePriceLabel;
     }
   }
   const previous = viewer.querySelector('[data-book-previous]');

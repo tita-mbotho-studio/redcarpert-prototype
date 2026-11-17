@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
-import { displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "./pricing.ts";
+import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, LOOKBOOK_PRICING_DISCLAIMER } from "./pricing.ts";
 
 /** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + one page per dress + three closing pages. */
 export interface LuxuryLookbookImage {
@@ -19,7 +19,8 @@ const esc = (s: string): string => s.replaceAll("&","&amp;").replaceAll("<","&lt
 const two = (n: number): string => String(n).padStart(2, "0");
 const imageData = (data: Buffer, mime: "image/jpeg" | "image/png"): string =>
   "data:" + mime + ";base64," + data.toString("base64");
-const price = (p: CatalogueProduct): string => esc(displayPriceForDress(p.id, p.priceZar));
+const salePrice = (p: CatalogueProduct): string => esc(displaySalePriceForDress(p.id));
+const rentalPrice = (p: CatalogueProduct): string => esc(displayRentalPriceForDress(p.id));
 
 const style = [
   "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@400;500;600&display=swap');",
@@ -70,12 +71,15 @@ const style = [
   ".fine-rule{height:.25mm;background:#E9DED2;margin:5mm 0 6mm}",
   ".portrait{width:100%;height:164mm;flex:0 0 164mm;background:#FDFBF8;display:flex;justify-content:center;align-items:center;border:0;padding:0}",
   ".portrait img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}",
-  ".dress-bottom{display:flex;flex:1 1 0;min-height:0;flex-direction:column;justify-content:center;align-items:center;gap:3.3mm;text-align:center;padding:5mm 0 9mm}",
+  ".dress-bottom{display:flex;flex:1 1 0;min-height:0;flex-direction:column;justify-content:center;align-items:center;gap:2.1mm;text-align:center;padding:3mm 0 6mm}",
   ".dress-bottom .kind{font:500 8pt/1.3 Montserrat,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#947B5C}",
-  ".dress-bottom h3{font:400 30pt/1.12 Georgia,serif;letter-spacing:-.015em}",
-  ".amount{font:500 16pt/1.3 Montserrat,Arial,sans-serif;color:#65513D;white-space:nowrap}",
-  ".amount-label{font:400 8pt/1.3 Montserrat,Arial,sans-serif;color:#85766A}",
-  ".price-condition{font:400 7pt/1.45 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;max-width:150mm}",
+  ".dress-bottom h3{font:400 28pt/1.12 Georgia,serif;letter-spacing:-.015em}",
+  ".price-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7mm;align-items:start;width:100%;max-width:144mm;margin:1mm auto}",
+  ".price-item{display:flex;flex-direction:column;align-items:center;gap:1.5mm;min-width:0}",
+  ".price-item+.price-item{border-left:.25mm solid #E9DED2;padding-left:6mm}",
+  ".amount{font:500 14pt/1.3 Montserrat,Arial,sans-serif;color:#65513D;white-space:nowrap}",
+  ".amount-label{font:500 7.5pt/1.3 Montserrat,Arial,sans-serif;color:#85766A;text-transform:uppercase;letter-spacing:.035em}",
+  ".price-condition{font:400 7pt/1.4 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;max-width:147mm}",
   ".dress-bottom .detail-link{font:500 9pt/1.4 Montserrat,Arial,sans-serif;color:#8D6845;text-decoration:underline;text-underline-offset:3px}",
   ".dress .disclosure{font:400 7.2pt/1.5 Montserrat,Arial,sans-serif;color:#8C8074;text-align:center;margin:0 auto;max-width:150mm}",
   ".contact .content{justify-content:center}",
@@ -136,7 +140,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h1>The<br>Bridal<br>Edit.</h1><div class="goldline"></div><p class="lead">Explore our wedding dress styles and find your favourite look.</p>'));
   pages.push(page(3,"welcome","welcome",tag("A note from Redcarpert")+
     '<h2>Your dream dress starts here.</h2><p>Browse our styles and find a dress you love. Message us on WhatsApp to ask about fittings.</p>'+
-    '<p>Our Ball Gowns are from Redcarpert. Other photos show style ideas, not dresses confirmed in stock. Prices shown with those photos are examples.</p>'+tag("Redcarpert Wedding Dresses")));
+    '<p>Our Ball Gowns are from Redcarpert. Other photos show style ideas, not dresses confirmed in stock. Sale prices shown are examples; rental prices are to be confirmed.</p>'+tag("Redcarpert Wedding Dresses")));
   pages.push(page(4,"contents","contents",tag("The bridal edit")+'<h2>Contents</h2>'+
     catalogueCategories.map((cat,i)=>'<div class="entry"><span class="num">0'+(i+1)+'</span><a href="#collection-'+cat.id+'">'+esc(cat.name)+'</a><span class="page-number">'+two(sectionStarts.get(cat.id)??0)+'</span></div>').join("")+
     '<p class="tiny" style="margin-top:15mm">'+products.length+' wedding dress looks across five collections.</p>'));
@@ -157,9 +161,13 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
         '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
-        '<h3>'+esc(look)+'</h3><p class="amount">'+price(dress)+'</p>'+
-        '<p class="amount-label">'+(dress.status==="client"?"Indicative range":"Example range")+'</p>'+
-        '<p class="price-condition">'+esc(PRICE_CONDITION_DISCLAIMER)+'</p>'+
+        '<h3>'+esc(look)+'</h3>'+
+        '<div class="price-pair" aria-label="Sale and rental prices">'+
+        '<div class="price-item"><p class="amount-label" data-pdf-sale-label="'+esc(dress.id)+'">'+esc(salePriceLabelForDress(dress.id))+'</p>'+
+        '<p class="amount" data-pdf-sale-price="'+esc(dress.id)+'">'+salePrice(dress)+'</p></div>'+
+        '<div class="price-item"><p class="amount-label">Rental price range</p>'+
+        '<p class="amount" data-pdf-rental-price="'+esc(dress.id)+'">'+rentalPrice(dress)+'</p></div></div>'+
+        '<p class="price-condition">'+esc(LOOKBOOK_PRICING_DISCLAIMER)+'</p>'+
         '<a class="detail-link" href="'+esc(detailUrl)+'">View dress details</a>'+
         (dress.status==="client"?"":'<p class="disclosure">Inspiration photo and example price. Ask what is available.</p>')+'</div>'));
     }
@@ -179,7 +187,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   const split=Math.ceil(credits.length/2);
   pages.push(page(pageNumber++,"credits","credits",tag("With thanks")+
     '<h2>Photography Credits</h2><div class="credit-columns"><div>'+credits.slice(0,split).join("")+'</div><div>'+credits.slice(split).join("")+'</div></div>'+
-    '<p class="note">Ball Gown photos: Redcarpert Wedding Dresses. Other photos: Pexels, for inspiration only. Their prices are examples. Ask us about available dresses and whether a 2 in 1 style can change its look.</p>'));
+    '<p class="note">Ball Gown photos: Redcarpert Wedding Dresses. Other photos: Pexels, for inspiration only. Sale prices are examples, and rental prices are to be confirmed. Ask us about available dresses and whether a 2 in 1 style can change its look.</p>'));
   pages.push(page(pageNumber++,"back","back-cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<p class="brand-slogan">Walking on red carpet with confidence</p>'+
@@ -202,6 +210,27 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     await tab.evaluate(async()=>{await document.fonts.ready;});
     const missing=await tab.evaluate(()=>Array.from(document.images).filter(image=>!image.complete||!image.naturalWidth).map(image=>image.alt));
     if(missing.length)throw new Error("Lookbook images failed to render: "+missing.join(", "));
+    // Check actual Chromium layout before printing: the two prices, disclaimer
+    // and dress link must remain within the fixed A4 editorial page on all 27
+    // dress pages. Do not silently hide clipped pricing behind overflow:hidden.
+    const clipped=await tab.evaluate(()=>{
+      return [...document.querySelectorAll<HTMLElement>("section.page.dress")].flatMap(section=>{
+        const bottom=section.querySelector<HTMLElement>(".dress-bottom");
+        const pair=section.querySelector<HTMLElement>(".price-pair");
+        const fields=section.querySelectorAll<HTMLElement>(".price-item");
+        if(!bottom || !pair || fields.length!==2) return [section.id+": missing pricing"];
+        const frame=bottom.getBoundingClientRect();
+        const children=[...bottom.children] as HTMLElement[];
+        const outside=children.some(child=>{
+          const rect=child.getBoundingClientRect();
+          return rect.top<frame.top-2 || rect.bottom>frame.bottom+2 ||
+            rect.left<frame.left-2 || rect.right>frame.right+2;
+        });
+        return outside || bottom.scrollHeight>bottom.clientHeight+2
+          ? [section.id+": pricing or disclaimer overflows PDF frame"] : [];
+      });
+    });
+    if(clipped.length)throw new Error("Lookbook PDF content clipped: "+clipped.join(", "));
     const count=await tab.locator("section.page").count();
     if(count!==products.length+catalogueCategories.length+7)throw new Error("Wrong rendered book page count "+count);
     if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {

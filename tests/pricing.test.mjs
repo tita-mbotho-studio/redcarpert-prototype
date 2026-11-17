@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import products from "../src/data/products.json" with { type: "json" };
 import { catalogueProducts } from "../src/data/catalogue.ts";
-import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER } from "../src/lib/pricing.ts";
+import { priceForDress, displayDressPrice, displayPriceForDress, PRICE_CONDITION_DISCLAIMER, SALE_RENTAL_DISCLAIMER, LOOKBOOK_PRICING_DISCLAIMER, PRICE_PENDING_LABEL, salePriceForDress, salePriceLabelForDress, rentalPriceRangeForDress, displaySalePriceForDress, displayRentalPriceForDress } from "../src/lib/pricing.ts";
 import { createNodeRenderer } from "../scripts/lib/markup.ts";
 import { lookbookEntries } from "../src/client/lookbook.js";
 
@@ -29,6 +29,28 @@ test("central products.json has one ZAR price slot per approved dress", () => {
   assert.throws(() => priceForDress("unknown-dress"), /missing price/);
 });
 
+test("sale and rental prices remain distinct, with unsupplied rental ranges pending", () => {
+  assert.equal(products.dresses.length,27);
+  assert.equal(products.dresses.filter(x=>x.priceZar!==null).length,16);
+  assert.equal(products.dresses.filter(x=>x.priceZar===null).length,11);
+  assert.match(SALE_RENTAL_DISCLAIMER,/examples only/);
+  assert.match(SALE_RENTAL_DISCLAIMER,/rental prices/i);
+  assert.match(SALE_RENTAL_DISCLAIMER,/new or pre-owned/i);
+  for(const record of products.dresses){
+    assert(Object.hasOwn(record,'rentalPriceRangeZar'));
+    assert.equal(record.rentalPriceRangeZar,null,'no rental prices may be invented');
+    assert.equal(salePriceForDress(record.id),record.priceZar);
+    assert.equal(rentalPriceRangeForDress(record.id),null);
+    assert.equal(displayRentalPriceForDress(record.id),PRICE_PENDING_LABEL);
+    assert.equal(displaySalePriceForDress(record.id),
+      record.priceZar===null?PRICE_PENDING_LABEL:displayDressPrice(record.priceZar));
+    assert.notEqual(displayPriceForDress(record.id),displayRentalPriceForDress(record.id),
+      'legacy lookbook indicative range is NOT a rental price');
+  }
+  assert.throws(()=>rentalPriceRangeForDress('unknown-dress'),/missing rental price/);
+  assert.throws(()=>salePriceForDress('unknown-dress'),/missing price/);
+});
+
 test("price formatting works for unassigned and verified integer ZAR prices", () => {
   assert.equal(displayDressPrice(null), "Price to be confirmed");
   assert.equal(displayDressPrice(12500).replace(/\s/g, " "), "R 12 500");
@@ -45,11 +67,14 @@ test("price formatting works for unassigned and verified integer ZAR prices", ()
   }
 });
 
-test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed price slots", () => {
+test("the 29-page Digital Lookbook includes example sale and pending rental prices on all 27 dress leaves", () => {
   const render = createNodeRenderer([]);
   const html = render({ tag: "div", attrs: { "data-lookbook-viewer": "true" }, children: [] });
   assert.equal((html.match(/data-book-page=/g) || []).length, 29);
-  assert.equal((html.match(/data-book-price=/g) || []).length, 27);
+  assert.equal((html.match(/data-book-sale-price=/g) || []).length, 27);
+  assert.equal((html.match(/data-book-rental-price=/g) || []).length, 27);
+  assert.equal((html.match(/data-book-sale-label=/g) || []).length, 27);
+  assert.equal((html.match(/class="redcarpert-book-price-pair"/g) || []).length, 27);
   assert.equal(lookbookEntries.length,27);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover,'book cover missing');
@@ -61,16 +86,24 @@ test("the pre-rendered 29-page Digital Lookbook has twenty-seven JSON-backed pri
   assert.equal((html.match(/class="redcarpert-book-copy"/g)||[]).length,27);
   assert.equal((html.match(/<h3>Look \d{2}<\/h3>/g)||[]).length,16);
   assert.equal((html.match(/<h3>Ball Gown \d{2}<\/h3>/g)||[]).length,11);
-  assert.equal((html.match(/class="redcarpert-book-dress"/g) || []).length, 0,
-    "book dress classes may include additional class names");
   for (const product of catalogueProducts) {
-    assert(html.includes('data-book-price="' + product.id + '"'));
-    assert.equal(lookbookEntries.find(entry=>entry.id===product.id)?.priceDisplay,displayPriceForDress(product.id),
-      'reader and generated book must share one authoritative price range');
-    assert(html.includes(displayPriceForDress(product.id)));
-    assert(html.includes(PRICE_CONDITION_DISCLAIMER));
+    const entry=lookbookEntries.find(item=>item.id===product.id);
+    assert(entry,'every catalogue dress must appear in the digital book');
+    const sale=displaySalePriceForDress(product.id);
+    const rental=displayRentalPriceForDress(product.id);
+    const label=salePriceLabelForDress(product.id);
+    assert.equal(entry.salePriceDisplay,sale);
+    assert.equal(entry.rentalPriceDisplay,rental);
+    assert.equal(entry.salePriceLabel,label);
+    assert(html.includes('data-book-sale-price="'+product.id+'">'+sale+'</p>'),product.id+' sale mismatch');
+    assert(html.includes('data-book-rental-price="'+product.id+'">'+rental+'</p>'),product.id+' rental mismatch');
+    assert(html.includes('data-book-sale-label="'+product.id+'">'+label+'</span>'),product.id+' sale label mismatch');
   }
-  assert.equal((html.match(/class="redcarpert-book-range-label"/g)||[]).length,27);
-  assert(!html.includes("Price to be confirmed"),"all customer-facing book prices should show placeholder ranges");
-  assert(!html.includes("R 0"), "never invent a zero-price dress");
+  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
+  assert(html.includes(LOOKBOOK_PRICING_DISCLAIMER));
+  assert.equal((html.match(/To be confirmed/g)||[]).length,27+11,
+    '27 rentals and 11 unpriced sale gowns must show To be confirmed');
+  assert(!html.includes("data-book-price="),'legacy single-range price must not be displayed');
+  assert(!html.includes("redcarpert-book-range-label"));
+  assert(!html.includes("R 0"),"never invent a zero-price dress");
 });
