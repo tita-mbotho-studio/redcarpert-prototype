@@ -6,8 +6,7 @@ import { mediaDeliveryUrl } from '../lib/media-delivery.ts';
  * handles media added after Load More or a gallery page turn.
  */
 export function initializeMediaDelivery() {
-  document.addEventListener('error', event => {
-    const img = event.target;
+  const restoreImage = img => {
     if (!(img instanceof HTMLImageElement)) return;
     const original = img.dataset.mediaOriginal ||
       img.dataset.weddingOriginalThumbnail;
@@ -18,7 +17,15 @@ export function initializeMediaDelivery() {
     img.removeAttribute('srcset');
     img.removeAttribute('sizes');
     if (img.getAttribute('src') !== original) img.src = original;
-  }, true);
+  };
+  document.addEventListener('error', event => restoreImage(event.target), true);
+  // Handle cached failures that happened before this JS module initialized;
+  // never wake below-the-fold lazy images just to check their state.
+  document.querySelectorAll('img[data-media-original],img[data-wedding-original-thumbnail]')
+    .forEach(img => {
+      if (img.loading !== 'lazy' && img.complete && img.naturalWidth === 0)
+        restoreImage(img);
+    });
 
   // CSS background images have no native error event. Verify the delivered
   // version only when its homepage panel is near the viewport; retry the
