@@ -14,5 +14,9 @@ export function weddingMomentDeliveryImage(
   const transform = variant === "tile"
     ? "w-640,h-640,c-at_max,q-72,f-auto"
     : "w-1920,h-1920,c-at_max,q-82,f-auto";
-  return source + (url.search ? "&" : "?") + "tr=" + transform;
+  // Append before a possible fragment, preserving any version/cache query.
+  const fragmentAt = source.indexOf("#");
+  const beforeFragment = fragmentAt < 0 ? source : source.slice(0, fragmentAt);
+  const fragment = fragmentAt < 0 ? "" : source.slice(fragmentAt);
+  return beforeFragment + (url.search ? "&" : "?") + "tr=" + transform + fragment;
 }
