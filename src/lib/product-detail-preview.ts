@@ -191,7 +191,7 @@ export function createProductDetailPreview(
                       [displaySalePriceForDress(dress.id)]),
                   ]),
                   node("div", { class: "redcarpert-related-price-pair" }, [
-                    node("span", { class: "redcarpert-related-price-label" }, ["Rental price range"]),
+                    node("span", { class: "redcarpert-related-price-label" }, ["Rental Price Range"]),
                     node("span", { class: "redcarpert-related-price-value", "data-related-rental-price": dress.id },
                       [displayRentalPriceForDress(dress.id)]),
                   ]),
