@@ -24,7 +24,23 @@ test('previews are isolated, immutable, collision-free and contain one genuine s
   const related=relatedDressesFor(product);
   assert.equal(content.filter(n=>n.tag==='img').length,1+related.length);
   assert.equal(content.find(n=>n.tag==='img').attrs.src,gallery.src);
-  assert.equal(content.find(n=>n.attrs['data-fancybox']).attrs.href,gallery.src);
+  const photoControl=content.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image'));
+  assert.equal(photoControl.attrs.role,'button');
+  assert.equal(photoControl.attrs.tabindex,'0');
+  assert.equal(photoControl.attrs['aria-haspopup'],'dialog');
+  assert(!content.some(n=>Object.hasOwn(n.attrs,'data-gallery-enlarge')||Object.hasOwn(n.attrs,'data-fancybox')),
+    'legacy expand/Fancybox controls must not exist');
+  assert(!content.some(n=>n.attrs.class?.split(' ').includes('zoom')),
+    'legacy hover zoom frame must not exist');
+  const modals=nodes.filter(n=>Object.hasOwn(n.attrs,'data-dress-photo-dialog'));
+  assert.equal(modals.length,1,'one modal outside the product frame per dress');
+  const modal=modals[0];
+  assert.equal(modal.tag,'dialog');
+  assert.equal(modal.attrs.class,'redcarpert-wedding-dialog redcarpert-dress-photo-dialog');
+  const modalNodes=all([modal]);
+  assert.equal(modalNodes.filter(n=>Object.hasOwn(n.attrs,'data-dress-preview-photo')).length,1);
+  const close=modalNodes.find(n=>Object.hasOwn(n.attrs,'data-dress-preview-close'));
+  assert(close && all([close]).some(n=>n.attrs.class==='fa-solid fa-xmark'));
   const imageGallery=content.find(n=>n.attrs['data-detail-gallery']===product.id);
   assert(imageGallery,'dress gallery metadata must be available');
   const photos=photosForDress(product);
@@ -151,7 +167,7 @@ test('each detail uses the correct remote primary image without local downloads'
  }
 });
 
-test('multiple verified photos for one dress render discreet arrows, dots, position and the correct full-size link',()=>{
+test('multiple verified photos for one dress render discreet arrows, dots, position and a separate photo modal',()=>{
  const product=catalogueProducts[0];
  const extras={
   [product.id]: [
@@ -182,7 +198,9 @@ test('multiple verified photos for one dress render discreet arrows, dots, posit
  assert.deepEqual(dots.map(n=>n.attrs['data-gallery-index']),['0','1','2']);
  assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-counter')).children[0],'01 / 03');
  assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image')).attrs.src,product.image);
- assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-enlarge')).attrs.href,product.image);
+ assert(!elements.some(n=>Object.hasOwn(n.attrs,'data-gallery-enlarge') || Object.hasOwn(n.attrs,'data-fancybox')));
+ assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image')).attrs['aria-haspopup'],'dialog');
+ assert.equal(elements.find(n=>Object.hasOwn(n.attrs,'data-gallery-active-image')).attrs.role,'button');
  assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-sale-price')).length,1,'sale price remains intact');
  assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-rental-price')).length,1,'rental price remains intact');
 });

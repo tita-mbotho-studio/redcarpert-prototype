@@ -67,12 +67,20 @@ test('tap interception does not replace or disable native StPageFlip gestures', 
   assert.match(reader,/mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35/);
 });
 
-test('Dress Details retains the modern Font Awesome expand icon and existing Fancybox behaviour', () => {
+test('Dress Details uses the Wedding Moments-style photo modal instead of the old expand icon and Fancybox', () => {
   const detail=readFileSync('src/lib/product-detail-preview.ts','utf8');
-  assert.match(detail,/class: "wpgis-popup redcarpert-modern-zoom"/);
-  assert.match(detail,/class: "fa-solid fa-up-right-and-down-left-from-center"/);
-  assert.match(detail,/"data-fancybox": "product-gallery"/);
-  assert.doesNotMatch(detail,/class: "wpgis-popup fa fa-expand"/);
+  const controller=readFileSync('src/client/dress-gallery.js','utf8');
+  assert.doesNotMatch(detail,/class: "wpgis-popup redcarpert-modern-zoom"/);
+  assert.doesNotMatch(detail,/"data-fancybox": "product-gallery"/);
+  assert.doesNotMatch(detail,/"data-gallery-enlarge": ""/);
+  assert.match(detail,/"data-gallery-active-image": "", tabindex: "0", role: "button"/);
+  assert.match(detail,/"aria-haspopup": "dialog"/);
+  assert.match(detail,/redcarpert-wedding-dialog redcarpert-dress-photo-dialog/);
+  assert.match(detail,/class: "redcarpert-wedding-preview-image"/);
+  assert.match(detail,/class: "redcarpert-wedding-preview-close"/);
+  assert.match(controller,/setMediaImage\(preview, photo.url, 'preview'\)/);
+  assert.match(controller,/dialog\.showModal\(\)/);
+  assert.match(controller,/frame\.addEventListener\('touchend'/);
 });
 
 test('lookbook removes pointer focus frames while retaining keyboard focus and original Wedding Moments styling', () => {
