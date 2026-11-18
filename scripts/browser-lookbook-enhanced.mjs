@@ -11,7 +11,6 @@ try {
   // Animated two-page rendering is deliberately desktop-only. The responsive
   // touch regression suite covers the single-page reader at <=1100px.
   for (const width of [1440, 1280]) {
-    const mobile = false;
     const page = await browser.newPage({
       viewport: {width,height:900},
       isMobile:false,

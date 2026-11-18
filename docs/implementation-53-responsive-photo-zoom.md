@@ -61,3 +61,12 @@ npm run test:browser
 ```
 
 No merge, deployment, or manual GitHub Actions without user approval.
+
+## Local preview port safety
+
+The Playwright browser suites use localhost:4173. Vite's default behaviour
+is to switch silently to port 4174 when 4173 is occupied, resulting in tests
+running against an older server instead of the code being reviewed.
+`npm run preview` therefore uses `--strictPort`. If it reports that 4173
+is occupied, stop the previous preview process first and restart it. Do not
+run browser tests against an old instance on that port.

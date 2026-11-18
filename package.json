@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "tsx scripts/generate.ts && vite --host 0.0.0.0",
     "build": "tsx scripts/generate.ts && vite build",
-    "preview": "vite preview --host 0.0.0.0",
+    "preview": "vite preview --host 0.0.0.0 --strictPort",
     "start": "npm run preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "lint": "eslint src scripts vite.config.ts",
