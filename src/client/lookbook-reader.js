@@ -1,4 +1,5 @@
 import { lookbookEntries } from './lookbook.js';
+import { initializeLookbookZoom } from './lookbook-zoom.js';
 
 const PAGE_FLIP_CDN = 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js';
 
@@ -33,6 +34,8 @@ export function initializeLookbookReader() {
   if (!book) return;
   const viewer = book.closest('.redcarpert-lookbook');
   const pages = [...book.querySelectorAll('[data-book-page]')];
+  // Zoom is a separate modal, never a PageFlip gesture on the photograph.
+  initializeLookbookZoom(viewer);
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
 
   // The interactive reader must use the same central sale/rental records as
@@ -86,6 +89,7 @@ export function initializeLookbookReader() {
   next.addEventListener('click', () => turn(1));
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+    if (viewer.querySelector('[data-book-zoom-dialog]')?.open) return;
     if (event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);
