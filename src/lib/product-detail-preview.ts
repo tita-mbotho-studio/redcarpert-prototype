@@ -118,10 +118,10 @@ export function createProductDetailPreview(
           alt: photos[0].alt, decoding: "async", fetchpriority: "high", "data-gallery-active-image": "",
         }, []),
         node("a", {
-          href: photos[0].url, class: "wpgis-popup fa fa-expand",
+          href: photos[0].url, class: "wpgis-popup redcarpert-modern-zoom",
           "data-fancybox": "product-gallery", "data-gallery-enlarge": "",
           "aria-label": "Enlarge dress photograph",
-        }, []),
+        }, [node("i", { class: "fa-solid fa-up-right-and-down-left-from-center", "aria-hidden": "true" }, [])]),
         ...(hasGallery ? [arrow("previous"), arrow("next")] : []),
       ])] },
       ...(dots ? [dots] : []),

@@ -1,4 +1,5 @@
 import { lookbookEntries } from './lookbook.js';
+import { initializeLookbookZoom } from './lookbook-zoom.js';
 
 const PAGE_FLIP_CDN = 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js';
 
@@ -64,6 +65,9 @@ export function initializeLookbookReader() {
   const next = viewer.querySelector('[data-book-next]');
   const status = viewer.querySelector('[data-book-status]');
   let index = 0, engine = null;
+  // The photo controller consults the live engine but never replaces
+  // StPageFlip's native click, drag, touch/swipe or page navigation handlers.
+  initializeLookbookZoom(viewer, book, () => engine);
   const announce = () => {
     status.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
     previous.disabled = index <= 0;
@@ -86,6 +90,7 @@ export function initializeLookbookReader() {
   next.addEventListener('click', () => turn(1));
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+    if (viewer.querySelector('[data-book-zoom-dialog]')?.open) return;
     if (event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);

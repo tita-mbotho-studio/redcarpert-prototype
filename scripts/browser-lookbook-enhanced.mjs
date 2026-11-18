@@ -48,6 +48,58 @@ try {
       await next.click();
       position=await progresses(position,1);
       count++;
+      if (count===1) {
+        // The first dress uses a deliberately blocked Pexels source in CI.
+        // Replace only this test photograph with a deterministic loaded image.
+        const image=book.locator('[data-book-page="2"] img[data-book-zoom-photo]:visible').first();
+        await image.waitFor({state:'visible'});
+        await image.evaluate(photo=>new Promise(resolve=>{
+          photo.onload=()=>{
+            photo.classList.remove('redcarpert-image-unavailable');
+            photo.closest('.redcarpert-book-photo')?.classList.remove('redcarpert-photo-failed');
+            resolve();
+          };
+          const src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="900" height="1600"%3E%3Crect width="900" height="1600" fill="silver"/%3E%3C/svg%3E';
+          photo.dataset.bookZoomSrc=src;
+          photo.dataset.bookZoomOriginal=src;
+          photo.src=src;
+        }));
+        await image.click();
+        const modal=page.locator('[data-book-zoom-dialog]');
+        await modal.waitFor({state:'visible'});
+        assert.equal(await current(),position,'photo click must not flip PageFlip');
+        assert.equal(await modal.locator('.redcarpert-wedding-preview-image').count(),1);
+        assert.equal(await modal.locator('[data-book-zoom-in],[data-book-zoom-out]').count(),0);
+        await page.keyboard.press('Escape');
+        await modal.waitFor({state:'hidden'});
+        assert.equal(await current(),position,'closing photo viewer must keep book page');
+        if (mobile) {
+          // Swipe from inside the *painted photo*, not its ivory gutters.
+          await image.scrollIntoViewIfNeeded();
+          const pixels=await image.evaluate(photo=>{
+            const r=photo.getBoundingClientRect();
+            const scale=Math.min(r.width/photo.naturalWidth,r.height/photo.naturalHeight);
+            const w=photo.naturalWidth*scale;
+            return {left:r.left+(r.width-w)/2,right:r.left+(r.width+w)/2,y:r.top+r.height/2};
+          });
+          const x1=pixels.right-(pixels.right-pixels.left)*.12;
+          const x2=pixels.left+(pixels.right-pixels.left)*.12;
+          assert(x1-x2>35,'the painted photograph must support a native swipe');
+          const session=await page.context().newCDPSession(page);
+          await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x1,y:pixels.y}]});
+          for(let step=1;step<=5;step++) {
+            await session.send('Input.dispatchTouchEvent',{
+              type:'touchMove',touchPoints:[{x:x1+(x2-x1)*step/5,y:pixels.y}]
+            });
+          }
+          await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+          const afterSwipe=await progresses(position,1);
+          assert.equal(await modal.isVisible(),false,'swiping a photo must not open zoom');
+          await previous.click();
+          position=await progresses(afterSwipe,-1);
+          assert.equal(position,2,'previous returns to the photographed leaf');
+        }
+      }
     }
     assert.equal(position,pageCount,'reached back cover across all spreads');
     assert.equal(await next.isDisabled(),true);

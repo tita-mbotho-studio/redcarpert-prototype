@@ -1,0 +1,26 @@
+/* Implementation 55: photograph taps use the Wedding Moments-style dialog.
+ * The image has no decorative frame. Keep a neutral focus cue for keyboard
+ * visitors, but do not display focus outlines after mouse/touch modal use. */
+#main-container .redcarpert-book-photo img[data-book-zoom-photo] {
+  cursor: zoom-in;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+#main-container .redcarpert-book-photo img[data-book-zoom-photo]:focus-visible {
+  outline: 2px solid #666;
+  outline-offset: -2px;
+}
+#main-container .redcarpert-book-photo img[data-book-zoom-photo].redcarpert-book-pointer-restored:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Scope these close-button focus rules to the Digital Lookbook ONLY.
+ * Wedding Moments retains its original X styling. */
+body .redcarpert-book-zoom-dialog .redcarpert-wedding-preview-close:focus-visible {
+  outline-color: #fff;
+}
+body .redcarpert-book-zoom-dialog.redcarpert-book-pointer-opened .redcarpert-wedding-preview-close:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
