@@ -89,8 +89,24 @@
   font: 400 17px/1 Arial, sans-serif !important;
 }
 .redcarpert-image-zoom-controls button:disabled { opacity: .4; cursor: default; }
-.redcarpert-image-zoom-controls button:focus-visible,
-.redcarpert-image-zoom-close:focus-visible { outline: 2px solid #dfbe91; outline-offset: 3px; }
+.redcarpert-image-zoom-controls button:focus-visible {
+  outline: 2px solid #dfbe91;
+  outline-offset: 3px;
+}
+/* The close X stays a plain dark circle: no brown focus ring after the
+   browser automatically focuses it on modal open. Keyboard focus is
+   indicated by a subtle fill change instead of a circular outline. */
+.redcarpert-image-zoom-close,
+.redcarpert-wedding-preview-close {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+.redcarpert-image-zoom-close:focus-visible,
+.redcarpert-wedding-preview-close:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background: rgba(66, 60, 55, .96) !important;
+}
 .redcarpert-image-zoom-controls [data-image-zoom-percent] {
   min-width: 48px;
   color: #fff;

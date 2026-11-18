@@ -115,3 +115,15 @@ test('book paper turns without obstructing photo zoom, details or keyboard focus
   assert.match(css, /\.redcarpert-book-zoom-trigger:focus-visible\s*\{[^}]*outline: 2px solid/,
     'keyboard users must retain a visible focus indication');
 });
+
+test('lightbox close X has no brown ring in Lookbook or Wedding Moments', () => {
+  const css = readFileSync('src/components/ImageZoom.css', 'utf8');
+  assert.match(css, /\.redcarpert-image-zoom-close,\s*\.redcarpert-wedding-preview-close\s*\{\s*outline: none !important;/,
+    'both close buttons should suppress the circular outline');
+  assert.match(css, /\.redcarpert-image-zoom-close:focus-visible,\s*\.redcarpert-wedding-preview-close:focus-visible\s*\{[^}]*outline: none !important;/,
+    'focused close buttons must not regain a gold outline');
+  assert.match(css, /\.redcarpert-image-zoom-close:focus-visible,\s*\.redcarpert-wedding-preview-close:focus-visible\s*\{[^}]*background:/,
+    'keyboard focus should have a non-ring visual indicator');
+  assert.match(css, /\.redcarpert-image-zoom-controls button:focus-visible\s*\{[^}]*outline: 2px solid/,
+    'zoom-in, zoom-out and reset must keep their accessible focus outline');
+});
