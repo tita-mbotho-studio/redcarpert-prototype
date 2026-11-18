@@ -105,7 +105,7 @@ try {
  await liveGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
  // The approved detail card must stay centre-aligned across screen sizes:
  // collection, dress name, price label and ZAR price above Book a Fitting.
- for(const width of [1280,768,640,390,320]){
+ for(const width of [1920,1440,1280,1100,1051,1050,900,768,640,390,320]){
    await actual.setViewportSize({width,height:900});
    const alignment=await actual.locator('.redcarpert-detail-card').evaluate(card=>{
      const selectors=['.redcarpert-detail-collection','h1.redcarpert-detail-name',
@@ -117,6 +117,33 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
+   // Measure the actual rendered rental label and amount at every breakpoint.
+   const rentalLayout=await actual.locator('.redcarpert-detail-price-options').evaluate(options=>{
+     const rental=options.querySelector('[data-rental-price]');
+     const label=options.querySelector('.redcarpert-detail-price-option:nth-child(2) .redcarpert-detail-price-label');
+     const sizes=element=>{
+       const style=getComputedStyle(element);
+       return {
+         content:element.textContent.trim(),
+         height:element.getBoundingClientRect().height,
+         lineHeight:parseFloat(style.lineHeight),
+         scrollWidth:element.scrollWidth,
+         clientWidth:element.clientWidth,
+         whiteSpace:style.whiteSpace,
+       };
+     };
+     const optionColumns=getComputedStyle(options).gridTemplateColumns.trim().split(/\s+/).length;
+     return {label:sizes(label),rental:sizes(rental),columns:optionColumns};
+   });
+   assert.equal(rentalLayout.columns,width>1050?2:1,
+     width+'px pricing layout must give the rental range enough room');
+   for(const [name,element] of [['rental label',rentalLayout.label],['rental amount',rentalLayout.rental]]){
+     assert.equal(element.whiteSpace,'nowrap',width+'px '+name+' must not wrap');
+     assert(element.height<=element.lineHeight+1.5,
+       width+'px '+name+' occupies multiple lines: '+JSON.stringify(element));
+     assert(element.scrollWidth<=element.clientWidth+1,
+       width+'px '+name+' overflows its column: '+JSON.stringify(element));
+   }
    const fitting=await actual.locator('.redcarpert-detail-actions').evaluate(group=>{
      const label=group.querySelector('.redcarpert-icon-cta-label');
      const button=group.querySelector('a.redcarpert-detail-fitting-button');
