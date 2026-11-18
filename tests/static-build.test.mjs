@@ -374,7 +374,8 @@ test('Implementation 22: every static page starts with a bounded, branded global
    const imagekitUrls=JSON.parse(readFileSync("src/data/image-links.json","utf8")).home_page.hero.map(image=>image.url);
    assert.equal(imagekitUrls.length,3,"homepage manifest must list three approved photos");
    const heroDelivery=mediaDeliveryUrl(imagekitUrls[0],"hero");
-   assert(html.includes('href="'+heroDelivery+'" as="image" fetchpriority="high"'),
+   const encodedHeroDelivery=heroDelivery.replaceAll('&','&amp;');
+   assert(html.includes('href="'+encodedHeroDelivery+'" as="image" fetchpriority="high"'),
      'first client photograph should be priority-preloaded');
    assert(html.includes('data-hero-url="'+heroDelivery+'"'),
      'homepage loader should wait for first client photograph');
@@ -438,9 +439,9 @@ test('all produced pages apply shared delivery to dress, lookbook, and homepage 
   for(const photo of heroes){
     const optimized=mediaDeliveryUrl(photo.url,'hero');
     assert(homepage.includes('data-media-background-original="'+photo.url+'"'));
-    assert(homepage.includes('data-media-background-src="'+optimized+'"'));
+    assert(homepage.includes('data-media-background-src="'+escapeUrl(optimized)+'"'));
   }
-  assert(homepage.includes('href="'+mediaDeliveryUrl(heroes[0].url,'hero')+'" as="image" fetchpriority="high"'),
+  assert(homepage.includes('href="'+escapeUrl(mediaDeliveryUrl(heroes[0].url,'hero'))+'" as="image" fetchpriority="high"'),
     'homepage preload and CSS should point to the same optimized resource');
 });
 
