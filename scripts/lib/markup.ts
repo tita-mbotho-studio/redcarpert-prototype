@@ -18,9 +18,11 @@ function lookbook() {
    const fallbackAttr = optimizedImage === product.image ? "" :
      ' data-media-original="' + escapeHtml(product.image) + '"';
    return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
-     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr + ' alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async">' +
-     '<button type="button" class="redcarpert-book-zoom-trigger" data-book-zoom-trigger data-book-zoom-src="' + escapeHtml(mediaDeliveryUrl(product.image, "preview")) + '" data-book-zoom-original="' + escapeHtml(product.image) + '" aria-haspopup="dialog" aria-label="Enlarge photograph of ' + escapeHtml(product.name) + '">' +
-     '<i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button></div>' +
+     '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr +
+     ' data-book-zoom-photo data-book-zoom-src="' + escapeHtml(mediaDeliveryUrl(product.image, "preview")) +
+     '" data-book-zoom-original="' + escapeHtml(product.image) +
+     '" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Enlarge photograph of ' + escapeHtml(product.name) +
+     '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
      '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
@@ -47,15 +49,10 @@ function lookbook() {
    '<div class="redcarpert-book-shell"><div id="redcarpert-flipbook" class="redcarpert-book" tabindex="0" aria-label="' + pageCount + '-page bridal lookbook">' + cover + dresses + back + '</div></div>' +
    '<div class="redcarpert-book-controls" aria-label="Book navigation"><button type="button" data-book-previous disabled aria-label="Previous page"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>' +
    '<span data-book-status role="status" aria-live="polite">Page 1 of ' + pageCount + '</span><button type="button" data-book-next aria-label="Next page"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>' +
-   '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Use the expand icon to view a larger photograph.</p>' +
-   '<dialog class="redcarpert-book-zoom-dialog" data-book-zoom-dialog aria-label="Enlarged wedding dress photograph">' +
-   '<button type="button" class="redcarpert-book-zoom-close" data-book-zoom-close aria-label="Close enlarged photograph"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>' +
-   '<div class="redcarpert-book-zoom-stage" data-book-zoom-stage><img data-book-zoom-image alt="" draggable="false"></div>' +
-   '<div class="redcarpert-book-zoom-controls" aria-label="Image zoom controls">' +
-   '<button type="button" data-book-zoom-out aria-label="Zoom out"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>' +
-   '<button type="button" data-book-zoom-reset aria-label="Reset zoom"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></button>' +
-   '<span data-book-zoom-percent aria-live="polite">100%</span>' +
-   '<button type="button" data-book-zoom-in aria-label="Zoom in"><i class="fa-solid fa-plus" aria-hidden="true"></i></button></div></dialog>' +
+   '<p class="redcarpert-book-help">Use the arrows or swipe to turn pages. Tap a photograph to view it larger.</p>' +
+   '<dialog class="redcarpert-wedding-dialog redcarpert-book-zoom-dialog" data-book-zoom-dialog aria-label="Enlarged wedding dress photograph">' +
+   '<div class="redcarpert-moment-dialog-inner"><img class="redcarpert-wedding-preview-image" data-book-zoom-image alt="" decoding="async">' +
+   '<button type="button" class="redcarpert-wedding-preview-close" data-book-zoom-close aria-label="Close enlarged photograph"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div></dialog>' +
    '<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">' +
    '<p class="redcarpert-icon-cta-label">Download The Bridal Edit (PDF)</p>' +
    '<a class="button redcarpert-icon-cta-button" href="/digital-lookbook/' + pdfName + '" download="' + pdfName + '" aria-label="Download The Bridal Edit (PDF)">' +
