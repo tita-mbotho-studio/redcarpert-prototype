@@ -1,12 +1,25 @@
 import { chromium } from 'playwright';
+import { preview } from 'vite';
 import assert from 'node:assert/strict';
 
-const browser = await chromium.launch({args:['--no-sandbox']});
-const origin='http://localhost:4173/redcarpert-prototype';
+// Run a dedicated preview inside this test process. The test never depends
+// on a separately started server, and it cannot accidentally hit an older
+// Vite instance left listening on port 4173. Vite chooses an available port.
+const previewServer = await preview({
+  preview: { host: '127.0.0.1', port: 0, strictPort: false },
+});
+const address = previewServer.httpServer.address();
+if (!address || typeof address === 'string') {
+  throw new Error('Could not determine the Vite preview port');
+}
+const origin = 'http://127.0.0.1:' + address.port + '/redcarpert-prototype';
+console.log('Testing freshly built site at ' + origin);
+let browser;
 const image='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1400">'+
   '<rect width="900" height="1400" fill="#e9ddd2"/></svg>';
 
 try {
+  browser = await chromium.launch({args:['--no-sandbox']});
   for (const width of [1440, 1024, 768, 390, 320]) {
     const touch=width<=1024;
     const page=await browser.newPage({
@@ -218,5 +231,11 @@ try {
     await page.close();
   }
 } finally {
-  await browser.close();
+  try {
+    await browser?.close();
+  } finally {
+    // Always stop our own preview, including assertion failures.
+    await new Promise((resolve, reject) =>
+      previewServer.httpServer.close(error => error ? reject(error) : resolve()));
+  }
 }

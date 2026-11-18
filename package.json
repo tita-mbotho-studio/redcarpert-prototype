@@ -22,7 +22,7 @@
     "setup": "playwright install chromium",
     "test:dist": "node --test tests/static-build.test.mjs",
     "test:browser": "node scripts/browser-media-delivery.mjs && node scripts/browser-wedding-moments.mjs && node scripts/browser-footer-parity.mjs && node scripts/browser-modern-icons.mjs && node scripts/browser-editorial-layout.mjs && node scripts/browser-homepage-native.mjs && node scripts/browser-global-loader.mjs && node scripts/browser-whatsapp.mjs && node scripts/browser-lookbook-enhanced.mjs && node scripts/browser-dress-gallery.mjs && node scripts/browser-check.mjs && node scripts/browser-interactions.mjs && node scripts/browser-touch.mjs && node scripts/browser-lookbook.mjs && node scripts/browser-catalogue-cards.mjs && node scripts/browser-image-zoom.mjs && node scripts/browser-responsive-zoom.mjs",
-    "test:responsive-zoom": "node scripts/browser-responsive-zoom.mjs"
+    "test:responsive-zoom": "npm run build && node scripts/browser-responsive-zoom.mjs"
   },
   "devDependencies": {
     "@types/node": "^24",

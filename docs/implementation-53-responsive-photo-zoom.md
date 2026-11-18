@@ -90,3 +90,13 @@ Next 3→4 and Previous 4→3, and records touchend versus click events to make
 future swallowed-tap failures diagnosable. A focused Chromium touch harness
 reproduced the failure and verified the correction; the complete website
 browser suite still requires a local run.
+
+## Self-contained responsive test runner
+
+Run `npm run test:responsive-zoom` directly. It now rebuilds the website, starts
+its own Vite preview server on an available loopback port, runs real Chromium
+mouse/touch interaction checks, then shuts down its preview even on failures.
+It never depends on an existing server on port 4173 and never deploys.
+
+The broader `npm run test:browser` suite still requires a separately started
+`npm run preview` server on port 4173. These are distinct commands.
