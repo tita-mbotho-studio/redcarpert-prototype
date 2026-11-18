@@ -12,7 +12,7 @@ const source=readFileSync('src/client/dress-gallery.js','utf8')
   // The isolated navigation fixture mocks the shared media transport; the
   // production page below exercises the actual imported delivery module.
   .replace("import { setMediaImage } from './MediaDelivery.js';",
-    "const setMediaImage=(image,original)=>{image.dataset.mediaOriginal=original;image.src=original+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto';};")
+    "const setMediaImage=(image,original,preset)=>{image.dataset.mediaOriginal=original;image.src=original+'?tr='+(preset==='preview'?'w-1920,h-1920,c-at_max,q-82,f-auto':'w-1280,h-1800,c-at_max,q-82,f-auto');};")
   .replace('export function initializeDressGalleries()', 'function initializeDressGalleries()')
   + '\nwindow.testInitializeDressGalleries = initializeDressGalleries;';
 const photos=[
@@ -29,15 +29,23 @@ try {
   await page.route('https://ik.imagekit.io/**',route=>route.abort());
   await page.setContent('<div data-detail-gallery="sample-mermaid" tabindex="0" '+
    'data-gallery-photos=\''+JSON.stringify(photos)+'\'>'+
-   '<div data-sample-frame><img data-gallery-active-image alt=""><a data-gallery-enlarge href="#">Expand</a>'+
+   '<div data-sample-frame><img data-gallery-active-image role="button" tabindex="0" '+
+   'aria-haspopup="dialog" style="display:block;width:180px;height:250px" alt="">'+
    '<button data-gallery-previous type="button">Previous</button><button data-gallery-next type="button">Next</button></div>'+
    photos.map((_,i)=>'<button type="button" data-gallery-index="'+i+'">Photo '+(i+1)+'</button>').join('')+
-   '<span data-gallery-counter aria-live="polite">01 / 03</span></div>');
+   '<span data-gallery-counter aria-live="polite">01 / 03</span></div>'+
+   '<dialog class="redcarpert-wedding-dialog redcarpert-dress-photo-dialog" data-dress-photo-dialog>'+
+   '<div class="redcarpert-moment-dialog-inner"><img class="redcarpert-wedding-preview-image" data-dress-preview-photo>'+
+   '<button class="redcarpert-wedding-preview-close" data-dress-preview-close type="button">'+
+   '<i class="fa-solid fa-xmark"></i></button></div></dialog>');
   await page.addScriptTag({content:source});
   await page.evaluate(()=>window.testInitializeDressGalleries());
   const gallery=page.locator('[data-detail-gallery]');
   const image=gallery.locator('[data-gallery-active-image]');
-  const enlarge=gallery.locator('[data-gallery-enlarge]');
+  const modal=page.locator('[data-dress-photo-dialog]');
+  const preview=modal.locator('[data-dress-preview-photo]');
+  assert.equal(await page.locator('[data-gallery-enlarge],[data-fancybox]').count(),0,
+    'legacy expand buttons and Fancybox must be removed');
   const counter=gallery.locator('[data-gallery-counter]');
   const current=async()=>Number(await gallery.getAttribute('data-active-photo'));
   assert.equal(await current(),0);
@@ -47,7 +55,17 @@ try {
   assert.equal(await image.getAttribute('src'),photos[1].url+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');
   assert.equal(await image.getAttribute('data-media-original'),photos[1].url);
   assert.equal(await image.getAttribute('alt'),photos[1].alt);
-  assert.equal(await enlarge.getAttribute('href'),photos[1].url);
+  assert.equal(await image.getAttribute('aria-label'),'Enlarge photograph 2 of 3');
+  await image.click();
+  await modal.waitFor({state:'visible'});
+  assert.equal(await preview.getAttribute('alt'),photos[1].alt);
+  assert.equal(await preview.getAttribute('src'),photos[1].url+'?tr=w-1920,h-1920,c-at_max,q-82,f-auto');
+  assert.equal(await current(),1,'opening a photo must not change gallery index');
+  await modal.locator('[data-dress-preview-close]').click();
+  await modal.waitFor({state:'hidden'});
+  assert.equal(await current(),1,'closing a photo must not change gallery index');
+  assert.equal(await image.evaluate(img=>document.activeElement===img),true,
+    'focus must return to the photograph');
   assert.equal(await counter.textContent(),'02 / 03');
   await gallery.locator('[data-gallery-index="2"]').click();
   assert.equal(await current(),2);
@@ -73,7 +91,7 @@ try {
   assert.deepEqual(errors,[]);
   await page.close();
  }
- console.log('Three-photo dress gallery PASS: arrows, dots, image link, keyboard and touch');
+ console.log('Three-photo dress gallery PASS: arrows, dots, direct photo modal, keyboard and touch');
  // Check the actual generated Sample 17 page, which now has two Pexels photographs
  // of one gown rather than just our synthetic isolated controller fixture.
  const actual=await browser.newPage({viewport:{width:1280,height:900}});
@@ -165,7 +183,15 @@ try {
  await liveGallery.locator('[data-gallery-next]').click();
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'02 / 02');
  assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/20370060/);
- assert.match(await liveGallery.locator('[data-gallery-enlarge]').getAttribute('href'),/20370060/);
+ assert.equal(await liveGallery.locator('[data-gallery-enlarge],[data-fancybox]').count(),0);
+ await liveGallery.locator('[data-gallery-active-image]').click();
+ const liveModal=actual.locator('[data-dress-photo-dialog]');
+ await liveModal.waitFor({state:'visible'});
+ assert.match(await liveModal.locator('[data-dress-preview-photo]').getAttribute('src'),/20370060/);
+ assert.equal(await liveModal.locator('[data-dress-preview-close]').count(),1);
+ await actual.keyboard.press('Escape');
+ await liveModal.waitFor({state:'hidden'});
+ assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'02 / 02');
  await liveGallery.locator('[data-gallery-previous]').click();
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 02');
  // Verify actual client Ball Gown 03: four unique photos, no sample pricing.
@@ -179,7 +205,13 @@ try {
  await gown.locator('[data-gallery-next]').click();
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
   assert.equal(imagePath(await gown.locator('[data-gallery-active-image]').getAttribute('src')),imagePath(ballGown03Photos[1]));
-  assert.equal(imagePath(await gown.locator('[data-gallery-enlarge]').getAttribute('href')),imagePath(ballGown03Photos[1]));
+  await gown.locator('[data-gallery-active-image]').click();
+ const clientModal=actual.locator('[data-dress-photo-dialog]');
+ await clientModal.waitFor({state:'visible'});
+ assert.equal(imagePath(await clientModal.locator('[data-dress-preview-photo]').getAttribute('src')),imagePath(ballGown03Photos[1]));
+ await clientModal.locator('[data-dress-preview-close]').click();
+ await clientModal.waitFor({state:'hidden'});
+ assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
@@ -198,6 +230,13 @@ try {
  assert.equal(await singleClient.locator('[data-gallery-next]').count(),0);
  assert.equal(await singleClient.locator('[data-gallery-index]').count(),0);
  assert.equal(await singleClient.locator('[data-gallery-active-image]').evaluate(img=>getComputedStyle(img).objectFit),'contain');
+ await singleClient.locator('[data-gallery-active-image]').click();
+ const singleModal=actual.locator('[data-dress-photo-dialog]');
+ await singleModal.waitFor({state:'visible'});
+ assert.equal(await singleModal.locator('.redcarpert-wedding-preview-image').count(),1);
+ assert.equal(await singleModal.locator('.redcarpert-wedding-preview-close').count(),1);
+ await actual.keyboard.press('Escape');
+ await singleModal.waitFor({state:'hidden'});
  // Wedding Dresses listing cards are intentionally price-free.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
  for(const width of [1280,390]){
