@@ -59,7 +59,9 @@ test('tap interception does not replace or disable native StPageFlip gestures', 
   assert.match(src,/getPageFlip\(\)\?\.userStop\(\{x:0, y:0\}, true\)/);
   assert.match(src,/dialog\.showModal\(\)/);
   assert.match(src,/previousFocus|opener\?\.isConnected/);
-  assert.doesNotMatch(src,/pageFlip\.flipNext\(|pageFlip\.flipPrev\(|disableFlipByClick|stopPropagation\(\)/);
+  assert.doesNotMatch(src,/pageFlip\.flipNext\(|pageFlip\.flipPrev\(|disableFlipByClick/);
+  assert.match(src,/dialog\.addEventListener\('keydown', event => event\.stopPropagation\(\)\)/,
+    'keyboard handling inside the dialog must be isolated from the book');
   assert.match(reader,/initializeLookbookZoom\(viewer, book, \(\) => engine\)/);
   assert.match(reader,/pageFlip\.loadFromHTML\(flipPages\)/);
   assert.match(reader,/mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35/);
