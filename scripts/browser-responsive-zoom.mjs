@@ -374,11 +374,36 @@ try {
     assert.equal(await dialog.evaluate(el=>el.open),false,width+'px X must close zoom');
     assert.equal(await current(),beforeZoom,width+'px closing zoom must retain the page');
 
+    // Capture input and page-turn events to distinguish a double-fired
+    // touch/click from an unexpected PageFlip spread transition.
+    await page.evaluate(()=>{
+      const controls={next:document.querySelector('[data-book-next]'),
+        previous:document.querySelector('[data-book-previous]')};
+      window.__navEvents=[];
+      for (const [key,button] of Object.entries(controls)) {
+        for (const eventName of ['touchstart','touchend','pointerup','click']) {
+          button.addEventListener(eventName,event=>{
+            window.__navEvents.push({button:key,event:eventName,
+              cancelable:event.cancelable,defaultPrevented:event.defaultPrevented,
+              time:Math.round(performance.now())});
+          });
+        }
+      }
+      const book=document.querySelector('#redcarpert-flipbook');
+      new MutationObserver(()=>{
+        window.__navEvents.push({event:'page',page:book.dataset.currentPage,
+          time:Math.round(performance.now())});
+      }).observe(book,{attributes:true,attributeFilter:['data-current-page']});
+    });
     // Verify that neither button nor native swipe is broken after zoom.
     await activate(next);
     position=await progresses(beforeZoom,1);
+    const afterNext=position;
     await activate(prev);
     position=await progresses(position,-1);
+    const navTrace=await page.evaluate(()=>window.__navEvents);
+    console.log('3D post-zoom navigation trace',width,
+      JSON.stringify({beforeZoom,afterNext,afterPrevious:position,events:navTrace}));
     assert.equal(position,beforeZoom,width+'px Previous after zoom must return');
     assert.deepEqual(pageErrors,[],width+'px 3D browser should not raise page errors');
     console.log('Real 3D PageFlip mouse/touch interactions PASS at '+width+'px');
