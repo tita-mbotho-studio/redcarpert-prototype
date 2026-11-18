@@ -429,8 +429,14 @@ test('all produced pages apply shared delivery to dress, lookbook, and homepage 
   const detail=readFileSync('dist'+product.previewRoute+'/index.html','utf8');
   assert(detail.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'detail'))+'"'),
     'detail card must not load an oversized original');
-  assert(detail.includes('data-gallery-enlarge=""'),
-    'full source must still be available for zoom');
+  assert(detail.includes('data-dress-photo-dialog=""'),
+    'dress details must provide the new borderless native image viewer');
+  assert(detail.includes('data-dress-preview-photo=""'),
+    'the modal image should load a larger source only when clicked');
+  assert(!detail.includes('data-gallery-enlarge=""') && !detail.includes('data-fancybox="product-gallery"'),
+    'legacy zoom controls must not ship in the dress page');
+  assert(detail.includes('data-gallery-photos="'),
+    'the original photo URL must remain available in the gallery metadata');
   const book=readFileSync('dist/digital-lookbook/index.html','utf8');
   assert(book.includes('src="'+escapeUrl(mediaDeliveryUrl(product.image,'lookbook'))+'"'),
     'online lookbook should use a dedicated lightweight photograph');
