@@ -112,6 +112,22 @@ try {
     assert(layout.centered&&layout.photoInside,'book contents must stay centred inside the leaf');
     assert.equal(layout.priceFields,2,'sale and rental price must both fit on the book leaf');
     assert(layout.copyFits&&layout.pricesInside,width+'px book price text must not overflow or clip');
+    // Only the explicit photo-corner icon opens the separate viewer; the
+    // page counter and native book navigation must be unchanged on close.
+    const beforeZoom=await page.locator('[data-book-status]').textContent();
+    const expand=page.locator('.redcarpert-book-page.is-current [data-book-zoom-trigger]');
+    assert.equal(await expand.count(),1);
+    assert.equal(await expand.locator('.fa-solid.fa-up-right-and-down-left-from-center').count(),1);
+    await expand.click();
+    const zoomDialog=page.locator('[data-book-zoom-dialog]');
+    assert(await zoomDialog.isVisible(),'zoom modal must open from explicit icon');
+    assert.equal(await page.locator('[data-book-zoom-percent]').textContent(),'100%');
+    await page.locator('[data-book-zoom-in]').click();
+    assert.equal(await page.locator('[data-book-zoom-percent]').textContent(),'150%');
+    await page.keyboard.press('Escape');
+    await zoomDialog.waitFor({state:'hidden'});
+    assert.equal(await page.locator('[data-book-status]').textContent(),beforeZoom,
+      'closing zoom must not turn the book');
    }
   }
   assert(await next.isDisabled());
