@@ -34,8 +34,6 @@ export function initializeLookbookReader() {
   if (!book) return;
   const viewer = book.closest('.redcarpert-lookbook');
   const pages = [...book.querySelectorAll('[data-book-page]')];
-  // Zoom is a separate modal, never a PageFlip gesture on the photograph.
-  initializeLookbookZoom(viewer);
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
 
   // The interactive reader must use the same central sale/rental records as
@@ -67,6 +65,9 @@ export function initializeLookbookReader() {
   const next = viewer.querySelector('[data-book-next]');
   const status = viewer.querySelector('[data-book-status]');
   let index = 0, engine = null;
+  // The photo controller consults the live engine but never replaces
+  // StPageFlip's native click, drag, touch/swipe or page navigation handlers.
+  initializeLookbookZoom(viewer, book, () => engine);
   const announce = () => {
     status.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
     previous.disabled = index <= 0;
