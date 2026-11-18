@@ -120,6 +120,7 @@ try {
    // Measure the actual rendered rental label and amount at every breakpoint.
    const rentalLayout=await actual.locator('.redcarpert-detail-price-options').evaluate(options=>{
      const rental=options.querySelector('[data-rental-price]');
+     const sale=options.querySelector('[data-sale-price]');
      const label=options.querySelector('.redcarpert-detail-price-option:nth-child(2) .redcarpert-detail-price-label');
      const sizes=element=>{
        const style=getComputedStyle(element);
@@ -130,13 +131,19 @@ try {
          scrollWidth:element.scrollWidth,
          clientWidth:element.clientWidth,
          whiteSpace:style.whiteSpace,
+         fontSize:style.fontSize,
+         fontFamily:style.fontFamily,
        };
      };
      const optionColumns=getComputedStyle(options).gridTemplateColumns.trim().split(/\s+/).length;
-     return {label:sizes(label),rental:sizes(rental),columns:optionColumns};
+     return {label:sizes(label),rental:sizes(rental),sale:sizes(sale),columns:optionColumns};
    });
-   assert.equal(rentalLayout.columns,width>1050?2:1,
-     width+'px pricing layout must give the rental range enough room');
+   assert.equal(rentalLayout.columns,1,
+     width+'px both pricing values should have the same full-width layout');
+   assert.equal(rentalLayout.rental.fontSize,rentalLayout.sale.fontSize,
+     width+'px rental amount must use the SAME readable font size as sale price');
+   assert.equal(rentalLayout.rental.fontFamily,rentalLayout.sale.fontFamily,
+     width+'px rental amount must use the SAME font family as sale price');
    for(const [name,element] of [['rental label',rentalLayout.label],['rental amount',rentalLayout.rental]]){
      assert.equal(element.whiteSpace,'nowrap',width+'px '+name+' must not wrap');
      assert(element.height<=element.lineHeight+1.5,
