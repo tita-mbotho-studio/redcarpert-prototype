@@ -110,6 +110,33 @@ try {
     await tapAt(blank.x,blank.y);
     await page.waitForFunction(()=>document.querySelector('#redcarpert-flipbook')?.dataset.currentPage==='3');
     assert.equal(await dialog.evaluate(el=>el.open),false);
+    const prev=page.getByRole('button',{name:'Previous page',exact:true});
+    const forward=page.getByRole('button',{name:'Next page',exact:true});
+    await activate(prev);
+    assert.equal(await book.getAttribute('data-current-page'),'2',
+      width+'px Previous control must always return to the preceding page');
+    await activate(forward);
+    assert.equal(await book.getAttribute('data-current-page'),'3',
+      width+'px Next control must work after Previous');
+    if (touch && width<=1100) {
+      assert.equal(await book.getAttribute('data-engine'),'fallback',
+        width+'px touch layout should avoid vendor PageFlip pointer interception');
+    }
+    if(width===390){
+      await book.scrollIntoViewIfNeeded();
+      const box=await book.boundingBox();
+      assert(box,'touch swipe book must be visible');
+      const y=box.y+box.height/2;
+      const x1=box.x+box.width*.82,x2=box.x+box.width*.18;
+      const devtools=await page.context().newCDPSession(page);
+      await devtools.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x1,y}]});
+      await devtools.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x2,y}]});
+      await devtools.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      await page.waitForFunction(()=>document.querySelector('#redcarpert-flipbook')?.dataset.currentPage==='4');
+      await activate(prev);
+      assert.equal(await book.getAttribute('data-current-page'),'3',
+        'Previous must work after a real touch swipe');
+    }
 
     // Switching the DevTools viewport after initialization must not strand
     // either page navigation or its photo click target.

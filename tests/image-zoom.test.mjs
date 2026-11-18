@@ -128,7 +128,7 @@ test('lightbox close X has no brown ring in Lookbook or Wedding Moments', () => 
     'zoom-in, zoom-out and reset must keep their accessible focus outline');
 });
 
-test('phone and tablet photo actions use real touch taps while preserving swipes, focus and responsive close targets',()=>{
+test('tablet and phone interactions rely on native clicks and one fallback page controller',()=>{
   const reader=readFileSync('src/client/lookbook-reader.js','utf8');
   const moments=readFileSync('src/client/wedding-moments.js','utf8');
   const zoom=readFileSync('src/client/image-zoom.js','utf8');
@@ -136,22 +136,22 @@ test('phone and tablet photo actions use real touch taps while preserving swipes
   const momentsCss=readFileSync('src/components/WeddingMoments.css','utf8');
   const browser=readFileSync('scripts/browser-responsive-zoom.mjs','utf8');
   const enhanced=readFileSync('scripts/browser-lookbook-enhanced.mjs','utf8');
-  assert.match(reader,/book\.addEventListener\('pointerdown'/);
-  assert.match(reader,/book\.addEventListener\('pointermove'/);
-  assert.match(reader,/book\.addEventListener\('pointerup'/);
-  assert.match(reader,/start\.type !== 'touch' && start\.type !== 'pen'/);
-  assert.match(reader,/recipient\.dispatchEvent\(new MouseEvent\('click'/);
-  assert.match(reader,/handledTouchClickUntil/);
-  assert.match(reader,/preventHandledTouchEnd/);
-  assert.match(reader,/textAt\(event\.clientX, event\.clientY\)/);
+  assert.match(reader,/const fineDesktop = window\.matchMedia\('\(min-width: 1101px\) and \(pointer: fine\)'\)/);
+  assert.match(reader,/const restoreFallback = \(\) => \{/);
+  assert.match(reader,/engine\.destroy\(\)/);
+  assert.match(reader,/book\.replaceChildren\(\.\.\.pages\)/);
+  assert.match(reader,/const cleanPages = pages\.map\(page => page\.cloneNode\(true\)\)/);
+  assert.match(reader,/startPage: index/);
+  assert.match(reader,/fineDesktop\.addEventListener\('change', configureReader\)/);
+  assert.match(reader,/const turn = \(direction\) => \{/);
+  assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);
+  assert.match(reader,/next\.addEventListener\('click', \(\) => turn\(1\)\)/);
   assert.match(reader,/book\.addEventListener\('touchend'/);
-  assert.match(reader,/event\.isTrusted && Date\.now\(\) < handledTouchClickUntil/);
-  assert.match(reader,/photoAt\(event\.clientX, event\.clientY\)/);
-  assert.match(reader,/start\.moved \|\| Math\.hypot/);
-  assert.match(moments,/grid\.addEventListener\('pointerup'/);
-  assert.match(moments,/openMedia\(button\)/);
-  assert.match(moments,/handledTouchUntil/);
-  assert.match(moments,/start\.moved \|\| Math\.hypot/);
+  assert.doesNotMatch(reader,/handledTouchClickUntil|preventHandledTouchEnd|recipient\.dispatchEvent/,
+    'touch users must not receive synthetic button clicks or duplicate page turns');
+  assert.match(moments,/grid\.addEventListener\('click'/);
+  assert.doesNotMatch(moments,/grid\.addEventListener\('pointerup'/,
+    'Wedding Moments tap should use native button click after touchend');
   assert.match(photoCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-image-zoom-dialog \{ padding-top: 52px; \}/);
   assert.match(momentsCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-wedding-dialog \{ padding-top: 52px; \}/);
   assert.match(zoom,/image\.addEventListener\('load'/);
@@ -159,9 +159,11 @@ test('phone and tablet photo actions use real touch taps while preserving swipes
   assert.match(reader,/zoom\.refresh\(\)/);
   assert.match(moments,/zoom\.refresh\(\)/);
   assert.match(browser,/page\.touchscreen\.tap/);
+  assert.match(browser,/Previous control must always return/);
   assert.match(browser,/real two-finger pinch/);
   assert.match(browser,/page\.setViewportSize/);
   assert.match(browser,/\[1440, 1024, 768, 390, 320\]/);
-  assert.match(enhanced,/page\.touchscreen\.tap/);
-  assert.match(enhanced,/hasTouch:touch/);
+  assert.match(enhanced,/\[1440, 1280\]/);
+  assert.match(enhanced,/responsive teardown must preserve the current page/);
+  assert.match(enhanced,/reactivated desktop PageFlip must retain the current page/);
 });

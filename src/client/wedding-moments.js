@@ -48,15 +48,14 @@ export function initializeWeddingMomentsGallery() {
       !close || !stage || !zoom) return;
 
   let opener = null;
-  let touchPointer = null, handledTouchUntil = 0, handledTouchButton = null;
-  // Mobile WebViews and emulated touch devices may consume the click after
-  // pointerup. Photo and video thumbnails need the same response to a tap as
-  // they have to a desktop mouse click.
-  const openMedia = button => {
-    if (!button || !grid.contains(button) || dialog.open) return;
+  grid.addEventListener('click', event => {
+    if (!(event.target instanceof Element)) return;
+    const button = event.target.closest('button[data-wedding-media][data-wedding-src]');
+    if (!button || !grid.contains(button)) return;
     const url = button.dataset.weddingSrc;
     const type = button.dataset.weddingMedia;
     if (!url || (type !== 'photo' && type !== 'video')) return;
+
     opener = button;
     photo.hidden = type !== 'photo';
     stage.hidden = type !== 'photo';
@@ -77,8 +76,8 @@ export function initializeWeddingMomentsGallery() {
       video.src = url;
     }
     dialog.showModal();
-    // Paint after the dialog enters the top layer, when its responsive
-    // dimensions are measurable; image load will repaint again if needed.
+    // Refresh the zoom bounds after the modal becomes measurable on narrow
+    // screens; the image-load listener refreshes again when pixels arrive.
     zoom.refresh();
     if (type === 'video') {
       // Start from the thumbnail click while user activation is still available.
@@ -88,44 +87,7 @@ export function initializeWeddingMomentsGallery() {
         playback.catch(() => {});
       }
     }
-  };
-  grid.addEventListener('click', event => {
-    if (!(event.target instanceof Element)) return;
-    const button = event.target.closest('button[data-wedding-media][data-wedding-src]');
-    if (!button || !grid.contains(button)) return;
-    if (event.isTrusted && button === handledTouchButton &&
-        Date.now() < handledTouchUntil) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      return;
-    }
-    openMedia(button);
   });
-  grid.addEventListener('pointerdown', event => {
-    if (!event.isPrimary) { touchPointer = null; return; }
-    if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
-    touchPointer = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
-  }, true);
-  grid.addEventListener('pointermove', event => {
-    if (touchPointer?.id === event.pointerId &&
-        Math.hypot(event.clientX-touchPointer.x,event.clientY-touchPointer.y)>12)
-      touchPointer.moved = true;
-  }, true);
-  grid.addEventListener('pointerup', event => {
-    if (!touchPointer || touchPointer.id !== event.pointerId) return;
-    const start = touchPointer;
-    touchPointer = null;
-    if (start.moved || Math.hypot(event.clientX-start.x,event.clientY-start.y)>12 ||
-        !(event.target instanceof Element)) return;
-    const button = event.target.closest('button[data-wedding-media][data-wedding-src]');
-    if (!button || !grid.contains(button)) return;
-    handledTouchButton = button;
-    handledTouchUntil = Date.now() + 650;
-    event.preventDefault();
-    event.stopPropagation();
-    openMedia(button);
-  }, true);
-  grid.addEventListener('pointercancel', () => { touchPointer = null; }, true);
 
   close.addEventListener('click', () => dialog.close());
   dialog.addEventListener('click', event => {

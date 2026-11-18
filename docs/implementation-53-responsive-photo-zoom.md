@@ -1,54 +1,63 @@
-# Implementation 53 — Responsive photo zoom and blank-paper page turns
+# Implementation 53 — responsive photo zoom and page navigation
 
-## Problem and investigation
+## Root causes
 
-Implementation 51 was tested largely with Playwright mouse clicks at a phone-sized viewport.
-That does not reproduce Chrome DevTools Device Mode touch taps. StPageFlip can also
-clone physical HTML pages when switching to portrait layout, so child button clicks
-are not always forwarded to delegated click listeners. Mobile modal close X buttons
-were positioned outside the native dialog's tappable border box.
+1. The previous touch workaround opened Wedding Moments on `pointerup`,
+   before the browser's native tap/click completed. On tablets the popup could
+   open and then immediately close, yielding a false result in the 1024px test.
+2. The Lookbook had stacked touch-pointer interceptors, synthetic click
+   dispatch, ghost-click suppression, and a separate PageFlip touch handler.
+   This could interfere with Previous/Next buttons and make page turns stall.
+3. On narrow screens the modal close X sat outside the dialog hit area.
 
-## Corrections
+## Simpler architecture
 
-- Book root now handles stationary touch/pen pointerup events, dispatching exactly
-  one coordinate-aware click to the appropriate photo button or blank page.
-- Side gutters of object-fit:contain photos still turn pages instead of zooming;
-  visible photo pixels still open zoom, and View dress details remains a link.
-- Native ghost clicks are suppressed after a handled touch tap; PageFlip touchend
-  is stopped only for that tap to prevent a second corner-triggered flip.
-- Swipe/drag gestures, multi-touch gestures, and touches on text/buttons/links
-  are not treated as blank-paper page turns.
-- Wedding Moments photo and film cards now respond directly to touch pointerup
-  as well as native click, preserving autoplay sound attempts and video controls.
-- Both modal styles reserve a transparent 52px dialog hit area above the media
-  on tablet/phone screens; the X stays visually outside the photograph.
-- The shared zoom controller recalculates after modal show and after remote
-  image load. Existing zoom controls, pinch, wheel, Escape and reset remain.
+- Wedding Moments photo/video thumbnails are native buttons driven by one
+  delegated `click` listener. Remove the `pointerup` popup opener entirely.
+- The Digital Lookbook has ONE navigation controller: `turn(-1)` and `turn(1)`.
+  On <=1100px or coarse pointers it renders single pages directly. Native
+  photo button clicks open zoom, white paper clicks turn pages, and the
+  existing native `touchstart`/`touchend` swipe recognizer handles swiping.
+- The animated StPageFlip remains a desktop-only, fine-pointer enhancement.
+  Do not load it in narrow/touch environments where it consumes taps.
+- Switching desktop to mobile or back in DevTools restores pristine page
+  markup, retains the current numbered page, and changes engine mode safely.
+  Note: the library's `destroy()` removes its root, so the same root node is
+  reinserted to retain delegated listeners and avoid duplicate handlers.
+- Shared image zoom refreshes after `showModal()` and after image loads.
+- Mobile/tablet dialog styles reserve transparent space above the photograph
+  for the accessible dark X button. No brown ring or white media border.
 
-## Browser regression coverage
+## Regression coverage
 
-scripts/browser-responsive-zoom.mjs uses genuine touchscreen.tap or CDP events
-at 320px, 390px, 768px and 1024px, plus desktop mouse at 1440px. It covers
-the fallback book, photo/paper hit regions, real pinch, Wedding Moments photo
-and video modals, close-button hit areas and a 1024px-to-390px viewport change.
+- `npm run test:responsive-zoom`: 1440 desktop mouse + genuine taps at 1024,
+  768, 390 and 320; previous/next after blank-paper turns, touch swipe,
+  photo zoom and reset, two-finger pinch, close X, Wedding Moments photo
+  and video, and viewport switching.
+- `scripts/browser-lookbook-enhanced.mjs`: animated desktop PageFlip at 1440
+  and 1280, plus 1440 -> 390 -> 1440 viewport switching with page preservation
+  and working Previous/Next in the fallback.
+- `tests/image-zoom.test.mjs`: asserts the native click strategy, single-page
+  fallback policy, desktop restoration, and responsive close targets.
 
-scripts/browser-lookbook-enhanced.mjs now additionally tests real touchscreen
-taps on the CDN-backed animated StPageFlip reader and its portrait/landscape
-transitions at those same widths.
+## Verification status
 
-## Local verification
+Focused code and syntax assertions passed before commit. Full site build
+and actual Playwright browser checks require the locally running preview.
 
-1. git fetch origin
-2. git switch implementation/53-responsive-lookbook-photo-interactions
-3. git pull --ff-only origin implementation/53-responsive-lookbook-photo-interactions
-4. npm run check
-5. npm run preview — keep this running in its own terminal
-6. npm run test:responsive-zoom — use a second terminal
-7. npm run test:browser — optional comprehensive Playwright regression
+```powershell
+git fetch origin
+git switch implementation/53-responsive-lookbook-photo-interactions
+git pull --ff-only origin implementation/53-responsive-lookbook-photo-interactions
+npm run check
+npm run preview
+```
 
-Note: npm run check does not execute the browser scripts. Playwright requires
-Chromium installed (npm run setup). The enhanced test requires access to the
-third-party PageFlip script CDN. The ImageKit/Pexels photo responses are mocked
-with local SVGs inside the browser scripts to keep interaction checks stable.
+From a second terminal:
 
-Do not merge or deploy without explicit approval.
+```powershell
+npm run test:responsive-zoom
+npm run test:browser
+```
+
+No merge, deployment, or manual GitHub Actions without user approval.
