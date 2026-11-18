@@ -146,6 +146,14 @@ test('tablet and phone interactions rely on native clicks and one fallback page 
   assert.match(reader,/const turn = \(direction\) => \{/);
   assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);
   assert.match(reader,/next\.addEventListener\('click', \(\) => turn\(1\)\)/);
+  assert.match(reader,/for \(const \[button, direction\] of \[\[previous, -1\], \[next, 1\]\]\)/,
+    'both navigation buttons must share the reliable touch handler');
+  assert.match(reader,/button\.addEventListener\('touchend', event =>/,
+    'navigation touchend must work when Chromium swallows a click after swiping');
+  assert.match(reader,/event\.preventDefault\(\);\s*turn\(direction\);/,
+    'handled taps must not turn twice through a follow-up compatibility click');
+  assert.match(reader,/\}, \{ passive: false \}\);/,
+    'touchend must be non-passive to cancel its compatibility click');
   assert.match(reader,/book\.addEventListener\('touchend'/);
   assert.doesNotMatch(reader,/handledTouchClickUntil|preventHandledTouchEnd|recipient\.dispatchEvent/,
     'touch users must not receive synthetic button clicks or duplicate page turns');

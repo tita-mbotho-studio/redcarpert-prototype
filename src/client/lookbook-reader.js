@@ -180,6 +180,17 @@ export function initializeLookbookReader() {
   };
   previous.addEventListener('click', () => turn(-1));
   next.addEventListener('click', () => turn(1));
+  // Chromium may swallow the first compatibility click after a horizontal
+  // touch swipe. Handle the completed tap directly on these two controls.
+  // preventDefault suppresses the subsequent synthetic click, so one tap
+  // changes exactly one page. Mouse and keyboard keep their native clicks.
+  for (const [button, direction] of [[previous, -1], [next, 1]]) {
+    button.addEventListener('touchend', event => {
+      if (!event.cancelable) return;
+      event.preventDefault();
+      turn(direction);
+    }, { passive: false });
+  }
   // PageFlip deliberately disables its default click-to-turn so that clicking
   // a photograph opens zoom. Restore magazine-style navigation on blank paper
   // without stealing clicks from the photograph or dress detail links.

@@ -133,9 +133,48 @@ try {
       await devtools.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x2,y}]});
       await devtools.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
       await page.waitForFunction(()=>document.querySelector('#redcarpert-flipbook')?.dataset.currentPage==='4');
+      assert.equal(await prev.isDisabled(),false,'Previous must remain enabled after a swipe');
+      // Chromium can dispatch touchend but omit the compatibility click
+      // immediately after a swipe. Verify the native touch handler ran and
+      // that the click was suppressed instead of turning a second page.
+      await page.evaluate(() => {
+        window.__bookPreviousEvents = { touchend:0, click:0 };
+        const control = document.querySelector('[data-book-previous]');
+        control.addEventListener('touchend', () => { window.__bookPreviousEvents.touchend++; });
+        control.addEventListener('click', () => { window.__bookPreviousEvents.click++; });
+      });
       await activate(prev);
+      try {
+        await page.waitForFunction(() =>
+          document.querySelector('#redcarpert-flipbook')?.dataset.currentPage === '3',
+          null,{timeout:4000});
+      } catch {
+        const detail = await page.evaluate(() => ({
+          page:document.querySelector('#redcarpert-flipbook')?.dataset.currentPage,
+          engine:document.querySelector('#redcarpert-flipbook')?.dataset.engine,
+          previousDisabled:document.querySelector('[data-book-previous]')?.disabled,
+          previousEvents:window.__bookPreviousEvents,
+        }));
+        assert.fail('Previous must work immediately after a real touch swipe: ' +
+          JSON.stringify(detail));
+      }
       assert.equal(await book.getAttribute('data-current-page'),'3',
         'Previous must work after a real touch swipe');
+      const handled = await page.evaluate(() => window.__bookPreviousEvents);
+      assert.equal(handled.touchend,1,'Previous received exactly one touchend');
+      assert.equal(handled.click,0,'handled touchend must suppress a duplicate click');
+      // Ensure alternating buttons remain reliable after the swipe. Each tap
+      // must update one page without a second synthetic click.
+      await activate(forward);
+      await page.waitForFunction(() =>
+        document.querySelector('#redcarpert-flipbook')?.dataset.currentPage === '4',
+        null,{timeout:4000});
+      await activate(prev);
+      await page.waitForFunction(() =>
+        document.querySelector('#redcarpert-flipbook')?.dataset.currentPage === '3',
+        null,{timeout:4000});
+      assert.equal(await book.getAttribute('data-current-page'),'3',
+        'alternating Previous and Next must not double-turn after a swipe');
     }
 
     // Switching the DevTools viewport after initialization must not strand

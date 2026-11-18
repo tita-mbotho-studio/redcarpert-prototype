@@ -70,3 +70,23 @@ running against an older server instead of the code being reviewed.
 `npm run preview` therefore uses `--strictPort`. If it reports that 4173
 is occupied, stop the previous preview process first and restart it. Do not
 run browser tests against an old instance on that port.
+
+## Regression: Previous tap immediately after swiping on 390px
+
+A focused Chromium mobile reproduction showed that a successful horizontal swipe
+can be followed by a touch tap whose `touchstart` and `touchend` arrive at
+Previous but whose compatibility `click` is swallowed. The old controls
+listened only for `click`, so page 4 could remain unchanged.
+
+Both Previous and Next now retain native `click` handling for mouse and
+keyboard, and share a minimal non-passive `touchend` listener that calls the
+same `turn(direction)` function. Preventing the touchend default suppresses
+the compatibility click and avoids double turns. **No extra synthetic clicks
+or gesture engines have been added.** The existing swipe recognition remains
+unchanged.
+
+`scripts/browser-responsive-zoom.mjs` verifies swipe 3→4, Previous 4→3,
+Next 3→4 and Previous 4→3, and records touchend versus click events to make
+future swallowed-tap failures diagnosable. A focused Chromium touch harness
+reproduced the failure and verified the correction; the complete website
+browser suite still requires a local run.
