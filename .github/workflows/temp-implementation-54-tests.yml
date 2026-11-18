@@ -24,13 +24,18 @@ jobs:
         run: npm run check
       - name: Static distribution tests
         run: npm run test:dist
-      - name: Full browser regression suite
+      - name: Remaining browser regression scripts after earlier groups passed
         run: |
           npm run preview -- --port 4173 > /tmp/redcarpert-preview.log 2>&1 &
           preview_pid=$!
           trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
           curl --fail --retry 12 --retry-delay 1 --retry-connrefused http://127.0.0.1:4173/redcarpert-prototype/ > /dev/null
-          npm run test:browser
+          node scripts/browser-dress-gallery.mjs
+          node scripts/browser-check.mjs
+          node scripts/browser-interactions.mjs
+          node scripts/browser-touch.mjs
+          node scripts/browser-lookbook.mjs
+          node scripts/browser-catalogue-cards.mjs
       - name: Print preview server logs if any test fails
         if: failure()
         run: cat /tmp/redcarpert-preview.log 2>/dev/null || true

@@ -219,7 +219,8 @@ try {
    assert.equal(await cards.locator('.redcarpert-catalogue-condition-note').count(),0);
    const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
    assert.equal(await clientCard.locator('.catalogue-sample-note').count(),0);
-   assert.equal(await clientCard.locator('h2.woocommerce-loop-product__title').textContent(),'Ball Gown 03');
+   assert.equal(await clientCard.locator('.redcarpert-catalogue-collection').textContent(),'Ball Gown');
+   assert.equal(await clientCard.locator('.redcarpert-catalogue-number').textContent(),'03');
  }
  await actual.close();
  assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');
