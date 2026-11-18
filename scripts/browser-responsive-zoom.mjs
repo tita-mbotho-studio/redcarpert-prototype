@@ -290,8 +290,13 @@ try {
       const book=document.querySelector('#redcarpert-flipbook');
       return {tag:el?.tagName,className:typeof el?.className==='string'?el.className:'',
         bookContains:book?.contains(el),outerHTML:el?.outerHTML.slice(0,320),
-        ancestors:el?[...function*(n){for(let i=0;n&&i<6;i++,n=n.parentElement)yield
-          n.tagName+'.'+String(n.className).slice(0,80);}(el)]:[]};
+        ancestors:(()=>{
+          const ancestors=[];
+          for(let n=el,i=0;n&&i<6;i++,n=n.parentElement){
+            ancestors.push(n.tagName+'.'+String(n.className).slice(0,80));
+          }
+          return ancestors;
+        })()};
     },coverTap);
     await page.evaluate(()=>{
       window.__coverEvents=[];
