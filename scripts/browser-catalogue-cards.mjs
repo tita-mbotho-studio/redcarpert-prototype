@@ -7,7 +7,7 @@ const origin = 'http://localhost:4173/redcarpert-prototype';
 const routes = ['/product', ...catalogueCategories.map(c => c.route.replace(/\/$/, ''))];
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 try {
-  for (const width of [1440, 768, 390, 320]) {
+  for (const width of [1440, 1000, 768, 640, 390, 320]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     try {
       for (const route of routes) {
