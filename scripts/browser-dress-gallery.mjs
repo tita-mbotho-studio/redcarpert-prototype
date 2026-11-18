@@ -241,6 +241,23 @@ try {
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
+ // Ball Gown 03 carries one of the longest actual ZAR rental ranges.
+ for(const width of [1920,1440,1051,1050,768,640,390,320]){
+   await actual.setViewportSize({width,height:900});
+   const actualRange=await actual.locator('[data-rental-price]').evaluate(element=>{
+     const css=getComputedStyle(element);
+     return {
+       whiteSpace:css.whiteSpace,scrollWidth:element.scrollWidth,clientWidth:element.clientWidth,
+       height:element.getBoundingClientRect().height,lineHeight:parseFloat(css.lineHeight),
+     };
+   });
+   assert.equal(actualRange.whiteSpace,'nowrap',width+'px client rental range must not wrap');
+   assert(actualRange.height<=actualRange.lineHeight+1.5,
+     width+'px client rental amount must occupy exactly one line: '+JSON.stringify(actualRange));
+   assert(actualRange.scrollWidth<=actualRange.clientWidth+1,
+     width+'px client rental amount must fit its card: '+JSON.stringify(actualRange));
+ }
+ await actual.setViewportSize({width:1280,height:900});
  assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
    'dress detail must show the new/pre-owned rental pricing qualification');
  assert.equal(await actual.locator('.redcarpert-related-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
