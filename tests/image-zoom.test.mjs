@@ -63,7 +63,7 @@ test('the shared controller supports bounded zoom, pointer pinch/pan, mouse whee
   assert.match(js,/wheel/);
   assert.match(js,/scale\s*\*/);
   assert.match(js,/dialog\.addEventListener\('close'/);
-  assert.match(reader,/disableFlipByClick:\s*false/);
+  assert.match(reader,/disableFlipByClick:\s*true/);
   assert.match(reader,/photoOpener\.focus|photoOpener\.focus\(/);
   assert.match(reader,/dialog\[open\]/);
   assert.match(wedding,/zoom\.setActive\(type === 'photo'\)/);
@@ -138,16 +138,18 @@ test('3D book remains available on all screen types while the zoom action does n
   const enhanced=readFileSync('scripts/browser-lookbook-enhanced.mjs','utf8');
   assert.match(reader,/loadPageFlip\(\)\.then\(PageFlip => \{/);
   assert.match(reader,/usePortrait:\s*true/);
-  assert.match(reader,/disableFlipByClick:\s*false/,
-    'restore the original PageFlip native click-to-turn behaviour');
+  assert.match(reader,/disableFlipByClick:\s*true/,
+    'PageFlip 3D animation remains, while controlled paper clicks turn once');
   assert.match(reader,/clickEventForward:\s*true/,
     'zoom buttons and dress detail links remain clickable');
   assert.doesNotMatch(reader,/fineDesktop|restoreFallback|cleanPages|matchMedia\('\(min-width: 1101px/,
     'do not replace the 3D book with a flat reader on phones or tablets');
-  assert.match(reader,/if \(engine \|\| !\(event\.target instanceof Element\)/,
-    'custom blank-paper navigation must run only when PageFlip is unavailable');
-  assert.match(reader,/engine\.userStop\(\{ x: event\.clientX, y: event\.clientY \}, true\)/,
-    'stop PageFlip turning on completed mouse photograph taps only');
+  assert.match(reader,/if \(!\(event\.target instanceof Element\) \|\| dialog\?\.open \|\|/,
+    'a single delegated click handler turns paper in both 3D and fallback');
+  assert.doesNotMatch(reader,/if \(engine \|\| !\(event\.target instanceof Element\)/,
+    '3D reader must not skip the controlled blank-paper click');
+  assert.doesNotMatch(reader,/engine\.userStop\(/,
+    'PageFlip internals must not be called to intercept photograph taps');
   assert.match(reader,/book\.addEventListener\('touchend', event => \{/,
     'real stationary touch taps must be handled in the 3D reader');
   assert.match(reader,/enhancedTouch/);
@@ -157,8 +159,8 @@ test('3D book remains available on all screen types while the zoom action does n
     'touch zoom and touch page turning must be exclusive');
   assert.match(reader,/isInsideContainedPhoto\(/,
     'ivory gutters should remain paper-turn regions');
-  assert.match(reader,/if \(!engine\) turn\(paperDirection\(event\.clientX\)\)/,
-    '3D PageFlip owns gutter turns; fallback alone may turn on the image border');
+  assert.match(reader,/turn\(paperDirection\(event\.clientX\)\)/,
+    'photo letterboxing remains paper in both 3D and fallback');
   assert.match(reader,/const moved = Math\.hypot/,
     'dragging and swiping must not open photograph zoom');
   assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);

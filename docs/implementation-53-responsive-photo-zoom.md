@@ -7,24 +7,22 @@ still uses an older 29-page editorial book. It is the visual and interaction
 reference only; it must not replace the newer 37-page catalogue, its media,
 sale/rental prices, lookbook links or wording.
 
-Before Implementation 51, StPageFlip was initialized with usePortrait=true,
-clickEventForward=true, mobileScrollSupport=false and without
-disableFlipByClick=true. Its native interaction supported animated clicks,
-mobile touch and swipe/drag page turns. Implementation 51 disabled this native
-click-to-turn path to add zoom and replaced paper clicks with custom handlers.
+Before Implementation 51, StPageFlip supplied the 3D animation and native
+swipes. Browser touch taps and native paper clicks proved unreliable across
+responsive viewports. We now keep the original 3D engine for all sizes, while
+routing simple stationary paper taps through a single turn() controller.
 Implementation 53 temporarily used a flat reader on phones; this was rejected.
 
 ## Final interaction design
 
 - All viewports use the same real 3D PageFlip reader. Portrait/single-leaf
   layout remains on phones; paired spreads appear on larger desktop screens.
-- Native blank-paper clicks, taps, page drags and swipes remain enabled.
-  disableFlipByClick is explicitly false; no custom click handler runs when
-  PageFlip is active.
-- A short tap on the painted photograph pixels opens the zoom dialog instead
-  of turning the page. A minimal pointerup guard stops PageFlip's pending
-  userStop/flip for only that photo tap, allowing the forwarded native button
-  click to open zoom; swipe and paper taps are left to PageFlip.
+- Swipes and drags use PageFlip's animation as before. PageFlip's native
+  click-to-turn is disabled; a single delegated click handler runs turn() for
+  blank paper on desktop, and a stationary touchend handler runs the same turn()
+  on mobile/tablet. No duplicate vendor click or vendor userStop internals.
+- Tapping painted photograph pixels opens the zoom modal without turning;
+  touching the letterbox margins counts as paper. Real links stay clickable.
 - object-fit side/vertical letterboxing is paper, not part of the photograph.
 - Dress links remain functional through clickEventForward=true.
 - Existing Previous/Next controls, keyboard arrow keys and post-swipe
@@ -46,5 +44,7 @@ photo zoom without a turn, modal close, and Previous/Next.
 npm run test:browser additionally covers a full desktop book walk-through
 and resizing 1440 -> 390 -> 1440 without switching away from PageFlip.
 
-The full npm run check and Playwright browser suites still require execution
-against a locally built checkout before merging. No Actions/deploy triggered.
+A temporary branch-only GitHub Actions workflow now runs npm run check,
+real 3D and fallback Playwright regressions at all five widths, and the full
+browser suite. It contains no deployment code. Remove this temporary workflow
+after verification passes; do not merge or deploy without approval.
