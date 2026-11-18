@@ -1,5 +1,37 @@
 /* Implementation 26 — premium elevated dress information card.
    Only the product detail summary changes; preserve the approved portrait gallery. */
+/* Implementation 56 — prevent the legacy gallery plugin from reattaching
+   hover zoom or Fancybox; only the photograph opens our native modal. */
+#main-container [data-detail-preview] .redcarpert-detail-single-photo-slider,
+#main-container [data-detail-preview] .redcarpert-multi-photo-slider {
+  width: 100%;
+  max-width: 100%;
+}
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame img[data-gallery-active-image] {
+  cursor: zoom-in;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame img[data-gallery-active-image]:focus-visible {
+  outline: 2px solid #666;
+  outline-offset: -2px;
+}
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame
+img[data-gallery-active-image].redcarpert-dress-pointer-restored:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* Keep Wedding Moments' modal unchanged; suppress only pointer-generated
+   focus rings for Dress Details. Keyboard navigation remains visible. */
+body .redcarpert-dress-photo-dialog .redcarpert-wedding-preview-close:focus-visible {
+  outline-color: #fff;
+}
+body .redcarpert-dress-photo-dialog.redcarpert-dress-pointer-opened
+.redcarpert-wedding-preview-close:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 #main-container [data-detail-preview]::after {
   content: "";
   display: table;
@@ -9,34 +41,34 @@
   width: 100%;
   max-width: 100%;
 }
-#main-container [data-detail-preview] .zoom[data-sample-frame] {
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-sample-frame] {
   position: relative;
   aspect-ratio: 848 / 1264;
 }
-#main-container [data-detail-preview] .zoom[data-sample-frame] > img:not(.zoomImg) {
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
   display: block !important;
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
 }
-/* Preserve the approved single-photo preview. Only multi-angle dresses use
-   proportional image containment and suppress stale vendor zoom overlays. */
-#main-container [data-detail-preview] [data-gallery-origin="client"] .zoom[data-sample-frame] {
+/* Preserve single-photo presentation. Multi-angle and client photography use
+   proportional image containment; no inherited hover zoom is enabled. */
+#main-container [data-detail-preview] [data-gallery-origin="client"] .redcarpert-detail-photo-frame[data-sample-frame] {
   background: #fdfbf8;
   overflow: hidden;
 }
-#main-container [data-detail-preview] [data-gallery-origin="client"] .zoom[data-sample-frame] > img:not(.zoomImg) {
+#main-container [data-detail-preview] [data-gallery-origin="client"] .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
   object-fit: contain;
 }
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .zoom[data-sample-frame] {
+#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] {
   overflow: hidden;
   background: #fdfbf8;
 }
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .zoom[data-sample-frame] > img:not(.zoomImg) {
+#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
   object-fit: contain;
 }
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .zoom[data-sample-frame] > .zoomImg {
+#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] > .zoomImg {
   display: none !important;
 }
 /* Quiet, touch-friendly controls overlay only genuine multi-photo dresses. */
