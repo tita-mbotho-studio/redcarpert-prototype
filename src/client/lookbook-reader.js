@@ -72,11 +72,26 @@ export function initializeLookbookReader() {
   let photoOpener = null;
   let suppressZoomUntil = 0;
   let pointerDismissed = false;
+  // A native touch tap may not produce a forwarded click when StPageFlip
+  // switches to portrait mode (it clones the physical HTML leaves).
+  // Synthesize exactly one actionable click from a stationary touch pointer;
+  // any following browser-generated click is ignored.
+  let handledTouchClickUntil = 0;
+  let preventHandledTouchEnd = false;
   const paperDirection = x => paperTurnDirection(book.getBoundingClientRect(), x);
+  const suppressDuplicateTouchClick = event => {
+    if (event.isTrusted && Date.now() < handledTouchClickUntil) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return true;
+    }
+    return false;
+  };
   if (zoom && enlarged && closePhoto) {
     // A photo opens over the book; the underlying page index is untouched.
     // Capture the click before the optional page-flip engine handles it.
     book.addEventListener('click', event => {
+      if (suppressDuplicateTouchClick(event)) return;
       if (!(event.target instanceof Element)) return;
       const trigger = event.target.closest('[data-book-image-zoom]');
       if (!trigger || !book.contains(trigger)) return;
@@ -105,6 +120,9 @@ export function initializeLookbookReader() {
       enlarged.src = preview;
       zoom.setActive(true);
       dialog.showModal();
+    // Paint after the dialog enters the top layer, when its responsive
+    // dimensions are measurable; image load will repaint again if needed.
+    zoom.refresh();
     }, true);
     closePhoto.addEventListener('click', event => {
       pointerDismissed = event.detail > 0;
@@ -179,6 +197,7 @@ export function initializeLookbookReader() {
   // a photograph opens zoom. Restore magazine-style navigation on blank paper
   // without stealing clicks from the photograph or dress detail links.
   book.addEventListener('click', event => {
+    if (suppressDuplicateTouchClick(event)) return;
     if (!(event.target instanceof Element) || dialog?.open ||
         Date.now() < suppressZoomUntil || event.detail === 0) return;
     if (event.target.closest('[data-book-image-zoom],a,button,input,textarea,select,label,[contenteditable="true"]')) return;
@@ -198,22 +217,99 @@ export function initializeLookbookReader() {
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);
   });
-  // A drag/swipe must not generate a follow-up click that accidentally
-  // turns the next page or opens the enlarged photograph.
+  // PageFlip's portrait renderer clones HTML pages. With real touch input
+  // it may consume the native click without forwarding it to the book's
+  // delegated handler. Pointer-up is the reliable tap signal; drags/swipes
+  // must remain entirely owned by the page-turn animation.
   let pointerStart = null;
+  const photoAt = (x, y) => {
+    const visible = new Set([index + 1]);
+    if (engine?.getOrientation?.() === 'landscape') visible.add(index + 2);
+    for (const trigger of book.querySelectorAll('[data-book-image-zoom]')) {
+      const leaf = trigger.closest('[data-book-page]');
+      if (!leaf || !visible.has(Number(leaf.dataset.bookPage))) continue;
+      const image = trigger.querySelector('img');
+      if (!(image instanceof HTMLImageElement)) continue;
+      const rect = image.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0 &&
+          x >= rect.left && x <= rect.right &&
+          y >= rect.top && y <= rect.bottom) return trigger;
+    }
+    return null;
+  };
+  const visibleLeafIds = () => {
+    const ids = new Set([index + 1]);
+    if (engine?.getOrientation?.() === 'landscape') ids.add(index + 2);
+    return ids;
+  };
+  const textAt = (x, y) => {
+    const visible = visibleLeafIds();
+    for (const leaf of book.querySelectorAll('[data-book-page]')) {
+      if (!visible.has(Number(leaf.dataset.bookPage))) continue;
+      for (const text of leaf.querySelectorAll('a,h1,h2,h3,h4,h5,h6,p,small,span,output')) {
+        const rect = text.getBoundingClientRect();
+        if (rect.width && rect.height && x >= rect.left && x <= rect.right &&
+            y >= rect.top && y <= rect.bottom) return true;
+      }
+    }
+    return false;
+  };
+  // A handled touch tap must not reach StPageFlip's separate touchend
+  // listener and accidentally flip a second page from its corner logic.
+  book.addEventListener('touchend', event => {
+    if (!preventHandledTouchEnd) return;
+    preventHandledTouchEnd = false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, { capture: true, passive: false });
   book.addEventListener('pointerdown', event => {
-    if (event.isPrimary) pointerStart = {
-      id: event.pointerId, x: event.clientX, y: event.clientY,
+    preventHandledTouchEnd = false;
+    // Multi-touch gestures belong to the browser, not to book-photo taps.
+    if (!event.isPrimary) { pointerStart = null; return; }
+    pointerStart = {
+      id: event.pointerId, type: event.pointerType,
+      x: event.clientX, y: event.clientY, moved: false,
     };
   }, true);
+  book.addEventListener('pointermove', event => {
+    if (pointerStart?.id === event.pointerId &&
+        Math.hypot(event.clientX - pointerStart.x,
+          event.clientY - pointerStart.y) > 12) pointerStart.moved = true;
+  }, true);
   book.addEventListener('pointerup', event => {
-    if (pointerStart?.id === event.pointerId) {
-      if (Math.hypot(event.clientX - pointerStart.x,
-        event.clientY - pointerStart.y) > 12) {
-        suppressZoomUntil = Date.now() + 450;
-      }
-      pointerStart = null;
+    if (!pointerStart || pointerStart.id !== event.pointerId) return;
+    const start = pointerStart;
+    pointerStart = null;
+    if (start.moved || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 12) {
+      suppressZoomUntil = Date.now() + 450;
+      return;
     }
+    if (start.type !== 'touch' && start.type !== 'pen') return;
+    if (dialog?.open || Date.now() < suppressZoomUntil ||
+        !(event.target instanceof Element) || window.getSelection()?.toString()) return;
+    const target = event.target;
+    // Never override real links, controls or text selection. This includes
+    // the View dress details links when tapping a PageFlip portrait clone.
+    if (target.closest('a,input,textarea,select,label,[contenteditable="true"]')) return;
+    const button = target.closest('button');
+    if (button && !button.matches('[data-book-image-zoom]')) return;
+    const trigger = target.closest('[data-book-image-zoom]') ||
+      photoAt(event.clientX, event.clientY);
+    // StPageFlip may put a rendering layer above the underlying text. Never
+    // mistake tapping a price, title or dress-detail link for blank paper.
+    if (!trigger && textAt(event.clientX, event.clientY)) return;
+    // If a portrait clone's HTML is under a PageFlip rendering layer, send
+    // our coordinate-aware click to its image button; otherwise let blank
+    // book paper use the existing click-to-turn listener.
+    const recipient = trigger || target;
+    handledTouchClickUntil = Date.now() + 650;
+    preventHandledTouchEnd = start.type === 'touch';
+    event.preventDefault();
+    event.stopPropagation();
+    recipient.dispatchEvent(new MouseEvent('click', {
+      bubbles: true, cancelable: true, composed: true, detail: 1,
+      clientX: event.clientX, clientY: event.clientY,
+    }));
   }, true);
   book.addEventListener('pointercancel', () => { pointerStart = null; }, true);
   let touchX = null, zoomTouchX = null;

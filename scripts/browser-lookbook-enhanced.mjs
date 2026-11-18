@@ -8,17 +8,26 @@ const pageCount=products.dresses.length+2;
 const browser = await chromium.launch({args:['--no-sandbox']});
 const root = 'http://localhost:4173/redcarpert-prototype/digital-lookbook/';
 try {
-  for (const width of [1440, 768, 390]) {
-    const mobile = width === 390;
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    const mobile = width <= 390;
+    const touch = width <= 1024;
     const page = await browser.newPage({
       viewport: {width,height:900},
       isMobile:mobile,
-      hasTouch:mobile,
+      hasTouch:touch,
       reducedMotion:'no-preference',
     });
     const errors=[];
     page.on('pageerror',e=>errors.push(e.message));
-    await page.route('https://images.pexels.com/**',route=>route.abort());
+    // Real PageFlip, but deterministic portrait images at every breakpoint.
+    // Broken remote photos must not obscure whether responsive taps work.
+    const portrait='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1400">'+
+      '<rect width="900" height="1400" fill="#e9ddd2"/></svg>';
+    for(const host of ['https://images.pexels.com/**','https://ik.imagekit.io/**']){
+      await page.route(host,route=>route.fulfill({
+        status:200,contentType:'image/svg+xml',body:portrait,
+      }));
+    }
     await page.goto(root,{waitUntil:'domcontentloaded'});
     const book=page.locator('#redcarpert-flipbook');
     await book.locator('.stf__block').waitFor({timeout:30000});
@@ -48,13 +57,58 @@ try {
     const cover=book.locator('[data-book-page="1"]');
     const coverBox=await cover.boundingBox();
     assert(coverBox,'enhanced front cover should be visible');
-    await page.mouse.click(coverBox.x+coverBox.width-8,
+    if (touch) await page.touchscreen.tap(coverBox.x+coverBox.width-8,
+      coverBox.y+Math.min(26,coverBox.height*.05));
+    else await page.mouse.click(coverBox.x+coverBox.width-8,
       coverBox.y+Math.min(26,coverBox.height*.05));
     position=await progresses(position,1);
     assert(position>1,'clicking blank right-hand book paper should flip forward');
     await previous.click();
     position=await progresses(position,-1);
     assert.equal(position,1,'previous button should still return to cover');
+
+    // Test a real TOUCH tap on an animated leaf. The mobile/portrait PageFlip
+    // renderer clones pages: a desktop mouse click cannot verify this path.
+    if (touch) {
+      await next.click();
+      position=await progresses(position,1);
+      const candidates=await book.locator('[data-book-page="2"] [data-book-image-zoom] img')
+        .evaluateAll(images => images.map(img => {
+          const r=img.getBoundingClientRect();
+          const cx=r.left+r.width/2,cy=r.top+r.height/2;
+          const hit=document.elementFromPoint(cx,cy);
+          return {x:cx,y:cy,width:r.width,height:r.height,
+            topmost:Boolean(hit?.closest?.('[data-book-image-zoom]')===img.closest('[data-book-image-zoom]'))};
+        }).filter(p=>p.width>40 && p.height>40 &&
+          p.x>=0 && p.x<innerWidth && p.y>=0 && p.y<innerHeight));
+      assert(candidates.length,width+'px active dress leaf should render a tappable photo');
+      const point=candidates.find(p=>p.topmost)??candidates[0];
+      await page.touchscreen.tap(point.x,point.y);
+      const dialog=page.locator('#redcarpert-book-photo-dialog');
+      await page.waitForFunction(()=>document.querySelector('#redcarpert-book-photo-dialog')?.open,
+        null,{timeout:10000});
+      assert(await dialog.evaluate(node=>node.open),width+'px tap must enlarge portrait-mode book photo');
+      await dialog.locator('[data-image-zoom-in]').tap();
+      assert.equal(await dialog.locator('[data-image-zoom-percent]').textContent(),'150%');
+      await dialog.locator('[data-book-image-close]').tap();
+      assert.equal(await dialog.evaluate(node=>node.open),false);
+      assert.equal(await current(),position,'close must preserve the same page');
+
+      // Page margins are independent of the book's controls. Click a visible
+      // empty area of the active physical leaf to flip forward on touch.
+      const paper=await book.evaluate(book=>{
+        const rect=book.getBoundingClientRect();
+        return {x:rect.right-8,y:rect.top+Math.min(25,rect.height*.045)};
+      });
+      assert(paper.x>0&&paper.x<width,width+'px right-hand book margin must be visible');
+      await page.touchscreen.tap(paper.x,paper.y);
+      position=await progresses(position,1);
+      await previous.click();
+      position=await progresses(position,-1);
+      await previous.click();
+      position=await progresses(position,-1);
+      assert.equal(position,1,'touch checks must leave the cover ready for existing navigation tests');
+    }
 
     let count=0;
     while(position<pageCount && count<pageCount){

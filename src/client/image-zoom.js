@@ -122,6 +122,9 @@ export function initializeImageZoom(dialog) {
   });
   dialog.addEventListener('close', () => setActive(false));
   window.addEventListener('resize', () => { if (dialog.open && enabled) paint(); });
+  // On a narrow viewport the modal may be shown before its remote image
+  // finishes loading. Recalculate the zoom bounds when the pixels arrive.
+  image.addEventListener('load', () => { if (dialog.open && enabled) paint(); });
   setActive(false);
-  return { setActive, reset, setScale };
+  return { setActive, reset, setScale, refresh: paint };
 }

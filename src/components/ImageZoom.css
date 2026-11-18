@@ -123,6 +123,9 @@
   max-height: calc(100dvh - 118px) !important;
 }
 @media (max-width: 1000px) {
+  /* Reserve a transparent hit area INSIDE the top-layer dialog. A close X
+     positioned above its border box can be untappable on mobile browsers. */
+  .redcarpert-image-zoom-dialog { padding-top: 52px; }
   .redcarpert-image-zoom-stage { max-width: calc(100vw - 32px); max-height: calc(100dvh - 180px); }
   .redcarpert-image-zoom-stage > img,
   .redcarpert-wedding-dialog .redcarpert-image-zoom-stage > img {

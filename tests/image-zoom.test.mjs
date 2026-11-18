@@ -127,3 +127,41 @@ test('lightbox close X has no brown ring in Lookbook or Wedding Moments', () => 
   assert.match(css, /\.redcarpert-image-zoom-controls button:focus-visible\s*\{[^}]*outline: 2px solid/,
     'zoom-in, zoom-out and reset must keep their accessible focus outline');
 });
+
+test('phone and tablet photo actions use real touch taps while preserving swipes, focus and responsive close targets',()=>{
+  const reader=readFileSync('src/client/lookbook-reader.js','utf8');
+  const moments=readFileSync('src/client/wedding-moments.js','utf8');
+  const zoom=readFileSync('src/client/image-zoom.js','utf8');
+  const photoCss=readFileSync('src/components/ImageZoom.css','utf8');
+  const momentsCss=readFileSync('src/components/WeddingMoments.css','utf8');
+  const browser=readFileSync('scripts/browser-responsive-zoom.mjs','utf8');
+  const enhanced=readFileSync('scripts/browser-lookbook-enhanced.mjs','utf8');
+  assert.match(reader,/book\.addEventListener\('pointerdown'/);
+  assert.match(reader,/book\.addEventListener\('pointermove'/);
+  assert.match(reader,/book\.addEventListener\('pointerup'/);
+  assert.match(reader,/start\.type !== 'touch' && start\.type !== 'pen'/);
+  assert.match(reader,/recipient\.dispatchEvent\(new MouseEvent\('click'/);
+  assert.match(reader,/handledTouchClickUntil/);
+  assert.match(reader,/preventHandledTouchEnd/);
+  assert.match(reader,/textAt\(event\.clientX, event\.clientY\)/);
+  assert.match(reader,/book\.addEventListener\('touchend'/);
+  assert.match(reader,/event\.isTrusted && Date\.now\(\) < handledTouchClickUntil/);
+  assert.match(reader,/photoAt\(event\.clientX, event\.clientY\)/);
+  assert.match(reader,/start\.moved \|\| Math\.hypot/);
+  assert.match(moments,/grid\.addEventListener\('pointerup'/);
+  assert.match(moments,/openMedia\(button\)/);
+  assert.match(moments,/handledTouchUntil/);
+  assert.match(moments,/start\.moved \|\| Math\.hypot/);
+  assert.match(photoCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-image-zoom-dialog \{ padding-top: 52px; \}/);
+  assert.match(momentsCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-wedding-dialog \{ padding-top: 52px; \}/);
+  assert.match(zoom,/image\.addEventListener\('load'/);
+  assert.match(zoom,/refresh: paint/);
+  assert.match(reader,/zoom\.refresh\(\)/);
+  assert.match(moments,/zoom\.refresh\(\)/);
+  assert.match(browser,/page\.touchscreen\.tap/);
+  assert.match(browser,/real two-finger pinch/);
+  assert.match(browser,/page\.setViewportSize/);
+  assert.match(browser,/\[1440, 1024, 768, 390, 320\]/);
+  assert.match(enhanced,/page\.touchscreen\.tap/);
+  assert.match(enhanced,/hasTouch:touch/);
+});

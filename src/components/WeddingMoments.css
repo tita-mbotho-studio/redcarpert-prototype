@@ -260,6 +260,9 @@
 /* Narrow screens have no room for a side-mounted X. Place it immediately
    above the media's right edge, with enough vertical space for a tall photo. */
 @media (max-width: 1000px) {
+  /* The photo/video stays borderless, but the X needs an actual dialog hit
+     region above it so touch taps are accepted instead of hitting backdrop. */
+  .redcarpert-wedding-dialog { padding-top: 52px; }
   .redcarpert-wedding-dialog .redcarpert-wedding-preview-image {
     max-width: min(960px,calc(100vw - 32px)) !important;
     max-height: calc(100dvh - 128px) !important;
