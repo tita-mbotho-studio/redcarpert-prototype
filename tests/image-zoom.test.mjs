@@ -9,13 +9,13 @@ import { isInsideContainedPhoto, paperTurnDirection } from '../src/client/lookbo
 
 const visit = nodes => nodes.flatMap(n => typeof n === 'string' ? [] : [n, ...visit(n.children)]);
 
-test('digital lookbook offers an accessible enlarged photo on all 27 dress leaves, without eager downloads', () => {
+test('digital lookbook offers an accessible enlarged photo on all 35 dress leaves, without eager downloads', () => {
   const html = createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
-  assert.equal((html.match(/data-book-image-zoom=""/g)||[]).length,27);
-  assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,27);
-  assert.equal((html.match(/data-book-page=/g)||[]).length,29);
-  assert.equal((html.match(/data-book-zoom-preview=/g)||[]).length,27);
-  assert.equal((html.match(/data-book-zoom-original=/g)||[]).length,27);
+  assert.equal((html.match(/data-book-image-zoom=""/g)||[]).length,35);
+  assert.equal((html.match(/class="redcarpert-book-photo"/g)||[]).length,35);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,37);
+  assert.equal((html.match(/data-book-zoom-preview=/g)||[]).length,35);
+  assert.equal((html.match(/data-book-zoom-original=/g)||[]).length,35);
   for (const dress of catalogueProducts) {
     assert(html.includes('data-book-zoom-original="'+dress.image.replaceAll('&','&amp;')+'"'),
       dress.id+' original must be preserved for the popup');

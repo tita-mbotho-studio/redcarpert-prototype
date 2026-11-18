@@ -122,7 +122,7 @@
       }
     },
     {
-      "id": "sample-ruffled-01",
+      "id": "ruffled-dress-01",
       "priceZar": 14900,
       "rentalPriceRangeZar": {
         "minZar": 3400,
@@ -130,7 +130,7 @@
       }
     },
     {
-      "id": "sample-ruffled-02",
+      "id": "ruffled-dress-02",
       "priceZar": 16900,
       "rentalPriceRangeZar": {
         "minZar": 3900,
@@ -138,7 +138,7 @@
       }
     },
     {
-      "id": "sample-ruffled-03",
+      "id": "ruffled-dress-03",
       "priceZar": 18900,
       "rentalPriceRangeZar": {
         "minZar": 4300,
@@ -146,11 +146,75 @@
       }
     },
     {
-      "id": "sample-ruffled-04",
+      "id": "ruffled-dress-04",
       "priceZar": 22900,
       "rentalPriceRangeZar": {
         "minZar": 5300,
         "maxZar": 8200
+      }
+    },
+    {
+      "id": "ruffled-dress-05",
+      "priceZar": 25900,
+      "rentalPriceRangeZar": {
+        "minZar": 6000,
+        "maxZar": 9300
+      }
+    },
+    {
+      "id": "ruffled-dress-06",
+      "priceZar": 28900,
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
+    },
+    {
+      "id": "ruffled-dress-07",
+      "priceZar": 29900,
+      "rentalPriceRangeZar": {
+        "minZar": 6900,
+        "maxZar": 10800
+      }
+    },
+    {
+      "id": "ruffled-dress-08",
+      "priceZar": 31900,
+      "rentalPriceRangeZar": {
+        "minZar": 7300,
+        "maxZar": 11500
+      }
+    },
+    {
+      "id": "ruffled-dress-09",
+      "priceZar": 35900,
+      "rentalPriceRangeZar": {
+        "minZar": 8200,
+        "maxZar": 12800
+      }
+    },
+    {
+      "id": "ruffled-dress-10",
+      "priceZar": 37900,
+      "rentalPriceRangeZar": {
+        "minZar": 8700,
+        "maxZar": 13600
+      }
+    },
+    {
+      "id": "ruffled-dress-11",
+      "priceZar": 39900,
+      "rentalPriceRangeZar": {
+        "minZar": 9200,
+        "maxZar": 14400
+      }
+    },
+    {
+      "id": "ruffled-dress-12",
+      "priceZar": 42900,
+      "rentalPriceRangeZar": {
+        "minZar": 9800,
+        "maxZar": 15400
       }
     },
     {
@@ -280,21 +344,53 @@
       "minZar": 18900,
       "maxZar": 31900
     },
-    "sample-ruffled-01": {
+    "ruffled-dress-01": {
       "minZar": 10900,
       "maxZar": 14900
     },
-    "sample-ruffled-02": {
+    "ruffled-dress-02": {
       "minZar": 11900,
       "maxZar": 16900
     },
-    "sample-ruffled-03": {
+    "ruffled-dress-03": {
       "minZar": 13900,
       "maxZar": 18900
     },
-    "sample-ruffled-04": {
+    "ruffled-dress-04": {
       "minZar": 15900,
       "maxZar": 22900
+    },
+    "ruffled-dress-05": {
+      "minZar": 18900,
+      "maxZar": 25900
+    },
+    "ruffled-dress-06": {
+      "minZar": 19900,
+      "maxZar": 28900
+    },
+    "ruffled-dress-07": {
+      "minZar": 20900,
+      "maxZar": 29900
+    },
+    "ruffled-dress-08": {
+      "minZar": 21900,
+      "maxZar": 31900
+    },
+    "ruffled-dress-09": {
+      "minZar": 24900,
+      "maxZar": 35900
+    },
+    "ruffled-dress-10": {
+      "minZar": 26900,
+      "maxZar": 37900
+    },
+    "ruffled-dress-11": {
+      "minZar": 28900,
+      "maxZar": 39900
+    },
+    "ruffled-dress-12": {
+      "minZar": 30900,
+      "maxZar": 42900
     },
     "sample-modern-tradition-01": {
       "minZar": 12900,

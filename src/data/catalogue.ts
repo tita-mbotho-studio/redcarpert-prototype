@@ -1,4 +1,5 @@
 import clientBallGowns from "./client-ball-gowns.json" with { type: "json" };
+import clientRuffledDresses from "./client-ruffled-dresses.json" with { type: "json" };
 import imageLinks from "./image-links.json" with { type: "json" };
 import { requireImageLink } from "../lib/image-links.ts";
 import { priceForDress, type PriceZar } from "../lib/pricing.ts";
@@ -67,34 +68,18 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     status: "client" as const,
     imageCredit: { photographer: "Client supplied", sourceUrl: gown.photos[0].url, provenance: "client-supplied" },
   })),
-  {
-    id: "sample-ruffled-01", priceZar: priceForDress("sample-ruffled-01"), name: "Sample 09", category: "ruffled", status: "sample",
-    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-01").url,
-    imageAlt: "Ruffled wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-09-ruffled",
-    imageCredit: { photographer: "Matilda Jacob", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-01").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ruffled-02", priceZar: priceForDress("sample-ruffled-02"), name: "Sample 10", category: "ruffled", status: "sample",
-    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-02").url,
-    imageAlt: "Ruffled wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-10-ruffled",
-    imageCredit: { photographer: "DΛVΞ GΛRCIΛ", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-02").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ruffled-03", priceZar: priceForDress("sample-ruffled-03"), name: "Sample 11", category: "ruffled", status: "sample",
-    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-03").url,
-    imageAlt: "Ruffled wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-11-ruffled",
-    imageCredit: { photographer: "Olga Solodilova", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-03").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-ruffled-04", priceZar: priceForDress("sample-ruffled-04"), name: "Sample 12", category: "ruffled", status: "sample",
-    image: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-04").url,
-    imageAlt: "Ruffled wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-12-ruffled",
-    imageCredit: { photographer: "Rina Mayer", sourceUrl: requireImageLink(imageLinks.products.ruffled, "sample-ruffled-04").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
+  ...clientRuffledDresses.map(dress => ({
+    id: dress.id,
+    name: dress.name,
+    category: "ruffled" as const,
+    priceZar: priceForDress(dress.id),
+    image: dress.photos[0].url,
+    imageAlt: dress.photos[0].alt,
+    detailReference: null,
+    previewRoute: `/product/preview/${dress.id}` as const,
+    status: "client" as const,
+    imageCredit: { photographer: "Client supplied", sourceUrl: dress.photos[0].url, provenance: "client-supplied" },
+  })),
   {
     id: "sample-modern-tradition-01", priceZar: priceForDress("sample-modern-tradition-01"), name: "Sample 13", category: "modern_tradition", status: "sample",
     image: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-01").url,

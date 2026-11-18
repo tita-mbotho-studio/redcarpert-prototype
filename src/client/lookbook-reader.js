@@ -255,7 +255,7 @@ export function initializeLookbookReader() {
       autoSize: true,
     });
     // StPageFlip requires complete physical spreads when showCover is true.
-    // The 29-page editorial book has an odd leaf count; append a decorative
+    // An editorial book with an odd leaf count needs a decorative
     // empty endpaper so the final numbered back cover is reachable.
     // This is not a catalogue page, is not counted in book navigation, and
     // does not appear in the static/no-JS fallback.
@@ -272,7 +272,7 @@ export function initializeLookbookReader() {
     engine = pageFlip;
     pageFlip.on('flip', event => {
       // StPageFlip may report the unnumbered final endpaper as page 30.
-      // Keep the public reader, controls and announcements within 1..29.
+      // Keep the public reader, controls and announcements within numbered leaves.
       index = Math.min(event.data, pages.length - 1);
       announce();
     });

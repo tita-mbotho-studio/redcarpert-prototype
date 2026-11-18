@@ -10,16 +10,16 @@ import {
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
 import {lookbookEntries} from '../src/client/lookbook.js';
 
-test('all 27 dresses have editable positive fixed sale and ascending rental prices',()=>{
+test('all 35 dresses have editable positive fixed sale and ascending rental prices',()=>{
   assert.equal(products.currency,'ZAR');
   assert.equal(products.priceStatus,'draft');
   assert.equal(products.rentalPriceStatus,'draft');
   assert.equal(products.priceApproval,'pending-client-review');
-  assert.equal(products.dresses.length,27);
-  assert.equal(new Set(products.dresses.map(d=>d.id)).size,27);
+  assert.equal(products.dresses.length,35);
+  assert.equal(new Set(products.dresses.map(d=>d.id)).size,35);
   assert.deepEqual(products.dresses.map(d=>d.id).sort(),catalogueProducts.map(p=>p.id).sort());
   assert.equal(products.dresses.filter(d=>d.id.startsWith('ball-gown-')).length,11);
-  assert.equal(Object.keys(products.priceRangesZar).length,27,'keep legacy data separate');
+  assert.equal(Object.keys(products.priceRangesZar).length,35,'keep legacy data separate');
   for(const d of products.dresses){
     assert(Number.isSafeInteger(d.priceZar)&&d.priceZar>0,d.id+' needs a fixed sale price');
     const r=d.rentalPriceRangeZar;
@@ -51,14 +51,14 @@ test('rand amounts format cleanly and reject invalid values',()=>{
 test('digital lookbook contains the same labelled fixed sale and rental prices as all dress pages',()=>{
   const render=createNodeRenderer([]);
   const html=render({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
-  assert.equal((html.match(/data-book-page=/g)||[]).length,29);
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,27);
-  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,27);
-  assert.equal((html.match(/data-book-sale-label=/g)||[]).length,27);
-  assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,27);
-  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,27);
-  assert.equal(lookbookEntries.length,27);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,37);
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,35);
+  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,35);
+  assert.equal((html.match(/data-book-sale-label=/g)||[]).length,35);
+  assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,35);
+  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,35);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,35);
+  assert.equal(lookbookEntries.length,35);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover&&cover.includes('Walking on red carpet with confidence'));
   assert.equal((cover.match(/<img /g)||[]).length,1);

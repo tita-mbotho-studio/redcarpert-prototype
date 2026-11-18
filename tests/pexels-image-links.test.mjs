@@ -12,9 +12,9 @@ const descendants = children => children.flatMap(node =>
 
 test("remaining Pexels stock imagery is limited to inspiration catalogue photographs", () => {
   const collection = Object.values(imageLinks.products).flat();
-  assert.equal(collection.length, 16);
-  assert.equal(new Set(collection.map(item => item.id)).size, 16);
-  assert.equal(new Set(collection.map(item => item.url)).size, 16);
+  assert.equal(collection.length, 12);
+  assert.equal(new Set(collection.map(item => item.id)).size, 12);
+  assert.equal(new Set(collection.map(item => item.url)).size, 12);
   for (const item of collection) {
     const url = new URL(item.url);
     assert.equal(url.hostname, "images.pexels.com");
@@ -27,14 +27,14 @@ test("remaining Pexels stock imagery is limited to inspiration catalogue photogr
       assert(id && source.pathname.endsWith(id + "/"));
     }
   }
-  assert.equal(collection.filter(x => "sourceUrl" in x).length, 16);
+  assert.equal(collection.filter(x => "sourceUrl" in x).length, 12);
 
 });
 
 test("catalogue photos and lookbook links stay identical", () => {
-  assert.equal(catalogueProducts.length, 27);
+  assert.equal(catalogueProducts.length, 35);
   const sampleDresses=catalogueProducts.filter(product=>product.status==='sample');
-  assert.equal(sampleDresses.length,16);
+  assert.equal(sampleDresses.length,12);
   for (const product of sampleDresses) {
     const ref = requireImageLink(imageLinks.products[product.category], product.id);
     assert.equal(product.image, ref.url);
@@ -42,7 +42,8 @@ test("catalogue photos and lookbook links stay identical", () => {
     assert.match(product.imageAlt, /wedding dress photograph/);
   }
   assert.equal(imageLinks.products.ball_gown.length,0,'retired sample Ball Gown photo URLs should not remain');
-  assert.equal(catalogueProducts.filter(product=>product.status==='client').length,11);
+  assert.equal(imageLinks.products.ruffled.length,0,'Ruffled client assets now live in the dedicated gallery manifest');
+  assert.equal(catalogueProducts.filter(product=>product.status==='client').length,23);
 });
 
 test("About Us displays all six named, client-supplied ImageKit models", () => {

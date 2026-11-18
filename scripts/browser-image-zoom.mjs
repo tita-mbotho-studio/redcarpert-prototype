@@ -34,7 +34,7 @@ try {
     await next.click();
     const book = page.locator('#redcarpert-flipbook');
     assert.equal(await book.getAttribute('data-current-page'),'2');
-    assert.equal(await page.locator('[data-book-image-zoom]').count(),27);
+    assert.equal(await page.locator('[data-book-image-zoom]').count(),35);
     const dialog = page.locator('#redcarpert-book-photo-dialog');
     const enlarged = dialog.locator('[data-image-zoom-photo]');
     assert.equal(await enlarged.getAttribute('src'),null,'large image is lazy until click');
