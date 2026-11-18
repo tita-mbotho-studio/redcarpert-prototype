@@ -204,16 +204,8 @@ try {
     assert.equal(photoFrame.border, '0px', width + 'px photo popup should have no border');
     assert(Math.abs(photoFrame.frameWidth - photoFrame.imageWidth) <= 2,
       width + 'px photo must fill the popup without side mats');
-    assert(photoFrame.frameHeight >= photoFrame.imageHeight + 40 &&
-      photoFrame.frameHeight <= photoFrame.imageHeight + 85,
-      width + 'px only the unobtrusive zoom controls belong beneath the photograph');
-    const zoomControls = dialog.locator('[data-image-zoom-controls]');
-    assert(await zoomControls.isVisible(), 'photo popup needs zoom controls');
-    assert.equal(await dialog.locator('[data-image-zoom-percent]').textContent(), '100%');
-    await dialog.locator('[data-image-zoom-in]').click();
-    assert.equal(await dialog.locator('[data-image-zoom-percent]').textContent(), '150%');
-    await dialog.locator('[data-image-zoom-reset]').click();
-    assert.equal(await dialog.locator('[data-image-zoom-percent]').textContent(), '100%');
+    assert(Math.abs(photoFrame.frameHeight - photoFrame.imageHeight) <= 2,
+      width + 'px photo must fill the popup without top/bottom mats');
     await assertCloseOutsideMedia('[data-wedding-preview-photo]');
     await page.keyboard.press("Escape");
     assert.equal(await dialog.evaluate(el => el.open), false);
@@ -228,8 +220,6 @@ try {
     await player.waitFor({ state: "visible", timeout: 12000 });
     assert.equal(await player.getAttribute("src"), base + "wedding-moments-88.mp4");
     assert(await player.evaluate(el => el.controls), "native video controls");
-    assert.equal(await dialog.locator('[data-image-zoom-controls]').isVisible(), false,
-      'video popup must not expose photograph zoom controls');
     assert(await player.evaluate(el => el.playsInline), "video plays inline on mobile");
     const videoFrame = await dialog.evaluate(el => {
       const inner = el.querySelector('.redcarpert-moment-dialog-inner');

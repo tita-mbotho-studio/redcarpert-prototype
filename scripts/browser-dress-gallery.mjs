@@ -2,6 +2,9 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {chromium} from 'playwright';
 import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
+const ballGown03Photos=JSON.parse(readFileSync('src/data/client-ball-gowns.json','utf8'))
+  .find(gown=>gown.id==='ball-gown-03').photos.map(photo=>photo.url);
+const imagePath=url=>new URL(url).pathname;
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -172,11 +175,11 @@ try {
  assert.equal(await gown.locator('[data-gallery-index]').count(),4);
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'01 / 04');
  assert.equal(await gown.getAttribute('data-gallery-origin'),'client');
- assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-main\.webp/);
+  assert.equal(imagePath(await gown.locator('[data-gallery-active-image]').getAttribute('src')),imagePath(ballGown03Photos[0]));
  await gown.locator('[data-gallery-next]').click();
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
- assert.match(await gown.locator('[data-gallery-active-image]').getAttribute('src'),/ball-gown-03-back\.webp/);
- assert.match(await gown.locator('[data-gallery-enlarge]').getAttribute('href'),/ball-gown-03-back\.webp/);
+  assert.equal(imagePath(await gown.locator('[data-gallery-active-image]').getAttribute('src')),imagePath(ballGown03Photos[1]));
+  assert.equal(imagePath(await gown.locator('[data-gallery-enlarge]').getAttribute('href')),imagePath(ballGown03Photos[1]));
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
@@ -216,7 +219,8 @@ try {
    assert.equal(await cards.locator('.redcarpert-catalogue-condition-note').count(),0);
    const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
    assert.equal(await clientCard.locator('.catalogue-sample-note').count(),0);
-   assert.equal(await clientCard.locator('h2.woocommerce-loop-product__title').textContent(),'Ball Gown 03');
+   assert.equal(await clientCard.locator('.redcarpert-catalogue-collection').textContent(),'Ball Gown');
+   assert.equal(await clientCard.locator('.redcarpert-catalogue-number').textContent(),'03');
  }
  await actual.close();
  assert.deepEqual(liveErrors,[],'real Pexels demo route should have no JS errors');

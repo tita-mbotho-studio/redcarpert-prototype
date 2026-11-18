@@ -169,15 +169,10 @@ export function renderWeddingMomentGallery(
       "aria-label": "Wedding moments photo and video preview",
     }, [
       node("div", { class: "redcarpert-moment-dialog-inner" }, [
-        node("div", {
-          class: "redcarpert-image-zoom-stage", "data-image-zoom-stage": "", hidden: "hidden",
-        }, [
-          node("img", {
-            class: "redcarpert-wedding-preview-image",
-            "data-wedding-preview-photo": "", "data-image-zoom-photo": "",
-            alt: "", decoding: "async", hidden: "hidden",
-          }),
-        ]),
+        node("img", {
+          class: "redcarpert-wedding-preview-image", "data-wedding-preview-photo": "",
+          alt: "", decoding: "async", hidden: "hidden",
+        }),
         node("video", {
           class: "redcarpert-wedding-preview-video", "data-wedding-preview-video": "",
           controls: "controls", playsinline: "playsinline",
@@ -187,21 +182,6 @@ export function renderWeddingMomentGallery(
           type: "button", class: "redcarpert-wedding-preview-close",
           "data-wedding-preview-close": "", "aria-label": "Close media preview",
         }, [node("i", { class: "fa-solid fa-xmark", "aria-hidden": "true" })]),
-        node("div", {
-          class: "redcarpert-image-zoom-controls", "data-image-zoom-controls": "",
-          hidden: "hidden", "aria-label": "Photograph zoom controls",
-        }, [
-          node("button", {type: "button", "data-image-zoom-out": "", "aria-label": "Zoom out"}, [
-            node("i", {class: "fa-solid fa-minus", "aria-hidden": "true"}),
-          ]),
-          node("output", {"data-image-zoom-percent": "", "aria-live": "polite"}, ["100%"]),
-          node("button", {type: "button", "data-image-zoom-in": "", "aria-label": "Zoom in"}, [
-            node("i", {class: "fa-solid fa-plus", "aria-hidden": "true"}),
-          ]),
-          node("button", {type: "button", "data-image-zoom-reset": "", "aria-label": "Reset zoom"}, [
-            node("i", {class: "fa-solid fa-rotate-left", "aria-hidden": "true"}),
-          ]),
-        ]),
       ]),
     ]),
   ];
