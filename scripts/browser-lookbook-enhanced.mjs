@@ -79,7 +79,7 @@ try {
           const pixels=await image.evaluate(photo=>{
             const r=photo.getBoundingClientRect();
             const scale=Math.min(r.width/photo.naturalWidth,r.height/photo.naturalHeight);
-            const w=photo.naturalWidth*scale,h=photo.naturalHeight*scale;
+            const w=photo.naturalWidth*scale;
             return {left:r.left+(r.width-w)/2,right:r.left+(r.width+w)/2,y:r.top+r.height/2};
           });
           const x1=pixels.right-(pixels.right-pixels.left)*.12;
