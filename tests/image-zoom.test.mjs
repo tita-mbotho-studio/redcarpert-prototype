@@ -178,10 +178,10 @@ test('3D book remains available on all screen types while the zoom action does n
   assert.match(zoom,/refresh: paint/);
   assert.match(reader,/zoom\.refresh\(\)/);
   assert.match(browser,/page\.touchscreen\.tap/);
-  assert.match(browser,/coverRect\.x\+coverRect\.width-22/,
-    'Playwright boundingBox has x/width, not DOMRect right');
-  assert.match(browser,/coverRect\.y\+coverRect\.height-22/,
-    'Playwright boundingBox has y/height, not DOMRect top');
+  assert.match(browser,/await book\.scrollIntoViewIfNeeded\(\)/,
+    '3D test must position the book in the viewport before tapping');
+  assert.match(browser,/document\.elementFromPoint\(x,y\)/,
+    '3D test must select a visible paper hit target');
   assert.doesNotMatch(browser,/coverRect\.(?:right|top)/,
     'invalid bounding-box properties must never produce mouse.click NaN');
   assert.match(browser,/real two-finger pinch/);

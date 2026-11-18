@@ -270,34 +270,35 @@ try {
     const prev=page.locator('[data-book-previous]');
     let position=await current();
     assert.equal(position,1,width+'px 3D reader must begin at the cover');
-    // Give PageFlip one rendering frame to finalize the physical cover.
-    await page.waitForTimeout(300);
-    const cover=book.locator('[data-book-page="1"]');
-    const coverRect=await cover.boundingBox();
-    assert(coverRect&&coverRect.width>80,width+'px cover must render');
-    // The old pre-zoom reader allowed a native paper tap to flip. Do not
-    // require swipes or manual pointerup-to-click synthesis for this action.
-    // Playwright boundingBox() returns x/y/width/height (not DOMRect's
-    // top/right). Use finite viewport coordinates to test a real paper tap.
-    const coverTap = {
-      x:coverRect.x+coverRect.width-22,
-      y:coverRect.y+coverRect.height-22,
-    };
-    assert(Number.isFinite(coverTap.x)&&Number.isFinite(coverTap.y),
-      width+'px cover tap coordinates must be finite');
-    const coverHit=await page.evaluate(({x,y})=>{
-      const el=document.elementFromPoint(x,y);
-      const book=document.querySelector('#redcarpert-flipbook');
-      return {tag:el?.tagName,className:typeof el?.className==='string'?el.className:'',
-        bookContains:book?.contains(el),outerHTML:el?.outerHTML.slice(0,320),
-        ancestors:(()=>{
-          const ancestors=[];
-          for(let n=el,i=0;n&&i<6;i++,n=n.parentElement){
-            ancestors.push(n.tagName+'.'+String(n.className).slice(0,80));
+    // PageFlip may be below the browser viewport immediately after load.
+    // Scan the *visible* book surface rather than clicking an offscreen
+    // physical leaf; desktop two-page layouts also clone cover wrappers.
+    await book.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(350);
+    const coverTap=await book.evaluate(root=>{
+      const rect=root.getBoundingClientRect();
+      const left=Math.max(0,rect.left), right=Math.min(innerWidth,rect.right);
+      const top=Math.max(0,rect.top),bottom=Math.min(innerHeight,rect.bottom);
+      const candidates=[];
+      for(const yf of [.16,.35,.55,.78]){
+        for(const xf of [.9,.83,.7,.6,.45,.28]){
+          const x=left+(right-left)*xf,y=top+(bottom-top)*yf;
+          const hit=document.elementFromPoint(x,y);
+          if(hit && root.contains(hit) &&
+             !hit.closest('a,button,input,textarea,select,label,[data-book-image-zoom]')){
+            return {x,y,hit:hit.tagName,kind:typeof hit.className==='string'?hit.className:'',
+              book:{left,right,top,bottom}};
           }
-          return ancestors;
-        })()};
-    },coverTap);
+          candidates.push({x,y,hit:hit?.tagName,
+            inside:Boolean(hit&&root.contains(hit))});
+        }
+      }
+      return {missing:true,book:{left,right,top,bottom},candidates};
+    });
+    assert(!coverTap.missing, width+'px must have a visible, noninteractive 3D paper target: '+
+      JSON.stringify(coverTap));
+    assert(Number.isFinite(coverTap.x)&&Number.isFinite(coverTap.y),
+      width+'px paper tap must have finite in-viewport coordinates');
     await page.evaluate(()=>{
       window.__coverEvents=[];
       document.addEventListener('click',event=>{
@@ -308,7 +309,7 @@ try {
           bookContains:document.querySelector('#redcarpert-flipbook')?.contains(event.target)});
       },true);
     });
-    console.log('3D cover hit target',width,JSON.stringify(coverHit));
+    console.log('3D paper hit target',width,JSON.stringify(coverTap));
     await at(coverTap.x,coverTap.y);
     try {
       position=await progresses(position,1);
