@@ -275,7 +275,15 @@ try {
     assert(coverRect&&coverRect.width>80,width+'px cover must render');
     // The old pre-zoom reader allowed a native paper tap to flip. Do not
     // require swipes or manual pointerup-to-click synthesis for this action.
-    await at(coverRect.right-8,coverRect.top+Math.min(24,coverRect.height*.04));
+    // Playwright boundingBox() returns x/y/width/height (not DOMRect's
+    // top/right). Use finite viewport coordinates to test a real paper tap.
+    const coverTap = {
+      x:coverRect.x+coverRect.width-8,
+      y:coverRect.y+Math.min(24,coverRect.height*.04),
+    };
+    assert(Number.isFinite(coverTap.x)&&Number.isFinite(coverTap.y),
+      width+'px cover tap coordinates must be finite');
+    await at(coverTap.x,coverTap.y);
     position=await progresses(position,1);
     assert(position>1,width+'px paper tap must make an animated page turn');
     await activate(prev);

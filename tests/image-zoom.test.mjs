@@ -167,6 +167,12 @@ test('3D book remains available on all screen types while the zoom action does n
   assert.match(zoom,/refresh: paint/);
   assert.match(reader,/zoom\.refresh\(\)/);
   assert.match(browser,/page\.touchscreen\.tap/);
+  assert.match(browser,/coverRect\.x\+coverRect\.width-8/,
+    'Playwright boundingBox has x/width, not DOMRect right');
+  assert.match(browser,/coverRect\.y\+Math\.min\(24,coverRect\.height\*\.04\)/,
+    'Playwright boundingBox has y/height, not DOMRect top');
+  assert.doesNotMatch(browser,/coverRect\.(?:right|top)/,
+    'invalid bounding-box properties must never produce mouse.click NaN');
   assert.match(browser,/real two-finger pinch/);
   assert.match(browser,/page\.setViewportSize/);
   assert.match(browser,/\[1440, 1024, 768, 390, 320\]/);
