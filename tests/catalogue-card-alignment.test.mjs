@@ -63,3 +63,23 @@ test('luxury typography remains centred, accessible and responsive without prici
   assert.match(css, /prefers-reduced-motion/);
   assert.doesNotMatch(css, /catalogue-sample-note|redcarpert-catalogue-condition-note|redcarpert-catalogue-price/);
 });
+
+test('filtered product layout never depends on inherited WooCommerce floats or positional classes', () => {
+  const css = readFileSync('src/components/CatalogueListing.css','utf8');
+  const filter = readFileSync('src/client/catalogue-filter.js','utf8');
+  assert.match(css,/ul\.products\[data-catalogue-preview\] \{\s*display: grid !important;/);
+  assert.match(css,/grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/);
+  assert.match(css,/@media \(max-width: 1000px\)[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(css,/@media \(max-width: 640px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(css,/ul\.products\[data-catalogue-preview\]::before,[\s\S]*?::after \{\s*content: none !important;\s*display: none !important;/);
+  assert.match(css,/ul\.products\[data-catalogue-preview\] > li\.product \{\s*float: none !important;\s*clear: none !important;/);
+  assert.doesNotMatch(filter,/shown\s*%\s*4|classList\.toggle\('first'|classList\.toggle\('last'/,
+    'visible dress order must no longer be coupled to a four-column float layout');
+  for (const route of routes) {
+    const document = adaptCatalogue(source(route), catalogueProducts);
+    const cards = all(document.nodes).filter(n => Object.hasOwn(n.attrs,'data-catalogue-id'));
+    assert(cards.length>0, route + ' must have dress cards');
+    assert(cards.every(card => card.attrs.class === 'product'),
+      route + ' should not include legacy first/last float classes');
+  }
+});
