@@ -16,12 +16,9 @@ export function initializeCatalogueFilter() {
       const visible=category==='all'||item.dataset.catalogueCategory===category;
       item.hidden=!visible;
       item.classList.toggle('redcarpert-filtered-out',!visible);
-      item.classList.remove('first','last');
-      if(visible){
-        item.classList.toggle('first',shown%4===0);
-        item.classList.toggle('last',shown%4===3);
-        shown++;
-      }
+      // Grid places visible cards in source order; no four-column
+      // first/last float bookkeeping is needed at any breakpoint.
+      if(visible)shown++;
     }
     for(const button of buttons)button.setAttribute('aria-pressed',String(button.dataset.filterCategory===category));
     const status=controls.querySelector('[data-filter-status]');

@@ -3,6 +3,59 @@
 
 /* One editorial card for the main catalogue and all five collections.
    Preserve the approved grid, square crops, image sources and linked routes. */
+
+/* Implementation 58: use source-order CSS Grid instead of inherited
+   WooCommerce floats. Its mobile nth-child(2n) rule floats even-numbered
+   products right, including after earlier products are hidden by filtering.
+   That leaves the first visible dress in the second column. */
+#main-container ul.products[data-catalogue-preview] {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: row;
+  column-gap: 3.8%;
+  row-gap: clamp(24px, 3vw, 42px);
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  list-style: none;
+}
+/* WooCommerce inserts clearfix pseudo-elements that would otherwise take
+   up real grid cells, shifting the first photograph into column two. */
+#main-container ul.products[data-catalogue-preview]::before,
+#main-container ul.products[data-catalogue-preview]::after {
+  content: none !important;
+  display: none !important;
+}
+/* Override both the original four-column floats and the responsive
+   [class*=columns-] li.product:nth-child(2n) float/clear rules. */
+#main-container ul.products[data-catalogue-preview] > li.product {
+  float: none !important;
+  clear: none !important;
+  display: block;
+  position: relative;
+  width: 100% !important;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+/* Explicitly honor hidden cards. An authored li { display: block } can
+   override the browser's lower-priority [hidden] display rule. */
+#main-container ul.products[data-catalogue-preview] > li.product[hidden],
+#main-container ul.products[data-catalogue-preview] > li.product.redcarpert-filtered-out {
+  display: none !important;
+}
+@media (max-width: 1000px) {
+  #main-container ul.products[data-catalogue-preview] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  #main-container ul.products[data-catalogue-preview] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 #main-container ul.products[data-catalogue-preview] li.product {
   box-sizing: border-box;
   background: #fff;
