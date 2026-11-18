@@ -100,11 +100,21 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
     audit={...audit,effectiveDpi:actualDpi,printReady:actualDpi>=300};
     await writeFile(record,JSON.stringify(audit,null,2)+"\n");
   }
-  if(product.status === "client" && !audit.printReady) {
+  if(shouldReportLookbookPrintWarning(product.status,audit.printReady)) {
     console.warn("[Bridal Edit] "+product.id+": source image "+audit.width+"x"+audit.height+
       " px; estimated "+audit.effectiveDpi+" DPI in PDF. Included without upscaling; higher-resolution photo recommended for print.");
   }
   return {image:{id:product.id,jpeg:image,width:output.width,height:output.height},audit};
+}
+
+/** Print-readiness diagnostics are opt-in; every image is still audited and
+ * true download/metadata/corruption errors remain hard failures. */
+export function shouldReportLookbookPrintWarning(
+  status: "client" | "sample",
+  printReady: boolean,
+  diagnosticsEnabled = process.env.REDCARPERT_PDF_PRINT_WARNINGS === "1",
+): boolean {
+  return diagnosticsEnabled && status === "client" && !printReady;
 }
 
 /** Three download workers limit peak bandwidth and avoid refetching cached files. */

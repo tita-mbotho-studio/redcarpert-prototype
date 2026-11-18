@@ -105,7 +105,7 @@ try {
  await liveGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
  // The approved detail card must stay centre-aligned across screen sizes:
  // collection, dress name, price label and ZAR price above Book a Fitting.
- for(const width of [1280,768,640,390,320]){
+ for(const width of [1920,1440,1280,1100,1051,1050,900,768,640,390,320]){
    await actual.setViewportSize({width,height:900});
    const alignment=await actual.locator('.redcarpert-detail-card').evaluate(card=>{
      const selectors=['.redcarpert-detail-collection','h1.redcarpert-detail-name',
@@ -117,6 +117,40 @@ try {
    });
    assert(alignment.every(({textAlign})=>textAlign==='center'),
      width+'px dress collection, heading and price must all be centred: '+JSON.stringify(alignment));
+   // Measure the actual rendered rental label and amount at every breakpoint.
+   const rentalLayout=await actual.locator('.redcarpert-detail-price-options').evaluate(options=>{
+     const rental=options.querySelector('[data-rental-price]');
+     const sale=options.querySelector('[data-sale-price]');
+     const label=options.querySelector('.redcarpert-detail-price-option:nth-child(2) .redcarpert-detail-price-label');
+     const sizes=element=>{
+       const style=getComputedStyle(element);
+       return {
+         content:element.textContent.trim(),
+         height:element.getBoundingClientRect().height,
+         lineHeight:parseFloat(style.lineHeight),
+         scrollWidth:element.scrollWidth,
+         clientWidth:element.clientWidth,
+         whiteSpace:style.whiteSpace,
+         fontSize:style.fontSize,
+         fontFamily:style.fontFamily,
+       };
+     };
+     const optionColumns=getComputedStyle(options).gridTemplateColumns.trim().split(/\s+/).length;
+     return {label:sizes(label),rental:sizes(rental),sale:sizes(sale),columns:optionColumns};
+   });
+   assert.equal(rentalLayout.columns,1,
+     width+'px both pricing values should have the same full-width layout');
+   assert.equal(rentalLayout.rental.fontSize,rentalLayout.sale.fontSize,
+     width+'px rental amount must use the SAME readable font size as sale price');
+   assert.equal(rentalLayout.rental.fontFamily,rentalLayout.sale.fontFamily,
+     width+'px rental amount must use the SAME font family as sale price');
+   for(const [name,element] of [['rental label',rentalLayout.label],['rental amount',rentalLayout.rental]]){
+     assert.equal(element.whiteSpace,'nowrap',width+'px '+name+' must not wrap');
+     assert(element.height<=element.lineHeight+1.5,
+       width+'px '+name+' occupies multiple lines: '+JSON.stringify(element));
+     assert(element.scrollWidth<=element.clientWidth+1,
+       width+'px '+name+' overflows its column: '+JSON.stringify(element));
+   }
    const fitting=await actual.locator('.redcarpert-detail-actions').evaluate(group=>{
      const label=group.querySelector('.redcarpert-icon-cta-label');
      const button=group.querySelector('a.redcarpert-detail-fitting-button');
@@ -214,6 +248,23 @@ try {
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
  assert.equal(await actual.locator('[data-sale-price]').textContent(),displaySalePriceForDress('ball-gown-03'));
  assert.equal(await actual.locator('[data-rental-price]').textContent(),displayRentalPriceForDress('ball-gown-03'));
+ // Ball Gown 03 carries one of the longest actual ZAR rental ranges.
+ for(const width of [1920,1440,1051,1050,768,640,390,320]){
+   await actual.setViewportSize({width,height:900});
+   const actualRange=await actual.locator('[data-rental-price]').evaluate(element=>{
+     const css=getComputedStyle(element);
+     return {
+       whiteSpace:css.whiteSpace,scrollWidth:element.scrollWidth,clientWidth:element.clientWidth,
+       height:element.getBoundingClientRect().height,lineHeight:parseFloat(css.lineHeight),
+     };
+   });
+   assert.equal(actualRange.whiteSpace,'nowrap',width+'px client rental range must not wrap');
+   assert(actualRange.height<=actualRange.lineHeight+1.5,
+     width+'px client rental amount must occupy exactly one line: '+JSON.stringify(actualRange));
+   assert(actualRange.scrollWidth<=actualRange.clientWidth+1,
+     width+'px client rental amount must fit its card: '+JSON.stringify(actualRange));
+ }
+ await actual.setViewportSize({width:1280,height:900});
  assert.equal(await actual.locator('.redcarpert-detail-price-disclaimer').textContent(),RENTAL_CONDITION_NOTE,
    'dress detail must show the new/pre-owned rental pricing qualification');
  assert.equal(await actual.locator('.redcarpert-related-disclaimer').textContent(),RENTAL_CONDITION_NOTE,

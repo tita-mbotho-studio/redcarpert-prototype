@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   validateLookbookPhotoDimensions,
   estimateLookbookPrintDpi,
+  shouldReportLookbookPrintWarning,
 } from '../scripts/lib/lookbook-assets.ts';
 
 test('small client-supplied Ball Gown photos do not prevent PDF/site generation', () => {
@@ -29,4 +30,13 @@ test('print readiness is estimated from actual encoded PDF image dimensions', ()
   assert(small>0 && small<300,'smaller client photos should be marked below print quality');
   assert(estimateLookbookPrintDpi(2000,2500)>=300);
   assert.throws(() => estimateLookbookPrintDpi(0,1200),/Invalid processed lookbook image dimensions/);
+});
+
+test('routine client print-resolution warnings are opt-in without changing DPI audit or error handling', () => {
+  // The default is quiet unless REDCARPERT_PDF_PRINT_WARNINGS=1 is set.
+  assert.equal(shouldReportLookbookPrintWarning('client',false,false),false);
+  assert.equal(shouldReportLookbookPrintWarning('client',true,false),false);
+  assert.equal(shouldReportLookbookPrintWarning('client',false,true),true);
+  assert.equal(shouldReportLookbookPrintWarning('client',true,true),false);
+  assert.equal(shouldReportLookbookPrintWarning('sample',false,true),false);
 });
