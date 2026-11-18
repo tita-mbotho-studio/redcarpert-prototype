@@ -137,8 +137,18 @@ try {
     assert.equal(await zoomDialog.locator('.redcarpert-wedding-preview-image').count(),1);
     assert.equal(await zoomDialog.locator('.redcarpert-wedding-preview-close').count(),1);
     assert.equal(await zoomDialog.locator('[data-book-zoom-in],[data-book-zoom-out],[data-book-zoom-reset]').count(),0);
+    assert.equal(await zoomDialog.locator('[data-book-zoom-close]').evaluate(button=>
+      getComputedStyle(button).outlineStyle),'none',
+      'pointer-opened modal X must have no focus ring');
     await page.keyboard.press('Escape');
     await zoomDialog.waitFor({state:'hidden'});
+    await page.waitForFunction(()=>
+      !!document.querySelector('.redcarpert-book-page.is-current img[data-book-zoom-photo].redcarpert-book-pointer-restored')
+    );
+    assert.equal(await photo.evaluate(image=>getComputedStyle(image).outlineStyle),'none',
+      'restored photo must have no border-like focus ring');
+    assert.equal(await photo.evaluate(image=>getComputedStyle(image).borderTopWidth),'0px',
+      'the photograph must not have a decorative frame');
     assert.equal(await page.locator('[data-book-status]').textContent(),beforeZoom,
       'closing zoom must not turn the book');
    }
