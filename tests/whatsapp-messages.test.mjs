@@ -22,8 +22,8 @@ test('general fitting enquiries are grammatical, readable and use one shared sou
     'WhatsApp must receive the original line breaks and punctuation');
 });
 
-test('every one of the 27 dresses uses the SAME neutral and accurately priced enquiry', () => {
-  assert.equal(catalogueProducts.length,27);
+test('every one of the 35 dresses uses the SAME neutral and accurately priced enquiry', () => {
+  assert.equal(catalogueProducts.length,35);
   for(const product of catalogueProducts){
     const message=dressFittingMessage(product);
     const category=catalogueCategories.find(c=>c.id===product.category);

@@ -1,31 +1,38 @@
-# Asset credits — Implementation 13
+# Photo source register — Redcarpert Wedding Dresses
 
-All twenty catalogue and interactive lookbook photographs are **remote Pexels demonstration images**, served from `images.pexels.com`; these photographs are **not downloaded or committed to this repository**. They are not Redcarpert inventory and do not imply endorsement by any depicted person or photographer. The logo on both book covers is the existing approved local `public/redcarpert/brand/redcarpert-logo.png`.
+This is an internal asset-provenance record, not customer-facing website copy.
+Source photographs remain at their remote URLs and are not committed to the site.
 
-| Sample | Category | Photographer | Pexels source |
+## Client-provided photography
+
+- Homepage: three ImageKit hero images, versioned in src/data/image-links.json.
+- Ball Gown: eleven dresses and 27 unique photos in src/data/client-ball-gowns.json.
+  All use the wedding-dresses/ball-gown-dresses/ ImageKit folder.
+  The repeated ball-gown-03-04 link is stored once. For Ball Gown 04,
+  ball-gown-04-02 is the primary because no 04-01 URL was supplied.
+- Ruffled: twelve dresses and 38 unique photos in
+  src/data/client-ruffled-dresses.json, under wedding-dresses/ruffled-dresses/.
+  These replace the four retired Pexels Ruffled records.
+
+The shared image delivery policy generates context-appropriate smaller URLs
+while preserving the supplied original as a fallback.
+
+## Remaining licensed Pexels sources (12)
+
+| Ref | Collection | Photographer | Source |
 |---|---|---|---|
-| 01 | Mermaid | Trần Long | [View photograph](https://www.pexels.com/photo/elegant-asian-bride-on-path-in-countryside-5984238/) |
-| 03 | Mermaid | Tangerine Vitamins | [View photograph](https://www.pexels.com/photo/photo-of-woman-wearing-wedding-dress-4122665/) |
-| 04 | Mermaid | Bestbe Models | [View photograph](https://www.pexels.com/photo/woman-wearing-mermaid-wedding-gown-2062534/) |
-| 05 | Mermaid | Genaro Servín | [View photograph](https://www.pexels.com/photo/woman-standing-on-grass-field-wearing-mermaid-dress-955127/) |
-| 02 | Ball Gown | Thalia villa | [View photograph](https://www.pexels.com/photo/woman-in-white-wedding-dress-4277970/) |
-| 06 | Ball Gown | Hiren Lad | [View photograph](https://www.pexels.com/photo/woman-wearing-white-wedding-dress-2929632/) |
-| 07 | Ball Gown | Andrea Prochilo | [View photograph](https://www.pexels.com/photo/elegant-bride-in-luxury-ballroom-setting-36297021/) |
-| 08 | Ball Gown | Andrea Prochilo | [View photograph](https://www.pexels.com/photo/elegant-bride-in-luxurious-ballroom-setting-36297026/) |
+| 01 | Mermaid | Trần Long | https://www.pexels.com/photo/elegant-asian-bride-on-path-in-countryside-5984238/ |
+| 03 | Mermaid | Tangerine Vitamins | https://www.pexels.com/photo/photo-of-woman-wearing-wedding-dress-4122665/ |
+| 04 | Mermaid | Bestbe Models | https://www.pexels.com/photo/woman-wearing-mermaid-wedding-gown-2062534/ |
+| 05 | Mermaid | Genaro Servín | https://www.pexels.com/photo/woman-standing-on-grass-field-wearing-mermaid-dress-955127/ |
+| 13 | Modern Tradition | Taiye Salawu | https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-attire-39984595/ |
+| 14 | Modern Tradition | Taiye Salawu | https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-37954664/ |
+| 15 | Modern Tradition | Mensa Bonsu | https://www.pexels.com/photo/elegant-african-bride-in-lace-wedding-gown-34151497/ |
+| 16 | Modern Tradition | Milly Lavish | https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-30391660/ |
+| 17 | 2 in 1 | Esma Atak | https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370059/ |
+| 18 | 2 in 1 | Esma Atak | https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370060/ |
+| 19 | 2 in 1 | Esma Atak | https://www.pexels.com/photo/bride-trying-on-a-wedding-dress-in-the-store-20352738/ |
+| 20 | 2 in 1 | Esma Atak | https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20369981/ |
 
-| 09 | Ruffled Dresses | Matilda Jacob | [View photograph](https://www.pexels.com/photo/elegant-bridal-gown-with-ruffle-details-39878452/) |
-| 10 | Ruffled Dresses | DΛVΞ GΛRCIΛ | [View photograph](https://www.pexels.com/photo/elegant-bridal-portrait-with-window-light-31205761/) |
-| 11 | Ruffled Dresses | Olga Solodilova | [View photograph](https://www.pexels.com/photo/pretty-brunette-bride-in-wedding-dress-posing-in-stadium-stands-19781836/) |
-| 12 | Ruffled Dresses | Rina Mayer | [View photograph](https://www.pexels.com/photo/close-up-of-woman-in-wedding-dress-17278773/) |
-| 13 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-nigerian-bride-in-traditional-attire-39984595/) |
-| 14 | Modern Tradition Dresses | Taiye Salawu | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-37954664/) |
-| 15 | Modern Tradition Dresses | Mensa Bonsu | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-lace-wedding-gown-34151497/) |
-| 16 | Modern Tradition Dresses | Milly Lavish | [View photograph](https://www.pexels.com/photo/elegant-african-bride-in-traditional-attire-30391660/) |
-| 17 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370059/) |
-| 18 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20370060/) |
-| 19 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/bride-trying-on-a-wedding-dress-in-the-store-20352738/) |
-| 20 | 2 in 1 Dresses | Esma Atak | [View photograph](https://www.pexels.com/photo/woman-in-a-wedding-dress-posing-in-a-bridal-shop-20369981/) |
-
-**New-category image disclaimer:** Ruffled and Modern Tradition images illustrate visual styling only. The 2 in 1 category uses bridal boutique images as inspiration; these photographs do **not** verify a detachable overskirt, convertible design or any two-look functionality. Every sample must be replaced or confirmed by the client before being presented as stock.
-
-The previously downloaded local photos by Trần Long and Thalia villa remain solely for the **existing two-page offline-downloadable PDF** and approved homepage imagery; no new Pexels photographs are stored. Remote images and the optional StPageFlip CDN script require network access. If external resources fail, the reader still supports page navigation and shows an image-unavailable message. Follow the [Pexels licence](https://www.pexels.com/legal-pages/license/) and preserve clear sample disclosures.
+These credits remain internal. Avoid unsupported stock or convertible-feature
+claims. Follow the Pexels licence: https://www.pexels.com/legal-pages/license/

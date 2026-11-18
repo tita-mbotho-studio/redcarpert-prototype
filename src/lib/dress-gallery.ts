@@ -1,4 +1,5 @@
 import clientBallGowns from "../data/client-ball-gowns.json" with { type: "json" };
+import clientRuffledDresses from "../data/client-ruffled-dresses.json" with { type: "json" };
 import extraGalleryImages from "../data/dress-gallery-images.json" with { type: "json" };
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 
@@ -10,11 +11,13 @@ export interface DressGalleryPhoto {
 /**
  * The catalogue photograph always comes first. Optional subsequent photos are
  * mapped by stable dress ID; do not show unrelated stock photos as dress angles.
- * Add verified client photographs to src/data/dress-gallery-images.json.
+ * Client gown galleries live in their category manifests; other photos may be
+ * added to src/data/dress-gallery-images.json.
  */
 export const additionalDressPhotos: Readonly<Record<string, readonly DressGalleryPhoto[]>> = {
   ...extraGalleryImages,
-  ...Object.fromEntries(clientBallGowns.map(gown => [gown.id, gown.photos.slice(1)])),
+  ...Object.fromEntries([...clientBallGowns, ...clientRuffledDresses]
+    .map(dress => [dress.id, dress.photos.slice(1)])),
 };
 
 const approvedPhotoUrl = (value: string): boolean => {
@@ -41,10 +44,15 @@ export function validateDressGalleryMappings(
         typeof photo?.alt !== "string" || photo.alt.trim().length < 5 || photo.alt.length > 180) {
         throw new Error("Invalid gallery photo or alternative text for " + productId);
       }
-      if (productId.startsWith("ball-gown-")) {
-        const prefix="https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/"+productId+"/"+productId+"-";
-        if (!photo.url.startsWith(prefix) || !/^[-a-z]+\.webp\?updatedAt=\d{13}$/.test(photo.url.slice(prefix.length)))
-          throw new Error("Client gallery photograph belongs to a different dress: "+productId);
+      if (productId.startsWith("ball-gown-") || productId.startsWith("ruffled-dress-")) {
+        const ball = productId.startsWith("ball-gown-");
+        const folder = ball ? "ball-gown-dresses" : "ruffled-dresses";
+        const prefix = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/" +
+          folder + "/" + productId + "-";
+        const suffix = photo.url.startsWith(prefix) ? photo.url.slice(prefix.length) : "";
+        if (!/^\d{2}\.webp\?updatedAt=\d{13}$/.test(suffix)) {
+          throw new Error("Client gallery photograph belongs to a different dress: " + productId);
+        }
       }
       if (urls.has(photo.url)) throw new Error("Repeated gallery photograph for " + productId);
       urls.add(photo.url);

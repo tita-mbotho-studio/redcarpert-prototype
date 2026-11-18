@@ -85,5 +85,5 @@ try {
       }
     } finally { await page.close(); }
   }
-  console.log('Luxury catalogue cards PASS: five collections, 27 labels, four viewports');
+  console.log('Luxury catalogue cards PASS: five collections, 35 labels, four viewports');
 } finally { await browser.close(); }

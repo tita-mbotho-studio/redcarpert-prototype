@@ -7,8 +7,8 @@ export interface PriceRangeZar { readonly minZar: number; readonly maxZar: numbe
 export const RENTAL_CONDITION_NOTE = "Rental prices may vary depending on whether the dress is new or pre-owned.";
 /** Legacy price provenance remains internal; never expose a pricing notice in the UI. */
 const priceEntries = products.dresses;
-if (products.currency !== "ZAR" || products.priceStatus !== "draft" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 27) {
-  throw new Error("products.json: expected twenty-seven dress price slots in ZAR");
+if (products.currency !== "ZAR" || products.priceStatus !== "draft" || products.priceRangeStatus !== "illustrative" || priceEntries.length !== 35) {
+  throw new Error("products.json: expected thirty-five dress price slots in ZAR");
 }
 const priceRangesZar: Record<string, PriceRangeZar> = products.priceRangesZar;
 const ids = new Set<string>();

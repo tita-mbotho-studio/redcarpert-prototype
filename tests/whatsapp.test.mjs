@@ -22,8 +22,8 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all 27 dress enquiries use one readable template with example sale and pending rental prices',()=>{
-  assert.equal(catalogueProducts.length,27);
+test('all 35 dress enquiries use one readable template with fixed sale prices and rental price ranges',()=>{
+  assert.equal(catalogueProducts.length,35);
   for(const dress of catalogueProducts){
     const message=sampleFittingMessage(dress);
     const url=new URL(buildWhatsAppUrl(message));

@@ -9,16 +9,16 @@ const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const listingRoutes=['/product',...catalogueCategories.map(c=>c.route.replace(/\/$/,''))];
 const categorySource=route=>sitePages[route]??{...sitePages['/product-category/mermaid'],route};
-test('eleven client Ball Gowns and sixteen inspirational samples keep verified image sources',()=>{
+test('eleven Ball Gowns, twelve Ruffled dresses and twelve remaining sample styles keep verified image sources',()=>{
  assert.deepEqual(catalogueCategories.map(c=>c.name),['Mermaid','Ball Gown','Ruffled Dresses','Modern Tradition Dresses','2 in 1 Dresses']);
- assert.equal(catalogueProducts.length,27);
+ assert.equal(catalogueProducts.length,35);
  assert.equal(catalogueProducts.filter(p=>p.category==='ball_gown').length,11);
- assert.equal(catalogueProducts.filter(p=>p.status==='sample').length,16);
+ assert.equal(catalogueProducts.filter(p=>p.status==='sample').length,12);
  for(const p of catalogueProducts){
   assert.equal(p.detailReference,null);
   assert(!('price' in p) && !('sizes' in p));
   if(p.status==='client'){
-   assert.match(p.name,/^Ball Gown \d{2}$/);
+   assert.match(p.name,/^(?:Ball Gown|Ruffled Dress) \d{2}$/);
    assert.match(p.image,/^https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
    assert(Number.isSafeInteger(p.priceZar) && p.priceZar>0);
    assert.equal(p.imageCredit.provenance,'client-supplied');
@@ -40,7 +40,7 @@ test('only approved listing documents change; other routes and all protected sub
   for(const key of Object.keys(input).filter(k=>k!=='nodes'))assert.equal(input[key],output[key]);
   for(const n of all(input.nodes).filter(n=>n.attrs.id==='header'||n.tag==='footer'||n.attrs.id==='ht-ctc-chat'))assert(all(output.nodes).includes(n));
   const nodes=all(output.nodes),grid=nodes.find(n=>n.attrs['data-catalogue-preview']);assert.equal(grid.attrs.class,'products columns-4');
-  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?27:input.route==='/product-category/ball_gown'?11:4);
+  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?35:input.route==='/product-category/ball_gown'?11:input.route==='/product-category/ruffled'?12:4);
   for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);const title=n.find(n=>n.tag==='h2');const collection=catalogueCategories.find(c=>c.id===p.category)?.name.replace(/ Dresses$/,'');const number=p.name.match(/(\d{2})$/)?.[1];
     assert.equal(title.attrs.class,'woocommerce-loop-product__title redcarpert-catalogue-title');
     assert.deepEqual(title.children.map(child=>child.attrs.class),[
@@ -75,7 +75,7 @@ test('catalogue and category cards omit prices and condition notes even when pri
  for(const route of listingRoutes){
    const doc=adaptCatalogue(categorySource(route),products);
    const cards=all(doc.nodes).filter(n=>n.attrs['data-catalogue-id']);
-   assert.equal(cards.length,route==='/product'?27:route.endsWith('/ball_gown')?11:4);
+   assert.equal(cards.length,route==='/product'?35:route.endsWith('/ball_gown')?11:route.endsWith('/ruffled')?12:4);
    for(const card of cards){
      const nodes=all([card]);
      assert.equal(nodes.filter(n=>Object.hasOwn(n.attrs,'data-dress-price')).length,0);

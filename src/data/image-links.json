@@ -3,15 +3,15 @@
     "hero": [
       {
         "id": "home-page-1",
-        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp"
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-1.webp?updatedAt=1794955340352"
       },
       {
         "id": "home-page-2",
-        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp"
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-2.webp?updatedAt=1794955340262"
       },
       {
         "id": "home-page-3",
-        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp"
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/home-page/home-page-3.webp?updatedAt=1794955340871"
       }
     ]
   },
@@ -39,28 +39,7 @@
       }
     ],
     "ball_gown": [],
-    "ruffled": [
-      {
-        "id": "sample-ruffled-01",
-        "url": "https://images.pexels.com/photos/39878452/pexels-photo-39878452.jpeg?auto=compress&cs=tinysrgb&w=1200",
-        "sourceUrl": "https://www.pexels.com/photo/elegant-bridal-gown-with-ruffle-details-39878452/"
-      },
-      {
-        "id": "sample-ruffled-02",
-        "url": "https://images.pexels.com/photos/31205761/pexels-photo-31205761.jpeg?auto=compress&cs=tinysrgb&w=1200",
-        "sourceUrl": "https://www.pexels.com/photo/elegant-bridal-portrait-with-window-light-31205761/"
-      },
-      {
-        "id": "sample-ruffled-03",
-        "url": "https://images.pexels.com/photos/19781836/pexels-photo-19781836.jpeg?auto=compress&cs=tinysrgb&w=1200",
-        "sourceUrl": "https://www.pexels.com/photo/pretty-brunette-bride-in-wedding-dress-posing-in-stadium-stands-19781836/"
-      },
-      {
-        "id": "sample-ruffled-04",
-        "url": "https://images.pexels.com/photos/17278773/pexels-photo-17278773.jpeg?auto=compress&cs=tinysrgb&w=1200",
-        "sourceUrl": "https://www.pexels.com/photo/close-up-of-woman-in-wedding-dress-17278773/"
-      }
-    ],
+    "ruffled": [],
     "modern_tradition": [
       {
         "id": "sample-modern-tradition-01",

@@ -200,7 +200,7 @@ try {
  for(const width of [1280,390]){
    await actual.setViewportSize({width,height:900});
    const cards=actual.locator('ul.products[data-catalogue-preview] li.product');
-   assert.equal(await cards.count(),27);
+   assert.equal(await cards.count(),35);
    const alignment=await cards.evaluateAll(items=>items.map(card=>{
      const title=card.querySelector('.woocommerce-loop-product__title');
      const note=card.querySelector('.catalogue-sample-note');

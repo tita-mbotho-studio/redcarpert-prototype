@@ -4,15 +4,17 @@ import {catalogueProducts} from '../src/data/catalogue.ts';
 import {validateCatalogue} from '../src/lib/validate-catalogue.ts';
 const clone = () => structuredClone(catalogueProducts);
 
-test('twenty-seven dresses validate: eleven client Ball Gowns and sixteen Pexels samples', () => {
+test('thirty-five dresses validate: eleven Ball Gowns, twelve Ruffled dresses and twelve Pexels samples', () => {
  const records=clone(), original=JSON.stringify(records);
  assert.doesNotThrow(()=>validateCatalogue(records));
  assert.equal(JSON.stringify(records),original);
- assert.equal(records.length,27);
+ assert.equal(records.length,35);
  assert.equal(records.filter(p=>p.status==='client'&&p.category==='ball_gown').length,11);
- assert.equal(records.filter(p=>p.status==='sample').length,16);
- for(const category of ['mermaid','ruffled','modern_tradition','two_in_one'])
+ assert.equal(records.filter(p=>p.status==='sample').length,12);
+ for(const category of ['mermaid','modern_tradition','two_in_one'])
    assert.equal(records.filter(p=>p.category===category).length,4);
+ assert.equal(records.filter(p=>p.category==='ruffled').length,12);
+ assert.equal(records.filter(p=>p.status==='client').length,23);
  assert(records.every(p=>Number.isSafeInteger(p.priceZar) && p.priceZar>0));
 });
 
@@ -21,7 +23,7 @@ test('duplicate IDs, image URLs and routes fail before generation',()=>{
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,id:records[0].id}:p)),/Duplicate or invalid product ID/);
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,previewRoute:records[0].previewRoute}:p)),/Duplicate or invalid preview route/);
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,image:records[0].image}:p)),/Duplicate primary photograph/);
- assert.throws(()=>validateCatalogue(records.slice(0,7)),/eleven client Ball Gowns and sixteen sample dresses/);
+ assert.throws(()=>validateCatalogue(records.slice(0,7)),/eleven Ball Gowns, twelve Ruffled dresses and twelve other dresses/);
 });
 
 test('Pexels samples reject bad hosts, missing attribution and status claims',()=>{
@@ -41,7 +43,7 @@ test('Pexels samples reject bad hosts, missing attribution and status claims',()
  ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===0?{...p,...change}:p)),message);
 });
 
-test('client Ball Gown mapping rejects wrong URLs, names and invented prices',()=>{
+test('client mapping rejects wrong URLs, names and invalid prices',()=>{
  const products=clone();
  const index=products.findIndex(p=>p.id==='ball-gown-01');
  assert(index>=0);
@@ -53,5 +55,5 @@ test('client Ball Gown mapping rejects wrong URLs, names and invented prices',()
   {imageAlt:'Not a valid client photo'},
   {imageCredit:{...products[index].imageCredit,photographer:'Unknown'}},
  ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===index?{...p,...change}:p)),
-   /Incorrect client Ball Gown mapping|Invalid client photo metadata|Invalid catalogue price/);
+   /Incorrect client dress mapping|Invalid client photo metadata|Invalid catalogue price/);
 });

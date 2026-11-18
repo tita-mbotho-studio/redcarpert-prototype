@@ -17,7 +17,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,38);
+ assert.equal(routes.length,46);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -55,12 +55,12 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 39/);
+ assert.match(pdf.toString('latin1'),/\/Count 47/);
  assert.deepEqual(pdf,readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'old PDF URL remains available');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
  const audit=JSON.parse(readFileSync('.generated/lookbook-image-audit.json','utf8'));
- assert.equal(audit.photoCount,27);assert.equal(audit.photos.length,27);
+ assert.equal(audit.photoCount,35);assert.equal(audit.photos.length,35);
 });
 test('copied classic scripts remain valid and every page uses modern Font Awesome controls',{skip:!available},()=>{
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
@@ -79,14 +79,14 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
  }
 });
 
-test('twenty-nine-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
+test('thirty-seven-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
- assert.equal((book.match(/data-book-page=/g)||[]).length,29);
- assert.equal((book.match(/data-book-sale-price=/g)||[]).length,27);
- assert.equal((book.match(/data-book-rental-price=/g)||[]).length,27);
- assert.equal((book.match(/data-book-sale-label=/g)||[]).length,27);
- assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,27);
- assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,27);
+ assert.equal((book.match(/data-book-page=/g)||[]).length,37);
+ assert.equal((book.match(/data-book-sale-price=/g)||[]).length,35);
+ assert.equal((book.match(/data-book-rental-price=/g)||[]).length,35);
+ assert.equal((book.match(/data-book-sale-label=/g)||[]).length,35);
+ assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,35);
+ assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,35);
  assert.doesNotMatch(book,/Inspiration photo|Example sale price|price disclaimer|not confirmed|To be confirmed/i);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
@@ -109,9 +109,9 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
  assert.doesNotMatch(prevArrow,/>Previous</);
  assert.doesNotMatch(nextArrow,/>Next</);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,27);
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,35);
  const listingPages=[gallery];
- for(const [category,count] of [['mermaid',4],['ball_gown',11],['ruffled',4],['modern_tradition',4],['two_in_one',4]]) {
+ for(const [category,count] of [['mermaid',4],['ball_gown',11],['ruffled',12],['modern_tradition',4],['two_in_one',4]]) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
   assert.equal((html.match(/data-catalogue-id=/g)||[]).length,count);
   listingPages.push(html);
@@ -131,12 +131,19 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,27);
- assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,16);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,35);
+ assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,12);
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
- assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,27);
+ assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,35);
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
+
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
+   'interactive book should contain exactly twelve new client Ruffled photographs');
+ assert(routes.includes('/product/preview/ruffled-dress-12'),'twelfth Ruffled detail route must exist');
+ assert(!routes.some(route=>/\/sample-\d+-ruffled$/.test(route)),
+   'retired sample Ruffled pages must not remain active');
+
  assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.doesNotMatch(book,/To be confirmed|provisional|illustrative sale|example sale price/i);
  assert.doesNotMatch(book,/data-book-price=|redcarpert-book-range-label|Indicative range/,
@@ -219,7 +226,7 @@ test('twenty-nine-page book contains client Ball Gowns and illustrative designs'
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,38);
+  assert.equal(routes.length,46);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
@@ -367,7 +374,8 @@ test('Implementation 22: every static page starts with a bounded, branded global
    const imagekitUrls=JSON.parse(readFileSync("src/data/image-links.json","utf8")).home_page.hero.map(image=>image.url);
    assert.equal(imagekitUrls.length,3,"homepage manifest must list three approved photos");
    const heroDelivery=mediaDeliveryUrl(imagekitUrls[0],"hero");
-   assert(html.includes('href="'+heroDelivery+'" as="image" fetchpriority="high"'),
+   const encodedHeroDelivery=heroDelivery.replaceAll('&','&amp;');
+   assert(html.includes('href="'+encodedHeroDelivery+'" as="image" fetchpriority="high"'),
      'first client photograph should be priority-preloaded');
    assert(html.includes('data-hero-url="'+heroDelivery+'"'),
      'homepage loader should wait for first client photograph');
@@ -431,9 +439,9 @@ test('all produced pages apply shared delivery to dress, lookbook, and homepage 
   for(const photo of heroes){
     const optimized=mediaDeliveryUrl(photo.url,'hero');
     assert(homepage.includes('data-media-background-original="'+photo.url+'"'));
-    assert(homepage.includes('data-media-background-src="'+optimized+'"'));
+    assert(homepage.includes('data-media-background-src="'+escapeUrl(optimized)+'"'));
   }
-  assert(homepage.includes('href="'+mediaDeliveryUrl(heroes[0].url,'hero')+'" as="image" fetchpriority="high"'),
+  assert(homepage.includes('href="'+escapeUrl(mediaDeliveryUrl(heroes[0].url,'hero'))+'" as="image" fetchpriority="high"'),
     'homepage preload and CSS should point to the same optimized resource');
 });
 
