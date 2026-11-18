@@ -54,6 +54,7 @@ function lookbook() {
    '<div class="redcarpert-book-zoom-controls" aria-label="Image zoom controls">' +
    '<button type="button" data-book-zoom-out aria-label="Zoom out"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>' +
    '<button type="button" data-book-zoom-reset aria-label="Reset zoom"><i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i></button>' +
+   '<span data-book-zoom-percent aria-live="polite">100%</span>' +
    '<button type="button" data-book-zoom-in aria-label="Zoom in"><i class="fa-solid fa-plus" aria-hidden="true"></i></button></div></dialog>' +
    '<div class="redcarpert-lookbook-download redcarpert-icon-cta" data-redcarpert-icon-cta="download">' +
    '<p class="redcarpert-icon-cta-label">Download The Bridal Edit (PDF)</p>' +
