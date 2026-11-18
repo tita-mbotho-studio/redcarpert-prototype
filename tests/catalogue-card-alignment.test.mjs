@@ -48,7 +48,11 @@ test('each of the five collections uses the same editorial name, divider and num
 
 test('luxury typography remains centred, accessible and responsive without pricing captions', () => {
   const css = readFileSync('src/components/CatalogueListing.css', 'utf8');
-  assert.match(css, /Cormorant\+Garamond/);
+  const generator = readFileSync('scripts/generate.ts','utf8');
+  assert.doesNotMatch(css, /@import\s+url\(/, 'font imports must not appear halfway through the concatenated stylesheet');
+  assert.match(generator, /fonts\.googleapis\.com\/css2\?family=Cormorant\+Garamond/);
+  assert.match(generator, /catalogueFontLinks/);
+  assert.match(generator, /route\.startsWith\('\/product-category\/'\)/);
   assert.match(css, /"Cormorant Garamond"/);
   assert.match(css, /Montserrat/);
   assert.match(css, /\.redcarpert-catalogue-collection/);

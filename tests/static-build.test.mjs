@@ -496,3 +496,21 @@ test('only the three approved published CTAs use label-above, icon-only actions'
    route+' must retain the existing CTA style');
  }
 });
+
+
+test('catalogue font is loaded once via a valid head stylesheet, never as a late CSS import', {skip:!available},()=>{
+ const expected = 'href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&amp;display=swap"';
+ for(const route of ['product','product-category/mermaid','product-category/ball_gown',
+   'product-category/ruffled','product-category/modern_tradition','product-category/two_in_one']) {
+   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+   const head=html.split('</head>')[0];
+   assert(head.includes(expected),route+' must load Cormorant Garamond before the combined CSS');
+   assert.equal(head.split(expected).length-1,1,route+' must not request the same font twice');
+ }
+ for(const route of ['','wedding-moments','digital-lookbook','contact-us']) {
+   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
+   assert(!html.includes(expected),route+' should not download unused catalogue typography');
+ }
+ assert.doesNotMatch(readFileSync('src/components/CatalogueListing.css','utf8'),
+   /@import\s+url\(/,'do not reintroduce a PostCSS-invalid import halfway through the CSS bundle');
+});
