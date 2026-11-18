@@ -110,18 +110,15 @@ export function createProductDetailPreview(
       { ...slider, attrs: {
         ...slider.attrs,
         // The inherited slick/gallery plugin must not re-clone our own multi-photo controls.
-        ...(hasGallery ? { class: "slider redcarpert-multi-photo-slider" } : {}),
-      }, children: [node("div", { class: "zoom", "data-sample-frame": "true" }, [
+        class: hasGallery ? "slider redcarpert-multi-photo-slider" : "slider redcarpert-single-photo-slider",
+      }, children: [node("div", { class: "redcarpert-detail-photo-frame", "data-sample-frame": "true" }, [
         node("img", {
           src: photos[0].url, width: String(gallery.width), height: String(gallery.height),
           class: "attachment-shop_single size-shop_single wp-post-image",
-          alt: photos[0].alt, decoding: "async", fetchpriority: "high", "data-gallery-active-image": "",
+          alt: photos[0].alt, decoding: "async", fetchpriority: "high",
+          "data-gallery-active-image": "", tabindex: "0", role: "button",
+          "aria-haspopup": "dialog", "aria-label": "Enlarge photograph of " + product.name,
         }, []),
-        node("a", {
-          href: photos[0].url, class: "wpgis-popup redcarpert-modern-zoom",
-          "data-fancybox": "product-gallery", "data-gallery-enlarge": "",
-          "aria-label": "Enlarge dress photograph",
-        }, [node("i", { class: "fa-solid fa-up-right-and-down-left-from-center", "aria-hidden": "true" }, [])]),
         ...(hasGallery ? [arrow("previous"), arrow("next")] : []),
       ])] },
       ...(dots ? [dots] : []),
@@ -205,6 +202,25 @@ export function createProductDetailPreview(
       ]),
     ] : []),
   ] };
+  // The photo viewer is mounted outside the inherited product/slider markup
+  // so vendor zoom, Fancybox, and slide-cloning code cannot own its events.
+  // Reuse Wedding Moments' approved borderless image presentation exactly.
+  const imageDialog = node("dialog", {
+    class: "redcarpert-wedding-dialog redcarpert-dress-photo-dialog",
+    "data-dress-photo-dialog": "",
+    "aria-label": "Enlarged wedding dress photograph",
+  }, [
+    node("div", { class: "redcarpert-moment-dialog-inner" }, [
+      node("img", {
+        class: "redcarpert-wedding-preview-image",
+        "data-dress-preview-photo": "", alt: "", decoding: "async",
+      }, []),
+      node("button", {
+        type: "button", class: "redcarpert-wedding-preview-close",
+        "data-dress-preview-close": "", "aria-label": "Close enlarged photograph",
+      }, [node("i", { class: "fa-solid fa-xmark", "aria-hidden": "true" }, [])]),
+    ]),
+  ]);
   const visit = (n: DocumentNode): DocumentNode | null => {
     if (typeof n === "string") return n;
     if (n === share) return null;
@@ -215,5 +231,5 @@ export function createProductDetailPreview(
   return { ...source, route: product.previewRoute,
     title: `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses`,
     description: "Explore " + sampleDetailTitle(product) + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
-    nodes: source.nodes.map(visit).filter((n): n is DocumentNode => n !== null) };
+    nodes: [...source.nodes.map(visit).filter((n): n is DocumentNode => n !== null), imageDialog] };
 }
