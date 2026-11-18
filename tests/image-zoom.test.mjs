@@ -147,7 +147,14 @@ test('3D book remains available on all screen types while the zoom action does n
   assert.match(reader,/if \(engine \|\| !\(event\.target instanceof Element\)/,
     'custom blank-paper navigation must run only when PageFlip is unavailable');
   assert.match(reader,/engine\.userStop\(\{ x: event\.clientX, y: event\.clientY \}, true\)/,
-    'stop PageFlip turning on completed photograph taps only');
+    'stop PageFlip turning on completed mouse photograph taps only');
+  assert.match(reader,/book\.addEventListener\('touchend', event => \{/,
+    'real stationary touch taps must be handled in the 3D reader');
+  assert.match(reader,/enhancedTouch/);
+  assert.match(reader,/event\.stopImmediatePropagation\(\)/,
+    'a handled paper touch must not reach the vendor a second time');
+  assert.match(reader,/if \(photo && openBookPhoto\) openBookPhoto\(trigger\)/,
+    'touch zoom and touch page turning must be exclusive');
   assert.match(reader,/isInsideContainedPhoto\(/,
     'ivory gutters should remain paper-turn regions');
   assert.match(reader,/if \(!engine\) turn\(paperDirection\(event\.clientX\)\)/,

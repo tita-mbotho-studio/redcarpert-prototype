@@ -72,6 +72,7 @@ export function initializeLookbookReader() {
   let photoOpener = null;
   let suppressZoomUntil = 0;
   let pointerDismissed = false;
+  let openBookPhoto = null;
   const paperDirection = x => paperTurnDirection(book.getBoundingClientRect(), x);
   if (zoom && enlarged && closePhoto) {
     // A photo opens over the book; the underlying page index is untouched.
@@ -96,6 +97,12 @@ export function initializeLookbookReader() {
         if (!engine) turn(paperDirection(event.clientX));
         return;
       }
+      openBookPhoto(trigger);
+    }, true);
+    // A single photo opener is used by native mouse/keyboard clicks and the
+    // stationary touch handler. Never dispatch synthetic click events.
+    openBookPhoto = trigger => {
+      if (dialog.open) return;
       const original = trigger.dataset.bookZoomOriginal;
       const preview = trigger.dataset.bookZoomPreview || original;
       if (!original || !preview) return;
@@ -109,7 +116,7 @@ export function initializeLookbookReader() {
       dialog.showModal();
       // Responsive stage dimensions are available only after showModal().
       zoom.refresh();
-    }, true);
+    };
     closePhoto.addEventListener('click', event => {
       pointerDismissed = event.detail > 0;
       // Maintain logical focus return without showing a photo-sized brown
@@ -230,7 +237,10 @@ export function initializeLookbookReader() {
       suppressZoomUntil = Date.now() + 450;
       return;
     }
-    if (!engine || moved > 5 || !(event.target instanceof Element)) return;
+    // Touch taps are handled at touchend, before PageFlip's vendor listener.
+    // Mouse photo clicks keep the original guard against accidental turns.
+    if (!engine || event.pointerType === 'touch' || moved > 5 ||
+        !(event.target instanceof Element)) return;
     const trigger = event.target.closest('[data-book-image-zoom]');
     const image = trigger?.querySelector('img');
     if (!trigger || !(image instanceof HTMLImageElement) ||
@@ -243,6 +253,55 @@ export function initializeLookbookReader() {
     engine.userStop({ x: event.clientX, y: event.clientY }, true);
   }, true);
   book.addEventListener('pointercancel', () => { pointerStart = null; }, true);
+
+  // StPageFlip's own tap handling is inconsistent on coarse-pointer viewports:
+  // a finger tap on blank paper sometimes does nothing, although swiping
+  // works. Capture only stationary SINGLE-finger taps before its touchend.
+  // Swipes, drags, multitouch and vertical scrolling remain with the browser
+  // and PageFlip. This does not replace the 3D engine or its animations.
+  let enhancedTouch = null;
+  book.addEventListener('touchstart', event => {
+    if (!engine || event.touches.length !== 1) {
+      enhancedTouch = null;
+      return;
+    }
+    enhancedTouch = {x:event.touches[0].clientX,
+      y:event.touches[0].clientY,moved:false};
+  }, {capture:true,passive:true});
+  book.addEventListener('touchmove', event => {
+    if (!enhancedTouch || event.touches.length !== 1) {
+      enhancedTouch = null;
+      return;
+    }
+    if (Math.hypot(event.touches[0].clientX - enhancedTouch.x,
+      event.touches[0].clientY - enhancedTouch.y) > 12) enhancedTouch.moved = true;
+  }, {capture:true,passive:true});
+  book.addEventListener('touchend', event => {
+    const start=enhancedTouch;
+    enhancedTouch=null;
+    if (!engine || !start || start.moved || event.changedTouches.length !== 1 ||
+        dialog?.open) return;
+    const touch=event.changedTouches[0];
+    if (Math.hypot(touch.clientX-start.x,touch.clientY-start.y)>12) return;
+    if (!(event.target instanceof Element) || window.getSelection()?.toString()) return;
+    const target=event.target;
+    const trigger=target.closest('[data-book-image-zoom]');
+    const img=trigger?.querySelector('img');
+    const photo=trigger && img instanceof HTMLImageElement &&
+      isInsideContainedPhoto(img.getBoundingClientRect(),
+        img.naturalWidth,img.naturalHeight,touch.clientX,touch.clientY);
+    // Links and ordinary controls retain their native activation.
+    if (!trigger && target.closest('a,button,input,textarea,select,label,[contenteditable="true"]')) return;
+    if (!photo && !trigger &&
+        target.closest('h1,h2,h3,h4,h5,h6,p,small,span,output')) return;
+    // Reject the vendor's second interpretation of this same stationary tap.
+    if (event.cancelable) event.preventDefault();
+    event.stopImmediatePropagation();
+    suppressZoomUntil=Date.now()+80;
+    if (photo && openBookPhoto) openBookPhoto(trigger);
+    else turn(paperDirection(touch.clientX));
+  }, {capture:true,passive:false});
+  book.addEventListener('touchcancel',()=>{enhancedTouch=null;},{capture:true,passive:true});
   let touchX = null, zoomTouchX = null;
   book.addEventListener('touchstart', event => {
     if (event.touches.length !== 1) return;
