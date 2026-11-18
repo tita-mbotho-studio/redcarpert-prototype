@@ -40,6 +40,12 @@
   grid-column: auto !important;
   grid-row: auto !important;
 }
+/* Explicitly honor hidden cards. An authored li { display: block } can
+   override the browser's lower-priority [hidden] display rule. */
+#main-container ul.products[data-catalogue-preview] > li.product[hidden],
+#main-container ul.products[data-catalogue-preview] > li.product.redcarpert-filtered-out {
+  display: none !important;
+}
 @media (max-width: 1000px) {
   #main-container ul.products[data-catalogue-preview] {
     grid-template-columns: repeat(3, minmax(0, 1fr));
