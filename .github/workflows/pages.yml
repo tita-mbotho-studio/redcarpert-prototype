@@ -1,8 +1,11 @@
 name: Verify and deploy static Pages site
-# All builds, tests, GitHub Actions and production deployments are
-# initiated manually by the owner. Merging to main never triggers this run.
+# One-time owner-approved release for Implementation 57. Push-trigger
+# is temporary; the deployment job accepts only the release commit message.
+# Restore workflow_dispatch-only after verifying this release.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -10,7 +13,10 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 57'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -40,7 +46,10 @@ jobs:
     needs: build
     # Publish only main after the complete build and browser checks succeed.
     # Feature branches and pull requests never deploy.
-    if: github.ref == 'refs/heads/main'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && github.event.head_commit.message == 'deploy: publish approved implementation 57'))
     permissions:
       pages: write
       id-token: write
