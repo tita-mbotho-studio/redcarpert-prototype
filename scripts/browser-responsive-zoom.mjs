@@ -270,6 +270,8 @@ try {
     const prev=page.locator('[data-book-previous]');
     let position=await current();
     assert.equal(position,1,width+'px 3D reader must begin at the cover');
+    // Give PageFlip one rendering frame to finalize the physical cover.
+    await page.waitForTimeout(300);
     const cover=book.locator('[data-book-page="1"]');
     const coverRect=await cover.boundingBox();
     assert(coverRect&&coverRect.width>80,width+'px cover must render');
@@ -278,8 +280,8 @@ try {
     // Playwright boundingBox() returns x/y/width/height (not DOMRect's
     // top/right). Use finite viewport coordinates to test a real paper tap.
     const coverTap = {
-      x:coverRect.x+coverRect.width-8,
-      y:coverRect.y+Math.min(24,coverRect.height*.04),
+      x:coverRect.x+coverRect.width-22,
+      y:coverRect.y+coverRect.height-22,
     };
     assert(Number.isFinite(coverTap.x)&&Number.isFinite(coverTap.y),
       width+'px cover tap coordinates must be finite');
@@ -289,9 +291,8 @@ try {
     const positionAfterPaperTap=position;
     await activate(prev);
     position=await progresses(position,-1);
-    const trace=await page.evaluate(()=>window.__redcarpertBookTrace??[]);
     console.log('3D spread navigation',JSON.stringify({
-      width,afterPaperTap:positionAfterPaperTap,afterPrevious:position,trace,
+      width,afterPaperTap:positionAfterPaperTap,afterPrevious:position,
     }));
     assert.equal(position,1,width+'px Previous must return to 3D cover (after tap '+
       positionAfterPaperTap+', after Previous '+position+')');

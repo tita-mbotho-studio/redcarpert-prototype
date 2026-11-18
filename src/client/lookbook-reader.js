@@ -92,9 +92,9 @@ export function initializeLookbookReader() {
       if (event.detail !== 0 && image instanceof HTMLImageElement &&
           !isInsideContainedPhoto(image.getBoundingClientRect(),
             image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) {
-        // Letterbox gutters are paper even when the image button fills them.
-        // PageFlip's native click action is disabled to prevent double turns.
-        turnPaper(paperDirection(event.clientX));
+        // Enhanced PageFlip handles paper gutters natively on desktop.
+        // Only the accessible fallback needs a manual gutter turn.
+        if (!engine) turn(paperDirection(event.clientX));
         return;
       }
       openBookPhoto(trigger);
@@ -184,22 +184,6 @@ export function initializeLookbookReader() {
     pages.forEach((node, i) => node.classList.toggle('is-current', i === index));
     announce();
   };
-  // PageFlip can forward a single physical click through a cloned leaf AND
-  // its wrapper. Prevent two paper-click callbacks from flipping two spreads.
-  // This guard applies only to paper clicks/taps, never to arrow controls.
-  let lastPaperTurnAt = 0;
-  const turnPaper = direction => {
-    const now = Date.now();
-    const trace = window.location.hostname === '127.0.0.1'
-      ? (window.__redcarpertBookTrace ??= []) : null;
-    if (engine && now - lastPaperTurnAt < 1200) {
-      trace?.push({event:'duplicate-blocked',direction,index,enginePage:engine.getCurrentPageIndex?.(),time:now});
-      return;
-    }
-    trace?.push({event:'paper-turn',direction,index,enginePage:engine?.getCurrentPageIndex?.(),time:now});
-    lastPaperTurnAt = now;
-    turn(direction);
-  };
   previous.addEventListener('click', () => turn(-1));
   next.addEventListener('click', () => turn(1));
   // Chromium may swallow the first compatibility click after a horizontal
@@ -213,11 +197,10 @@ export function initializeLookbookReader() {
       turn(direction);
     }, { passive: false });
   }
-  // PageFlip owns 3D animation/swipes, while this single delegated click
-  // handler owns a stationary paper click on both enhanced and fallback
-  // readers. Disabling the vendor's click-to-turn avoids double turns.
+  // Desktop mouse clicks and swipes belong to PageFlip, matching the
+  // original pre-zoom book. Only the no-CDN fallback turns paper here.
   book.addEventListener('click', event => {
-    if (!(event.target instanceof Element) || dialog?.open ||
+    if (engine || !(event.target instanceof Element) || dialog?.open ||
         Date.now() < suppressZoomUntil || event.detail === 0) return;
     if (event.target.closest('[data-book-image-zoom],a,button,input,textarea,select,label,[contenteditable="true"]')) return;
     // A page's words are for reading/selecting, not page-turning. Its empty
@@ -228,7 +211,7 @@ export function initializeLookbookReader() {
     if (window.getSelection()?.toString()) return;
     event.preventDefault();
     event.stopPropagation();
-    turnPaper(paperDirection(event.clientX));
+    turn(paperDirection(event.clientX));
   }, true);
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
@@ -306,7 +289,7 @@ export function initializeLookbookReader() {
     event.stopImmediatePropagation();
     suppressZoomUntil=Date.now()+80;
     if (photo && openBookPhoto) openBookPhoto(trigger);
-    else turnPaper(paperDirection(touch.clientX));
+    else turn(paperDirection(touch.clientX));
   }, {capture:true,passive:false});
   book.addEventListener('touchcancel',()=>{enhancedTouch=null;},{capture:true,passive:true});
   let touchX = null, zoomTouchX = null;
@@ -346,7 +329,7 @@ export function initializeLookbookReader() {
       minHeight: 336, maxHeight: 728, showCover: true, usePortrait: true,
       drawShadow: true, maxShadowOpacity: .27, flippingTime: 780,
       mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
-      disableFlipByClick: true, autoSize: true, startPage: index,
+      disableFlipByClick: false, autoSize: true, startPage: index,
     });
     // StPageFlip requires complete physical spreads when showCover is true.
     // An odd number of numbered leaves requires a decorative
@@ -367,11 +350,6 @@ export function initializeLookbookReader() {
     pageFlip.on('flip', event => {
       // Never expose the unnumbered endpaper in navigation or the counter.
       index = Math.min(event.data, pages.length - 1);
-      if (window.location.hostname === '127.0.0.1') {
-        (window.__redcarpertBookTrace ??= []).push({
-          event:'vendor-flip',index,enginePage:pageFlip.getCurrentPageIndex?.(),time:Date.now(),
-        });
-      }
       announce();
     });
     book.dataset.engine = 'page-flip';

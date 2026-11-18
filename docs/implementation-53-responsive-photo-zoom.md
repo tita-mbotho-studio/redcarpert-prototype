@@ -17,12 +17,14 @@ Implementation 53 temporarily used a flat reader on phones; this was rejected.
 
 - All viewports use the same real 3D PageFlip reader. Portrait/single-leaf
   layout remains on phones; paired spreads appear on larger desktop screens.
-- Swipes and drags use PageFlip's animation as before. PageFlip's native
-  click-to-turn is disabled; a single delegated click handler runs turn() for
-  blank paper on desktop, and a stationary touchend handler runs the same turn()
-  on mobile/tablet. No duplicate vendor click or vendor userStop internals.
+- Swipes, drags and desktop mouse clicks stay with PageFlip's original 3D
+  animation and native click-to-turn. The no-CDN fallback retains delegated
+  paper clicks. A dedicated stationary touchend handler turns paper only on
+  phones/tablets where PageFlip's click recognition is unreliable.
 - Tapping painted photograph pixels opens the zoom modal without turning;
   touching the letterbox margins counts as paper. Real links stay clickable.
+- The desktop and mobile handlers are mutually exclusive, so a single gesture
+  cannot queue a vendor turn and a custom turn simultaneously.
 - object-fit side/vertical letterboxing is paper, not part of the photograph.
 - Dress links remain functional through clickEventForward=true.
 - Existing Previous/Next controls, keyboard arrow keys and post-swipe
