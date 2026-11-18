@@ -41,15 +41,18 @@ export function initializeLookbookZoom(viewer, book, getPageFlip) {
   let opener = null;
   let original = '';
   let triedOriginal = false;
+  let openedByPointer = false;
 
   const readyToOpen = () => {
     const state = getPageFlip()?.getState();
     return !dialog.open && state !== 'flipping' && state !== 'user_fold';
   };
 
-  const openPhoto = image => {
+  const openPhoto = (image, viaPointer = false) => {
     if (!usableImage(image) || !readyToOpen()) return;
     opener = image;
+    openedByPointer = viaPointer;
+    dialog.classList.toggle('redcarpert-book-pointer-opened', viaPointer);
     original = image.dataset.bookZoomOriginal || image.getAttribute('data-media-original') || image.currentSrc;
     triedOriginal = false;
     fullPhoto.alt = image.alt || 'Wedding dress photograph';
@@ -71,7 +74,19 @@ export function initializeLookbookZoom(viewer, book, getPageFlip) {
   dialog.addEventListener('close', () => {
     fullPhoto.removeAttribute('src');
     fullPhoto.alt = '';
-    if (opener?.isConnected) opener.focus({preventScroll:true});
+    if (opener?.isConnected) {
+      // Retain keyboard focus indication, but avoid painting a ring around
+      // the photograph after a pointer-triggered modal closes.
+      if (openedByPointer) {
+        opener.classList.add('redcarpert-book-pointer-restored');
+        opener.addEventListener('blur', () => {
+          opener.classList.remove('redcarpert-book-pointer-restored');
+        }, {once: true});
+      }
+      opener.focus({preventScroll:true});
+    }
+    dialog.classList.remove('redcarpert-book-pointer-opened');
+    openedByPointer = false;
     opener = null;
     original = '';
     triedOriginal = false;
@@ -118,7 +133,7 @@ export function initializeLookbookZoom(viewer, book, getPageFlip) {
     // userStop(..., true) resets the pending *tap* without flipping. Moving
     // gestures are never touched, so native swipe and folding remain intact.
     getPageFlip()?.userStop({x:0, y:0}, true);
-    openPhoto(image);
+    openPhoto(image, true);
   }, true);
   window.addEventListener('pointercancel', event => gestures.delete(event.pointerId), true);
 
