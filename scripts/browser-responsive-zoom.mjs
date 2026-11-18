@@ -291,6 +291,11 @@ try {
     assert.equal(position,1,width+'px Previous must return to 3D cover');
     await activate(next);
     position=await progresses(position,1);
+    // The controls are BELOW the flipbook. Clicking Next often scrolls the
+    // page down, leaving the active photos above the viewport. Restore the
+    // book to view before selecting visible image pixels for the zoom test.
+    await book.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(100);
     // PageFlip advances by spreads on desktop and clones physical leaves in
     // portrait mode. The HTML page numbered "2" need not be the visible photo.
     const photoSnapshot=await book.evaluate(root=>

@@ -1,0 +1,42 @@
+name: TEMP Implementation 53 browser verification (NO DEPLOY)
+
+# Temporary, isolated branch-only verification. Delete after tests pass.
+on:
+  push:
+    branches:
+      - implementation/53-responsive-lookbook-photo-interactions
+permissions:
+  contents: read
+concurrency:
+  group: temp-implementation-53-browser-verification
+  cancel-in-progress: true
+jobs:
+  test-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout the exact tested branch revision
+        uses: actions/checkout@v4
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install exact dependencies
+        run: npm ci
+      - name: Install Chromium and system packages
+        run: npx playwright install --with-deps chromium
+      - name: Lint, typecheck, build, and all unit tests
+        run: npm run check
+      - name: Real 3D and fallback browser tests at five viewports
+        run: npm run test:responsive-zoom
+      - name: Full browser regression suite (no deploy)
+        run: |
+          npm run preview -- --port 4173 > /tmp/redcarpert-preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          curl --fail --retry 12 --retry-delay 1 --retry-connrefused http://127.0.0.1:4173/redcarpert-prototype/ > /dev/null
+          npm run test:browser
+      - name: Print preview server errors after failure
+        if: failure()
+        run: cat /tmp/redcarpert-preview.log 2>/dev/null || true
