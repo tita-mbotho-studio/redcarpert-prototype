@@ -112,18 +112,31 @@ try {
     assert(layout.centered&&layout.photoInside,'book contents must stay centred inside the leaf');
     assert.equal(layout.priceFields,2,'sale and rental price must both fit on the book leaf');
     assert(layout.copyFits&&layout.pricesInside,width+'px book price text must not overflow or clip');
-    // Only the explicit photo-corner icon opens the separate viewer; the
-    // page counter and native book navigation must be unchanged on close.
+    // A stationary tap on the *painted photo* opens the same borderless viewer
+    // as Wedding Moments. Inject a local image because the Pexels CDN is
+    // deliberately blocked by this deterministic fallback test.
     const beforeZoom=await page.locator('[data-book-status]').textContent();
-    const expand=page.locator('.redcarpert-book-page.is-current [data-book-zoom-trigger]');
-    assert.equal(await expand.count(),1);
-    assert.equal(await expand.locator('.fa-solid.fa-up-right-and-down-left-from-center').count(),1);
-    await expand.click();
+    const photo=page.locator('.redcarpert-book-page.is-current [data-book-zoom-photo]');
+    assert.equal(await photo.count(),1);
+    await photo.evaluate(image=>new Promise(resolve=>{
+      image.onload=()=>{
+        image.classList.remove('redcarpert-image-unavailable');
+        image.closest('.redcarpert-book-photo')?.classList.remove('redcarpert-photo-failed');
+        resolve();
+      };
+      const src='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="900" height="1600"%3E%3Crect width="900" height="1600" fill="silver"/%3E%3C/svg%3E';
+      image.dataset.bookZoomSrc=src;
+      image.dataset.bookZoomOriginal=src;
+      image.src=src;
+    }));
+    assert.equal(await page.locator('[data-book-zoom-trigger]').count(),0,'no visible expand button');
+    await photo.click();
     const zoomDialog=page.locator('[data-book-zoom-dialog]');
-    assert(await zoomDialog.isVisible(),'zoom modal must open from explicit icon');
-    assert.equal(await page.locator('[data-book-zoom-percent]').textContent(),'100%');
-    await page.locator('[data-book-zoom-in]').click();
-    assert.equal(await page.locator('[data-book-zoom-percent]').textContent(),'150%');
+    assert(await zoomDialog.isVisible(),'tapping photograph opens viewer');
+    assert(await zoomDialog.evaluate(dialog=>dialog.classList.contains('redcarpert-wedding-dialog')));
+    assert.equal(await zoomDialog.locator('.redcarpert-wedding-preview-image').count(),1);
+    assert.equal(await zoomDialog.locator('.redcarpert-wedding-preview-close').count(),1);
+    assert.equal(await zoomDialog.locator('[data-book-zoom-in],[data-book-zoom-out],[data-book-zoom-reset]').count(),0);
     await page.keyboard.press('Escape');
     await zoomDialog.waitFor({state:'hidden'});
     assert.equal(await page.locator('[data-book-status]').textContent(),beforeZoom,
