@@ -150,6 +150,8 @@ test('3D book remains available on all screen types while the zoom action does n
     'stop PageFlip turning on completed photograph taps only');
   assert.match(reader,/isInsideContainedPhoto\(/,
     'ivory gutters should remain paper-turn regions');
+  assert.match(reader,/if \(!engine\) turn\(paperDirection\(event\.clientX\)\)/,
+    '3D PageFlip owns gutter turns; fallback alone may turn on the image border');
   assert.match(reader,/const moved = Math\.hypot/,
     'dragging and swiping must not open photograph zoom');
   assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);
@@ -176,5 +178,9 @@ test('3D book remains available on all screen types while the zoom action does n
   assert.match(browser,/real two-finger pinch/);
   assert.match(browser,/page\.setViewportSize/);
   assert.match(browser,/\[1440, 1024, 768, 390, 320\]/);
+  assert.match(browser,/photoSnapshot=await book\.evaluate/,
+    '3D tap test must locate a rendered photograph on the active spread');
+  assert.doesNotMatch(browser,/page\.locator\('\[data-book-page="2"\] \[data-book-image-zoom\] img'\)/,
+    'active PageFlip spreads are not guaranteed to show page 2');
   assert.match(enhanced,/page-flip/);
 });

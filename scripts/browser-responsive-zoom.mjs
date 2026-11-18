@@ -291,17 +291,30 @@ try {
     assert.equal(position,1,width+'px Previous must return to 3D cover');
     await activate(next);
     position=await progresses(position,1);
-    const photoCandidate=await page.locator('[data-book-page="2"] [data-book-image-zoom] img')
-      .evaluateAll(images=>{
-        const options=images.map(img=>{
-          const rect=img.getBoundingClientRect();
-          return {x:rect.left+rect.width/2,y:rect.top+rect.height/2,
-            width:rect.width,height:rect.height};
-        }).filter(rect=>rect.width>30 && rect.height>30 && rect.x>0 &&
-          rect.y>0 && rect.x<innerWidth && rect.y<innerHeight);
-        return options[0]??null;
-      });
-    assert(photoCandidate,width+'px PageFlip must present a visible dress photograph');
+    // PageFlip advances by spreads on desktop and clones physical leaves in
+    // portrait mode. The HTML page numbered "2" need not be the visible photo.
+    const photoSnapshot=await book.evaluate(root=>
+      [...root.querySelectorAll('[data-book-image-zoom] img')].map(img=>{
+        const r=img.getBoundingClientRect();
+        const x=r.left+r.width/2,y=r.top+r.height/2;
+        const onScreen=r.width>30 && r.height>30 &&
+          x>=0 && y>=0 && x<innerWidth && y<innerHeight;
+        const hit=onScreen?document.elementFromPoint(x,y):null;
+        const button=img.closest('[data-book-image-zoom]');
+        return {
+          page:img.closest('[data-book-page]')?.dataset.bookPage,
+          x,y,width:r.width,height:r.height,
+          hit:hit?.tagName,
+          hitPhoto:Boolean(hit && (button?.contains(hit) ||
+            hit.closest?.('[data-book-image-zoom]')===button)),
+        };
+      }));
+    const photoCandidate=photoSnapshot.find(item=>item.hitPhoto) ??
+      photoSnapshot.find(item=>item.width>30 && item.height>30 &&
+        item.x>=0 && item.y>=0 && item.x<width && item.y<900);
+    assert(photoCandidate,
+      width+'px PageFlip must present a visible dress photograph (page='+
+      position+', rendered='+JSON.stringify(photoSnapshot.filter(item=>item.width>0).slice(0,8))+')');
     const beforeZoom=await current();
     await at(photoCandidate.x,photoCandidate.y);
     const dialog=page.locator('#redcarpert-book-photo-dialog');

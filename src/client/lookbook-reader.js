@@ -91,7 +91,9 @@ export function initializeLookbookReader() {
       if (event.detail !== 0 && image instanceof HTMLImageElement &&
           !isInsideContainedPhoto(image.getBoundingClientRect(),
             image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) {
-        turn(paperDirection(event.clientX));
+        // The vendor already handles this blank-paper tap in 3D mode.
+        // Calling turn() again would flip a second spread unexpectedly.
+        if (!engine) turn(paperDirection(event.clientX));
         return;
       }
       const original = trigger.dataset.bookZoomOriginal;
