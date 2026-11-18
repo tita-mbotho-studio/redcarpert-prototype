@@ -1,5 +1,6 @@
 import { lookbookEntries } from './lookbook.js';
 import { initializeImageZoom } from './image-zoom.js';
+import { isInsideContainedPhoto, paperTurnDirection } from './lookbook-click-regions.js';
 
 const PAGE_FLIP_CDN = 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js';
 
@@ -70,6 +71,8 @@ export function initializeLookbookReader() {
   const closePhoto = dialog?.querySelector('[data-book-image-close]');
   let photoOpener = null;
   let suppressZoomUntil = 0;
+  let pointerDismissed = false;
+  const paperDirection = x => paperTurnDirection(book.getBoundingClientRect(), x);
   if (zoom && enlarged && closePhoto) {
     // A photo opens over the book; the underlying page index is untouched.
     // Capture the click before the optional page-flip engine handles it.
@@ -82,9 +85,19 @@ export function initializeLookbookReader() {
       // StPageFlip and the fallback both support swiping on photographs.
       // A synthetic click after a swipe must never unexpectedly open zoom.
       if (Date.now() < suppressZoomUntil) return;
+      // The full-width <img> element has object-fit: contain. Its side gutters
+      // are blank book paper, not photograph: they turn the page instead.
+      const image = trigger.querySelector('img');
+      if (event.detail !== 0 && image instanceof HTMLImageElement &&
+          !isInsideContainedPhoto(image.getBoundingClientRect(),
+            image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) {
+        turn(paperDirection(event.clientX));
+        return;
+      }
       const original = trigger.dataset.bookZoomOriginal;
       const preview = trigger.dataset.bookZoomPreview || original;
       if (!original || !preview) return;
+      trigger.classList.remove('redcarpert-book-pointer-return');
       photoOpener = trigger;
       enlarged.alt = trigger.querySelector('img')?.alt || 'Wedding dress photograph';
       if (preview !== original) enlarged.dataset.mediaOriginal = original;
@@ -93,18 +106,53 @@ export function initializeLookbookReader() {
       zoom.setActive(true);
       dialog.showModal();
     }, true);
-    closePhoto.addEventListener('click', () => dialog.close());
+    closePhoto.addEventListener('click', event => {
+      pointerDismissed = event.detail > 0;
+      // Maintain logical focus return without showing a photo-sized brown
+      // focus outline after a pointer click on X.
+      if (pointerDismissed) photoOpener?.classList.add('redcarpert-book-pointer-return');
+      dialog.close();
+    });
     dialog.addEventListener('click', event => {
-      if (event.target === dialog) dialog.close();
+      if (event.target !== dialog) return;
+      pointerDismissed = true;
+      photoOpener?.classList.add('redcarpert-book-pointer-return');
+      dialog.close();
     });
     dialog.addEventListener('close', () => {
       zoom.setActive(false);
       enlarged.removeAttribute('src');
       enlarged.removeAttribute('data-media-original');
       enlarged.alt = '';
-      if (photoOpener?.isConnected) photoOpener.focus({ preventScroll: true });
+      if (photoOpener?.isConnected) {
+        if (!pointerDismissed) photoOpener.classList.remove('redcarpert-book-pointer-return');
+        photoOpener.focus({ preventScroll: true });
+      }
       photoOpener = null;
+      pointerDismissed = false;
     });
+    // Restore the normal visible focus indication as soon as keyboard
+    // navigation begins; only pointer-driven dialog dismissal hides it.
+    book.addEventListener('keydown', event => {
+      event.target?.closest?.('[data-book-image-zoom].redcarpert-book-pointer-return')
+        ?.classList.remove('redcarpert-book-pointer-return');
+    }, true);
+    book.addEventListener('focusout', event => {
+      event.target?.closest?.('[data-book-image-zoom].redcarpert-book-pointer-return')
+        ?.classList.remove('redcarpert-book-pointer-return');
+    }, true);
+    // The interactive image element has blank object-fit gutters; show a
+    // page-turn cursor there and a zoom cursor only on painted photo pixels.
+    book.addEventListener('pointermove', event => {
+      if (!(event.target instanceof Element)) return;
+      const trigger = event.target.closest('[data-book-image-zoom]');
+      if (!trigger) return;
+      const image = trigger.querySelector('img');
+      if (!(image instanceof HTMLImageElement)) return;
+      const overPhoto = isInsideContainedPhoto(image.getBoundingClientRect(),
+        image.naturalWidth, image.naturalHeight, event.clientX, event.clientY);
+      trigger.style.cursor = overPhoto ? 'zoom-in' : 'pointer';
+    }, { passive: true });
   }
   let index = 0, engine = null;
   const announce = () => {
@@ -127,12 +175,47 @@ export function initializeLookbookReader() {
   };
   previous.addEventListener('click', () => turn(-1));
   next.addEventListener('click', () => turn(1));
+  // PageFlip deliberately disables its default click-to-turn so that clicking
+  // a photograph opens zoom. Restore magazine-style navigation on blank paper
+  // without stealing clicks from the photograph or dress detail links.
+  book.addEventListener('click', event => {
+    if (!(event.target instanceof Element) || dialog?.open ||
+        Date.now() < suppressZoomUntil || event.detail === 0) return;
+    if (event.target.closest('[data-book-image-zoom],a,button,input,textarea,select,label,[contenteditable="true"]')) return;
+    // A page's words are for reading/selecting, not page-turning. Its empty
+    // margins and image surround are the page-turn zones.
+    if (event.target.closest('h1,h2,h3,h4,h5,h6,p,small,span,output')) return;
+    // This listener belongs to the book itself, so any non-interactive
+    // background inside it is paper, including PageFlip's wrapper layers.
+    if (window.getSelection()?.toString()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    turn(paperDirection(event.clientX));
+  }, true);
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
     if (event.target.closest('dialog[open],input,textarea,select,[contenteditable="true"]')) return;
     event.preventDefault();
     turn(event.key === 'ArrowRight' ? 1 : -1);
   });
+  // A drag/swipe must not generate a follow-up click that accidentally
+  // turns the next page or opens the enlarged photograph.
+  let pointerStart = null;
+  book.addEventListener('pointerdown', event => {
+    if (event.isPrimary) pointerStart = {
+      id: event.pointerId, x: event.clientX, y: event.clientY,
+    };
+  }, true);
+  book.addEventListener('pointerup', event => {
+    if (pointerStart?.id === event.pointerId) {
+      if (Math.hypot(event.clientX - pointerStart.x,
+        event.clientY - pointerStart.y) > 12) {
+        suppressZoomUntil = Date.now() + 450;
+      }
+      pointerStart = null;
+    }
+  }, true);
+  book.addEventListener('pointercancel', () => { pointerStart = null; }, true);
   let touchX = null, zoomTouchX = null;
   book.addEventListener('touchstart', event => {
     if (event.touches.length !== 1) return;

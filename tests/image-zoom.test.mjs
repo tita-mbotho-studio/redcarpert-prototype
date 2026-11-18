@@ -5,6 +5,7 @@ import { catalogueProducts } from '../src/data/catalogue.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 import { renderWeddingMomentGallery, flattenWeddingMomentEvents, weddingMomentEvents } from '../src/lib/wedding-moments.ts';
 import { mediaDeliveryUrl } from '../src/lib/media-delivery.ts';
+import { isInsideContainedPhoto, paperTurnDirection } from '../src/client/lookbook-click-regions.js';
 
 const visit = nodes => nodes.flatMap(n => typeof n === 'string' ? [] : [n, ...visit(n.children)]);
 
@@ -71,4 +72,46 @@ test('the shared controller supports bounded zoom, pointer pinch/pan, mouse whee
   assert.match(css,/object-fit:\s*contain/);
   assert.match(css,/@media \(max-width: 1000px\)/);
   assert(generator.includes("'src/components/ImageZoom.css'"));
+});
+
+test('lookbook hit targets separate visible dress pixels from ivory side gutters', () => {
+  const bounds = { left: 100, top: 50, width: 300, height: 300 };
+  // A tall portrait is centred inside a square image element. The element
+  // itself is 300px wide but only ~193px of it contains visible photo pixels.
+  assert.equal(isInsideContainedPhoto(bounds, 900, 1400, 250, 200), true,
+    'clicking actual wedding dress pixels opens zoom');
+  assert.equal(isInsideContainedPhoto(bounds, 900, 1400, 110, 200), false,
+    'left ivory gutter must turn backward');
+  assert.equal(isInsideContainedPhoto(bounds, 900, 1400, 390, 200), false,
+    'right ivory gutter must turn forward');
+  assert.equal(isInsideContainedPhoto(bounds, 1400, 900, 250, 60), false,
+    'landscape photograph also has blank vertical gutters');
+  assert.equal(isInsideContainedPhoto(bounds, 1400, 900, 250, 200), true);
+  assert.equal(isInsideContainedPhoto(bounds, 0, 0, 250, 200), true,
+    'unloaded photographs retain a click-to-zoom fallback');
+  assert.equal(paperTurnDirection({left:100,width:300},110), -1);
+  assert.equal(paperTurnDirection({left:100,width:300},390), 1);
+  assert.equal(paperTurnDirection({left:100,width:300},250), 1);
+});
+
+test('book paper turns without obstructing photo zoom, details or keyboard focus', () => {
+  const reader = readFileSync('src/client/lookbook-reader.js','utf8');
+  const css = readFileSync('src/components/EditorialPages.css','utf8');
+  assert.match(reader, /isInsideContainedPhoto\(/);
+  assert.match(reader, /paperTurnDirection\(/);
+  assert.match(reader, /book\.addEventListener\('click'/,
+    'blank paper clicks must be handled in the shared book root');
+  assert.match(reader, /PageFlip's wrapper layers/,
+    'click navigation must handle both physical pages and PageFlip wrappers');
+  assert.match(reader, /pointerup/,
+    'a completed mouse drag must never cause an extra page turn');
+  assert.match(reader, /event\.target\.closest\('\[data-book-image-zoom\],a,button/,
+    'photos and detail links must keep their own actions');
+  assert.match(reader, /Date\.now\(\) < suppressZoomUntil/,
+    'swipes must not cause accidental page turns');
+  assert.match(reader, /redcarpert-book-pointer-return/);
+  assert.match(css, /\.redcarpert-book-zoom-trigger\.redcarpert-book-pointer-return:focus-visible\s*\{/);
+  assert.match(css, /outline: none !important/);
+  assert.match(css, /\.redcarpert-book-zoom-trigger:focus-visible\s*\{[^}]*outline: 2px solid/,
+    'keyboard users must retain a visible focus indication');
 });

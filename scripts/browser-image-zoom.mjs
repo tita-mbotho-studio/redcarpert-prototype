@@ -82,9 +82,68 @@ try {
     assert.equal(await enlarged.getAttribute('src'),null,'close releases the large photograph');
     assert.equal(await book.getAttribute('data-current-page'),'2','closing zoom preserves the book page');
     assert.equal(await trigger.evaluate(node=>document.activeElement===node),true,
-      'closing returns focus to the photograph control');
+      'closing via Escape returns focus for keyboard navigation');
+
+    // A pointer click on X should retain logical focus without a brown ring.
+    await trigger.click();
+    assert(await dialog.evaluate(node=>node.open),'photo can still be enlarged after Escape');
+    await dialog.locator('[data-book-image-close]').click();
+    await page.waitForFunction(() => document.querySelector(
+      '.redcarpert-book-page.is-current [data-book-image-zoom]'
+    )?.classList.contains('redcarpert-book-pointer-return'));
+    const focusStyle=await trigger.evaluate(node=>({
+      focused: document.activeElement===node,
+      outlineStyle: getComputedStyle(node).outlineStyle,
+      outlineWidth: getComputedStyle(node).outlineWidth,
+    }));
+    assert(focusStyle.focused,'closing X should restore logical focus');
+    assert(focusStyle.outlineStyle==='none'||focusStyle.outlineWidth==='0px',
+      'clicking X must not leave a brown image border');
+    assert.equal(await book.getAttribute('data-current-page'),'2',
+      'closing X must preserve the active book page');
+
+    // object-fit:contain paints only the centre of the full-width <img> box.
+    // Its ivory side gutters should turn pages, not trigger photo enlargement.
+    const gutter=await trigger.evaluate(button=>{
+      const img=button.querySelector('img');
+      const box=img.getBoundingClientRect();
+      const factor=Math.min(box.width/img.naturalWidth,box.height/img.naturalHeight);
+      return {left:box.left+4,right:box.right-4,y:box.top+box.height/2,
+        width:(box.width-factor*img.naturalWidth)/2};
+    });
+    assert(gutter.width>8,'mock portrait must have white side gutters');
+    await page.mouse.move((gutter.left+gutter.right)/2,gutter.y);
+    assert.equal(await trigger.evaluate(node=>getComputedStyle(node).cursor),'zoom-in',
+      'hovering the photograph must advertise zoom');
+    await page.mouse.move(gutter.right,gutter.y);
+    assert.equal(await trigger.evaluate(node=>getComputedStyle(node).cursor),'pointer',
+      'hovering blank ivory paper must advertise a page turn');
+    await page.mouse.click(gutter.right,gutter.y);
+    assert.equal(await dialog.evaluate(node=>node.open),false,
+      'white space around photograph must not open zoom');
+    assert.equal(await book.getAttribute('data-current-page'),'3',
+      'clicking right-hand gutter should turn forward');
+    const nextDress=page.locator('.redcarpert-book-page.is-current [data-book-image-zoom]');
+    const left=await nextDress.evaluate(button=>{
+      const box=button.querySelector('img').getBoundingClientRect();
+      return {x:box.left+4,y:box.top+box.height/2};
+    });
+    await page.mouse.click(left.x,left.y);
+    assert.equal(await book.getAttribute('data-current-page'),'2',
+      'clicking left-hand gutter should turn backward');
+
+    // Empty paper margins outside the image frame also turn pages.
+    const paper=await page.locator('.redcarpert-book-page.is-current').evaluate(leaf=>{
+      const box=leaf.getBoundingClientRect();
+      const photo=leaf.querySelector('.redcarpert-book-photo').getBoundingClientRect();
+      return {x:box.right-5,y:photo.top+photo.height/2};
+    });
+    await page.mouse.click(paper.x,paper.y);
+    assert.equal(await book.getAttribute('data-current-page'),'3',
+      'clicking blank paper should turn without using bottom arrow buttons');
     await next.click();
-    assert.equal(await book.getAttribute('data-current-page'),'3','page turning still works after zoom');
+    assert.equal(await book.getAttribute('data-current-page'),'4',
+      'existing bottom arrows must still work after paper click');
 
     // Wedding Moments: the same zoom is available on photos, not videos.
     await page.goto(origin + '/wedding-moments/',{waitUntil:'domcontentloaded'});

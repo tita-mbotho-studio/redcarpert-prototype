@@ -118,6 +118,14 @@
   outline: 2px solid #9b7954;
   outline-offset: -2px;
 }
+/* Pointer-based popup closure returns focus to the same photo for accessibility
+   without leaving a conspicuous brown rectangle on its image frame.
+   Keyboard navigation immediately restores the normal visible focus ring. */
+.redcarpert-book-zoom-trigger.redcarpert-book-pointer-return:focus,
+.redcarpert-book-zoom-trigger.redcarpert-book-pointer-return:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
 .redcarpert-book-photo img {
   display: block;
   width: 100%;

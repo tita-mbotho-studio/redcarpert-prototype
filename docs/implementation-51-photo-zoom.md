@@ -22,6 +22,14 @@ Both galleries now support the same high-resolution photograph lightbox:
 - `tests/image-zoom.test.mjs`, `scripts/browser-image-zoom.mjs`, `scripts/browser-wedding-moments.mjs` — static and browser regression coverage
 - `package.json` — include image zoom browser verification in `npm run test:browser`
 
+
+## Approved follow-up — book-paper click navigation
+
+- Closing the enlarged photograph with a pointer press on X or the backdrop keeps the current page and restores focus, but does not display the broad brown photo-button focus outline. A keyboard-triggered close preserves the visible focus indicator.
+- The fitted dress photograph remains the zoom target. Clicking the ivory image gutters or other blank paper within the book now turns pages: right side forward, left side backward. Clicking dress detail links never turns a page.
+- Flipbook touch swiping, mouse dragging, bottom navigation arrows, page numbering, PDF content and the Wedding Moments gallery remain unchanged.
+- New source and browser checks cover photo hit geometry, the X/focus behaviour, gutter/margin click-to-turn, pointer cursors, swipes and the animated PageFlip reader.
+
 ## Review and verification
 
 ```powershell

@@ -42,6 +42,20 @@ try {
     const previous=page.getByRole('button',{name:'Previous page',exact:true});
     let position=await current();
     assert.equal(position,1,'starts on cover');
+
+    // An actual pointer click on blank cover paper should turn the enhanced
+    // PageFlip reader, without requiring the bottom navigation buttons.
+    const cover=book.locator('[data-book-page="1"]');
+    const coverBox=await cover.boundingBox();
+    assert(coverBox,'enhanced front cover should be visible');
+    await page.mouse.click(coverBox.x+coverBox.width-8,
+      coverBox.y+Math.min(26,coverBox.height*.05));
+    position=await progresses(position,1);
+    assert(position>1,'clicking blank right-hand book paper should flip forward');
+    await previous.click();
+    position=await progresses(position,-1);
+    assert.equal(position,1,'previous button should still return to cover');
+
     let count=0;
     while(position<pageCount && count<pageCount){
       assert.equal(await next.isDisabled(),false,'next disabled before back cover');
