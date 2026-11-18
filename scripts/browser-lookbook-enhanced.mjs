@@ -51,7 +51,7 @@ try {
       if (count===1) {
         // The first dress uses a deliberately blocked Pexels source in CI.
         // Replace only this test photograph with a deterministic loaded image.
-        const image=book.locator('[data-book-page="2"] img[data-book-zoom-photo]').first();
+        const image=book.locator('[data-book-page="2"] img[data-book-zoom-photo]:visible').first();
         await image.waitFor({state:'visible'});
         await image.evaluate(photo=>new Promise(resolve=>{
           photo.onload=()=>{
