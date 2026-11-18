@@ -92,9 +92,8 @@ export function initializeLookbookReader() {
       if (event.detail !== 0 && image instanceof HTMLImageElement &&
           !isInsideContainedPhoto(image.getBoundingClientRect(),
             image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) {
-        // Enhanced PageFlip handles paper gutters natively on desktop.
-        // Only the accessible fallback needs a manual gutter turn.
-        if (!engine) turn(paperDirection(event.clientX));
+        // The image's transparent side letterboxing is blank paper.
+        turn(paperDirection(event.clientX));
         return;
       }
       openBookPhoto(trigger);
@@ -197,10 +196,11 @@ export function initializeLookbookReader() {
       turn(direction);
     }, { passive: false });
   }
-  // Desktop mouse clicks and swipes belong to PageFlip, matching the
-  // original pre-zoom book. Only the no-CDN fallback turns paper here.
+  // PageFlip animates all turns, but its mouseup click handler can trigger
+  // an extra spread after our delegated paper click. We intercept stationary
+  // mouse releases below; movement and drags still reach the vendor.
   book.addEventListener('click', event => {
-    if (engine || !(event.target instanceof Element) || dialog?.open ||
+    if (!(event.target instanceof Element) || dialog?.open ||
         Date.now() < suppressZoomUntil || event.detail === 0) return;
     if (event.target.closest('[data-book-image-zoom],a,button,input,textarea,select,label,[contenteditable="true"]')) return;
     // A page's words are for reading/selecting, not page-turning. Its empty
@@ -222,7 +222,9 @@ export function initializeLookbookReader() {
   // A drag/swipe must not generate a follow-up click that accidentally
   // turns the next page or opens the enlarged photograph.
   let pointerStart = null;
+  let suppressVendorMouseUp = false;
   book.addEventListener('pointerdown', event => {
+    suppressVendorMouseUp = false;
     if (event.isPrimary) pointerStart = {
       id: event.pointerId, x: event.clientX, y: event.clientY,
     };
@@ -236,13 +238,21 @@ export function initializeLookbookReader() {
       suppressZoomUntil = Date.now() + 450;
       return;
     }
-    // Touch taps are handled at touchend, before PageFlip's vendor listener.
-    // Mouse photo clicks keep the original guard against accidental turns.
-    // PageFlip's click-to-turn is disabled. Mouse clicks are handled by
-    // the book's single delegated click listener; touch taps are handled
-    // by the single touchend listener. No vendor internals need patching.
+    if (engine && event.pointerType === 'mouse') {
+      // For stationary mouse clicks, skip the vendor's second mouseup turn.
+      // Do NOT intercept drags; PageFlip needs mouseup to finish a swipe.
+      suppressVendorMouseUp = true;
+    }
   }, true);
-  book.addEventListener('pointercancel', () => { pointerStart = null; }, true);
+  book.addEventListener('mouseup', event => {
+    if (!suppressVendorMouseUp) return;
+    suppressVendorMouseUp = false;
+    event.stopImmediatePropagation();
+  }, true);
+  book.addEventListener('pointercancel', () => {
+    pointerStart = null;
+    suppressVendorMouseUp = false;
+  }, true);
 
   // StPageFlip's own tap handling is inconsistent on coarse-pointer viewports:
   // a finger tap on blank paper sometimes does nothing, although swiping
@@ -329,7 +339,7 @@ export function initializeLookbookReader() {
       minHeight: 336, maxHeight: 728, showCover: true, usePortrait: true,
       drawShadow: true, maxShadowOpacity: .27, flippingTime: 780,
       mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
-      disableFlipByClick: false, autoSize: true, startPage: index,
+      disableFlipByClick: true, autoSize: true, startPage: index,
     });
     // StPageFlip requires complete physical spreads when showCover is true.
     // An odd number of numbered leaves requires a decorative
