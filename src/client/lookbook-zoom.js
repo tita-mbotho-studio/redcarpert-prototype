@@ -77,13 +77,14 @@ export function initializeLookbookZoom(viewer, book, getPageFlip) {
     if (opener?.isConnected) {
       // Retain keyboard focus indication, but avoid painting a ring around
       // the photograph after a pointer-triggered modal closes.
+      const restoredImage = opener;
       if (openedByPointer) {
-        opener.classList.add('redcarpert-book-pointer-restored');
-        opener.addEventListener('blur', () => {
-          opener.classList.remove('redcarpert-book-pointer-restored');
+        restoredImage.classList.add('redcarpert-book-pointer-restored');
+        restoredImage.addEventListener('blur', () => {
+          restoredImage.classList.remove('redcarpert-book-pointer-restored');
         }, {once: true});
       }
-      opener.focus({preventScroll:true});
+      restoredImage.focus({preventScroll:true});
     }
     dialog.classList.remove('redcarpert-book-pointer-opened');
     openedByPointer = false;
