@@ -37,6 +37,8 @@ jobs:
           pages_preview_pid=$!
           trap 'kill "$pages_preview_pid"' EXIT
           curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-prototype/ > /dev/null
+          # Check the previously stale Dress Details modal smoke test first.
+          node scripts/browser-interactions.mjs
           npm run test:browser
       - uses: actions/upload-pages-artifact@v3
         with:
