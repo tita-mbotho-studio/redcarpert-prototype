@@ -1,5 +1,3 @@
-import { initializeImageZoom } from './image-zoom.js';
-
 /**
  * Wedding Moments gallery: one mixed photo/film stream.
  * The first 16 cards are server-rendered. Later cards remain inert in a
@@ -42,10 +40,7 @@ export function initializeWeddingMomentsGallery() {
   const photo = dialog.querySelector('[data-wedding-preview-photo]');
   const video = dialog.querySelector('[data-wedding-preview-video]');
   const close = dialog.querySelector('[data-wedding-preview-close]');
-  const stage = dialog.querySelector('[data-image-zoom-stage]');
-  const zoom = initializeImageZoom(dialog);
-  if (!(photo instanceof HTMLImageElement) || !(video instanceof HTMLVideoElement) ||
-      !close || !stage || !zoom) return;
+  if (!(photo instanceof HTMLImageElement) || !(video instanceof HTMLVideoElement) || !close) return;
 
   let opener = null;
   grid.addEventListener('click', event => {
@@ -58,10 +53,7 @@ export function initializeWeddingMomentsGallery() {
 
     opener = button;
     photo.hidden = type !== 'photo';
-    stage.hidden = type !== 'photo';
     video.hidden = type !== 'video';
-    // Video retains its original native controls, sound and autoplay.
-    zoom.setActive(type === 'photo');
     if (type === 'photo') {
       // Display a screen-sized full photograph without downloading the massive
       // original. Fall back once if ImageKit cannot deliver the derivative.
@@ -98,9 +90,7 @@ export function initializeWeddingMomentsGallery() {
     photo.removeAttribute('src');
     photo.alt = '';
     photo.hidden = true;
-    stage.hidden = true;
     video.hidden = true;
-    zoom.setActive(false);
     if (opener?.isConnected) opener.focus({ preventScroll: true });
     opener = null;
   });
