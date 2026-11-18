@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&display=swap");
+/* The Cormorant Garamond stylesheet is loaded in <head> on catalogue routes.
+   An @import inside the combined site CSS is invalid after preceding rules. */
 
 /* One editorial card for the main catalogue and all five collections.
    Preserve the approved grid, square crops, image sources and linked routes. */

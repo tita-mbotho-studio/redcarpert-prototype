@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { preparePage } from '../scripts/lib/prepare-page.ts';
-import { catalogueProducts } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
+import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
@@ -34,7 +35,17 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     }
     assert.equal(JSON.stringify(document),before,'conversion must never mutate source document');
     assert.equal(new URL(href).searchParams.get('text'),message);
-    if(product)assert(message.includes('*Rental price range:*') && message.includes('*Collection:*') && message.includes('sale price'),route+' missing sale, rental and collection');
+    if (product) {
+      const category = catalogueCategories.find(item => item.id === product.category);
+      assert(category, route+' must have a valid collection');
+      assert(message.includes('*Collection:* '+category.name), route+' missing collection');
+      assert(message.includes('*Sale Price:* '+displaySalePriceForDress(product.id)),
+        route+' missing correctly labelled fixed sale price');
+      assert(message.includes('*Rental Price Range:* '+displayRentalPriceForDress(product.id)),
+        route+' missing correctly labelled rental price range');
+      assert(message.includes(RENTAL_CONDITION_NOTE),
+        route+' missing rental condition qualification');
+    }
   }
 });
 
