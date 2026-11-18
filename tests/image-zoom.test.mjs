@@ -148,8 +148,12 @@ test('3D book remains available on all screen types while the zoom action does n
     'paper clicks use a single delegated click handler');
   assert.match(reader,/event\.stopImmediatePropagation\(\)/,
     'handled stationary mouseups must not trigger a second vendor turn');
-  assert.doesNotMatch(reader,/engine\.userStop\(/,
-    'PageFlip internals must not be called to intercept photograph taps');
+  assert.match(reader,/engine\.userStop\(\{ x: clientX - rect\.left, y: clientY - rect\.top \}, true\)/,
+    'intercepted taps must finish vendor touch state without a second page flip');
+  assert.match(reader,/finishHandledGesture\(event\.clientX, event\.clientY\)/,
+    'mouse release must not leave a pending vendor gesture');
+  assert.match(reader,/finishHandledGesture\(touch\.clientX, touch\.clientY\)/,
+    'touch release must not leave a pending vendor gesture');
   assert.match(reader,/book\.addEventListener\('touchend', event => \{/,
     'real stationary touch taps must be handled in the 3D reader');
   assert.match(reader,/enhancedTouch/);

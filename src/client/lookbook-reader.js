@@ -165,6 +165,15 @@ export function initializeLookbookReader() {
     }, { passive: true });
   }
   let index = 0, engine = null;
+  // PageFlip remembers startUserTouch() until userStop(). If we capture the
+  // completing mouseup/touchend to open photo zoom or turn blank paper, we
+  // must still clear its pending touch state. The 'isSwipe' flag skips an
+  // additional vendor flip; it does NOT disable 3D swipe animations.
+  const finishHandledGesture = (clientX, clientY) => {
+    if (!engine) return;
+    const rect = book.getBoundingClientRect();
+    engine.userStop({ x: clientX - rect.left, y: clientY - rect.top }, true);
+  };
   const announce = () => {
     status.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
     previous.disabled = index <= 0;
@@ -247,6 +256,7 @@ export function initializeLookbookReader() {
   book.addEventListener('mouseup', event => {
     if (!suppressVendorMouseUp) return;
     suppressVendorMouseUp = false;
+    finishHandledGesture(event.clientX, event.clientY);
     event.stopImmediatePropagation();
   }, true);
   book.addEventListener('pointercancel', () => {
@@ -294,7 +304,9 @@ export function initializeLookbookReader() {
     if (!trigger && target.closest('a,button,input,textarea,select,label,[contenteditable="true"]')) return;
     if (!photo && !trigger &&
         target.closest('h1,h2,h3,h4,h5,h6,p,small,span,output')) return;
-    // Reject the vendor's second interpretation of this same stationary tap.
+    // Our handler owns this stationary tap. Reset PageFlip's pending
+    // startUserTouch state before preventing the vendor's own touchend.
+    finishHandledGesture(touch.clientX, touch.clientY);
     if (event.cancelable) event.preventDefault();
     event.stopImmediatePropagation();
     suppressZoomUntil=Date.now()+80;
