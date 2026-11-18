@@ -289,8 +289,9 @@ try {
     const positionAfterPaperTap=position;
     await activate(prev);
     position=await progresses(position,-1);
+    const trace=await page.evaluate(()=>window.__redcarpertBookTrace??[]);
     console.log('3D spread navigation',JSON.stringify({
-      width,afterPaperTap:positionAfterPaperTap,afterPrevious:position,
+      width,afterPaperTap:positionAfterPaperTap,afterPrevious:position,trace,
     }));
     assert.equal(position,1,width+'px Previous must return to 3D cover (after tap '+
       positionAfterPaperTap+', after Previous '+position+')');

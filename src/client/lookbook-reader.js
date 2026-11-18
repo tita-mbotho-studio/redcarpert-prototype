@@ -190,7 +190,13 @@ export function initializeLookbookReader() {
   let lastPaperTurnAt = 0;
   const turnPaper = direction => {
     const now = Date.now();
-    if (engine && now - lastPaperTurnAt < 650) return;
+    const trace = window.location.hostname === '127.0.0.1'
+      ? (window.__redcarpertBookTrace ??= []) : null;
+    if (engine && now - lastPaperTurnAt < 1200) {
+      trace?.push({event:'duplicate-blocked',direction,index,enginePage:engine.getCurrentPageIndex?.(),time:now});
+      return;
+    }
+    trace?.push({event:'paper-turn',direction,index,enginePage:engine?.getCurrentPageIndex?.(),time:now});
     lastPaperTurnAt = now;
     turn(direction);
   };
@@ -361,6 +367,11 @@ export function initializeLookbookReader() {
     pageFlip.on('flip', event => {
       // Never expose the unnumbered endpaper in navigation or the counter.
       index = Math.min(event.data, pages.length - 1);
+      if (window.location.hostname === '127.0.0.1') {
+        (window.__redcarpertBookTrace ??= []).push({
+          event:'vendor-flip',index,enginePage:pageFlip.getCurrentPageIndex?.(),time:Date.now(),
+        });
+      }
       announce();
     });
     book.dataset.engine = 'page-flip';
