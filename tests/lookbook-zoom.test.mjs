@@ -74,3 +74,18 @@ test('Dress Details retains the modern Font Awesome expand icon and existing Fan
   assert.match(detail,/"data-fancybox": "product-gallery"/);
   assert.doesNotMatch(detail,/class: "wpgis-popup fa fa-expand"/);
 });
+
+test('lookbook removes pointer focus frames while retaining keyboard focus and original Wedding Moments styling', () => {
+  const css=readFileSync('src/components/LookbookZoom.css','utf8');
+  const controller=readFileSync('src/client/lookbook-zoom.js','utf8');
+  assert.match(css,/\.redcarpert-book-photo img\[data-book-zoom-photo\] \{[^}]*border:\s*0 !important;[^}]*box-shadow:\s*none !important;/);
+  assert.match(css,/img\[data-book-zoom-photo\]\.redcarpert-book-pointer-restored:focus-visible \{[^}]*outline:\s*none !important;/);
+  assert.match(css,/\.redcarpert-book-zoom-dialog\.redcarpert-book-pointer-opened \.redcarpert-wedding-preview-close:focus-visible \{[^}]*outline:\s*none !important;/);
+  assert.match(css,/img\[data-book-zoom-photo\]:focus-visible \{[^}]*outline:\s*2px solid #666;/,
+    'keyboard users should retain a neutral focus indicator');
+  assert.match(controller,/dialog\.classList\.toggle\('redcarpert-book-pointer-opened', viaPointer\)/);
+  assert.match(controller,/restoredImage\.classList\.add\('redcarpert-book-pointer-restored'\)/);
+  assert.match(controller,/restoredImage\.addEventListener\('blur'/);
+  assert.doesNotMatch(css,/^\.redcarpert-wedding-dialog(?=:|\s|\{)/m,
+    'do not override the wedding-moments dialog globally');
+});
