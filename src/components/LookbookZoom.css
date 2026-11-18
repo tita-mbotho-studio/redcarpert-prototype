@@ -1,0 +1,181 @@
+/* Implementation 55 — a discreet zoom trigger, separate from StPageFlip. */
+#main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger {
+  appearance: none;
+  position: absolute;
+  z-index: 8;
+  top: 8px;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: clamp(34px, 3vw, 42px);
+  height: clamp(34px, 3vw, 42px);
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(148, 123, 92, .22);
+  border-radius: 50%;
+  background: rgba(253, 251, 248, .93);
+  color: #51453a;
+  box-shadow: 0 3px 12px rgba(36, 28, 21, .11);
+  cursor: zoom-in;
+  touch-action: manipulation;
+  transition: background-color .18s ease, box-shadow .18s ease;
+}
+#main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger:hover {
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(36, 28, 21, .19);
+}
+#main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger > .fa-solid {
+  display: block !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+#main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger:focus-visible {
+  outline: 2px solid #947b5c;
+  outline-offset: 3px;
+}
+#main-container .redcarpert-photo-failed .redcarpert-book-zoom-trigger {
+  visibility: hidden;
+}
+
+/* The native modal lives outside the animated paper and the website's theme
+   modal CSS. It adds no white border around photographs. */
+body .redcarpert-book-zoom-dialog {
+  box-sizing: border-box;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0;
+  background: rgba(14, 12, 12, .98);
+  color: #fff;
+  box-shadow: none;
+  overflow: hidden;
+}
+body .redcarpert-book-zoom-dialog:not([open]) { display: none; }
+body .redcarpert-book-zoom-dialog::backdrop { background: rgba(0, 0, 0, .85); }
+body .redcarpert-book-zoom-stage {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: clamp(24px, 5vh, 48px) clamp(10px, 4vw, 48px) 96px;
+  cursor: default;
+  touch-action: none;
+  overflow: hidden;
+}
+body .redcarpert-book-zoom-stage.is-zoomed { cursor: grab; }
+body .redcarpert-book-zoom-stage.is-zoomed:active { cursor: grabbing; }
+body .redcarpert-book-zoom-stage img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+  pointer-events: none;
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-close {
+  appearance: none;
+  position: fixed;
+  z-index: 2;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255, 255, 255, .4);
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(38, 35, 33, .8);
+  cursor: pointer;
+  font-size: 18px;
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-controls {
+  position: absolute;
+  z-index: 2;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 13px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 28px;
+  background: rgba(38, 35, 33, .88);
+  white-space: nowrap;
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-controls button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-controls button:hover:not(:disabled),
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-close:hover {
+  background: rgba(255, 255, 255, .16);
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-controls button:disabled {
+  opacity: .32;
+  cursor: default;
+}
+body .redcarpert-book-zoom-dialog .redcarpert-book-zoom-controls [data-book-zoom-percent] {
+  min-width: 40px;
+  text-align: center;
+  color: #fff;
+  font: 500 12px/1.2 Montserrat, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+body .redcarpert-book-zoom-dialog button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  #main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger {
+    top: 5px;
+    right: 5px;
+    width: 34px;
+    height: 34px;
+  }
+  #main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger > .fa-solid {
+    font-size: 13px;
+  }
+  body .redcarpert-book-zoom-stage {
+    padding: 60px 10px 84px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #main-container .redcarpert-book-photo > .redcarpert-book-zoom-trigger { transition: none; }
+}
