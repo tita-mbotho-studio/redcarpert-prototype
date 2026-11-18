@@ -286,9 +286,14 @@ try {
     await at(coverTap.x,coverTap.y);
     position=await progresses(position,1);
     assert(position>1,width+'px paper tap must make an animated page turn');
+    const positionAfterPaperTap=position;
     await activate(prev);
     position=await progresses(position,-1);
-    assert.equal(position,1,width+'px Previous must return to 3D cover');
+    console.log('3D spread navigation',JSON.stringify({
+      width,afterPaperTap:positionAfterPaperTap,afterPrevious:position,
+    }));
+    assert.equal(position,1,width+'px Previous must return to 3D cover (after tap '+
+      positionAfterPaperTap+', after Previous '+position+')');
     await activate(next);
     position=await progresses(position,1);
     // The controls are BELOW the flipbook. Clicking Next often scrolls the

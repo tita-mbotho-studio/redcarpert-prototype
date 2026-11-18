@@ -159,8 +159,12 @@ test('3D book remains available on all screen types while the zoom action does n
     'touch zoom and touch page turning must be exclusive');
   assert.match(reader,/isInsideContainedPhoto\(/,
     'ivory gutters should remain paper-turn regions');
-  assert.match(reader,/turn\(paperDirection\(event\.clientX\)\)/,
+  assert.match(reader,/turnPaper\(paperDirection\(event\.clientX\)\)/,
     'photo letterboxing remains paper in both 3D and fallback');
+  assert.match(reader,/const turnPaper = direction => \{/,
+    'paper taps should route through one deduplicated controller');
+  assert.match(reader,/now - lastPaperTurnAt < 650/,
+    'cloned PageFlip click events must not flip two spreads');
   assert.match(reader,/const moved = Math\.hypot/,
     'dragging and swiping must not open photograph zoom');
   assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);

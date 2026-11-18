@@ -94,7 +94,7 @@ export function initializeLookbookReader() {
             image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) {
         // Letterbox gutters are paper even when the image button fills them.
         // PageFlip's native click action is disabled to prevent double turns.
-        turn(paperDirection(event.clientX));
+        turnPaper(paperDirection(event.clientX));
         return;
       }
       openBookPhoto(trigger);
@@ -184,6 +184,16 @@ export function initializeLookbookReader() {
     pages.forEach((node, i) => node.classList.toggle('is-current', i === index));
     announce();
   };
+  // PageFlip can forward a single physical click through a cloned leaf AND
+  // its wrapper. Prevent two paper-click callbacks from flipping two spreads.
+  // This guard applies only to paper clicks/taps, never to arrow controls.
+  let lastPaperTurnAt = 0;
+  const turnPaper = direction => {
+    const now = Date.now();
+    if (engine && now - lastPaperTurnAt < 650) return;
+    lastPaperTurnAt = now;
+    turn(direction);
+  };
   previous.addEventListener('click', () => turn(-1));
   next.addEventListener('click', () => turn(1));
   // Chromium may swallow the first compatibility click after a horizontal
@@ -212,7 +222,7 @@ export function initializeLookbookReader() {
     if (window.getSelection()?.toString()) return;
     event.preventDefault();
     event.stopPropagation();
-    turn(paperDirection(event.clientX));
+    turnPaper(paperDirection(event.clientX));
   }, true);
   viewer.addEventListener('keydown', event => {
     if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
@@ -290,7 +300,7 @@ export function initializeLookbookReader() {
     event.stopImmediatePropagation();
     suppressZoomUntil=Date.now()+80;
     if (photo && openBookPhoto) openBookPhoto(trigger);
-    else turn(paperDirection(touch.clientX));
+    else turnPaper(paperDirection(touch.clientX));
   }, {capture:true,passive:false});
   book.addEventListener('touchcancel',()=>{enhancedTouch=null;},{capture:true,passive:true});
   let touchX = null, zoomTouchX = null;
