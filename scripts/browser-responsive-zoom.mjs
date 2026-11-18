@@ -285,8 +285,34 @@ try {
     };
     assert(Number.isFinite(coverTap.x)&&Number.isFinite(coverTap.y),
       width+'px cover tap coordinates must be finite');
+    const coverHit=await page.evaluate(({x,y})=>{
+      const el=document.elementFromPoint(x,y);
+      const book=document.querySelector('#redcarpert-flipbook');
+      return {tag:el?.tagName,className:typeof el?.className==='string'?el.className:'',
+        bookContains:book?.contains(el),outerHTML:el?.outerHTML.slice(0,320),
+        ancestors:el?[...function*(n){for(let i=0;n&&i<6;i++,n=n.parentElement)yield
+          n.tagName+'.'+String(n.className).slice(0,80);}(el)]:[]};
+    },coverTap);
+    await page.evaluate(()=>{
+      window.__coverEvents=[];
+      document.addEventListener('click',event=>{
+        if(window.__coverEvents.length>12)return;
+        window.__coverEvents.push({target:event.target?.tagName,
+          className:String(event.target?.className).slice(0,100),
+          trusted:event.isTrusted,detail:event.detail,
+          bookContains:document.querySelector('#redcarpert-flipbook')?.contains(event.target)});
+      },true);
+    });
+    console.log('3D cover hit target',width,JSON.stringify(coverHit));
     await at(coverTap.x,coverTap.y);
-    position=await progresses(position,1);
+    try {
+      position=await progresses(position,1);
+    } catch (error) {
+      console.log('3D cover events',width,JSON.stringify(await page.evaluate(()=>
+        ({events:window.__coverEvents,page:document.querySelector('#redcarpert-flipbook')?.dataset.currentPage,
+          hit:document.elementFromPoint(0,0)?.className}))));
+      throw error;
+    }
     assert(position>1,width+'px paper tap must make an animated page turn');
     const positionAfterPaperTap=position;
     await activate(prev);
