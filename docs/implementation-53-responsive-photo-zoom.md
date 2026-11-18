@@ -1,102 +1,50 @@
-# Implementation 53 — responsive photo zoom and page navigation
+# Implementation 53 — Original 3D Lookbook on every screen, with photo zoom
 
-## Root causes
+## Reference and root cause
 
-1. The previous touch workaround opened Wedding Moments on `pointerup`,
-   before the browser's native tap/click completed. On tablets the popup could
-   open and then immediately close, yielding a false result in the 1024px test.
-2. The Lookbook had stacked touch-pointer interceptors, synthetic click
-   dispatch, ghost-click suppression, and a separate PageFlip touch handler.
-   This could interfere with Previous/Next buttons and make page turns stall.
-3. On narrow screens the modal close X sat outside the dialog hit area.
+The live website at https://tita-mbotho-studio.github.io/redcarpert-prototype/digital-lookbook/
+still uses an older 29-page editorial book. It is the visual and interaction
+reference only; it must not replace the newer 37-page catalogue, its media,
+sale/rental prices, lookbook links or wording.
 
-## Simpler architecture
+Before Implementation 51, StPageFlip was initialized with usePortrait=true,
+clickEventForward=true, mobileScrollSupport=false and without
+disableFlipByClick=true. Its native interaction supported animated clicks,
+mobile touch and swipe/drag page turns. Implementation 51 disabled this native
+click-to-turn path to add zoom and replaced paper clicks with custom handlers.
+Implementation 53 temporarily used a flat reader on phones; this was rejected.
 
-- Wedding Moments photo/video thumbnails are native buttons driven by one
-  delegated `click` listener. Remove the `pointerup` popup opener entirely.
-- The Digital Lookbook has ONE navigation controller: `turn(-1)` and `turn(1)`.
-  On <=1100px or coarse pointers it renders single pages directly. Native
-  photo button clicks open zoom, white paper clicks turn pages, and the
-  existing native `touchstart`/`touchend` swipe recognizer handles swiping.
-- The animated StPageFlip remains a desktop-only, fine-pointer enhancement.
-  Do not load it in narrow/touch environments where it consumes taps.
-- Switching desktop to mobile or back in DevTools restores pristine page
-  markup, retains the current numbered page, and changes engine mode safely.
-  Note: the library's `destroy()` removes its root, so the same root node is
-  reinserted to retain delegated listeners and avoid duplicate handlers.
-- Shared image zoom refreshes after `showModal()` and after image loads.
-- Mobile/tablet dialog styles reserve transparent space above the photograph
-  for the accessible dark X button. No brown ring or white media border.
+## Final interaction design
 
-## Regression coverage
+- All viewports use the same real 3D PageFlip reader. Portrait/single-leaf
+  layout remains on phones; paired spreads appear on larger desktop screens.
+- Native blank-paper clicks, taps, page drags and swipes remain enabled.
+  disableFlipByClick is explicitly false; no custom click handler runs when
+  PageFlip is active.
+- A short tap on the painted photograph pixels opens the zoom dialog instead
+  of turning the page. A minimal pointerup guard stops PageFlip's pending
+  userStop/flip for only that photo tap, allowing the forwarded native button
+  click to open zoom; swipe and paper taps are left to PageFlip.
+- object-fit side/vertical letterboxing is paper, not part of the photograph.
+- Dress links remain functional through clickEventForward=true.
+- Existing Previous/Next controls, keyboard arrow keys and post-swipe
+  touchend handling remain in one navigation controller.
+- Preserve zoom modal, plus/minus/reset, pinch, wheel, focus handling and
+  dark round X without a brown outline.
+- Accessible single-page fallback remains only for PageFlip CDN failure or
+  reduced-motion preferences.
+- No changes to the 35 dresses, 37 book leaves, 47-page PDF, pricing,
+  WhatsApp formatting or ImageKit links.
 
-- `npm run test:responsive-zoom`: 1440 desktop mouse + genuine taps at 1024,
-  768, 390 and 320; previous/next after blank-paper turns, touch swipe,
-  photo zoom and reset, two-finger pinch, close X, Wedding Moments photo
-  and video, and viewport switching.
-- `scripts/browser-lookbook-enhanced.mjs`: animated desktop PageFlip at 1440
-  and 1280, plus 1440 -> 390 -> 1440 viewport switching with page preservation
-  and working Previous/Next in the fallback.
-- `tests/image-zoom.test.mjs`: asserts the native click strategy, single-page
-  fallback policy, desktop restoration, and responsive close targets.
+## Validation
 
-## Verification status
+npm run test:responsive-zoom now builds and serves the website independently,
+then tests both the fallback and the real CDN-backed PageFlip at 1440px,
+1024px, 768px, 390px and 320px. PageFlip checks include a native paper tap,
+photo zoom without a turn, modal close, and Previous/Next.
 
-Focused code and syntax assertions passed before commit. Full site build
-and actual Playwright browser checks require the locally running preview.
+npm run test:browser additionally covers a full desktop book walk-through
+and resizing 1440 -> 390 -> 1440 without switching away from PageFlip.
 
-```powershell
-git fetch origin
-git switch implementation/53-responsive-lookbook-photo-interactions
-git pull --ff-only origin implementation/53-responsive-lookbook-photo-interactions
-npm run check
-npm run preview
-```
-
-From a second terminal:
-
-```powershell
-npm run test:responsive-zoom
-npm run test:browser
-```
-
-No merge, deployment, or manual GitHub Actions without user approval.
-
-## Local preview port safety
-
-The Playwright browser suites use localhost:4173. Vite's default behaviour
-is to switch silently to port 4174 when 4173 is occupied, resulting in tests
-running against an older server instead of the code being reviewed.
-`npm run preview` therefore uses `--strictPort`. If it reports that 4173
-is occupied, stop the previous preview process first and restart it. Do not
-run browser tests against an old instance on that port.
-
-## Regression: Previous tap immediately after swiping on 390px
-
-A focused Chromium mobile reproduction showed that a successful horizontal swipe
-can be followed by a touch tap whose `touchstart` and `touchend` arrive at
-Previous but whose compatibility `click` is swallowed. The old controls
-listened only for `click`, so page 4 could remain unchanged.
-
-Both Previous and Next now retain native `click` handling for mouse and
-keyboard, and share a minimal non-passive `touchend` listener that calls the
-same `turn(direction)` function. Preventing the touchend default suppresses
-the compatibility click and avoids double turns. **No extra synthetic clicks
-or gesture engines have been added.** The existing swipe recognition remains
-unchanged.
-
-`scripts/browser-responsive-zoom.mjs` verifies swipe 3→4, Previous 4→3,
-Next 3→4 and Previous 4→3, and records touchend versus click events to make
-future swallowed-tap failures diagnosable. A focused Chromium touch harness
-reproduced the failure and verified the correction; the complete website
-browser suite still requires a local run.
-
-## Self-contained responsive test runner
-
-Run `npm run test:responsive-zoom` directly. It now rebuilds the website, starts
-its own Vite preview server on an available loopback port, runs real Chromium
-mouse/touch interaction checks, then shuts down its preview even on failures.
-It never depends on an existing server on port 4173 and never deploys.
-
-The broader `npm run test:browser` suite still requires a separately started
-`npm run preview` server on port 4173. These are distinct commands.
+The full npm run check and Playwright browser suites still require execution
+against a locally built checkout before merging. No Actions/deploy triggered.

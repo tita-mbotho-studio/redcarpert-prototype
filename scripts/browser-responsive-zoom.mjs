@@ -230,6 +230,95 @@ try {
     console.log('Real responsive '+(touch?'touch':'mouse')+' photo interactions PASS at '+width+'px');
     await page.close();
   }
+
+  // The flat fallback remains a safety net if the CDN fails, but the real
+  // editorial experience must keep its native animated PageFlip everywhere.
+  // These requests are separate from the CDN-blocked fallback runs above.
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    const touch = width <= 1024;
+    const page = await browser.newPage({
+      viewport: {width, height:900}, hasTouch:touch, isMobile:width <= 768,
+      reducedMotion:'no-preference',
+    });
+    const pageErrors=[];
+    page.on('pageerror', error=>pageErrors.push(error.message));
+    await page.route('https://ik.imagekit.io/**', route=>route.fulfill({
+      status:200,contentType:'image/svg+xml',body:image,
+    }));
+    await page.route('https://images.pexels.com/**', route=>route.fulfill({
+      status:200,contentType:'image/svg+xml',body:image,
+    }));
+    await page.goto(origin+'/digital-lookbook/',{waitUntil:'domcontentloaded'});
+    const book=page.locator('#redcarpert-flipbook');
+    await page.waitForFunction(()=>
+      document.querySelector('#redcarpert-flipbook')?.dataset.engine==='page-flip',
+      null,{timeout:25000});
+    assert.equal(await book.getAttribute('data-engine'),'page-flip',
+      width+'px must use the 3D flipbook, not the plain-page reader');
+    const current=async()=>Number(await book.getAttribute('data-current-page'));
+    const progresses=async(previous,direction)=>{
+      await page.waitForFunction(({previous,direction})=>{
+        const value=Number(document.querySelector('#redcarpert-flipbook')?.dataset.currentPage);
+        return direction > 0 ? value > previous : value < previous;
+      },{previous,direction},{timeout:12000});
+      await page.waitForTimeout(850);
+      return current();
+    };
+    const activate=locator=>touch?locator.tap():locator.click();
+    const at=async(x,y)=>touch?page.touchscreen.tap(x,y):page.mouse.click(x,y);
+    const next=page.locator('[data-book-next]');
+    const prev=page.locator('[data-book-previous]');
+    let position=await current();
+    assert.equal(position,1,width+'px 3D reader must begin at the cover');
+    const cover=book.locator('[data-book-page="1"]');
+    const coverRect=await cover.boundingBox();
+    assert(coverRect&&coverRect.width>80,width+'px cover must render');
+    // The old pre-zoom reader allowed a native paper tap to flip. Do not
+    // require swipes or manual pointerup-to-click synthesis for this action.
+    await at(coverRect.right-8,coverRect.top+Math.min(24,coverRect.height*.04));
+    position=await progresses(position,1);
+    assert(position>1,width+'px paper tap must make an animated page turn');
+    await activate(prev);
+    position=await progresses(position,-1);
+    assert.equal(position,1,width+'px Previous must return to 3D cover');
+    await activate(next);
+    position=await progresses(position,1);
+    const photoCandidate=await page.locator('[data-book-page="2"] [data-book-image-zoom] img')
+      .evaluateAll(images=>{
+        const options=images.map(img=>{
+          const rect=img.getBoundingClientRect();
+          return {x:rect.left+rect.width/2,y:rect.top+rect.height/2,
+            width:rect.width,height:rect.height};
+        }).filter(rect=>rect.width>30 && rect.height>30 && rect.x>0 &&
+          rect.y>0 && rect.x<innerWidth && rect.y<innerHeight);
+        return options[0]??null;
+      });
+    assert(photoCandidate,width+'px PageFlip must present a visible dress photograph');
+    const beforeZoom=await current();
+    await at(photoCandidate.x,photoCandidate.y);
+    const dialog=page.locator('#redcarpert-book-photo-dialog');
+    await page.waitForFunction(()=>
+      document.querySelector('#redcarpert-book-photo-dialog')?.open,
+      null,{timeout:5000});
+    assert.equal(await dialog.evaluate(el=>el.open),true,
+      width+'px touching the dress must open zoom, not turn the page');
+    await page.waitForTimeout(860);
+    assert.equal(await current(),beforeZoom,
+      width+'px zoom must not start a delayed PageFlip turn');
+    await activate(dialog.locator('[data-book-image-close]'));
+    assert.equal(await dialog.evaluate(el=>el.open),false,width+'px X must close zoom');
+    assert.equal(await current(),beforeZoom,width+'px closing zoom must retain the page');
+
+    // Verify that neither button nor native swipe is broken after zoom.
+    await activate(next);
+    position=await progresses(beforeZoom,1);
+    await activate(prev);
+    position=await progresses(position,-1);
+    assert.equal(position,beforeZoom,width+'px Previous after zoom must return');
+    assert.deepEqual(pageErrors,[],width+'px 3D browser should not raise page errors');
+    console.log('Real 3D PageFlip mouse/touch interactions PASS at '+width+'px');
+    await page.close();
+  }
 } finally {
   try {
     await browser?.close();

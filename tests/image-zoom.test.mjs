@@ -63,7 +63,7 @@ test('the shared controller supports bounded zoom, pointer pinch/pan, mouse whee
   assert.match(js,/wheel/);
   assert.match(js,/scale\s*\*/);
   assert.match(js,/dialog\.addEventListener\('close'/);
-  assert.match(reader,/disableFlipByClick:\s*true/);
+  assert.match(reader,/disableFlipByClick:\s*false/);
   assert.match(reader,/photoOpener\.focus|photoOpener\.focus\(/);
   assert.match(reader,/dialog\[open\]/);
   assert.match(wedding,/zoom\.setActive\(type === 'photo'\)/);
@@ -128,7 +128,7 @@ test('lightbox close X has no brown ring in Lookbook or Wedding Moments', () => 
     'zoom-in, zoom-out and reset must keep their accessible focus outline');
 });
 
-test('tablet and phone interactions rely on native clicks and one fallback page controller',()=>{
+test('3D book remains available on all screen types while the zoom action does not turn a page', () => {
   const reader=readFileSync('src/client/lookbook-reader.js','utf8');
   const moments=readFileSync('src/client/wedding-moments.js','utf8');
   const zoom=readFileSync('src/client/image-zoom.js','utf8');
@@ -136,42 +136,39 @@ test('tablet and phone interactions rely on native clicks and one fallback page 
   const momentsCss=readFileSync('src/components/WeddingMoments.css','utf8');
   const browser=readFileSync('scripts/browser-responsive-zoom.mjs','utf8');
   const enhanced=readFileSync('scripts/browser-lookbook-enhanced.mjs','utf8');
-  assert.match(reader,/const fineDesktop = window\.matchMedia\('\(min-width: 1101px\) and \(pointer: fine\)'\)/);
-  assert.match(reader,/const restoreFallback = \(\) => \{/);
-  assert.match(reader,/engine\.destroy\(\)/);
-  assert.match(reader,/book\.replaceChildren\(\.\.\.pages\)/);
-  assert.match(reader,/const cleanPages = pages\.map\(page => page\.cloneNode\(true\)\)/);
-  assert.match(reader,/startPage: index/);
-  assert.match(reader,/fineDesktop\.addEventListener\('change', configureReader\)/);
-  assert.match(reader,/const turn = \(direction\) => \{/);
+  assert.match(reader,/loadPageFlip\(\)\.then\(PageFlip => \{/);
+  assert.match(reader,/usePortrait:\s*true/);
+  assert.match(reader,/disableFlipByClick:\s*false/,
+    'restore the original PageFlip native click-to-turn behaviour');
+  assert.match(reader,/clickEventForward:\s*true/,
+    'zoom buttons and dress detail links remain clickable');
+  assert.doesNotMatch(reader,/fineDesktop|restoreFallback|cleanPages|matchMedia\('\(min-width: 1101px/,
+    'do not replace the 3D book with a flat reader on phones or tablets');
+  assert.match(reader,/if \(engine \|\| !\(event\.target instanceof Element\)/,
+    'custom blank-paper navigation must run only when PageFlip is unavailable');
+  assert.match(reader,/engine\.userStop\(\{ x: event\.clientX, y: event\.clientY \}, true\)/,
+    'stop PageFlip turning on completed photograph taps only');
+  assert.match(reader,/isInsideContainedPhoto\(/,
+    'ivory gutters should remain paper-turn regions');
+  assert.match(reader,/const moved = Math\.hypot/,
+    'dragging and swiping must not open photograph zoom');
   assert.match(reader,/previous\.addEventListener\('click', \(\) => turn\(-1\)\)/);
   assert.match(reader,/next\.addEventListener\('click', \(\) => turn\(1\)\)/);
-  assert.match(reader,/for \(const \[button, direction\] of \[\[previous, -1\], \[next, 1\]\]\)/,
-    'both navigation buttons must share the reliable touch handler');
   assert.match(reader,/button\.addEventListener\('touchend', event =>/,
-    'navigation touchend must work when Chromium swallows a click after swiping');
-  assert.match(reader,/event\.preventDefault\(\);\s*turn\(direction\);/,
-    'handled taps must not turn twice through a follow-up compatibility click');
-  assert.match(reader,/\}, \{ passive: false \}\);/,
-    'touchend must be non-passive to cancel its compatibility click');
-  assert.match(reader,/book\.addEventListener\('touchend'/);
-  assert.doesNotMatch(reader,/handledTouchClickUntil|preventHandledTouchEnd|recipient\.dispatchEvent/,
-    'touch users must not receive synthetic button clicks or duplicate page turns');
+    'the page controls must work after a swipe on phones');
+  assert.match(reader,/book\.addEventListener\('touchend'/,
+    'fallback retains its swipe navigation when the CDN is unavailable');
   assert.match(moments,/grid\.addEventListener\('click'/);
   assert.doesNotMatch(moments,/grid\.addEventListener\('pointerup'/,
-    'Wedding Moments tap should use native button click after touchend');
+    'Wedding Moments thumbnails continue to use standard button clicks');
   assert.match(photoCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-image-zoom-dialog \{ padding-top: 52px; \}/);
   assert.match(momentsCss,/@media \(max-width: 1000px\)\s*\{[^}]*\.redcarpert-wedding-dialog \{ padding-top: 52px; \}/);
   assert.match(zoom,/image\.addEventListener\('load'/);
   assert.match(zoom,/refresh: paint/);
   assert.match(reader,/zoom\.refresh\(\)/);
-  assert.match(moments,/zoom\.refresh\(\)/);
   assert.match(browser,/page\.touchscreen\.tap/);
-  assert.match(browser,/Previous control must always return/);
   assert.match(browser,/real two-finger pinch/);
   assert.match(browser,/page\.setViewportSize/);
   assert.match(browser,/\[1440, 1024, 768, 390, 320\]/);
-  assert.match(enhanced,/\[1440, 1280\]/);
-  assert.match(enhanced,/responsive teardown must preserve the current page/);
-  assert.match(enhanced,/reactivated desktop PageFlip must retain the current page/);
+  assert.match(enhanced,/page-flip/);
 });

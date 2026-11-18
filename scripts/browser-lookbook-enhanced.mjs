@@ -8,8 +8,8 @@ const pageCount=products.dresses.length+2;
 const browser = await chromium.launch({args:['--no-sandbox']});
 const root = 'http://localhost:4173/redcarpert-prototype/digital-lookbook/';
 try {
-  // Animated two-page rendering is deliberately desktop-only. The responsive
-  // touch regression suite covers the single-page reader at <=1100px.
+  // The 3D PageFlip engine remains enabled even when a desktop viewport is
+  // resized to phone width; touch input is tested in browser-responsive-zoom.
   for (const width of [1440, 1280]) {
     const page = await browser.newPage({
       viewport: {width,height:900},
@@ -89,22 +89,23 @@ try {
       position=await progresses(position,1);
       await page.setViewportSize({width:390,height:844});
       await page.waitForFunction(()=>
-        document.querySelector('#redcarpert-flipbook')?.dataset.engine==='fallback');
+        document.querySelector('#redcarpert-flipbook')?.dataset.engine==='page-flip');
+      await page.waitForTimeout(1000);
       const mobilePage=await current();
-      assert(mobilePage>=2,'responsive teardown must preserve the current page');
+      assert(mobilePage>=2,'responsive 3D reflow must preserve page progress');
       const mobilePrevious=page.getByRole('button',{name:'Previous page',exact:true});
       await mobilePrevious.click();
-      assert.equal(await current(),mobilePage-1,
-        'Previous must work after switching from desktop flip to mobile reader');
+      const returned=await progresses(mobilePage,-1);
       await next.click();
-      assert.equal(await current(),mobilePage,
-        'Next must work after switching from desktop flip to mobile reader');
+      const advanced=await progresses(returned,1);
+      assert.equal(advanced,mobilePage,'Previous and Next must work on the resized 3D mobile reader');
       await page.setViewportSize({width:1440,height:900});
       await page.waitForFunction(()=>
         document.querySelector('#redcarpert-flipbook')?.dataset.engine==='page-flip',
         null,{timeout:20000});
+      await page.waitForTimeout(900);
       assert.equal(await current(),mobilePage,
-        'reactivated desktop PageFlip must retain the current page');
+        '3D PageFlip must remain active and retain the page after mobile-to-desktop resize');
     }
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'no horizontal overflow');
     assert.deepEqual(errors,[],'no JavaScript errors');

@@ -34,7 +34,7 @@ export function initializeLookbookReader() {
   const book = document.querySelector('#redcarpert-flipbook');
   if (!book) return;
   const viewer = book.closest('.redcarpert-lookbook');
-  let pages = [...book.querySelectorAll('[data-book-page]')];
+  const pages = [...book.querySelectorAll('[data-book-page]')];
   if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
 
   // The interactive reader must use the same central sale/rental records as
@@ -62,9 +62,6 @@ export function initializeLookbookReader() {
       label.textContent = entry.salePriceLabel;
     }
   }
-  // Keep clean leaves for switching from the animated desktop book to the
-  // reliable single-page reader when the DevTools viewport changes.
-  const cleanPages = pages.map(page => page.cloneNode(true));
   const previous = viewer.querySelector('[data-book-previous]');
   const next = viewer.querySelector('[data-book-next]');
   const status = viewer.querySelector('[data-book-status]');
@@ -191,11 +188,11 @@ export function initializeLookbookReader() {
       turn(direction);
     }, { passive: false });
   }
-  // PageFlip deliberately disables its default click-to-turn so that clicking
-  // a photograph opens zoom. Restore magazine-style navigation on blank paper
-  // without stealing clicks from the photograph or dress detail links.
+  // Keep custom paper navigation only in the no-CDN fallback reader.
+  // When PageFlip is available, its native click/tap and swipe page turning
+  // must own the paper (on phones, tablets and desktops alike).
   book.addEventListener('click', event => {
-    if (!(event.target instanceof Element) || dialog?.open ||
+    if (engine || !(event.target instanceof Element) || dialog?.open ||
         Date.now() < suppressZoomUntil || event.detail === 0) return;
     if (event.target.closest('[data-book-image-zoom],a,button,input,textarea,select,label,[contenteditable="true"]')) return;
     // A page's words are for reading/selecting, not page-turning. Its empty
@@ -223,13 +220,25 @@ export function initializeLookbookReader() {
     };
   }, true);
   book.addEventListener('pointerup', event => {
-    if (pointerStart?.id === event.pointerId) {
-      if (Math.hypot(event.clientX - pointerStart.x,
-        event.clientY - pointerStart.y) > 12) {
-        suppressZoomUntil = Date.now() + 450;
-      }
-      pointerStart = null;
+    if (pointerStart?.id !== event.pointerId) return;
+    const start = pointerStart;
+    pointerStart = null;
+    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+    if (moved > 12) {
+      suppressZoomUntil = Date.now() + 450;
+      return;
     }
+    if (!engine || moved > 5 || !(event.target instanceof Element)) return;
+    const trigger = event.target.closest('[data-book-image-zoom]');
+    const image = trigger?.querySelector('img');
+    if (!trigger || !(image instanceof HTMLImageElement) ||
+        !isInsideContainedPhoto(image.getBoundingClientRect(),
+          image.naturalWidth, image.naturalHeight, event.clientX, event.clientY)) return;
+    // PageFlip calls userStop on mouseup/touchend, turning even an image tap
+    // into a page flip. Pointerup happens first. Cancel only this completed
+    // photo tap in PageFlip's own touch state; the native button click is
+    // still forwarded and opens zoom. Do not cancel paper taps or swipes.
+    engine.userStop({ x: event.clientX, y: event.clientY }, true);
   }, true);
   book.addEventListener('pointercancel', () => { pointerStart = null; }, true);
   let touchX = null, zoomTouchX = null;
@@ -259,80 +268,45 @@ export function initializeLookbookReader() {
       ?.classList.add('redcarpert-photo-failed');
   }, true);
 
-  const showFallback = () => {
+  book.dataset.engine = 'fallback';
+  announce();
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+  loadPageFlip().then(PageFlip => {
+    book.classList.add('is-enhanced');
+    const pageFlip = new PageFlip(book, {
+      width: 420, height: 588, size: 'stretch', minWidth: 240, maxWidth: 520,
+      minHeight: 336, maxHeight: 728, showCover: true, usePortrait: true,
+      drawShadow: true, maxShadowOpacity: .27, flippingTime: 780,
+      mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
+      disableFlipByClick: false, autoSize: true, startPage: index,
+    });
+    // StPageFlip requires complete physical spreads when showCover is true.
+    // An odd number of numbered leaves requires a decorative
+    // empty endpaper so the final numbered back cover is reachable.
+    // This is not a catalogue page, is not counted in book navigation, and
+    // does not appear in the static/no-JS fallback.
+    const flipPages = [...pages];
+    if (flipPages.length % 2 !== 0) {
+      const endpaper = document.createElement('article');
+      endpaper.className = 'redcarpert-book-page redcarpert-book-endpaper';
+      endpaper.setAttribute('aria-hidden','true');
+      endpaper.setAttribute('role','presentation');
+      book.append(endpaper);
+      flipPages.push(endpaper);
+    }
+    pageFlip.loadFromHTML(flipPages);
+    engine = pageFlip;
+    pageFlip.on('flip', event => {
+      // Never expose the unnumbered endpaper in navigation or the counter.
+      index = Math.min(event.data, pages.length - 1);
+      announce();
+    });
+    book.dataset.engine = 'page-flip';
+    announce();
+  }).catch(() => {
     book.classList.remove('is-enhanced');
     book.dataset.engine = 'fallback';
     pages.forEach((page, i) => page.classList.toggle('is-current', i === index));
     announce();
-  };
-  showFallback();
-
-  // StPageFlip is a desktop enhancement. In its touch/portrait mode it can
-  // consume taps, and its animated Prev may stall; neither should block
-  // basic navigation or photo zoom on tablets and phones.
-  const fineDesktop = window.matchMedia('(min-width: 1101px) and (pointer: fine)');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const enhance = () => fineDesktop.matches && !reducedMotion.matches;
-  let requestId = 0;
-
-  const restoreFallback = () => {
-    if (!engine) return;
-    const parent = book.parentNode;
-    const sibling = book.nextSibling;
-    const last = engine.getCurrentPageIndex?.();
-    if (Number.isInteger(last)) index = Math.min(last, pages.length - 1);
-    // The vendor destroy() removes the book root as well. Keep that SAME
-    // node and its handlers, then restore its original unwrapped page markup.
-    engine.destroy();
-    engine = null;
-    if (parent && !book.isConnected) parent.insertBefore(book, sibling);
-    pages = cleanPages.map(page => page.cloneNode(true));
-    book.replaceChildren(...pages);
-    showFallback();
-  };
-
-  const configureReader = () => {
-    const token = ++requestId;
-    if (!enhance()) {
-      restoreFallback();
-      return;
-    }
-    if (engine) return;
-    loadPageFlip().then(PageFlip => {
-      // Ignore a late CDN response after switching to a touch viewport.
-      if (token !== requestId || !enhance() || engine) return;
-      book.classList.add('is-enhanced');
-      const pageFlip = new PageFlip(book, {
-        width: 420, height: 588, size: 'stretch', minWidth: 240, maxWidth: 520,
-        minHeight: 336, maxHeight: 728, showCover: true, usePortrait: true,
-        drawShadow: true, maxShadowOpacity: .27, flippingTime: 780,
-        mobileScrollSupport: false, clickEventForward: true, swipeDistance: 35,
-        disableFlipByClick: true, autoSize: true, startPage: index,
-      });
-      // The last decorative endpaper is not part of the numbered book.
-      const flipPages = [...pages];
-      if (flipPages.length % 2 !== 0) {
-        const endpaper = document.createElement('article');
-        endpaper.className = 'redcarpert-book-page redcarpert-book-endpaper';
-        endpaper.setAttribute('aria-hidden', 'true');
-        endpaper.setAttribute('role', 'presentation');
-        book.append(endpaper);
-        flipPages.push(endpaper);
-      }
-      pageFlip.loadFromHTML(flipPages);
-      engine = pageFlip;
-      pageFlip.on('flip', event => {
-        index = Math.min(event.data, pages.length - 1);
-        announce();
-      });
-      book.dataset.engine = 'page-flip';
-      announce();
-    }).catch(() => {
-      if (token !== requestId || engine) return;
-      showFallback();
-    });
-  };
-  fineDesktop.addEventListener('change', configureReader);
-  reducedMotion.addEventListener('change', configureReader);
-  configureReader();
+  });
 }
