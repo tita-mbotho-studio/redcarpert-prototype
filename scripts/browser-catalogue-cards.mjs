@@ -80,6 +80,74 @@ try {
             width + 'px ' + product.id + ' must keep square photo');
           assert.equal(card.priceCount, 0);
         }
+        // Regression for WooCommerce's nth-child(2n) float: selecting any
+        // category must pack its FIRST visible dress into column one, then
+        // fill subsequent cards left-to-right with no empty grid slots.
+        if (route === '/product') {
+          const columns = width <= 640 ? 2 : width <= 1000 ? 3 : 4;
+          for (const filter of ['all', ...catalogueCategories.map(c => c.id)]) {
+            await page.locator('[data-filter-category="' + filter + '"]').click();
+            const matching = filter === 'all' ? catalogueProducts :
+              catalogueProducts.filter(product => product.category === filter);
+            const layout = await page.locator('ul.products[data-catalogue-preview]').evaluate(grid => {
+              const rect = el => {
+                const box = el.getBoundingClientRect();
+                return {left:box.left,top:box.top,right:box.right,width:box.width};
+              };
+              const visible = [...grid.querySelectorAll('li.product')].filter(
+                item => getComputedStyle(item).display !== 'none'
+              );
+              return {
+                display:getComputedStyle(grid).display,
+                columns:getComputedStyle(grid).gridTemplateColumns.trim().split(/\s+/).length,
+                beforeDisplay:getComputedStyle(grid,'::before').display,
+                afterDisplay:getComputedStyle(grid,'::after').display,
+                grid:rect(grid),
+                items:visible.map(card => ({
+                  id:card.getAttribute('data-catalogue-id'),
+                  box:rect(card),
+                  float:getComputedStyle(card).float,
+                  clear:getComputedStyle(card).clear,
+                })),
+              };
+            });
+            const prefix = width + 'px ' + filter + ': ';
+            assert.equal(layout.display, 'grid', prefix + 'catalogue must use CSS Grid');
+            assert.equal(layout.columns, columns, prefix + 'unexpected responsive column count');
+            assert.equal(layout.beforeDisplay, 'none', prefix + 'WooCommerce ::before occupies a grid slot');
+            assert.equal(layout.afterDisplay, 'none', prefix + 'WooCommerce ::after occupies a grid slot');
+            assert.deepEqual(layout.items.map(item => item.id), matching.map(item => item.id),
+              prefix + 'filter must preserve complete dress order');
+            assert.equal(await page.locator('[data-filter-status]').textContent(),
+              'Showing ' + matching.length + ' of 35 wedding dresses');
+            assert(layout.items.length > 0, prefix + 'category must contain visible dresses');
+            const left = layout.items[0].box.left;
+            assert(Math.abs(left - layout.grid.left) <= 2,
+              prefix + 'FIRST visible dress must start in FIRST column: ' + JSON.stringify(layout.items[0]));
+            for (const [index, item] of layout.items.entries()) {
+              assert.equal(item.float, 'none', prefix + item.id + ' must not float');
+              assert.equal(item.clear, 'none', prefix + item.id + ' must not clear rows');
+              assert(item.box.left >= layout.grid.left - 2 &&
+                item.box.right <= layout.grid.right + 2,
+                prefix + item.id + ' extends beyond catalogue grid');
+              const rowStart = layout.items[index - index % columns];
+              assert(Math.abs(item.box.top - rowStart.box.top) <= 2,
+                prefix + item.id + ' is displaced from its row');
+              if (index % columns === 0) {
+                assert(Math.abs(item.box.left - left) <= 2,
+                  prefix + item.id + ' row must begin at column one');
+              } else {
+                assert(item.box.left > layout.items[index - 1].box.left + 2,
+                  prefix + item.id + ' must appear to the right of the previous dress');
+              }
+              if (index >= columns) {
+                assert(item.box.top > layout.items[index - columns].box.top + 2,
+                  prefix + item.id + ' must be in the next row');
+              }
+            }
+          }
+          await page.locator('[data-filter-category="all"]').click();
+        }
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
           width + 'px ' + route + ' must not scroll horizontally');
       }
