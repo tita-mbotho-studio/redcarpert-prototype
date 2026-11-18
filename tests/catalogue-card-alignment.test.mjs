@@ -73,6 +73,8 @@ test('filtered product layout never depends on inherited WooCommerce floats or p
   assert.match(css,/@media \(max-width: 640px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
   assert.match(css,/ul\.products\[data-catalogue-preview\]::before,[\s\S]*?::after \{\s*content: none !important;\s*display: none !important;/);
   assert.match(css,/ul\.products\[data-catalogue-preview\] > li\.product \{\s*float: none !important;\s*clear: none !important;/);
+  assert.match(css,/li\.product\[hidden\],[\s\S]*?li\.product\.redcarpert-filtered-out \{\s*display: none !important;/,
+    'hidden/filtered dresses must not take up grid cells');
   assert.doesNotMatch(filter,/shown\s*%\s*4|classList\.toggle\('first'|classList\.toggle\('last'/,
     'visible dress order must no longer be coupled to a four-column float layout');
   for (const route of routes) {
