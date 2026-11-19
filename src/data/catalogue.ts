@@ -35,7 +35,7 @@ export const catalogueCategories = [
 export const modernTraditionColourByDress: ReadonlyMap<string,string> =
   new Map(featuredModernTradition.featured.map(item=>[item.id,item.colour] as const));
 if (modernTraditionColourByDress.size !== featuredModernTradition.featured.length)
-  throw new Error("Duplicate Modern Tradition cross-list dress");
+  throw new Error("Duplicate Modern Tradition client photo source");
 export const modernTraditionSourceByDress: ReadonlyMap<string,string> =
   new Map(featuredModernTradition.featured.map((entry,index)=>
     [`modern-tradition-${String(index+1).padStart(2,"0")}`,entry.id] as const));
