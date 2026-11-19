@@ -35,7 +35,7 @@ test('all three homepage backgrounds use the shared optimized hero delivery and 
 });
 
 test('all catalogue and individual gallery photographs use approved image presets',()=>{
-  assert.equal(catalogueProducts.length,47);
+  assert.equal(catalogueProducts.length,51);
   let count=0;
   for(const product of catalogueProducts){
     for(const preset of ['card','detail','lookbook','preview'])safeImage(product.image,preset);
