@@ -22,8 +22,9 @@ test('each of the five collections uses the same editorial name, divider and num
     for (const [index,card] of cards.entries()) {
       const product = expected[index];
       assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
-      observed.add(product.category);
       const visibleCategory=route.endsWith('/modern_tradition')?'modern_tradition':product.category;
+      // Modern Tradition is a secondary collection, not a canonical product.category.
+      observed.add(visibleCategory);
       const category = catalogueCategories.find(c => c.id === visibleCategory);
       const name = category.name.replace(/ Dresses$/, '');
       const number = visibleCategory==='modern_tradition'
