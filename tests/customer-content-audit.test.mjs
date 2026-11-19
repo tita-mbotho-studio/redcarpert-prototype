@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
 import {catalogueProducts} from '../src/data/catalogue.ts';
+import {lookbookPlacements} from '../src/lib/lookbook-placements.ts';
 import {createLuxuryLookbookHtml} from '../src/lib/luxury-lookbook.ts';
 import {RENTAL_CONDITION_NOTE} from '../src/lib/pricing.ts';
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
@@ -17,19 +18,19 @@ const visible=(html)=>html
 test('interactive Bridal Edit shows full prices and no preview or temporary wording',()=>{
   const html=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   assert.doesNotMatch(visible(html),banned);
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
-  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length,
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,lookbookPlacements(catalogueProducts).length,
     'each canonical client dress should have exactly one rental condition note');
 });
 
 test('PDF source contains no development copy, fictional ownership claims or separate WhatsApp text',()=>{
   const images=catalogueProducts.map(p=>({id:p.id,jpeg:Buffer.from([0xff,0xd8,0xff,0xd9]),width:1200,height:1800}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
-  assert.equal((html.match(/<section class="page /g)||[]).length,59);
-  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,47);
-  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length,
+  assert.equal((html.match(/<section class="page /g)||[]).length,63);
+  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,lookbookPlacements(catalogueProducts).length,
     'each canonical client dress should have exactly one rental condition note');
   assert.doesNotMatch(visible(html),banned);
   assert.doesNotMatch(visible(html),/Photo on Pexels|client[- ]owned/i);
