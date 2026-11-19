@@ -6,7 +6,7 @@ import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import imageLinks from '../src/data/image-links.json' with { type: 'json' };
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
-import { catalogueProducts } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
@@ -191,12 +191,19 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
     'all PDF sale and rental figures must be populated');
   assert.doesNotMatch(html,/Indicative range|Example range/,
     'PDF must not display stale illustrative single-price ranges');
-  for(const [id,page] of [['mermaid','05'],['ball_gown','08'],['ruffled','21'],['modern_tradition','34'],['two_in_one','39']]){
-    assert(html.includes('href="#collection-'+id+'">'+
-      (id==='ball_gown'?'Ball Gown':id==='mermaid'?'Mermaid':id==='ruffled'?'Ruffled Dresses':id==='modern_tradition'?'Modern Tradition Dresses':'2 in 1 Dresses')+
-      '</a><span class="page-number">'+page+'</span>'), 'contents page mismatch for '+id);
+  // Page numbers must follow current catalogue sizes when more CSV batches arrive.
+  let collectionPage=5;
+  for(const category of catalogueCategories){
+    const page=String(collectionPage).padStart(2,'0');
+    assert(html.includes('href="#collection-'+category.id+'">'+category.name+
+      '</a><span class="page-number">'+page+'</span>'),
+      'contents page mismatch for '+category.id);
+    collectionPage+=1+catalogueProducts.filter(dress=>dress.category===category.id).length;
   }
-  assert.match(html,/62 \/ 63/,'the PDF page folios should use the current page count');
+  const totalPdfPages=catalogueProducts.length+catalogueCategories.length+7;
+  const lastNumberedPage=String(totalPdfPages-1).padStart(2,'0');
+  assert(html.includes(lastNumberedPage+' / '+String(totalPdfPages).padStart(2,'0')),
+    'PDF page folios must reflect the current catalogue length');
   for (const dress of catalogueProducts) {
     const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
