@@ -41,9 +41,11 @@ body .redcarpert-dress-photo-dialog.redcarpert-dress-pointer-opened
   width: 100%;
   max-width: 100%;
 }
-#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-sample-frame] {
+/* The published gallery uses data-dress-frame (not the retired sample-frame
+   attribute). Anchor absolute chevrons to the image itself on every viewport;
+   don't give the frame a forced aspect ratio or alter the photo's sizing. */
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-dress-frame] {
   position: relative;
-  aspect-ratio: 848 / 1264;
 }
 #main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
   display: block !important;
