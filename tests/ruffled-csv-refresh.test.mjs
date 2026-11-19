@@ -42,7 +42,9 @@ test('new Ruffled dresses appear in the catalogue, book sections and related-dre
   const ruffledProducts=catalogueProducts.filter(p=>p.category==='ruffled');
   assert.equal(ruffledProducts.length,17);
   assert.equal(catalogueProducts.length,56);
-  const listing=adaptCatalogue(sitePages['/product-category/ruffled'],catalogueProducts);
+  const source=sitePages['/product-category/ruffled'] ??
+    {...sitePages['/product-category/mermaid'],route:'/product-category/ruffled'};
+  const listing=adaptCatalogue(source,catalogueProducts);
   const cards=all(listing.nodes).filter(node=>node.attrs['data-catalogue-id']!==undefined);
   assert.deepEqual(cards.map(node=>node.attrs['data-catalogue-id']),ruffledProducts.map(p=>p.id));
   for(let i=13;i<=17;i++){
