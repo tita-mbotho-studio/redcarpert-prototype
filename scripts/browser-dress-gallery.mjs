@@ -130,6 +130,38 @@ try {
     await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
     assert.equal(await current(),0,'mobile horizontal swipe changes photo');
   }
+  // Simulate two slow network downloads. The photo, counter and selected dot
+  // must remain consistent, and the first (stale) completion cannot win.
+  await gallery.locator('[data-gallery-index="0"]').click();
+  await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
+  const startingSrc=await image.getAttribute('src');
+  await page.evaluate(()=>{
+    window.galleryPending=[];
+    window.testGalleryLoad=(original)=>new Promise(resolve=>{
+      window.galleryPending.push({original,resolve});
+    });
+  });
+  await gallery.locator('[data-gallery-next]').click();
+  assert.equal(await current(),0,'navigation must keep visible photo until decoded');
+  assert.equal(await image.getAttribute('src'),startingSrc,'no first-photo repaint during download');
+  assert.equal(await counter.textContent(),'01 / 03','counter must match visible photo during loading');
+  assert.equal(await gallery.getAttribute('aria-busy'),'true');
+  await gallery.locator('[data-gallery-next]').click();
+  assert.equal(await current(),0,'second click must not show a wrong intermediate photo');
+  await page.evaluate(()=>{
+    const target=window.galleryPending.find(request=>request.original.includes('/back.webp'));
+    target.resolve(target.original+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');
+  });
+  await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='2');
+  assert.equal(await counter.textContent(),'03 / 03');
+  await page.evaluate(()=>{
+    const stale=window.galleryPending.find(request=>request.original.includes('/side.webp'));
+    stale.resolve(stale.original+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');
+  });
+  await page.waitForTimeout(50);
+  assert.equal(await current(),2,'outdated async completion cannot overwrite most recent selection');
+  assert.equal(await gallery.getAttribute('aria-busy'),null);
+  await page.evaluate(()=>{window.testGalleryLoad=null;window.galleryPending=[];});
   assert.deepEqual(errors,[]);
   await page.close();
  }
