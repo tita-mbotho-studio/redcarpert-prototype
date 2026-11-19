@@ -39,7 +39,8 @@ if (modernTraditionColourByDress.size !== featuredModernTradition.featured.lengt
 export const modernTraditionSourceByDress: ReadonlyMap<string,string> =
   new Map(featuredModernTradition.featured.map((entry,index)=>
     [`modern-tradition-${String(index+1).padStart(2,"0")}`,entry.id] as const));
-export function collectionsForDress(_id: string, primary: DressCategory): readonly DressCategory[] {
+export function collectionsForDress(id: string, primary: DressCategory): readonly DressCategory[] {
+  if (!id.trim()) throw new Error("Cannot assign a collection to a dress without an ID");
   return [primary];
 }
 export function dressAppearsInCollection(product: CatalogueProduct, category: DressCategory): boolean {
