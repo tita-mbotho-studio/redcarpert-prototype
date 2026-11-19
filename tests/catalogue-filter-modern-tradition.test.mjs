@@ -95,7 +95,7 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
     globalThis.location.search='?category=modern_tradition';
     onPopState();
     assert.equal(records.filter(r=>!r.card.hidden).length,4);
-    assert.equal(records.find(r=>r.p.id==='2-in-1-moreteadi-dress').link.getAttribute('href'),
+    assert.equal(records.find(r=>r.p.id==='modern-tradition-04').link.getAttribute('href'),
       '/redcarpert-prototype/product/preview/modern-tradition-04/');
   }finally{
     for(const [key,value] of Object.entries(old)){
