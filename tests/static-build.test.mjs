@@ -111,7 +111,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
  assert.doesNotMatch(prevArrow,/>Previous</);
  assert.doesNotMatch(nextArrow,/>Next</);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,catalogueProducts.length);
  const listingPages=[gallery];
  for(const category of ['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
@@ -136,11 +136,18 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,lookbookPlacements(catalogueProducts).length+modernTraditionPages.length);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length+modernTraditionPages.length);
   assert.doesNotMatch(book,/images\.pexels\.com|data-sample-id=/,'client-only digital book');
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+  const modernSpreads=lookbookPlacements(catalogueProducts).filter(entry=>entry.isModernTradition);
+  assert.equal(modernSpreads.length,4);
+  for(const entry of modernSpreads){
+    assert(book.includes('data-book-entry-id="'+entry.id+'" data-book-category="modern_tradition"'));
+    assert(book.includes('<h3>'+entry.displayName+'</h3>'));
+    assert(book.includes('href="/redcarpert-prototype'+entry.detailRoute+'/">View dress details</a>'));
+  }
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,15);
 
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
