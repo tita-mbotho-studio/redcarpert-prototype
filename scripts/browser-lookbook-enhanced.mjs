@@ -1,7 +1,8 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
-import products from '../src/data/products.json' with {type:'json'};
-const pageCount=products.dresses.length+2;
+import { catalogueProducts } from '../src/data/catalogue.ts';
+import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
+const pageCount=lookbookPlacements(catalogueProducts).length+2;
 
 /** Real StPageFlip regression, not the CDN-blocked fallback test.
  * Isolate flipping from the externally hosted Pexels image availability. */
