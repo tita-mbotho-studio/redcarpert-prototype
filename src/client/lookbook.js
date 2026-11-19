@@ -1,4 +1,4 @@
-/** Book content is derived directly from the published catalogue; no duplicate images or links. */
+/** One book entry per independently identified dress; client photographs may be shared where approved. */
 import { catalogueProducts, catalogueCategories } from '../data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress } from '../lib/pricing.ts';
 export const lookbookEntries = catalogueProducts.map(product => ({
