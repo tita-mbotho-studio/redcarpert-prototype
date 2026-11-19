@@ -6,6 +6,14 @@ export function initializeCatalogueFilter() {
   const buttons=[...controls.querySelectorAll('button[data-filter-category]')];
   const items=[...grid.querySelectorAll('li[data-catalogue-category]')];
   const allowed=new Set(buttons.map(b=>b.dataset.filterCategory));
+  // Remember each dress's native silhouette label and accessible link text.
+  // Filtering into Modern Tradition relabels only the presentation, never the
+  // underlying product ID, route, price or permanent source category.
+  const originalCards=new Map(items.map(item=>{
+    const heading=item.querySelector('.redcarpert-catalogue-collection');
+    const link=item.querySelector('a.woocommerce-LoopProduct-link');
+    return [item,{heading,link,collection:heading?.textContent??'',aria:link?.getAttribute('aria-label')??''}];
+  }));
   const current=()=>{
     const requested=new URLSearchParams(location.search).get('category');
     return allowed.has(requested)?requested:'all';
@@ -17,6 +25,17 @@ export function initializeCatalogueFilter() {
       const visible=category==='all'||collections.includes(category);
       item.hidden=!visible;
       item.classList.toggle('redcarpert-filtered-out',!visible);
+      const original=originalCards.get(item);
+      if(original?.heading){
+        const modern=category==='modern_tradition' && collections.includes('modern_tradition');
+        original.heading.textContent=modern?'Modern Tradition':original.collection;
+        if(original.link){
+          const dressName=item.querySelector('.redcarpert-catalogue-number')?.textContent?.trim()??'';
+          original.link.setAttribute('aria-label',modern
+            ? 'Modern Tradition '+dressName+': view dress photographs'
+            : original.aria);
+        }
+      }
       // Grid places visible cards in source order; no four-column
       // first/last float bookkeeping is needed at any breakpoint.
       if(visible)shown++;
