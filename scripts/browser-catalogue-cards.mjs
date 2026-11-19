@@ -179,6 +179,23 @@ try {
             }
           }
           await page.locator('[data-filter-category="all"]').click();
+          if(width===390){
+            await page.locator('[data-filter-category="modern_tradition"]').click();
+            await page.locator('[data-catalogue-id="2-in-1-moreteadi-dress"] a.woocommerce-LoopProduct-link').click();
+            await page.waitForURL('**/product/preview/modern-tradition-04/');
+            assert.equal(await page.locator('h1.redcarpert-detail-name').textContent(),'Modern Tradition 04');
+            const fittingUrl=new URL(await page.locator('[data-detail-preview] a.redcarpert-detail-fitting-button').getAttribute('href'));
+            assert.match(fittingUrl.searchParams.get('text'),/\*Dress:\* Modern Tradition 04/);
+            assert.match(fittingUrl.searchParams.get('text'),/\*Collection:\* Modern Tradition Dresses/);
+            await page.goto(origin+'/product/',{waitUntil:'domcontentloaded'});
+          }
+        }
+        if(width===390 && route.endsWith('/modern_tradition')){
+          await page.locator('li[data-catalogue-id="2-in-1-moreteadi-dress"] a.woocommerce-LoopProduct-link').click();
+          await page.waitForURL('**/product/preview/modern-tradition-04/');
+          assert.equal(await page.locator('h1.redcarpert-detail-name').textContent(),'Modern Tradition 04');
+          assert.equal(await page.locator('[data-related-dress]').count(),3);
+          await page.goBack({waitUntil:'domcontentloaded'});
         }
         assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
           width + 'px ' + route + ' must not scroll horizontally');
