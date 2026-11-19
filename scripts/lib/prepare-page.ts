@@ -14,14 +14,16 @@ import { adaptCatalogue } from '../../src/lib/catalogue-adapter.ts';
 import { adaptEditorialDocument } from '../../src/lib/editorial-pages.ts';
 import { modernizeSiteIcons } from '../../src/lib/modern-icons.ts';
 import { createProductDetailPreview } from '../../src/lib/product-detail-preview.ts';
+import { modernTraditionPageForRoute } from '../../src/lib/modern-tradition.ts';
 import { siteMetadata } from '../../src/data/metadata.ts';
 
 /** Produce the existing approved page tree without touching its structure. */
 export function preparePage(route: string) {
- const product = catalogueProducts.find(p=>p.previewRoute===route);
+ const modernPage = modernTraditionPageForRoute(route);
+ const product = modernPage?.product ?? catalogueProducts.find(p=>p.previewRoute===route);
  const newCategory = catalogueCategories.slice(2).find(c => c.route.replace(/\/$/, '') === route);
  const categoryTemplate = newCategory ? {...sitePages['/product-category/mermaid'], route} : undefined;
- let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Browse wedding dress styles online or in our downloadable lookbook.'} : sitePages[route]);
+ let original = product ? createProductDetailPreview(sitePages['/product/arabella'],product,undefined,modernPage) : categoryTemplate ?? (route === '/digital-lookbook' ? {...sitePages['/about-us'],route,title:'Digital Lookbook | Redcarpert Wedding Dresses',description:'Browse wedding dress styles online or in our downloadable lookbook.'} : sitePages[route]);
  // Replace inherited Bridal Vanesa catalogue browser-tab metadata without
  // modifying any approved page structure, product card or visual style.
  const listingMetadata: Record<string, {title:string; description:string}> = {
@@ -52,5 +54,5 @@ export function preparePage(route: string) {
  const editorial = adaptEditorialDocument(adaptFooterBranding(correctFooterLinks(adaptLogo(adaptNavigation(addHomepageFooter(adaptHomepageBackgrounds(adaptHomepageCollectionYears(adaptSiteDocument(adaptCatalogue(adaptFooterSocials(original),catalogueProducts),contentAdaptations))),sitePages['/about-us']))))));
  // Final icon pass runs only after the canonical layout/branding guards.
  const document = modernizeSiteIcons(editorial);
- return {document, product};
+ return {document, product, modernPage};
 }
