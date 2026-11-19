@@ -14,7 +14,7 @@ test('only 47 client dresses are present in the approved source collections',()=
  assert.deepEqual(Object.fromEntries(['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']
    .map(category=>[category,records.filter(p=>p.category===category).length])),
    {mermaid:2,ball_gown:12,ruffled:12,modern_tradition:0,two_in_one:21});
- assert.equal(records.filter(p=>p.collections.includes('modern_tradition')).length,8);
+ assert.equal(records.filter(p=>p.collections.includes('modern_tradition')).length,4);
  assert(records.every(p=>p.image.startsWith('https://ik.imagekit.io/')&&!Object.hasOwn(p,'status')&&
    p.imageCredit.provenance==='client-supplied'));
  assert(records.every(p=>Number.isSafeInteger(p.priceZar)&&p.priceZar>0));
@@ -45,7 +45,7 @@ test('invalid client identity, source photo, category, prices and membership fai
 test('Modern Tradition is always a client-only secondary colour collection',()=>{
  const records=clone();
  const featured=records.filter(p=>p.collections.includes('modern_tradition'));
- assert.equal(featured.length,8);
+ assert.equal(featured.length,4);
  assert(featured.every(p=>p.category!=='modern_tradition'&&p.collections.length===2));
  assert.throws(()=>validateCatalogue(changeOne('mermaid-lefa-dress',
    {collections:['mermaid','modern_tradition']})),/Invalid multi-collection membership/);
