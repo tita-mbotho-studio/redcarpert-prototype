@@ -3,6 +3,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { sitePages } from '../src/data/site';
 import { catalogueProducts } from '../src/data/catalogue';
+import { modernTraditionPages } from '../src/lib/modern-tradition';
 import { publicStaticRoutes } from '../src/lib/public-routes';
 import { createLuxuryLookbookPdf } from '../src/lib/luxury-lookbook';
 import { prepareLookbookImages } from './lib/lookbook-assets';
@@ -23,7 +24,7 @@ const root = '.generated';
 // Validate all catalogue records and public routes before clearing prior generated files.
 validateCatalogue(catalogueProducts);
 validateDressGalleryMappings();
-const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
+const routes = ['/',...publicStaticRoutes(sitePages,[...catalogueProducts.map(p=>p.previewRoute),...modernTraditionPages.map(page=>page.route)])];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
 const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css','src/components/LookbookZoom.css'];
@@ -55,8 +56,8 @@ await sharp('public/redcarpert/brand/redcarpert-logo.png')
   .webp({quality:84,effort:5})
   .toFile(path.join(faviconRoot,'redcarpert-logo-optimized.webp'));
 for(const route of routes) {
- const {document: preparedDocument,product} = preparePage(route);
- const message = product ? dressFittingMessage(product) : generalFittingMessage();
+ const {document: preparedDocument,product,modernPage} = preparePage(route);
+ const message = product ? dressFittingMessage(product,modernPage) : generalFittingMessage();
  const whatsappHref = buildWhatsAppUrl(message);
  const document = directWhatsAppHandoffs(preparedDocument,whatsappHref);
  // Apply homepage-only rules on the very first paint, before client scripts
