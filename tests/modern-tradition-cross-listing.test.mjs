@@ -24,15 +24,15 @@ const clientColours={
 
 test('Modern Tradition features only explicitly reviewed colourful client gowns from other collections',()=>{
   assert.deepEqual(Object.fromEntries(modernTraditionColourByDress),clientColours);
-  assert.equal(catalogueProducts.length,51,'never duplicate the underlying dress record');
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
+  assert.equal(catalogueProducts.length,47,'never duplicate the underlying dress record');
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,47);
   for(const product of catalogueProducts){
     assert.deepEqual(product.collections,collectionsForDress(product.id,product.category));
     assert.equal(new Set(product.collections).size,product.collections.length);
     assert(product.collections.includes(product.category));
     const colour=clientColours[product.id];
     if(colour){
-      assert.equal(product.status,'client');
+      assert(!Object.hasOwn(product,'status'));
       assert.notEqual(product.category,'modern_tradition');
       assert.deepEqual(product.collections,[product.category,'modern_tradition']);
     }else{
@@ -50,7 +50,7 @@ test('Modern Tradition features only explicitly reviewed colourful client gowns 
 test('Modern Tradition listing and filter use secondary category membership without creating duplicates',()=>{
   const modern=catalogueCategories.find(c=>c.id==='modern_tradition');
   const expected=catalogueProducts.filter(p=>p.collections.includes(modern.id));
-  assert.equal(expected.length,12,'four existing Modern Tradition items plus eight reviewed colourful client dresses');
+  assert.equal(expected.length,8,'only the eight verified colourful client dresses remain');
   const source={...sitePages['/product-category/mermaid'],route:'/product-category/modern_tradition'};
   const output=adaptCatalogue(source,catalogueProducts);
   const cards=all(output.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
@@ -66,27 +66,27 @@ test('Modern Tradition listing and filter use secondary category membership with
   }
   const main=adaptCatalogue(sitePages['/product'],catalogueProducts);
   const mainCards=all(main.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
-  assert.equal(mainCards.length,51);
-  assert.equal(new Set(mainCards.map(c=>c.attrs['data-catalogue-id'])).size,51);
+  assert.equal(mainCards.length,47);
+  assert.equal(new Set(mainCards.map(c=>c.attrs['data-catalogue-id'])).size,47);
 });
 
 test('interactive and PDF lookbooks label secondary Modern Tradition without duplicating dress pages or prices',()=>{
   const html=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   const images=catalogueProducts.map(p=>({id:p.id,jpeg:Buffer.from([0xff,0xd8,0xff,0xd9]),width:1200,height:1800}));
   const pdf=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
-  assert.equal(lookbookEntries.length,51);
-  assert.equal((html.match(/data-book-page=/g)||[]).length,53);
+  assert.equal(lookbookEntries.length,47);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,49);
   assert.equal((html.match(/ALSO IN MODERN TRADITION/g)||[]).length,8);
-  assert.equal((pdf.match(/<section class="page /g)||[]).length,63);
+  assert.equal((pdf.match(/<section class="page /g)||[]).length,59);
   assert.equal((pdf.match(/<span class="kind">Also in Modern Tradition<\/span>/g)||[]).length,8);
-  assert(pdf.includes('Discover 12 Modern Tradition looks, including 8 colourful gowns'));
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,51);
-  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,51);
+  assert(pdf.includes('Discover 8 Modern Tradition looks, including 8 colourful gowns'));
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
+  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,47);
   for(const product of catalogueProducts){
     const entry=lookbookEntries.find(e=>e.id===product.id);
     assert(entry);
     assert.deepEqual(entry.collections,product.collections.map(c=>catalogueCategories.find(x=>x.id===c).name));
-    assert(html.includes('data-sample-id="'+product.id+'" data-book-collections="'+product.collections.join(' ')+'"'));
+    assert(html.includes('data-book-dress-id="'+product.id+'" data-book-collections="'+product.collections.join(' ')+'"'));
     assert(pdf.includes('data-pdf-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'));
     assert(pdf.includes('data-pdf-rental-price="'+product.id+'">'+displayRentalPriceForDress(product.id)+'</p>'));
   }
