@@ -1,4 +1,4 @@
-/** Functional category filter; restores original dress links when leaving Modern Tradition. */
+/** Functional five-category filter; each dress keeps its own stable ID and primary category. */
 export function initializeCatalogueFilter() {
   const controls=document.querySelector('[data-catalogue-filter]');
   const grid=document.querySelector('ul.products[data-catalogue-preview]');
@@ -6,9 +6,8 @@ export function initializeCatalogueFilter() {
   const buttons=[...controls.querySelectorAll('button[data-filter-category]')];
   const items=[...grid.querySelectorAll('li[data-catalogue-category]')];
   const allowed=new Set(buttons.map(b=>b.dataset.filterCategory));
-  // Remember each dress's native silhouette label and accessible link text.
-  // Filtering into Modern Tradition relabels only the presentation, never the
-  // underlying product ID, price or permanent source category.
+  // Preserve each dress's own category label, image description and detail URL.
+  // Modern Tradition records have independent identities and price schedules.
   const originalCards=new Map(items.map(item=>{
     const heading=item.querySelector('.redcarpert-catalogue-collection');
     const number=item.querySelector('.redcarpert-catalogue-number');
