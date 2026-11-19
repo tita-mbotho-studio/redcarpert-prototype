@@ -14,11 +14,11 @@ import clientTwoInOneDresses from '../src/data/client-two-in-one-dresses.json' w
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
 const find=(nodes,predicate)=>all(nodes).find(predicate);
 
-test('all 47 client dress pages preserve the approved gallery, price and fitting layout',()=>{
+test('all 51 client dress pages preserve the approved gallery, price and fitting layout',()=>{
   const source=sitePages['/product/arabella'];
   const original=JSON.stringify(source);
-  assert.equal(catalogueProducts.length,47);
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,47);
+  assert.equal(catalogueProducts.length,51);
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
   assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status') && !p.id.startsWith('sample-')));
   const routes=new Set();
   for(const dress of catalogueProducts){
