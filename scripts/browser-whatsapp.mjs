@@ -10,7 +10,7 @@ const browser=await chromium.launch({args:['--no-sandbox']});
 try {
   for(const {route,width,name,trigger} of [
     {route:'/',width:1440,name:'homepage floating enquiry',trigger:'#redcarpert-floating-whatsapp [data-whatsapp-send]'},
-    {route:'/product/preview/sample-01-mermaid/',width:390,name:'Mermaid dress fitting',trigger:'[data-detail-preview] [data-whatsapp-send]'},
+    {route:'/product/preview/mermaid-lefa-dress/',width:390,name:'Mermaid dress fitting',trigger:'[data-detail-preview] [data-whatsapp-send]'},
     {route:'/product/preview/ball-gown-02/',width:768,name:'Ball Gown dress fitting',trigger:'[data-detail-preview] [data-whatsapp-send]'},
     {route:'/contact-us/',width:375,name:'mobile footer fitting',trigger:'#footer .redcarpert-footer-book'},
   ]){
@@ -37,7 +37,7 @@ try {
       name+' must start with a readable greeting and blank line');
     if(name.includes('dress fitting')){
       const dress=name==='Mermaid dress fitting'
-        ? catalogueProducts.find(d=>d.id==='sample-mermaid')
+        ? catalogueProducts.find(d=>d.id==='mermaid-lefa-dress')
         : catalogueProducts.find(d=>d.id==='ball-gown-02');
       assert(dress,'browser test dress fixture is missing');
       assert(message.includes('*Sale Price:* '+displaySalePriceForDress(dress.id)),

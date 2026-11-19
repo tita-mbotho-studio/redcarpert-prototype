@@ -17,7 +17,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,46);
+ assert.equal(routes.length,catalogueProducts.length+11);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -55,12 +55,12 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 47/);
+ assert.match(pdf.toString('latin1'),/\/Count 63/);
  assert.deepEqual(pdf,readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'old PDF URL remains available');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
  const audit=JSON.parse(readFileSync('.generated/lookbook-image-audit.json','utf8'));
- assert.equal(audit.photoCount,35);assert.equal(audit.photos.length,35);
+ assert.equal(audit.photoCount,catalogueProducts.length);assert.equal(audit.photos.length,catalogueProducts.length);
 });
 test('copied classic scripts remain valid and every page uses modern Font Awesome controls',{skip:!available},()=>{
  for(const file of walk('dist/site-assets').filter(f=>f.endsWith('.js')))new vm.Script(readFileSync(file,'utf8'),{filename:file});
@@ -79,14 +79,14 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
  }
 });
 
-test('thirty-seven-page book contains client Ball Gowns and illustrative designs',{skip:!available},()=>{
+test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresses',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
- assert.equal((book.match(/data-book-page=/g)||[]).length,37);
- assert.equal((book.match(/data-book-sale-price=/g)||[]).length,35);
- assert.equal((book.match(/data-book-rental-price=/g)||[]).length,35);
- assert.equal((book.match(/data-book-sale-label=/g)||[]).length,35);
- assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,35);
- assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,35);
+ assert.equal((book.match(/data-book-page=/g)||[]).length,catalogueProducts.length+2);
+ assert.equal((book.match(/data-book-sale-price=/g)||[]).length,catalogueProducts.length);
+ assert.equal((book.match(/data-book-rental-price=/g)||[]).length,catalogueProducts.length);
+ assert.equal((book.match(/data-book-sale-label=/g)||[]).length,catalogueProducts.length);
+ assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,catalogueProducts.length);
+ assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
  assert.doesNotMatch(book,/Inspiration photo|Example sale price|price disclaimer|not confirmed|To be confirmed/i);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
@@ -109,9 +109,9 @@ test('thirty-seven-page book contains client Ball Gowns and illustrative designs
  assert.doesNotMatch(prevArrow,/>Previous</);
  assert.doesNotMatch(nextArrow,/>Next</);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,35);
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,catalogueProducts.length);
  const listingPages=[gallery];
- for(const [category,count] of [['mermaid',4],['ball_gown',11],['ruffled',12],['modern_tradition',4],['two_in_one',4]]) {
+ for(const [category,count] of [['mermaid',2],['ball_gown',12],['ruffled',12],['modern_tradition',4],['two_in_one',21]]) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
   assert.equal((html.match(/data-catalogue-id=/g)||[]).length,count);
   listingPages.push(html);
@@ -131,12 +131,12 @@ test('thirty-seven-page book contains client Ball Gowns and illustrative designs
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,35);
- assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,12);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length);
+ assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,4);
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
- assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,35);
- assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,11);
+ assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,catalogueProducts.length);
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,12);
 
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
    'interactive book should contain exactly twelve new client Ruffled photographs');
@@ -226,7 +226,7 @@ test('thirty-seven-page book contains client Ball Gowns and illustrative designs
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,46);
+  assert.equal(routes.length,catalogueProducts.length+11);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
@@ -396,19 +396,23 @@ test('Implementation 22: every static page starts with a bounded, branded global
 test('Wedding Moments production HTML uses CDN thumbnails, preserves originals and visible pagination status',{skip:!available},()=>{
  const html=readFileSync('dist/wedding-moments/index.html','utf8');
  const base='https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/';
- assert(html.includes('src="'+base+'wedding-moments-56.jpg?tr=w-640,h-640,c-at_max,q-72,f-auto"'),
-   'photo tiles must load optimized derivatives');
- assert(html.includes('data-wedding-src="'+base+'wedding-moments-56.jpg"'),
-   'original high-resolution source must remain unchanged for fallback');
- assert(html.includes('data-wedding-preview-src="'+base+'wedding-moments-56.jpg?tr=w-1920,h-1920,c-at_max,q-82,f-auto"'),
-   'photo previews must use screen-sized uncropped derivatives');
- assert(html.includes('data-wedding-src="'+base+'wedding-moments-88.mp4"'),
-   'video playback URL must remain the original client media');
- assert(html.includes('src="'+base+'wedding-moments-88.mp4/ik-thumbnail.jpg?tr=w-640,h-640,c-at_max,q-72,f-auto"'),
-   'video poster must be an optimized still, never a video download');
+ const uploaded=JSON.parse(readFileSync('src/data/image-links.json','utf8')).wedding_moments.events[0].media;
+ const photo=uploaded.find(item=>item.type==='photo');
+ const video=uploaded.find(item=>item.type==='video');
+ const esc=value=>value.replaceAll('&','&amp;');
+ assert(html.includes('src="'+esc(mediaDeliveryUrl(photo.url,'tile'))+'"'),
+   'uploaded WebP photo tiles must use optimized derivatives');
+ assert(html.includes('data-wedding-src="'+esc(photo.url)+'"'),
+   'original WebP must remain available for fallback');
+ assert(html.includes('data-wedding-preview-src="'+esc(mediaDeliveryUrl(photo.url,'preview'))+'"'),
+   'uploaded WebP preview must use the shared CDN preset');
+ assert(html.includes('data-wedding-src="'+esc(video.url)+'"'),
+   'playback URL must preserve the exact new client MP4 link');
+ assert(html.includes('src="'+esc(mediaDeliveryUrl(video.poster,'tile'))+'"'),
+   'video poster must be optimized as a still');
  assert(html.includes('<link rel="preconnect" href="https://ik.imagekit.io">'),
    'page should open an ImageKit connection before its media requests');
- assert(html.includes('Showing 16 of 87 wedding moments'), 'initial gallery counter missing');
+ assert(html.includes('Showing 16 of 90 wedding moments'), 'initial gallery counter missing');
  assert(html.includes('data-wedding-moments-remaining'), 'deferred media template missing');
  assert(html.includes('data-wedding-load-more'), 'pagination control missing');
  assert(!html.includes(base.replace('/wedding-moments/','/redcarpert-prototype/wedding-moments/')),

@@ -31,7 +31,7 @@ test('only first 16 wedding media cards load initially; thumbnails are not origi
   const grid = nodes.find(n => Object.hasOwn(n.attrs,'data-wedding-moments-grid'));
   const template = nodes.find(n => n.tag==='template');
   assert.equal(grid.children.length,16);
-  assert.equal(template.children.length,71);
+  assert.equal(template.children.length,flattenWeddingMomentEvents(weddingMomentEvents).length-16);
   const visible = all(grid.children);
   const buttons = visible.filter(n => Object.hasOwn(n.attrs,'data-wedding-media'));
   const images = visible.filter(n => n.tag==='img');

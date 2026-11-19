@@ -48,7 +48,7 @@ try {
           const product = expected[index];
           const category = catalogueCategories.find(c => c.id === product.category);
           const name = category.name.replace(/ Dresses$/, '');
-          const number = product.name.match(/(\d{2})$/)?.[1];
+          const number = product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
           assert(!card.invalid, width + 'px ' + route + ' missing editorial card components');
           assert.equal(card.id, product.id);
           assert.equal(card.name, name);
@@ -60,7 +60,7 @@ try {
             'redcarpert-catalogue-number',
           ]);
           assert(card.link?.endsWith(product.previewRoute + '/'), product.id + ' detail link must stay intact');
-          assert.equal(card.label, name + ' ' + number + ': view dress photographs');
+          assert.equal(card.label, (product.name.match(/(\d{2})$/)?name+' '+number:product.name) + ': view dress photographs');
           assert.equal(card.titleAlignment, 'center');
           assert.match(card.collectionFont, /Cormorant Garamond/);
           assert.match(card.numberFont, /Montserrat/);
@@ -119,7 +119,7 @@ try {
             assert.deepEqual(layout.items.map(item => item.id), matching.map(item => item.id),
               prefix + 'filter must preserve complete dress order');
             assert.equal(await page.locator('[data-filter-status]').textContent(),
-              'Showing ' + matching.length + ' of 35 wedding dresses');
+              'Showing ' + matching.length + ' of ' + catalogueProducts.length + ' wedding dresses');
             assert(layout.items.length > 0, prefix + 'category must contain visible dresses');
             const left = layout.items[0].box.left;
             assert(Math.abs(left - layout.grid.left) <= 2,
@@ -153,5 +153,5 @@ try {
       }
     } finally { await page.close(); }
   }
-  console.log('Luxury catalogue cards PASS: five collections, 35 labels, four viewports');
+  console.log('Luxury catalogue cards PASS: five collections, 51 labels, six viewports');
 } finally { await browser.close(); }

@@ -1,4 +1,6 @@
+import clientMermaidDresses from "./client-mermaid-dresses.json" with { type: "json" };
 import clientBallGowns from "./client-ball-gowns.json" with { type: "json" };
+import clientTwoInOneDresses from "./client-two-in-one-dresses.json" with { type: "json" };
 import clientRuffledDresses from "./client-ruffled-dresses.json" with { type: "json" };
 import imageLinks from "./image-links.json" with { type: "json" };
 import { requireImageLink } from "../lib/image-links.ts";
@@ -26,36 +28,18 @@ export const catalogueCategories = [
   { id: "two_in_one", name: "2 in 1 Dresses", route: "/product-category/two_in_one/" },
 ] as const;
 
-/** Primary images stay remote (ImageKit for client gowns; Pexels for samples). */
+/** Primary photographs for all client dress groups come from their CSV imports. */
 export const catalogueProducts: readonly CatalogueProduct[] = [
-  {
-    id: "sample-mermaid", priceZar: priceForDress("sample-mermaid"), name: "Sample 01", category: "mermaid", status: "sample",
-    image: requireImageLink(imageLinks.products.mermaid, "sample-mermaid").url,
-    imageAlt: "Mermaid wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-01-mermaid",
-    imageCredit: { photographer: "Trần Long", sourceUrl: requireImageLink(imageLinks.products.mermaid, "sample-mermaid").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-mermaid-02", priceZar: priceForDress("sample-mermaid-02"), name: "Sample 03", category: "mermaid", status: "sample",
-    image: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-02").url,
-    imageAlt: "Mermaid wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-03-mermaid",
-    imageCredit: { photographer: "Tangerine Vitamins", sourceUrl: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-02").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-mermaid-03", priceZar: priceForDress("sample-mermaid-03"), name: "Sample 04", category: "mermaid", status: "sample",
-    image: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-03").url,
-    imageAlt: "Mermaid wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-04-mermaid",
-    imageCredit: { photographer: "Bestbe Models", sourceUrl: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-03").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-mermaid-04", priceZar: priceForDress("sample-mermaid-04"), name: "Sample 05", category: "mermaid", status: "sample",
-    image: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-04").url,
-    imageAlt: "Mermaid wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-05-mermaid",
-    imageCredit: { photographer: "Genaro Servín", sourceUrl: requireImageLink(imageLinks.products.mermaid, "sample-mermaid-04").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
+  ...clientMermaidDresses.map(dress => ({
+    id: dress.id, name: dress.name, category: "mermaid" as const,
+    priceZar: priceForDress(dress.id),
+    image: dress.photos[0].url,
+    imageAlt: dress.photos[0].alt,
+    detailReference: null,
+    previewRoute: `/product/preview/${dress.id}` as const,
+    status: "client" as const,
+    imageCredit: {photographer:"Client supplied",sourceUrl:dress.photos[0].url,provenance:"client-supplied"},
+  })),
   ...clientBallGowns.map(gown => ({
     id: gown.id,
     name: gown.name,
@@ -108,32 +92,15 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
     detailReference: null, previewRoute: "/product/preview/sample-16-modern-tradition",
     imageCredit: { photographer: "Milly Lavish", sourceUrl: requireImageLink(imageLinks.products.modern_tradition, "sample-modern-tradition-04").sourceUrl, provenance: "docs/asset-credits.md" },
   },
-  {
-    id: "sample-two-in-one-01", priceZar: priceForDress("sample-two-in-one-01"), name: "Sample 17", category: "two_in_one", status: "sample",
-    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-01").url,
-    imageAlt: "2 in 1 wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-17-two-in-one",
-    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-01").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-two-in-one-02", priceZar: priceForDress("sample-two-in-one-02"), name: "Sample 18", category: "two_in_one", status: "sample",
-    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-02").url,
-    imageAlt: "2 in 1 wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-18-two-in-one",
-    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-02").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-two-in-one-03", priceZar: priceForDress("sample-two-in-one-03"), name: "Sample 19", category: "two_in_one", status: "sample",
-    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-03").url,
-    imageAlt: "2 in 1 wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-19-two-in-one",
-    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-03").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
-  {
-    id: "sample-two-in-one-04", priceZar: priceForDress("sample-two-in-one-04"), name: "Sample 20", category: "two_in_one", status: "sample",
-    image: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-04").url,
-    imageAlt: "2 in 1 wedding dress photograph",
-    detailReference: null, previewRoute: "/product/preview/sample-20-two-in-one",
-    imageCredit: { photographer: "Esma Atak", sourceUrl: requireImageLink(imageLinks.products.two_in_one, "sample-two-in-one-04").sourceUrl, provenance: "docs/asset-credits.md" },
-  },
+  ...clientTwoInOneDresses.map(dress => ({
+    id: dress.id, name: dress.name, category: "two_in_one" as const,
+    priceZar: priceForDress(dress.id),
+    image: dress.photos[0].url,
+    imageAlt: dress.photos[0].alt,
+    detailReference: null,
+    previewRoute: `/product/preview/${dress.id}` as const,
+    status: "client" as const,
+    imageCredit: {photographer:"Client supplied",sourceUrl:dress.photos[0].url,provenance:"client-supplied"},
+  })),
+
 ];

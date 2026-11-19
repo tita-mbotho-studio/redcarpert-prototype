@@ -1,8 +1,14 @@
 import { chromium } from "playwright";
 import assert from "node:assert/strict";
+import { weddingMomentEvents } from "../src/lib/wedding-moments.ts";
+import { weddingMomentDeliveryImage } from "../src/lib/wedding-moment-image-delivery.ts";
 
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 const base = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/";
+const media=weddingMomentEvents[0].media;
+const videoSource=media.find(item=>item.type==='video').url;
+const firstPhotoSource=media.find(item=>item.type==='photo').url;
+const totalMedia=media.length;
 try {
   for (const width of [1440, 1000, 768, 640, 390, 320]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
@@ -32,7 +38,7 @@ try {
     await page.route("https://ik.imagekit.io/**", route => {
       const url = route.request().url();
       if (url.includes("/wedding-moments/") &&
-          (new URL(url).pathname.endsWith(".jpg") ||
+          (new URL(url).pathname.endsWith(".webp") ||
            new URL(url).pathname.endsWith("/ik-thumbnail.jpg"))) {
         galleryImageRequests.push(url);
       }
@@ -63,8 +69,8 @@ try {
     const loadMore = page.locator("[data-wedding-load-more]");
     const template = page.locator("template[data-wedding-moments-remaining]");
     assert.equal(await cards.count(), 16, "first sixteen cards only");
-    assert.equal(await template.evaluate(el => el.content.children.length), 71,
-      "remaining 71 media tiles stay inert until selected");
+    assert.equal(await template.evaluate(el => el.content.children.length), totalMedia-16,
+      "remaining media tiles stay inert until selected");
     assert.equal(await loadMore.count(), 1);
     const loadMoreBox=await loadMore.boundingBox();
     assert(loadMoreBox,'Load More control must be visible before pagination');
@@ -85,7 +91,7 @@ try {
       assert(loadMoreStyle.paddingLeft<=14.5,width+'px Load More padding must shrink on phones');
     }
     const counter = page.locator("[data-wedding-count]");
-    assert.equal(await counter.textContent(), "Showing 16 of 87 wedding moments");
+    assert.equal(await counter.textContent(), "Showing 16 of 90 wedding moments");
     const assertCenteredCounter = async () => {
       const alignment = await counter.evaluate(node => {
         const box = node.getBoundingClientRect();
@@ -107,16 +113,16 @@ try {
       loading: img.loading,
     })));
     assert.equal(firstTiles.length,16);
-    assert(firstTiles.every(tile => tile.source?.includes('?tr=w-640,h-640,c-at_max,q-72,f-auto')),
-      'visible tiles should request compact ImageKit versions, not original JPG files');
-    assert(firstTiles.every(tile => tile.original?.startsWith(base)),
+    assert(firstTiles.every(tile => new URL(tile.source).searchParams.get('tr') === 'w-640,h-640,c-at_max,q-72,f-auto'),
+       'visible tiles should request compact ImageKit versions and retain updatedAt timestamps');
+     assert(firstTiles.every(tile => tile.original?.startsWith(base)),
       'all client original media URLs must remain accessible as fallbacks');
     assert.equal(firstTiles.filter(tile => tile.loading === 'eager').length,4);
     assert.equal(firstTiles.filter(tile => tile.loading === 'lazy').length,12);
     assert.equal(await gallery.locator("a[href*='pexels.com']").count(), 0,
       "no stock video links after switching to real client media");
     assert.equal(await gallery.locator("button[data-wedding-media=video]").first()
-      .getAttribute("data-wedding-src"), base + "wedding-moments-88.mp4");
+      .getAttribute("data-wedding-src"), videoSource);
 
     const geometry = await page.evaluate(() => {
       const grid = document.querySelector("[data-wedding-moments-grid]");
@@ -168,9 +174,9 @@ try {
 
     const firstPhoto = gallery.locator("button[data-wedding-media=photo]").first();
     assert.equal(await firstPhoto.getAttribute("data-wedding-src"),
-      base + "wedding-moments-56.jpg");
+      firstPhotoSource);
     assert.equal(await firstPhoto.getAttribute("data-wedding-preview-src"),
-      base + "wedding-moments-56.jpg?tr=w-1920,h-1920,c-at_max,q-82,f-auto");
+      weddingMomentDeliveryImage(firstPhotoSource,'preview'));
     await firstPhoto.click();
     const dialog = page.locator("#redcarpert-wedding-preview");
     assert(await dialog.evaluate(el => el.open));
@@ -218,7 +224,7 @@ try {
     await filmButton.click();
     const player = dialog.locator("[data-wedding-preview-video]");
     await player.waitFor({ state: "visible", timeout: 12000 });
-    assert.equal(await player.getAttribute("src"), base + "wedding-moments-88.mp4");
+    assert.equal(await player.getAttribute("src"), videoSource);
     assert(await player.evaluate(el => el.controls), "native video controls");
     assert(await player.evaluate(el => el.playsInline), "video plays inline on mobile");
     const videoFrame = await dialog.evaluate(el => {
@@ -249,23 +255,23 @@ try {
     assert.equal(playbackAttempts[0].muted, false, width + 'px film should start with sound');
     assert.equal(playbackAttempts[0].controls, true, 'native video controls must remain available');
     assert.equal(playbackAttempts[0].dialogOpen, true, 'playback must be attempted after opening the popup');
-    assert.equal(playbackAttempts[0].src, base + "wedding-moments-88.mp4");
+    assert.equal(playbackAttempts[0].src, videoSource);
     await page.keyboard.press("Escape");
     await page.waitForFunction(() =>
       !document.querySelector("[data-wedding-preview-video]").hasAttribute("src"),
       { timeout: 12000 });
     assert.equal(await player.getAttribute("src"), null, "close unloads video");
 
-    for (const expected of [32, 48, 64, 80, 87]) {
+    for (const expected of [32, 48, 64, 80, 90]) {
       await loadMore.click();
       assert.equal(await cards.count(), expected, "Load More reveals another batch");
       assert.equal(await counter.textContent(),
-        "Showing " + expected + " of 87 wedding moments");
+        "Showing " + expected + " of " + totalMedia + " wedding moments");
     }
     assert.equal(await template.evaluate(el => el.content.children.length), 0);
     assert.equal(await loadMore.isVisible(), false, "Load More disappears when finished");
     await assertCenteredCounter();
-    assert.equal(await gallery.locator("img").count(), 87);
+    assert.equal(await gallery.locator("img").count(), totalMedia);
     assert.deepEqual(errors, [], "no JavaScript errors at " + width + "px");
     console.log("Wedding Moments real media PASS", width + "px",
       "image requests observed:", galleryImageRequests.length);

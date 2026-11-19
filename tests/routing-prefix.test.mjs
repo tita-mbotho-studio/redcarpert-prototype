@@ -71,7 +71,7 @@ test("root relative CSS assets still receive the repository prefix", () => {
 
 test("every client-supplied Wedding Moments image, film and poster stays unmodified by the base URL rewrite", () => {
   const items = imageLinks.wedding_moments.events.flatMap(event => event.media);
-  assert.equal(items.length, 87);
+  assert.equal(items.length, 90);
   for (const item of items) {
     const markup = '<img src="' + item.url + '">';
     assert.equal(prefix(markup), markup, "client URL changed: " + item.id);

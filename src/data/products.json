@@ -2,7 +2,7 @@
   "currency": "ZAR",
   "dresses": [
     {
-      "id": "sample-mermaid",
+      "id": "mermaid-lefa-dress",
       "priceZar": 12900,
       "rentalPriceRangeZar": {
         "minZar": 3000,
@@ -10,27 +10,11 @@
       }
     },
     {
-      "id": "sample-mermaid-02",
+      "id": "mermaid-shantel-dress",
       "priceZar": 14500,
       "rentalPriceRangeZar": {
         "minZar": 3300,
         "maxZar": 5200
-      }
-    },
-    {
-      "id": "sample-mermaid-03",
-      "priceZar": 16900,
-      "rentalPriceRangeZar": {
-        "minZar": 3900,
-        "maxZar": 6100
-      }
-    },
-    {
-      "id": "sample-mermaid-04",
-      "priceZar": 18900,
-      "rentalPriceRangeZar": {
-        "minZar": 4300,
-        "maxZar": 6800
       }
     },
     {
@@ -115,6 +99,14 @@
     },
     {
       "id": "ball-gown-11",
+      "priceZar": 31900,
+      "rentalPriceRangeZar": {
+        "minZar": 7300,
+        "maxZar": 11500
+      }
+    },
+    {
+      "id": "ball-gown-12",
       "priceZar": 31900,
       "rentalPriceRangeZar": {
         "minZar": 7300,
@@ -250,7 +242,7 @@
       }
     },
     {
-      "id": "sample-two-in-one-01",
+      "id": "2-in-1-kwena-dress",
       "priceZar": 21900,
       "rentalPriceRangeZar": {
         "minZar": 5000,
@@ -258,7 +250,7 @@
       }
     },
     {
-      "id": "sample-two-in-one-02",
+      "id": "2-in-1-winnie-dress",
       "priceZar": 24900,
       "rentalPriceRangeZar": {
         "minZar": 5700,
@@ -266,7 +258,7 @@
       }
     },
     {
-      "id": "sample-two-in-one-03",
+      "id": "2-in-1-athalia-dress",
       "priceZar": 28900,
       "rentalPriceRangeZar": {
         "minZar": 6600,
@@ -274,31 +266,159 @@
       }
     },
     {
-      "id": "sample-two-in-one-04",
+      "id": "2-in-1-mmematlala-dress",
       "priceZar": 33900,
       "rentalPriceRangeZar": {
         "minZar": 7800,
         "maxZar": 12200
       }
+    },
+    {
+      "id": "2-in-1-nthabiseng-dress",
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
+    },
+    {
+      "id": "2-in-1-moreteadi-dress",
+      "priceZar": 24900,
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
+    },
+    {
+      "id": "2-in-1-rebaone-dress",
+      "priceZar": 28900,
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
+    },
+    {
+      "id": "2-in-1-nhlanhla-dress",
+      "priceZar": 33900,
+      "rentalPriceRangeZar": {
+        "minZar": 7800,
+        "maxZar": 12200
+      }
+    },
+    {
+      "id": "2-in-1-kholofelo-dress",
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
+    },
+    {
+      "id": "2-in-1-mahlako-dress",
+      "priceZar": 24900,
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
+    },
+    {
+      "id": "2-in-1-norah2-dress",
+      "priceZar": 28900,
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
+    },
+    {
+      "id": "2-in-1-renolda-dress",
+      "priceZar": 33900,
+      "rentalPriceRangeZar": {
+        "minZar": 7800,
+        "maxZar": 12200
+      }
+    },
+    {
+      "id": "2-in-1-lerato-dress",
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
+    },
+    {
+      "id": "2-in-1-namngweza-dress",
+      "priceZar": 24900,
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
+    },
+    {
+      "id": "2-in-1-boitumelo-dress",
+      "priceZar": 28900,
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
+    },
+    {
+      "id": "2-in-1-atok-dress",
+      "priceZar": 33900,
+      "rentalPriceRangeZar": {
+        "minZar": 7800,
+        "maxZar": 12200
+      }
+    },
+    {
+      "id": "2-in-1-busisiwe-dress",
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
+    },
+    {
+      "id": "2-in-1-palesa-dress",
+      "priceZar": 24900,
+      "rentalPriceRangeZar": {
+        "minZar": 5700,
+        "maxZar": 9000
+      }
+    },
+    {
+      "id": "2-in-1-keolebogile-dress",
+      "priceZar": 28900,
+      "rentalPriceRangeZar": {
+        "minZar": 6600,
+        "maxZar": 10400
+      }
+    },
+    {
+      "id": "2-in-1-conny-dress",
+      "priceZar": 33900,
+      "rentalPriceRangeZar": {
+        "minZar": 7800,
+        "maxZar": 12200
+      }
+    },
+    {
+      "id": "2-in-1-lebone-dress",
+      "priceZar": 21900,
+      "rentalPriceRangeZar": {
+        "minZar": 5000,
+        "maxZar": 7900
+      }
     }
   ],
   "priceStatus": "draft",
   "priceRangesZar": {
-    "sample-mermaid": {
+    "mermaid-lefa-dress": {
       "minZar": 8900,
       "maxZar": 12900
     },
-    "sample-mermaid-02": {
+    "mermaid-shantel-dress": {
       "minZar": 9900,
       "maxZar": 14500
-    },
-    "sample-mermaid-03": {
-      "minZar": 11900,
-      "maxZar": 16900
-    },
-    "sample-mermaid-04": {
-      "minZar": 13900,
-      "maxZar": 18900
     },
     "ball-gown-01": {
       "minZar": 13500,
@@ -341,6 +461,10 @@
       "maxZar": 25900
     },
     "ball-gown-11": {
+      "minZar": 18900,
+      "maxZar": 31900
+    },
+    "ball-gown-12": {
       "minZar": 18900,
       "maxZar": 31900
     },
@@ -408,21 +532,89 @@
       "minZar": 19900,
       "maxZar": 28900
     },
-    "sample-two-in-one-01": {
+    "2-in-1-kwena-dress": {
       "minZar": 15900,
       "maxZar": 21900
     },
-    "sample-two-in-one-02": {
+    "2-in-1-winnie-dress": {
       "minZar": 17900,
       "maxZar": 24900
     },
-    "sample-two-in-one-03": {
+    "2-in-1-athalia-dress": {
       "minZar": 20900,
       "maxZar": 28900
     },
-    "sample-two-in-one-04": {
+    "2-in-1-mmematlala-dress": {
       "minZar": 24900,
       "maxZar": 33900
+    },
+    "2-in-1-nthabiseng-dress": {
+      "minZar": 15900,
+      "maxZar": 21900
+    },
+    "2-in-1-moreteadi-dress": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "2-in-1-rebaone-dress": {
+      "minZar": 20900,
+      "maxZar": 28900
+    },
+    "2-in-1-nhlanhla-dress": {
+      "minZar": 24900,
+      "maxZar": 33900
+    },
+    "2-in-1-kholofelo-dress": {
+      "minZar": 15900,
+      "maxZar": 21900
+    },
+    "2-in-1-mahlako-dress": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "2-in-1-norah2-dress": {
+      "minZar": 20900,
+      "maxZar": 28900
+    },
+    "2-in-1-renolda-dress": {
+      "minZar": 24900,
+      "maxZar": 33900
+    },
+    "2-in-1-lerato-dress": {
+      "minZar": 15900,
+      "maxZar": 21900
+    },
+    "2-in-1-namngweza-dress": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "2-in-1-boitumelo-dress": {
+      "minZar": 20900,
+      "maxZar": 28900
+    },
+    "2-in-1-atok-dress": {
+      "minZar": 24900,
+      "maxZar": 33900
+    },
+    "2-in-1-busisiwe-dress": {
+      "minZar": 15900,
+      "maxZar": 21900
+    },
+    "2-in-1-palesa-dress": {
+      "minZar": 17900,
+      "maxZar": 24900
+    },
+    "2-in-1-keolebogile-dress": {
+      "minZar": 20900,
+      "maxZar": 28900
+    },
+    "2-in-1-conny-dress": {
+      "minZar": 24900,
+      "maxZar": 33900
+    },
+    "2-in-1-lebone-dress": {
+      "minZar": 15900,
+      "maxZar": 21900
     }
   },
   "priceRangeStatus": "illustrative",

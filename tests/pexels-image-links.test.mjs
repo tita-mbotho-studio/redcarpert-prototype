@@ -32,9 +32,9 @@ test("remaining Pexels stock imagery is limited to inspiration catalogue photogr
 });
 
 test("catalogue photos and lookbook links stay identical", () => {
-  assert.equal(catalogueProducts.length, 35);
+  assert.equal(catalogueProducts.length, 51);
   const sampleDresses=catalogueProducts.filter(product=>product.status==='sample');
-  assert.equal(sampleDresses.length,12);
+  assert.equal(sampleDresses.length,4);
   for (const product of sampleDresses) {
     const ref = requireImageLink(imageLinks.products[product.category], product.id);
     assert.equal(product.image, ref.url);
@@ -43,7 +43,7 @@ test("catalogue photos and lookbook links stay identical", () => {
   }
   assert.equal(imageLinks.products.ball_gown.length,0,'retired sample Ball Gown photo URLs should not remain');
   assert.equal(imageLinks.products.ruffled.length,0,'Ruffled client assets now live in the dedicated gallery manifest');
-  assert.equal(catalogueProducts.filter(product=>product.status==='client').length,23);
+  assert.equal(catalogueProducts.filter(product=>product.status==='client').length,47);
 });
 
 test("About Us displays all six named, client-supplied ImageKit models", () => {

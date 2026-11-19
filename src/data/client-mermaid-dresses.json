@@ -1,0 +1,38 @@
+[
+  {
+    "id": "mermaid-lefa-dress",
+    "name": "Mermaid Lefa Dress",
+    "photos": [
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-lefa-dress-01.webp",
+        "alt": "Photo 01 of Mermaid Lefa Dress"
+      },
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-lefa-dress-02.webp",
+        "alt": "Photo 02 of Mermaid Lefa Dress"
+      },
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-lefa-dress-03.webp",
+        "alt": "Photo 03 of Mermaid Lefa Dress"
+      }
+    ]
+  },
+  {
+    "id": "mermaid-shantel-dress",
+    "name": "Mermaid Shantel Dress",
+    "photos": [
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-shantel-dress-01.webp",
+        "alt": "Photo 01 of Mermaid Shantel Dress"
+      },
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-shantel-dress-02.webp",
+        "alt": "Photo 02 of Mermaid Shantel Dress"
+      },
+      {
+        "url": "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/mermaid-dresses/mermaid-shantel-dress-03.webp",
+        "alt": "Photo 03 of Mermaid Shantel Dress"
+      }
+    ]
+  }
+]

@@ -1,4 +1,6 @@
+import clientMermaidDresses from "../data/client-mermaid-dresses.json" with { type: "json" };
 import clientBallGowns from "../data/client-ball-gowns.json" with { type: "json" };
+import clientTwoInOneDresses from "../data/client-two-in-one-dresses.json" with { type: "json" };
 import clientRuffledDresses from "../data/client-ruffled-dresses.json" with { type: "json" };
 import extraGalleryImages from "../data/dress-gallery-images.json" with { type: "json" };
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
@@ -16,7 +18,8 @@ export interface DressGalleryPhoto {
  */
 export const additionalDressPhotos: Readonly<Record<string, readonly DressGalleryPhoto[]>> = {
   ...extraGalleryImages,
-  ...Object.fromEntries([...clientBallGowns, ...clientRuffledDresses]
+  ...Object.fromEntries([...clientMermaidDresses, ...clientBallGowns,
+    ...clientRuffledDresses, ...clientTwoInOneDresses]
     .map(dress => [dress.id, dress.photos.slice(1)])),
 };
 
@@ -44,14 +47,20 @@ export function validateDressGalleryMappings(
         typeof photo?.alt !== "string" || photo.alt.trim().length < 5 || photo.alt.length > 180) {
         throw new Error("Invalid gallery photo or alternative text for " + productId);
       }
-      if (productId.startsWith("ball-gown-") || productId.startsWith("ruffled-dress-")) {
-        const ball = productId.startsWith("ball-gown-");
-        const folder = ball ? "ball-gown-dresses" : "ruffled-dresses";
-        const prefix = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/" +
-          folder + "/" + productId + "-";
-        const suffix = photo.url.startsWith(prefix) ? photo.url.slice(prefix.length) : "";
-        if (!/^\d{2}\.webp\?updatedAt=\d{13}$/.test(suffix)) {
-          throw new Error("Client gallery photograph belongs to a different dress: " + productId);
+      const product = catalogueProducts.find(item=>item.id===productId);
+      if (product?.status === 'client') {
+        const folder = {
+          mermaid:'mermaid-dresses',ball_gown:'ball-gown-dresses',
+          ruffled:'ruffled-dresses',two_in_one:'2-in-1-dresses',
+          modern_tradition:'',
+        }[product.category];
+        const prefix = 'https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/' + folder + '/';
+        const filename = new URL(photo.url).pathname.split('/').at(-1) ?? '';
+        const match = new RegExp('^' + productId + '-([0-9]{2})[.]webp$', 'i').exec(filename);
+        if (!photo.url.toLowerCase().startsWith(prefix.toLowerCase()) || !match ||
+            Number(match[1])<2 || Number(match[1])>99 ||
+            !/^(?:|[?]updatedAt=\d{13})$/.test(new URL(photo.url).search)) {
+          throw new Error('Client gallery photograph belongs to a different dress: '+productId);
         }
       }
       if (urls.has(photo.url)) throw new Error("Repeated gallery photograph for " + productId);

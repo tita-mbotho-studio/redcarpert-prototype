@@ -22,7 +22,8 @@ test('each of the five collections uses the same editorial name, divider and num
       observed.add(product.category);
       const category = catalogueCategories.find(c => c.id === product.category);
       const name = category.name.replace(/ Dresses$/, '');
-      const number = product.name.match(/(\d{2})$/)?.[1];
+      const number = product.name.match(/(\d{2})$/)?.[1] ??
+        product.name.replace(/^(?:Mermaid|2 in 1) /,'');
       const title = all([card]).find(n => n.tag === 'h2');
       const image = all([card]).find(n => n.tag === 'img');
       const link = all([card]).find(n => n.tag === 'a');
@@ -36,7 +37,8 @@ test('each of the five collections uses the same editorial name, divider and num
       assert.equal(title.children[1].attrs['aria-hidden'], 'true');
       assert.deepEqual(title.children[1].children, []);
       assert.equal(title.children[2].children[0], number);
-      assert.equal(link.attrs['aria-label'], `${name} ${number}: view dress photographs`);
+      assert.equal(link.attrs['aria-label'],
+        `${product.name.match(/(\d{2})$/) ? name+' '+number : product.name}: view dress photographs`);
       assert.equal(link.attrs.href, product.previewRoute);
       assert.equal(image.attrs.src, product.image);
       assert.match(image.attrs.style, /aspect-ratio: 1 \/ 1/);

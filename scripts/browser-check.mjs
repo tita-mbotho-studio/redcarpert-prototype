@@ -8,10 +8,10 @@ if(route==='/digital-lookbook'){
  assert.equal(await page.locator('[data-book-page]').count(),products.dresses.length+2);
  await page.getByRole('button',{name:'Next page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),/Page 2 of 37/);
+ assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 2 of '+(products.dresses.length+2)));
  await page.getByRole('button',{name:'Previous page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),/Page 1 of 37/);
+ assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 1 of '+(products.dresses.length+2)));
 }
 // The approved direct WhatsApp handoff has no on-site enquiry preview.
 const fitting=page.locator('#footer .redcarpert-footer-book');

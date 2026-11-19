@@ -66,7 +66,8 @@ test('rejects invalid WhatsApp destinations and unexpected preview widgets',()=>
 
 test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and dress controls',()=>{
   const render=createNodeRenderer([]);
-  for(const route of ['/','/product/preview/sample-01-mermaid','/product/preview/ball-gown-02']){
+  for(const route of ['/',catalogueProducts.find(product=>product.category==='mermaid')?.previewRoute,
+    '/product/preview/ball-gown-02']){
     const {document,product}=preparePage(route);
     const message=product?sampleFittingMessage(product):
       generalFittingMessage();
