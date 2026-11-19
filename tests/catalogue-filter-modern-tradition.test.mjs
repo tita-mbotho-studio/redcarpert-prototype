@@ -80,7 +80,14 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
       assert.equal(r.label.hasAttribute('data-catalogue-named'),false);
     }
     click('ball_gown');
-    assert.equal(records.filter(r=>!r.card.hidden).length,17);
+    assert.equal(records.filter(r=>!r.card.hidden).length,12,
+      'Ball Gown category must retain its twelve original dress listings');
+    assert.equal(visibleStatus.textContent,'Showing 12 of 56 wedding dresses');
+    click('ruffled');
+    const shownRuffled=records.filter(r=>!r.card.hidden);
+    assert.equal(shownRuffled.length,17,'Ruffled filter must expose all seventeen client dresses');
+    assert(shownRuffled.every(r=>r.p.category==='ruffled'));
+    assert.equal(visibleStatus.textContent,'Showing 17 of 56 wedding dresses');
     click('all');
     assert.equal(records.filter(r=>!r.card.hidden).length,56);
     assert.equal(visibleStatus.textContent,'Showing 56 of 56 wedding dresses');
