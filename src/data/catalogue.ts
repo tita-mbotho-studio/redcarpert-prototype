@@ -34,7 +34,7 @@ export const catalogueCategories = [
 /** One product can be browsed in several collections without duplicating its
  * detail page, gallery, images, prices, WhatsApp link or book spread. */
 export const modernTraditionColourByDress: ReadonlyMap<string,string> =
-  new Map(featuredModernTradition.featured.map(item=>[item.id,item.colour]));
+  new Map(featuredModernTradition.featured.map(item=>[item.id,item.colour] as const));
 if (modernTraditionColourByDress.size !== featuredModernTradition.featured.length)
   throw new Error("Duplicate Modern Tradition cross-list dress");
 export function collectionsForDress(id: string, primary: DressCategory): readonly DressCategory[] {
