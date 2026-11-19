@@ -13,7 +13,8 @@ export function initializeCatalogueFilter() {
   const apply=category=>{
     let shown=0;
     for(const item of items){
-      const visible=category==='all'||item.dataset.catalogueCategory===category;
+      const collections=(item.dataset.catalogueCollections||item.dataset.catalogueCategory||'').split(/\s+/);
+      const visible=category==='all'||collections.includes(category);
       item.hidden=!visible;
       item.classList.toggle('redcarpert-filtered-out',!visible);
       // Grid places visible cards in source order; no four-column
