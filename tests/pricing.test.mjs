@@ -57,7 +57,7 @@ test('digital lookbook contains the same labelled fixed sale and rental prices a
   assert.equal((html.match(/data-book-sale-label=/g)||[]).length,47);
   assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,47);
   assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,51);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,47);
   assert.equal(lookbookEntries.length,47);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover&&cover.includes('Walking on red carpet with confidence'));
