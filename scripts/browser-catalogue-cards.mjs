@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
-import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
 
 /** Production-browser coverage for editorial listing cards on all six routes. */
 const origin = 'http://localhost:4173/redcarpert-prototype';
@@ -13,7 +13,8 @@ try {
       for (const route of routes) {
         await page.goto(origin + route + '/', { waitUntil: 'domcontentloaded' });
         const expected = route === '/product' ? catalogueProducts :
-          catalogueProducts.filter(p => route.endsWith('/' + p.category));
+          catalogueProducts.filter(p=>catalogueCategories.some(c=>
+            route===c.route.replace(/\/$/,'') && dressAppearsInCollection(p,c.id)));
         const cards = await page.locator('ul.products[data-catalogue-preview] li.product').evaluateAll(nodes => nodes.map(card => {
           const img = card.querySelector('img');
           const link = card.querySelector('a.woocommerce-LoopProduct-link');
@@ -29,6 +30,7 @@ try {
           };
           return {
             id: card.getAttribute('data-catalogue-id'),
+            collections: card.getAttribute('data-catalogue-collections'),
             name: collection.textContent.trim(),
             number: number.textContent.trim(),
             link: link.getAttribute('href'),
@@ -48,9 +50,12 @@ try {
           const product = expected[index];
           const category = catalogueCategories.find(c => c.id === product.category);
           const name = category.name.replace(/ Dresses$/, '');
-          const number = product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
+          const number = route.endsWith('/modern_tradition')
+            ? String(catalogueProducts.filter(p=>p.collections.includes('modern_tradition')).findIndex(p=>p.id===product.id)+1).padStart(2,'0')
+            : product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
           assert(!card.invalid, width + 'px ' + route + ' missing editorial card components');
           assert.equal(card.id, product.id);
+          assert.equal(card.collections, product.collections.join(' '));
           assert.equal(card.name, name);
           assert.equal(card.number, number);
           assert.equal(card.hiddenRule, 'true');
@@ -60,7 +65,7 @@ try {
             'redcarpert-catalogue-number',
           ]);
           assert(card.link?.endsWith(product.previewRoute + '/'), product.id + ' detail link must stay intact');
-          assert.equal(card.label, (product.name.match(/(\d{2})$/)?name+' '+number:product.name) + ': view dress photographs');
+          assert.equal(card.label, (route.endsWith('/modern_tradition')?'Modern Tradition '+number:product.name.match(/(\d{2})$/)?name+' '+number:product.name) + ': view dress photographs');
           assert.equal(card.titleAlignment, 'center');
           assert.match(card.collectionFont, /Cormorant Garamond/);
           assert.match(card.numberFont, /Montserrat/);
@@ -88,7 +93,7 @@ try {
           for (const filter of ['all', ...catalogueCategories.map(c => c.id)]) {
             await page.locator('[data-filter-category="' + filter + '"]').click();
             const matching = filter === 'all' ? catalogueProducts :
-              catalogueProducts.filter(product => product.category === filter);
+              catalogueProducts.filter(product => product.collections.includes(filter));
             const layout = await page.locator('ul.products[data-catalogue-preview]').evaluate(grid => {
               const rect = el => {
                 const box = el.getBoundingClientRect();
@@ -105,6 +110,10 @@ try {
                 grid:rect(grid),
                 items:visible.map(card => ({
                   id:card.getAttribute('data-catalogue-id'),
+                  collection:card.querySelector('.redcarpert-catalogue-collection')?.textContent.trim(),
+                  number:card.querySelector('.redcarpert-catalogue-number')?.textContent.trim(),
+                  label:card.querySelector('a.woocommerce-LoopProduct-link')?.getAttribute('aria-label'),
+                  alt:card.querySelector('img')?.getAttribute('alt'),
                   box:rect(card),
                   float:getComputedStyle(card).float,
                   clear:getComputedStyle(card).clear,
@@ -121,6 +130,21 @@ try {
             assert.equal(await page.locator('[data-filter-status]').textContent(),
               'Showing ' + matching.length + ' of ' + catalogueProducts.length + ' wedding dresses');
             assert(layout.items.length > 0, prefix + 'category must contain visible dresses');
+            for(const [i,item] of layout.items.entries()){
+              const dress=matching[i];
+              if(filter==='modern_tradition'){
+                const serial=String(i+1).padStart(2,'0');
+                assert.equal(item.collection,'Modern Tradition',prefix+' all cards must use the filtered collection label');
+                assert.equal(item.number,serial,prefix+' unique Modern Tradition numbering');
+                assert.equal(item.label,'Modern Tradition '+serial+': view dress photographs');
+                assert.equal(item.alt,'Modern Tradition dress '+serial);
+              }else{
+                const primary=catalogueCategories.find(c=>c.id===dress.category).name.replace(/ Dresses$/,'');
+                const original=dress.name.match(/(\d{2})$/)?.[1]??dress.name.replace(/^(?:Mermaid|2 in 1) /,'');
+                assert.equal(item.collection,primary,prefix+' switching filters must restore silhouette');
+                assert.equal(item.number,original,prefix+' switching filters must restore original dress name');
+              }
+            }
             const left = layout.items[0].box.left;
             assert(Math.abs(left - layout.grid.left) <= 2,
               prefix + 'FIRST visible dress must start in FIRST column: ' + JSON.stringify(layout.items[0]));
@@ -153,5 +177,5 @@ try {
       }
     } finally { await page.close(); }
   }
-  console.log('Luxury catalogue cards PASS: five collections, 51 labels, six viewports');
+  console.log('Luxury catalogue cards PASS: five collections, 47 labels, six viewports');
 } finally { await browser.close(); }

@@ -31,9 +31,7 @@ export function dressPageUrl(product: CatalogueProduct): string {
 export function dressFittingMessage(product: CatalogueProduct): string {
   const category = catalogueCategories.find(item => item.id === product.category);
   if (!category) throw new Error("Unknown dress category for WhatsApp enquiry: " + product.id);
-  const dressName = product.status === "client"
-    ? product.name
-    : product.name.replace(/^Sample /, "Look ");
+  const dressName = product.name;
 
   return [
     "Hello Redcarpert Wedding Dresses,",

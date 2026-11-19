@@ -7,7 +7,7 @@ import { catalogueProducts } from '../src/data/catalogue.ts';
 import imageLinks from '../src/data/image-links.json' with {type:'json'};
 
 const imagekit='https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-dresses/ball-gown-01/front.webp';
-const pexels='https://images.pexels.com/photos/6665034/pexels-photo-6665034.jpeg';
+const external='https://cdn.example.com/images/external.jpeg';
 
 test('one shared ImageKit policy covers future tiles, dress cards, details, modal photos, lookbook and hero',()=>{
  const expected = {
@@ -35,16 +35,9 @@ test('one shared ImageKit policy covers future tiles, dress cards, details, moda
   imagekit.replace('.webp','.svg'));
 });
 
-test('Pexels images are compressed, width-capped and never upscaled',()=>{
- const url=mediaDeliveryUrl(pexels,'card');
- const parsed=new URL(url);
- assert.equal(parsed.searchParams.get('auto'),'compress');
- assert.equal(parsed.searchParams.get('cs'),'tinysrgb');
- assert.equal(parsed.searchParams.get('w'),'740');
- const existing=pexels+'?auto=compress&cs=tinysrgb&w=500';
- assert.equal(mediaDeliveryUrl(existing,'card'),existing);
- assert.equal(mediaDeliveryUrl(pexels+'?auto=compress&cs=tinysrgb&w=2400','card'),
-  pexels+'?auto=compress&cs=tinysrgb&w=740');
+test('unapproved external image hosts are never rewritten as ImageKit client photos',()=>{
+ assert.equal(mediaDeliveryUrl(external,'card'),external);
+ assert.equal(mediaDeliveryUrl(external+'?w=300','detail'),external+'?w=300');
 });
 
 test('generated image markup uses requested contexts and stores originals for fallback',()=>{
@@ -56,8 +49,8 @@ test('generated image markup uses requested contexts and stores originals for fa
  const gallery=mediaImageAttrs({src:imagekit,'data-gallery-active-image':'',fetchpriority:'high'});
  assert.equal(gallery.src,mediaDeliveryUrl(imagekit,'detail'));
  assert.equal(gallery.loading,'eager');
- const about=mediaImageAttrs({src:pexels,alt:'A tailor at work'});
- assert.equal(about.src,mediaDeliveryUrl(pexels,'team'));
+ const about=mediaImageAttrs({src:external,alt:'A tailor at work'});
+ assert.equal(about.src,external);
  assert.equal(about.loading,'lazy');
  assert.equal(about.decoding,'async');
  const logo=mediaImageAttrs({src:'/redcarpert/brand/redcarpert-logo-optimized.webp',alt:'Logo'});

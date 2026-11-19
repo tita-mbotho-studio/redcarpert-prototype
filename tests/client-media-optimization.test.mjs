@@ -11,7 +11,7 @@ import {mediaDeliveryUrl,mediaImageAttrs,mediaVideoAttrs} from '../src/lib/media
 const safeImage = (source,preset) => {
   const original=new URL(source),target=new URL(mediaDeliveryUrl(source,preset));
   assert.equal(original.protocol,'https:');
-  assert(['ik.imagekit.io','images.pexels.com'].includes(original.hostname),
+  assert(['ik.imagekit.io'].includes(original.hostname),
     'unexpected remote image host: '+original.hostname);
   assert.equal(target.hostname,original.hostname);
   assert.equal(target.pathname,original.pathname,'optimization must preserve the source asset');
@@ -35,7 +35,7 @@ test('all three homepage backgrounds use the shared optimized hero delivery and 
 });
 
 test('all catalogue and individual gallery photographs use approved image presets',()=>{
-  assert.equal(catalogueProducts.length,51);
+  assert.equal(catalogueProducts.length,47);
   let count=0;
   for(const product of catalogueProducts){
     for(const preset of ['card','detail','lookbook','preview'])safeImage(product.image,preset);
@@ -51,7 +51,7 @@ test('all catalogue and individual gallery photographs use approved image preset
       count++;
     }
   }
-  assert(count>=51,'every dress requires at least one approved gallery image');
+  assert(count>=47,'every dress requires at least one approved gallery image');
 });
 
 test('all six About Us model portraits have the team preset and fallback metadata',()=>{

@@ -1,6 +1,5 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
-import { dressFittingMessage } from "./whatsapp-messages.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
@@ -9,13 +8,13 @@ const all = (nodes: DocumentNode[]): DocumentElement[] => elements(nodes).flatMa
 const node = (tag: string, attrs: Record<string, string>, children: DocumentNode[]): DocumentElement => ({ tag, attrs, children });
 
 /** Primary catalogue photographs are shared by book, grid and detail pages. */
-export const sampleGalleryImages: Record<string, {src: string; width: number; height: number}> = Object.fromEntries(
+export const dressImageDimensions: Record<string, {src: string; width: number; height: number}> = Object.fromEntries(
   catalogueProducts.map(product => [product.id, {src:product.image,width:1200,height:1800}]),
 );
 
 const categoryName = (product: CatalogueProduct) => catalogueCategories.find(item => item.id === product.category)?.name ?? "Wedding Dresses";
-export function sampleDetailTitle(product: CatalogueProduct): string {
-  return product.status === "client" ? product.name : `${product.name.replace(/^Sample /, "Look ")} — ${categoryName(product)}`;
+export function dressDetailTitle(product: CatalogueProduct): string {
+  return product.name;
 }
 
 /** Same-category suggestions, excluding the current gown, in stable catalogue order. */
@@ -25,11 +24,6 @@ export function relatedDressesFor(product: CatalogueProduct, limit = 4): readonl
   if (index < 0) throw new Error("Related dresses: unrecognized catalogue product " + product.id);
   if (!Number.isSafeInteger(limit) || limit < 0) throw new Error("Related dresses: invalid display limit");
   return [...group.slice(index + 1), ...group.slice(0, index)].slice(0, limit);
-}
-
-/** Compatibility name retained for existing callers; all dresses use one template. */
-export function sampleFittingMessage(product: CatalogueProduct): string {
-  return dressFittingMessage(product);
 }
 
 /** Dress detail document from one guarded source capture; legacy routes stay intact. */
@@ -42,7 +36,7 @@ export function createProductDetailPreview(
   if (source.route !== "/product/arabella") fail("source route");
   const original = catalogueProducts.find(entry => entry.id === product.id);
   if (!original || JSON.stringify(product) !== JSON.stringify(original)
-    || !["sample","client"].includes(product.status) || product.detailReference !== null) fail("sample mapping");
+    || product.detailReference !== null) fail("dress mapping");
   const one = (nodes: DocumentElement[], predicate: (n: DocumentElement) => boolean, detail: string) => {
     const matches = nodes.filter(predicate);
     return matches.length === 1 ? matches[0] : fail(detail);
@@ -73,8 +67,7 @@ export function createProductDetailPreview(
     || shareItems.some(n => n.attrs["data-url"] !== "https://bridalvanesa.com/product/arabella/")) fail("share content");
 
   const category = categoryName(product);
-  const client = product.status === "client";
-  const gallery = sampleGalleryImages[product.id as keyof typeof sampleGalleryImages];
+  const gallery = dressImageDimensions[product.id as keyof typeof dressImageDimensions];
   const photos = photosForDress(product, galleryMappings);
   const relatedDresses = relatedDressesFor(product);
   const hasGallery = photos.length > 1;
@@ -104,14 +97,14 @@ export function createProductDetailPreview(
       ...images.attrs,
       "data-detail-gallery": product.id,
       "data-gallery-photos": JSON.stringify(photos),
-      "data-gallery-origin": client ? "client" : "sample",
+      "data-gallery-origin": "client",
       ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
     }, children: [
       { ...slider, attrs: {
         ...slider.attrs,
         // The inherited slick/gallery plugin must not re-clone our own multi-photo controls.
         class: hasGallery ? "slider redcarpert-multi-photo-slider" : "slider redcarpert-single-photo-slider",
-      }, children: [node("div", { class: "redcarpert-detail-photo-frame", "data-sample-frame": "true" }, [
+      }, children: [node("div", { class: "redcarpert-detail-photo-frame", "data-dress-frame": "true" }, [
         node("img", {
           src: photos[0].url, width: String(gallery.width), height: String(gallery.height),
           class: "attachment-shop_single size-shop_single wp-post-image",
@@ -125,8 +118,7 @@ export function createProductDetailPreview(
     ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        ...(client ? [] : [node("p", { class: "redcarpert-detail-collection" }, [category.endsWith("Dresses") ? category : category + " Collection"])]),
-        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.status === "client" ? product.name : product.name.replace(/^Sample /, "Look ")] },
+        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing", "aria-label": "Sale and rental pricing" }, [
           node("div", { class: "redcarpert-detail-price-options" }, [
@@ -169,7 +161,7 @@ export function createProductDetailPreview(
         node("ul", { class: "redcarpert-related-grid" },
           relatedDresses.map(dress =>
             node("li", { class: "redcarpert-related-card", "data-related-dress": dress.id }, [
-              node("a", { href: dress.previewRoute + "/", "aria-label": "View " + sampleDetailTitle(dress) }, [
+              node("a", { href: dress.previewRoute + "/", "aria-label": "View " + dressDetailTitle(dress) }, [
                 node("img", {
                   src: dress.image,
                   alt: dress.imageAlt,
@@ -180,7 +172,7 @@ export function createProductDetailPreview(
                   "data-media-preset": "card",
                 }, []),
                 node("span", { class: "redcarpert-related-name" },
-                  [dress.status === "client" ? dress.name : dress.name.replace(/^Sample /, "Look ")]),
+                  [dress.name]),
                 node("div", { class: "redcarpert-related-prices", "aria-label": "Sale and rental pricing" }, [
                   node("div", { class: "redcarpert-related-price-pair" }, [
                     node("span", { class: "redcarpert-related-price-label" },
@@ -229,7 +221,7 @@ export function createProductDetailPreview(
     return children.length !== n.children.length || children.some((c, i) => c !== n.children[i]) ? { ...n, children } : n;
   };
   return { ...source, route: product.previewRoute,
-    title: `${sampleDetailTitle(product)} | Redcarpert Wedding Dresses`,
-    description: "Explore " + sampleDetailTitle(product) + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
+    title: `${dressDetailTitle(product)} | Redcarpert Wedding Dresses`,
+    description: "Explore " + dressDetailTitle(product) + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
     nodes: [...source.nodes.map(visit).filter((n): n is DocumentNode => n !== null), imageDialog] };
 }

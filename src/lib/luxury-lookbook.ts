@@ -149,20 +149,27 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
     const dresses=products.filter(p=>p.category===category.id);
-    if(!dresses.length || sectionStarts.get(category.id)!==pageNumber)
+    // One page per gown: cross-listed looks are indexed, not duplicated.
+    const crossListed=products.filter(p=>p.category!==category.id && p.collections.includes(category.id));
+    if((!dresses.length && !crossListed.length) || sectionStarts.get(category.id)!==pageNumber)
       throw new Error("Collection page alignment failed for "+category.id);
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
-        : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
+        : category.id==="modern_tradition"
+          ? "Discover "+(dresses.length+crossListed.length)+" Modern Tradition looks, including "+crossListed.length+
+            " colourful gowns also featured in other collections."
+          : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
     for (const dress of dresses) {
-      const look=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
+      const look=dress.name;
       const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
+        '<div class="dress-bottom">'+(dress.category!=="modern_tradition" && dress.collections.includes("modern_tradition")
+           ? '<span class="kind">Also in Modern Tradition</span>'
+           : "")+
         '<h3>'+esc(look)+'</h3>'+
         '<div class="price-pair" aria-label="Sale and rental prices">'+
         '<div class="price-item"><p class="amount-label" data-pdf-sale-label="'+esc(dress.id)+'">'+esc(salePriceLabelForDress(dress.id))+'</p>'+
@@ -179,8 +186,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h2>Found a dress?<br>Book a fitting.</h2><p>Message us on WhatsApp to ask about prices, available dresses and fittings.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">BOOK A FITTING ON WHATSAPP</a><p class="tiny">Fittings by appointment only.</p>'+
     '<a class="web" href="'+esc(website)+'">'+esc(website)+'</a>'));
-  // Keep image attribution in catalogue metadata and docs/asset-credits.md.
-  // The printed page focuses on the visitor's fitting journey.
+  // Keep one client dress spread each; the closing pages support the fitting journey.
   pages.push(page(pageNumber++,"credits","credits",tag("The Redcarpert experience")+
     '<h2>Your Fitting Journey</h2><div class="credit-columns">'+
     '<div>'+
@@ -239,7 +245,7 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {
       const folder=".generated/lookbook-previews";
       await mkdir(folder,{recursive:true});
-      for(const id of ["cover","collection-mermaid","collection-ball_gown","look-ball-gown-01","look-sample-mermaid","collection-modern_tradition","credits","back-cover"]) {
+      for(const id of ["cover","collection-mermaid","collection-ball_gown","look-ball-gown-01","look-mermaid-lefa-dress","collection-modern_tradition","credits","back-cover"]) {
         await tab.locator("#"+id).screenshot({path:folder+"/"+id+".png",animations:"disabled"});
       }
     }

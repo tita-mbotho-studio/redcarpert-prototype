@@ -27,9 +27,9 @@ try {
   const errors=[];
   page.on('pageerror',err=>errors.push(err.message));
   await page.route('https://ik.imagekit.io/**',route=>route.abort());
-  await page.setContent('<div data-detail-gallery="sample-mermaid" tabindex="0" '+
+  await page.setContent('<div data-detail-gallery="mermaid-lefa-dress" tabindex="0" '+
    'data-gallery-photos=\''+JSON.stringify(photos)+'\'>'+
-   '<div data-sample-frame><img data-gallery-active-image role="button" tabindex="0" '+
+   '<div data-dress-frame><img data-gallery-active-image role="button" tabindex="0" '+
    'aria-haspopup="dialog" style="display:block;width:180px;height:250px" alt="">'+
    '<button data-gallery-previous type="button">Previous</button><button data-gallery-next type="button">Next</button></div>'+
    photos.map((_,i)=>'<button type="button" data-gallery-index="'+i+'">Photo '+(i+1)+'</button>').join('')+
@@ -81,7 +81,7 @@ try {
   assert.equal(await current(),2,'right keyboard navigation works');
   if(width===390){
     await page.evaluate(()=>{
-      const frame=document.querySelector('[data-sample-frame]');
+      const frame=document.querySelector('[data-dress-frame]');
       const point=(x,y)=>new Touch({identifier:1,target:frame,clientX:x,clientY:y});
       frame.dispatchEvent(new TouchEvent('touchstart',{touches:[point(250,160)],bubbles:true}));
       frame.dispatchEvent(new TouchEvent('touchend',{changedTouches:[point(70,155)],bubbles:true}));
@@ -273,7 +273,7 @@ try {
  assert.equal(await actual.locator('[data-related-dress]').count(),4);
  assert.equal(await actual.locator('[data-related-dress="ball-gown-03"]').count(),0);
  assert.equal(await actual.locator('.redcarpert-related-grid a').count(),4);
- assert.equal(await actual.locator('.sample-detail-notice').count(),0,'client gown has no provenance notice');
+ assert.equal(await actual.locator('.obsolete-detail-notice').count(),0,'client gown has no provenance notice');
  // Single-photo client gowns still show the full silhouette without empty arrows.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
  const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
@@ -292,10 +292,10 @@ try {
  for(const width of [1280,390]){
    await actual.setViewportSize({width,height:900});
    const cards=actual.locator('ul.products[data-catalogue-preview] li.product');
-   assert.equal(await cards.count(),51);
+   assert.equal(await cards.count(),47);
    const alignment=await cards.evaluateAll(items=>items.map(card=>{
      const title=card.querySelector('.woocommerce-loop-product__title');
-     const note=card.querySelector('.catalogue-sample-note');
+     const note=card.querySelector('.obsolete-catalogue-note');
      return {
        title:title?getComputedStyle(title).textAlign:null,
        note:note?getComputedStyle(note).textAlign:null,
@@ -307,7 +307,7 @@ try {
    assert.equal(await cards.locator('.redcarpert-catalogue-price').count(),0);
    assert.equal(await cards.locator('.redcarpert-catalogue-condition-note').count(),0);
    const clientCard=actual.locator('[data-catalogue-id="ball-gown-03"]');
-   assert.equal(await clientCard.locator('.catalogue-sample-note').count(),0);
+   assert.equal(await clientCard.locator('.obsolete-catalogue-note').count(),0);
    assert.equal(await clientCard.locator('.redcarpert-catalogue-collection').textContent(),'Ball Gown');
    assert.equal(await clientCard.locator('.redcarpert-catalogue-number').textContent(),'03');
  }

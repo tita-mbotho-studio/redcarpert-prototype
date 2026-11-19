@@ -40,16 +40,7 @@ export function mediaDeliveryUrl(source: string, preset: MediaImagePreset): stri
     const fragment = marker === -1 ? "" : source.slice(marker);
     return beforeFragment + (url.search ? "&" : "?") + "tr=" + transform + fragment;
   }
-  if (url.hostname === "images.pexels.com") {
-    // Existing Pexels thumbnails with a smaller width remain untouched.
-    const current = Number(url.searchParams.get("w"));
-    if (Number.isFinite(current) && current > 0 && current <= config.width
-      && url.searchParams.has("auto")) return source;
-    url.searchParams.set("auto", "compress");
-    url.searchParams.set("cs", "tinysrgb");
-    url.searchParams.set("w", String(config.width));
-    return url.toString();
-  }
+
   return source;
 }
 

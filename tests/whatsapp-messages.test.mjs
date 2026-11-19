@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { generalFittingMessage, dressFittingMessage, dressPageUrl } from '../src/lib/whatsapp-messages.ts';
-import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 
 test('general fitting enquiries are grammatical, readable and use one shared source', () => {
@@ -22,14 +21,14 @@ test('general fitting enquiries are grammatical, readable and use one shared sou
     'WhatsApp must receive the original line breaks and punctuation');
 });
 
-test('every one of the 51 dresses uses the SAME neutral and accurately priced enquiry', () => {
-  assert.equal(catalogueProducts.length,51);
+test('every one of the 47 dresses uses the SAME neutral and accurately priced enquiry', () => {
+  assert.equal(catalogueProducts.length,47);
   for(const product of catalogueProducts){
     const message=dressFittingMessage(product);
     const category=catalogueCategories.find(c=>c.id===product.category);
-    const dressName=product.status==='client' ? product.name : product.name.replace(/^Sample /,'Look ');
+    const dressName=product.name;
     assert(category);
-    assert.equal(sampleFittingMessage(product),message,'legacy route must use one shared template');
+    assert.equal(dressFittingMessage(product),message,'all dress links must use one shared template');
     assert(message.startsWith('Hello Redcarpert Wedding Dresses,\n\n'));
     assert(message.endsWith('\n\nThank you.'));
     assert(!message.includes('\n\n\n'),'avoid excessive whitespace');

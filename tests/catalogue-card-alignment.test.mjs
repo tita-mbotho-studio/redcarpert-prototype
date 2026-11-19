@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
 import { adaptCatalogue } from '../src/lib/catalogue-adapter.ts';
 import { sitePages } from '../src/data/site.ts';
 
@@ -15,15 +15,19 @@ test('each of the five collections uses the same editorial name, divider and num
     const document = adaptCatalogue(source(route), catalogueProducts);
     const cards = all(document.nodes).filter(n => Object.hasOwn(n.attrs, 'data-catalogue-id'));
     const expected = route === '/product' ? catalogueProducts :
-      catalogueProducts.filter(p => route.endsWith('/' + p.category));
+      catalogueProducts.filter(p => catalogueCategories.some(c =>
+        c.route.replace(/\/$/,'')===route && dressAppearsInCollection(p,c.id)));
     assert.equal(cards.length, expected.length, route);
     for (const [index,card] of cards.entries()) {
       const product = expected[index];
+      assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
       observed.add(product.category);
-      const category = catalogueCategories.find(c => c.id === product.category);
+      const visibleCategory=route.endsWith('/modern_tradition')?'modern_tradition':product.category;
+      const category = catalogueCategories.find(c => c.id === visibleCategory);
       const name = category.name.replace(/ Dresses$/, '');
-      const number = product.name.match(/(\d{2})$/)?.[1] ??
-        product.name.replace(/^(?:Mermaid|2 in 1) /,'');
+      const number = visibleCategory==='modern_tradition'
+        ? String(catalogueProducts.filter(p=>p.collections.includes('modern_tradition')).findIndex(p=>p.id===product.id)+1).padStart(2,'0')
+        : product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
       const title = all([card]).find(n => n.tag === 'h2');
       const image = all([card]).find(n => n.tag === 'img');
       const link = all([card]).find(n => n.tag === 'a');
@@ -38,7 +42,7 @@ test('each of the five collections uses the same editorial name, divider and num
       assert.deepEqual(title.children[1].children, []);
       assert.equal(title.children[2].children[0], number);
       assert.equal(link.attrs['aria-label'],
-        `${product.name.match(/(\d{2})$/) ? name+' '+number : product.name}: view dress photographs`);
+        `${visibleCategory==='modern_tradition' ? 'Modern Tradition '+number : product.name.match(/(\d{2})$/) ? name+' '+number : product.name}: view dress photographs`);
       assert.equal(link.attrs.href, product.previewRoute);
       assert.equal(image.attrs.src, product.image);
       assert.match(image.attrs.style, /aspect-ratio: 1 \/ 1/);

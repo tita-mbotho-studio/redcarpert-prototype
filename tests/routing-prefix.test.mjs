@@ -30,7 +30,7 @@ test("Wedding Moments navigation works from home and nested pages, including mob
 });
 
 test("external media URLs are not rewritten as internal page URLs", () => {
-  const url = "https://images.pexels.com/photos/8063143/pexels-photo-8063143.jpeg";
+  const url = "https://cdn.example.com/images/unmodified.jpeg";
   const markup = '<img src="' + url + '">';
   assert.equal(prefix(markup), markup);
 });

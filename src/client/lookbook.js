@@ -4,6 +4,7 @@ import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelFor
 export const lookbookEntries = catalogueProducts.map(product => ({
   id: product.id,
   category: catalogueCategories.find(c => c.id === product.category)?.name ?? 'Wedding Dresses',
+  collections: product.collections.map(id=>catalogueCategories.find(c=>c.id===id)?.name ?? 'Wedding Dresses'),
   name: product.name,
   image: product.image,
   priceZar: product.priceZar,
