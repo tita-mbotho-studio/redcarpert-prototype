@@ -114,7 +114,7 @@ const page = (index: number, type: string, id: string, contents: string): string
 const tag = (value: string): string => '<span class="kicker">' + esc(value) + '</span>';
 
 export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], images: readonly LuxuryLookbookImage[], options: LuxuryLookbookOptions): string {
-  if (products.length !== 35 || catalogueCategories.length !== 5) throw new Error("The Bridal Edit requires 35 dresses in five categories");
+  if (!products.length || catalogueCategories.length !== 5) throw new Error("The Bridal Edit requires dresses across five approved categories");
   if (options.year < 2026 || !Number.isInteger(options.year)) throw new Error("Invalid edition year");
   const sources = new Map(images.map(image=>[image.id,image]));
   if (sources.size !== products.length) throw new Error("The Bridal Edit needs one photograph per dress");
@@ -214,7 +214,7 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     const missing=await tab.evaluate(()=>Array.from(document.images).filter(image=>!image.complete||!image.naturalWidth).map(image=>image.alt));
     if(missing.length)throw new Error("Lookbook images failed to render: "+missing.join(", "));
     // Check actual Chromium layout before printing: the two prices, disclaimer
-    // and dress link must remain within the fixed A4 editorial page on all 35
+    // and dress link must remain within the fixed A4 editorial page for every
     // dress pages. Do not silently hide clipped pricing behind overflow:hidden.
     const clipped=await tab.evaluate(()=>{
       return [...document.querySelectorAll<HTMLElement>("section.page.dress")].flatMap(section=>{
