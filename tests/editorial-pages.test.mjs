@@ -6,6 +6,7 @@ import { sitePages } from '../src/data/site.ts';
 import { adaptEditorialDocument } from '../src/lib/editorial-pages.ts';
 import imageLinks from '../src/data/image-links.json' with { type: 'json' };
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
+import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
@@ -136,6 +137,7 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
 test('luxury editorial lookbook contains all catalogue dresses and accurate A4 pages', async () => {
   const jpeg=await sharp({create:{width:24,height:36,channels:3,background:'#eee8df'}}).jpeg().toBuffer();
   const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
+  const placements=lookbookPlacements(catalogueProducts);
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
   const online=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   for(const statement of [
@@ -145,11 +147,11 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
   ]) {
     assert(online.includes(statement)&&html.includes(statement),'online/PDF edition mismatch: '+statement);
   }
-  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/<section class="page /g)||[]).length,catalogueProducts.length+12);
+  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,placements.length);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,placements.length);
+  assert.equal((html.match(/<section class="page /g)||[]).length,placements.length+12);
   assert.equal((html.match(/class="page divider"/g)||[]).length,5);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,placements.length);
   assert.match(html,/@page\{size:A4;margin:0\}/);
   assert.match(html,/href="#collection-ruffled"/);
   assert.match(html,/href="#collection-modern_tradition"/);
@@ -165,16 +167,16 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
   assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
-  assert.equal((html.match(/class="detail-link"/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,catalogueProducts.length*2);
-  assert.equal((html.match(/class="price-pair"/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,catalogueProducts.length);
-  assert.equal((html.match(/class="price-condition"/g)||[]).length,catalogueProducts.length);
-  assert.equal((online.match(/class="redcarpert-book-condition-note"/g)||[]).length,catalogueProducts.length);
-  assert.equal(online.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
+  assert.equal((html.match(/class="detail-link"/g)||[]).length,placements.length);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,placements.length*2);
+  assert.equal((html.match(/class="price-pair"/g)||[]).length,placements.length);
+  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,placements.length);
+  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,placements.length);
+  assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,placements.length);
+  assert.equal((html.match(/class="price-condition"/g)||[]).length,placements.length);
+  assert.equal((online.match(/class="redcarpert-book-condition-note"/g)||[]).length,placements.length);
+  assert.equal(online.split(RENTAL_CONDITION_NOTE).length-1,placements.length);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,placements.length);
   assert.doesNotMatch(html,/Inspiration photo and example price|to be confirmed|provisional pricing/i);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
@@ -198,9 +200,9 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
     assert(html.includes('href="#collection-'+category.id+'">'+category.name+
       '</a><span class="page-number">'+page+'</span>'),
       'contents page mismatch for '+category.id);
-    collectionPage+=1+catalogueProducts.filter(dress=>dress.category===category.id).length;
+    collectionPage+=1+placements.filter(placement=>placement.category===category.id).length;
   }
-  const totalPdfPages=catalogueProducts.length+catalogueCategories.length+7;
+  const totalPdfPages=placements.length+catalogueCategories.length+7;
   const lastNumberedPage=String(totalPdfPages-1).padStart(2,'0');
   assert(html.includes(lastNumberedPage+' / '+String(totalPdfPages).padStart(2,'0')),
     'PDF page folios must reflect the current catalogue length');
@@ -225,6 +227,16 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
       'PDF must distinguish fixed example sale prices from unconfirmed sale prices for '+label);
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
+  }
+  assert.equal(placements.length,51);
+  assert.equal((online.match(/data-book-category="modern_tradition"/g)||[]).length,4);
+  for (const placement of placements.filter(p=>p.isModernTradition)) {
+    assert(online.includes('data-book-entry-id="'+placement.id+'" data-book-category="modern_tradition"'));
+    assert(online.includes('<h3>'+placement.displayName+'</h3>'));
+    assert(online.includes('href="'+placement.detailRoute+'/">View dress details</a>'));
+    assert(html.includes('id="look-'+placement.id+'"'));
+    assert(html.includes('<h3>'+placement.displayName+'</h3>'));
+    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+placement.detailRoute+'/">View dress details</a>'));
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/needs one photograph per dress/);
 });
