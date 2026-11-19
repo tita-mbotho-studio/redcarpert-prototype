@@ -3,7 +3,6 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { sitePages } from '../src/data/site';
 import { catalogueProducts } from '../src/data/catalogue';
-import { modernTraditionPages } from '../src/lib/modern-tradition';
 import { publicStaticRoutes } from '../src/lib/public-routes';
 import { createLuxuryLookbookPdf } from '../src/lib/luxury-lookbook';
 import { prepareLookbookImages } from './lib/lookbook-assets';
