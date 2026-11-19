@@ -1,4 +1,6 @@
 import { lookbookEntries } from './lookbook.js';
+import { catalogueProducts } from '../data/catalogue.ts';
+import { lookbookPlacements } from '../lib/lookbook-placements.ts';
 import { initializeLookbookZoom } from './lookbook-zoom.js';
 
 const PAGE_FLIP_CDN = 'https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js';
@@ -34,7 +36,11 @@ export function initializeLookbookReader() {
   if (!book) return;
   const viewer = book.closest('.redcarpert-lookbook');
   const pages = [...book.querySelectorAll('[data-book-page]')];
-  if (pages.length !== lookbookEntries.length + 2) throw new Error('Lookbook does not match catalogue');
+  const placements = lookbookPlacements(catalogueProducts);
+  if (pages.length !== placements.length + 2 ||
+      new Set([...book.querySelectorAll('[data-book-entry-id]')]
+        .map(page => page.dataset.bookEntryId)).size !== placements.length)
+    throw new Error('Lookbook does not match its five collection spreads');
 
   // The interactive reader must use the same central sale/rental records as
   // the generated HTML and PDF. Never restore legacy illustrative price ranges.
@@ -42,23 +48,20 @@ export function initializeLookbookReader() {
     ['data-book-sale-price', 'salePriceDisplay'],
     ['data-book-rental-price', 'rentalPriceDisplay'],
   ]) {
-    const prices = new Map([...book.querySelectorAll('[' + attribute + ']')]
-      .map(element => [element.getAttribute(attribute), element]));
     for (const entry of lookbookEntries) {
-      const element = prices.get(entry.id);
-      if (!element) {
-        console.warn('Lookbook ' + attribute + ' missing for ' + entry.id);
-        continue;
+      const matches = book.querySelectorAll('[' + attribute + '="' + entry.id + '"]');
+      if (!matches.length) throw new Error('Lookbook ' + attribute + ' missing for ' + entry.id);
+      // Repeated collection spreads share one price source with the original gown.
+      for (const element of matches) {
+        if (element.textContent !== entry[field]) element.textContent = entry[field];
       }
-      if (element.textContent !== entry[field]) element.textContent = entry[field];
     }
   }
-  const saleLabels = new Map([...book.querySelectorAll('[data-book-sale-label]')]
-    .map(element => [element.dataset.bookSaleLabel, element]));
   for (const entry of lookbookEntries) {
-    const label = saleLabels.get(entry.id);
-    if (label && label.textContent !== entry.salePriceLabel) {
-      label.textContent = entry.salePriceLabel;
+    const labels = book.querySelectorAll('[data-book-sale-label="' + entry.id + '"]');
+    if (!labels.length) throw new Error('Lookbook sale label missing for ' + entry.id);
+    for (const label of labels) {
+      if (label.textContent !== entry.salePriceLabel) label.textContent = entry.salePriceLabel;
     }
   }
   const previous = viewer.querySelector('[data-book-previous]');
