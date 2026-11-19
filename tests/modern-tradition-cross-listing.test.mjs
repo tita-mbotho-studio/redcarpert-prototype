@@ -8,6 +8,7 @@ import { sitePages } from '../src/data/site.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { lookbookEntries } from '../src/client/lookbook.js';
+import { modernTraditionPages } from '../src/lib/modern-tradition.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
 
 const all=nodes=>nodes.flatMap(node=>typeof node==='string'?[]:[node,...all(node.children)]);
@@ -15,10 +16,6 @@ const clientColours={
   'ball-gown-03':'navy blue',
   'ball-gown-04':'rose gold',
   'ball-gown-05':'dusty rose',
-  'ball-gown-11':'lavender',
-  'ruffled-dress-04':'dusty rose',
-  'ruffled-dress-07':'rose gold',
-  '2-in-1-mmematlala-dress':'bronze',
   '2-in-1-moreteadi-dress':'rose gold',
 };
 
@@ -50,7 +47,10 @@ test('Modern Tradition features only explicitly reviewed colourful client gowns 
 test('Modern Tradition listing and filter use secondary category membership without creating duplicates',()=>{
   const modern=catalogueCategories.find(c=>c.id==='modern_tradition');
   const expected=catalogueProducts.filter(p=>p.collections.includes(modern.id));
-  assert.equal(expected.length,8,'only the eight verified colourful client dresses remain');
+  assert.equal(expected.length,4,'only four owner-approved Modern Tradition dresses remain');
+  assert.deepEqual(modernTraditionPages.map(p=>p.product.id),[
+    'ball-gown-03','ball-gown-04','ball-gown-05','2-in-1-moreteadi-dress']);
+  assert.deepEqual(modernTraditionPages.map(p=>p.number),['01','02','03','04']);
   const source={...sitePages['/product-category/mermaid'],route:'/product-category/modern_tradition'};
   const output=adaptCatalogue(source,catalogueProducts);
   const cards=all(output.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
@@ -62,7 +62,9 @@ test('Modern Tradition listing and filter use secondary category membership with
     assert.equal(card.attrs['data-catalogue-category'],product.category);
     assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
     const link=all([card]).find(n=>n.tag==='a');
-    assert.equal(link.attrs.href,product.previewRoute);
+    assert.equal(link.attrs.href,modernTraditionPages[index].route);
+    assert.equal(card.attrs['data-catalogue-modern-href'],
+      '/redcarpert-prototype'+modernTraditionPages[index].route+'/');
     const serial=String(index+1).padStart(2,'0');
     const heading=all([card]).find(n=>n.tag==='h2');
     assert.equal(heading.children[0].children[0],'Modern Tradition');
@@ -83,10 +85,10 @@ test('interactive and PDF lookbooks label secondary Modern Tradition without dup
   const pdf=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
   assert.equal(lookbookEntries.length,47);
   assert.equal((html.match(/data-book-page=/g)||[]).length,49);
-  assert.equal((html.match(/ALSO IN MODERN TRADITION/g)||[]).length,8);
+  assert.equal((html.match(/ALSO IN MODERN TRADITION/g)||[]).length,4);
   assert.equal((pdf.match(/<section class="page /g)||[]).length,59);
-  assert.equal((pdf.match(/<span class="kind">Also in Modern Tradition<\/span>/g)||[]).length,8);
-  assert(pdf.includes('Discover 8 Modern Tradition looks, including 8 colourful gowns'));
+  assert.equal((pdf.match(/<span class="kind">Also in Modern Tradition<\/span>/g)||[]).length,4);
+  assert(pdf.includes('Discover 4 Modern Tradition looks, including 4 colourful gowns'));
   assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
   assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,47);
   for(const product of catalogueProducts){

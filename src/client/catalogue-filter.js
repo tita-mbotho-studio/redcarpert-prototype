@@ -1,4 +1,4 @@
-/** Functional category filter for the mixed-source Wedding Dresses grid; never changes routes. */
+/** Functional category filter; restores original dress links when leaving Modern Tradition. */
 export function initializeCatalogueFilter() {
   const controls=document.querySelector('[data-catalogue-filter]');
   const grid=document.querySelector('ul.products[data-catalogue-preview]');
@@ -8,7 +8,7 @@ export function initializeCatalogueFilter() {
   const allowed=new Set(buttons.map(b=>b.dataset.filterCategory));
   // Remember each dress's native silhouette label and accessible link text.
   // Filtering into Modern Tradition relabels only the presentation, never the
-  // underlying product ID, route, price or permanent source category.
+  // underlying product ID, price or permanent source category.
   const originalCards=new Map(items.map(item=>{
     const heading=item.querySelector('.redcarpert-catalogue-collection');
     const number=item.querySelector('.redcarpert-catalogue-number');
@@ -17,7 +17,8 @@ export function initializeCatalogueFilter() {
     return [item,{heading,number,image,link,
       collection:heading?.textContent??'',numberLabel:number?.textContent??'',
       named:number?.hasAttribute('data-catalogue-named')??false,
-      alt:image?.getAttribute('alt')??'',aria:link?.getAttribute('aria-label')??''}];
+      alt:image?.getAttribute('alt')??'',aria:link?.getAttribute('aria-label')??'',
+      href:link?.getAttribute('href')??''}];
   }));
   const current=()=>{
     const requested=new URLSearchParams(location.search).get('category');
@@ -44,6 +45,9 @@ export function initializeCatalogueFilter() {
             ? 'Modern Tradition dress '+modernNumber:original.alt);
         }
         if(original.link){
+          const contextualHref=item.dataset.catalogueModernHref;
+          original.link.setAttribute('href',modern&&modernNumber&&contextualHref
+            ? contextualHref : original.href);
           original.link.setAttribute('aria-label',modern&&modernNumber
             ? 'Modern Tradition '+modernNumber+': view dress photographs'
             : original.aria);

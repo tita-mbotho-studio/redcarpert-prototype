@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
 import { adaptCatalogue } from '../src/lib/catalogue-adapter.ts';
+import { modernTraditionPageForDress } from '../src/lib/modern-tradition.ts';
 import { sitePages } from '../src/data/site.ts';
 
 const all = nodes => nodes.flatMap(node => typeof node === 'string' ? [] : [node, ...all(node.children)]);
@@ -21,8 +22,9 @@ test('each of the five collections uses the same editorial name, divider and num
     for (const [index,card] of cards.entries()) {
       const product = expected[index];
       assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
-      observed.add(product.category);
       const visibleCategory=route.endsWith('/modern_tradition')?'modern_tradition':product.category;
+      // Modern Tradition is a secondary collection, not a canonical product.category.
+      observed.add(visibleCategory);
       const category = catalogueCategories.find(c => c.id === visibleCategory);
       const name = category.name.replace(/ Dresses$/, '');
       const number = visibleCategory==='modern_tradition'
@@ -43,7 +45,8 @@ test('each of the five collections uses the same editorial name, divider and num
       assert.equal(title.children[2].children[0], number);
       assert.equal(link.attrs['aria-label'],
         `${visibleCategory==='modern_tradition' ? 'Modern Tradition '+number : product.name.match(/(\d{2})$/) ? name+' '+number : product.name}: view dress photographs`);
-      assert.equal(link.attrs.href, product.previewRoute);
+      assert.equal(link.attrs.href,visibleCategory==='modern_tradition'
+        ? modernTraditionPageForDress(product.id).route : product.previewRoute);
       assert.equal(image.attrs.src, product.image);
       assert.match(image.attrs.style, /aspect-ratio: 1 \/ 1/);
       assert(!all([card]).some(n => Object.hasOwn(n.attrs, 'data-dress-price')));

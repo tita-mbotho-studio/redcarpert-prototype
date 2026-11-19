@@ -1,5 +1,7 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 import { catalogueCategories, dressAppearsInCollection, type DressCategory, type CatalogueProduct } from "../data/catalogue.ts";
+import { modernTraditionPageForDress } from "./modern-tradition.ts";
+import { REPOSITORY_BASE } from "../config/site.ts";
 
 const routes: Record<string, readonly [number, string, string]> = {
   "/product": [100, "PRODUCTS", "Wedding Dresses"],
@@ -48,7 +50,6 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   const products = catalogueProducts.filter(p=>document.route==="/product" ||
     (selectedCollection!==undefined && dressAppearsInCollection(p,selectedCollection)));
   if (!products.length || products.some(p => p.detailReference !== null)) fail("catalogue readiness");
-  const modernOrder=catalogueProducts.filter(p=>p.collections.includes("modern_tradition"));
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: [
@@ -84,16 +85,16 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   }
   const children = products.map((product, index): DocumentElement => {
     const { card, anchor, image, title, price } = cardParts[index];
-    // Cards show the collection and existing dress number. Product IDs, names,
-    // detail routes and WhatsApp handoffs remain unchanged.
+    // Product IDs stay canonical; Modern Tradition has its own detail URL.
     const visibleCategory = selectedCollection === "modern_tradition" ? "modern_tradition" : product.category;
     const category = catalogueCategories.find(item => item.id === visibleCategory);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
     const originalDisplayName = number ?? product.name.replace(/^(?:Mermaid|2 in 1) /, "");
-    const modernIndex=modernOrder.findIndex(item=>item.id===product.id);
-    const modernDisplayNumber=modernIndex>=0?String(modernIndex+1).padStart(2,"0"):null;
-    // Modern Tradition is a colour-based collection with its own 01–08 card
-    // sequence; the original dress ID, gallery and pricing remain unchanged.
+    const modernPage=modernTraditionPageForDress(product.id);
+    const modernDisplayNumber=modernPage?.number ?? null;
+    if (selectedCollection==="modern_tradition" && !modernPage) return fail("Modern Tradition detail route");
+    // The four Modern Tradition cards use their own 01–04 labels and links;
+    // each route still renders the original gown's photographs and prices.
     const displayName = selectedCollection==="modern_tradition"
       ? modernDisplayNumber : originalDisplayName;
     if (!category || !displayName) return fail("card collection or dress name");
@@ -115,10 +116,11 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: selectedCollection==="modern_tradition" ? "Modern Tradition dress "+displayName : product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
-    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" "), ...(modernDisplayNumber ? { "data-catalogue-modern-number": modernDisplayNumber } : {}) }, children: card.children.flatMap<DocumentNode>(node => {
+    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" "), ...(modernPage ? { "data-catalogue-modern-number": modernPage.number,
+      "data-catalogue-modern-href": REPOSITORY_BASE + modernPage.route.slice(1) + "/" } : {}) }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
-      const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${accessibleName}: view dress photographs`, style: "cursor: pointer" };
+      const attrs: Record<string, string> = { ...anchor.attrs, href: selectedCollection==="modern_tradition" ? modernPage!.route : product.previewRoute, "aria-label": `${accessibleName}: view dress photographs`, style: "cursor: pointer" };
       return [{ ...anchor, attrs, children: anchor.children
         // Catalogue tiles contain photographs and names, not price notices.
         .filter(child => child !== price)

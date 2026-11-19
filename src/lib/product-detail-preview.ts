@@ -1,6 +1,7 @@
 import { catalogueProducts, catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
 import { displayRentalPriceForDress, displaySalePriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
 import { photosForDress, type DressGalleryPhoto } from "./dress-gallery.ts";
+import { modernTraditionPages, modernTraditionPageForDress, type ModernTraditionPage } from "./modern-tradition.ts";
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
 
 const elements = (nodes: DocumentNode[]) => nodes.filter((n): n is DocumentElement => typeof n !== "string");
@@ -31,12 +32,15 @@ export function createProductDetailPreview(
   source: SiteDocumentData,
   product: CatalogueProduct,
   galleryMappings?: Readonly<Record<string, readonly DressGalleryPhoto[]>>,
+  modernPage?: ModernTraditionPage,
 ): SiteDocumentData {
   const fail = (detail: string): never => { throw new Error(`Product detail preview: incompatible ${detail}`); };
   if (source.route !== "/product/arabella") fail("source route");
   const original = catalogueProducts.find(entry => entry.id === product.id);
   if (!original || JSON.stringify(product) !== JSON.stringify(original)
     || product.detailReference !== null) fail("dress mapping");
+  if (modernPage && modernTraditionPageForDress(product.id)?.route !== modernPage.route)
+    fail("Modern Tradition presentation");
   const one = (nodes: DocumentElement[], predicate: (n: DocumentElement) => boolean, detail: string) => {
     const matches = nodes.filter(predicate);
     return matches.length === 1 ? matches[0] : fail(detail);
@@ -66,10 +70,13 @@ export function createProductDetailPreview(
     || shareItems.map(n => n.attrs.title).join("|") !== "Facebook|Twitter|Google+|Pinterest"
     || shareItems.some(n => n.attrs["data-url"] !== "https://bridalvanesa.com/product/arabella/")) fail("share content");
 
-  const category = categoryName(product);
+  const category = modernPage ? "Modern Tradition" : categoryName(product);
+  const displayName = modernPage?.name ?? product.name;
   const gallery = dressImageDimensions[product.id as keyof typeof dressImageDimensions];
   const photos = photosForDress(product, galleryMappings);
-  const relatedDresses = relatedDressesFor(product);
+  const relatedDresses = modernPage
+    ? modernTraditionPages.filter(page => page.product.id !== product.id).slice(0, 4).map(page => page.product)
+    : relatedDressesFor(product);
   const hasGallery = photos.length > 1;
   const arrow = (direction: "previous" | "next") =>
     node("button", {
@@ -92,13 +99,14 @@ export function createProductDetailPreview(
       "01 / " + String(photos.length).padStart(2, "0"),
     ]),
   ]) : null;
-  const preview = { ...root, attrs: { id: `detail-${product.id}`, class: "product", "data-detail-preview": product.id }, children: [
+  const preview = { ...root, attrs: { id: `detail-${product.id}`, class: "product", "data-detail-preview": product.id,
+    ...(modernPage ? { "data-modern-tradition-number": modernPage.number } : {}) }, children: [
     { ...images, attrs: {
       ...images.attrs,
       "data-detail-gallery": product.id,
       "data-gallery-photos": JSON.stringify(photos),
       "data-gallery-origin": "client",
-      ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": product.name + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
+      ...(hasGallery ? { tabindex: "0", role: "region", "aria-label": displayName + " photo gallery", "aria-keyshortcuts": "ArrowLeft ArrowRight" } : {}),
     }, children: [
       { ...slider, attrs: {
         ...slider.attrs,
@@ -108,9 +116,9 @@ export function createProductDetailPreview(
         node("img", {
           src: photos[0].url, width: String(gallery.width), height: String(gallery.height),
           class: "attachment-shop_single size-shop_single wp-post-image",
-          alt: photos[0].alt, decoding: "async", fetchpriority: "high",
+          alt: modernPage ? displayName + " photograph" : photos[0].alt, decoding: "async", fetchpriority: "high",
           "data-gallery-active-image": "", tabindex: "0", role: "button",
-          "aria-haspopup": "dialog", "aria-label": "Enlarge photograph of " + product.name,
+          "aria-haspopup": "dialog", "aria-label": "Enlarge photograph of " + displayName,
         }, []),
         ...(hasGallery ? [arrow("previous"), arrow("next")] : []),
       ])] },
@@ -118,7 +126,7 @@ export function createProductDetailPreview(
     ] },
     { ...summary, attrs: { ...summary.attrs, "data-redcarpert-detail-summary": "true" }, children: [
       node("section", { class: "redcarpert-detail-card", "aria-label": "Dress information" }, [
-        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [product.name] },
+        { ...title, attrs: { ...title.attrs, class: "product_title entry-title redcarpert-detail-name" }, children: [displayName] },
         node("div", { class: "redcarpert-detail-divider", "aria-hidden": "true" }, []),
         node("div", { class: "redcarpert-detail-pricing", "aria-label": "Sale and rental pricing" }, [
           node("div", { class: "redcarpert-detail-price-options" }, [
@@ -161,7 +169,8 @@ export function createProductDetailPreview(
         node("ul", { class: "redcarpert-related-grid" },
           relatedDresses.map(dress =>
             node("li", { class: "redcarpert-related-card", "data-related-dress": dress.id }, [
-              node("a", { href: dress.previewRoute + "/", "aria-label": "View " + dressDetailTitle(dress) }, [
+              node("a", { href: (modernPage ? modernTraditionPageForDress(dress.id)?.route : dress.previewRoute) + "/",
+                "aria-label": "View " + (modernPage ? modernTraditionPageForDress(dress.id)?.name : dressDetailTitle(dress)) }, [
                 node("img", {
                   src: dress.image,
                   alt: dress.imageAlt,
@@ -172,7 +181,7 @@ export function createProductDetailPreview(
                   "data-media-preset": "card",
                 }, []),
                 node("span", { class: "redcarpert-related-name" },
-                  [dress.name]),
+                  [modernPage ? modernTraditionPageForDress(dress.id)!.name : dress.name]),
                 node("div", { class: "redcarpert-related-prices", "aria-label": "Sale and rental pricing" }, [
                   node("div", { class: "redcarpert-related-price-pair" }, [
                     node("span", { class: "redcarpert-related-price-label" },
@@ -220,8 +229,8 @@ export function createProductDetailPreview(
     const children = n.children.map(visit).filter((child): child is DocumentNode => child !== null);
     return children.length !== n.children.length || children.some((c, i) => c !== n.children[i]) ? { ...n, children } : n;
   };
-  return { ...source, route: product.previewRoute,
-    title: `${dressDetailTitle(product)} | Redcarpert Wedding Dresses`,
-    description: "Explore " + dressDetailTitle(product) + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
+  return { ...source, route: modernPage?.route ?? product.previewRoute,
+    title: `${displayName} | Redcarpert Wedding Dresses`,
+    description: "Explore " + displayName + ", view sale and rental prices, and book your bridal fitting with Redcarpert.",
     nodes: [...source.nodes.map(visit).filter((n): n is DocumentNode => n !== null), imageDialog] };
 }
