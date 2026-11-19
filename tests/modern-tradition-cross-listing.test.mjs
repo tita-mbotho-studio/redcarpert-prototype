@@ -56,13 +56,20 @@ test('Modern Tradition listing and filter use secondary category membership with
   const cards=all(output.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
   assert.deepEqual(cards.map(c=>c.attrs['data-catalogue-id']),expected.map(p=>p.id));
   assert.equal(new Set(cards.map(c=>c.attrs['data-catalogue-id'])).size,cards.length);
-  for(const card of cards){
+  for(const [index,card] of cards.entries()){
     const product=expected.find(p=>p.id===card.attrs['data-catalogue-id']);
     assert(product);
     assert.equal(card.attrs['data-catalogue-category'],product.category);
     assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
     const link=all([card]).find(n=>n.tag==='a');
     assert.equal(link.attrs.href,product.previewRoute);
+    const serial=String(index+1).padStart(2,'0');
+    const heading=all([card]).find(n=>n.tag==='h2');
+    assert.equal(heading.children[0].children[0],'Modern Tradition');
+    assert.equal(heading.children[2].children[0],serial);
+    assert.equal(card.attrs['data-catalogue-modern-number'],serial);
+    assert.equal(link.attrs['aria-label'],'Modern Tradition '+serial+': view dress photographs');
+    assert.equal(all([card]).find(n=>n.tag==='img').attrs.alt,'Modern Tradition dress '+serial);
   }
   const main=adaptCatalogue(sitePages['/product'],catalogueProducts);
   const mainCards=all(main.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
