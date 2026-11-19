@@ -205,7 +205,7 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
   assert(html.includes(lastNumberedPage+' / '+String(totalPdfPages).padStart(2,'0')),
     'PDF page folios must reflect the current catalogue length');
   for (const dress of catalogueProducts) {
-    const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
+    const label=dress.name;
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
     assert(online.includes('<h3>'+label+'</h3>'),'online reader missing '+label);
     const sale=displaySalePriceForDress(dress.id);
