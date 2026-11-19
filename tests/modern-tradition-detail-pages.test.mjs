@@ -26,7 +26,7 @@ test('the four selected Modern Tradition dresses have contiguous, unique detail 
     ...catalogueProducts.map(product=>product.previewRoute),
     ...modernTraditionPages.map(page=>page.route)
   ]);
-  assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+11);
+  assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+10);
   assert.equal(new Set(routes).size,routes.length);
   for(const page of modernTraditionPages){
     assert.equal(modernTraditionPageForDress(page.product.id),page);
