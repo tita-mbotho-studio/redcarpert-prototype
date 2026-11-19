@@ -15,8 +15,8 @@ import { adaptNavigation } from "../src/lib/navigation-adapter.ts";
 const allNodes = nodes => nodes.flatMap(n =>
   typeof n === "string" ? [] : [n, ...allNodes(n.children)]);
 const base = "https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/wedding-moments/";
-const suppliedPhotoNumbers = [56, 19, 20, 31, 23, 14, 13, 16, 61, 27, 11, 53, 87, 54, 28, 79, 59, 72, 60, 4, 86, 37, 50, 6, 48, 73, 30, 9, 8, 12, 45, 58, 32, 18, 35, 78, 51, 84, 29, 85, 46, 21, 22, 81, 10, 57, 47, 44, 43, 77, 15, 5, 42, 17, 33, 7, 24, 26, 38, 83, 49, 36, 34, 41, 40, 69, 62, 80, 52, 25, 76, 68, 82, 3, 39, 70, 63, 74, 71, 65, 67, 75, 66, 2, 1, 64];
-const videoUrl = base + "wedding-moments-88.mp4";
+const suppliedPhotoNumbers = [94, 93, 92, 91, 90, 9, 89, 87, 86, 85, 84, 83, 82, 81, 80, 8, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 7, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 6, 59, 58, 57, 56, 55, 54, 53, 52, 51, 5, 49, 45, 44, 43, 42, 41, 40, 4, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 3, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 2, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 1];
+const videoUrl = base + "wedding-moments-88.mp4?updatedAt=1795046428630";
 
 const fixture = () => [{
   id: "celebration-2026",
@@ -37,22 +37,25 @@ test("every supplied real-client URL is stored once and in the given order", () 
   assert.equal(imageLinks.wedding_moments.events.length, 1);
   assert.equal(weddingMomentEvents.length, 1);
   const media = weddingMomentEvents[0].media;
-  assert.equal(media.length, 87);
+  assert.equal(media.length, 90);
   assert.equal(new Set(media.map(item => item.id)).size, media.length);
   assert.equal(new Set(media.map(item => item.url)).size, media.length);
   assert.deepEqual(media.map(item => item.id), [
     "wedding-moments-88",
     ...suppliedPhotoNumbers.map(n => "wedding-moments-" + n),
   ]);
-  assert.deepEqual(media.map(item => item.url), [
-    videoUrl,
-    ...suppliedPhotoNumbers.map(n => base + "wedding-moments-" + n + ".jpg"),
-  ]);
-  assert.equal(media.filter(item => item.type === "photo").length, 86);
+  assert.equal(media[0].url,videoUrl);
+  for (const item of media.slice(1)) {
+    const url = new URL(item.url);
+    assert.equal(url.origin + url.pathname,base + item.id + ".webp");
+    assert.match(url.searchParams.get('updatedAt'),/^\d{13}$/);
+    assert.equal(url.searchParams.size,1);
+  }
+  assert.equal(media.filter(item => item.type === "photo").length, 89);
   assert.equal(media.filter(item => item.type === "video").length, 1);
-  assert.equal(media[0].poster, videoUrl + "/ik-thumbnail.jpg");
-  assert.equal(media.some(item => item.id === "wedding-moments-55"), false,
-    "do not invent an omitted photograph");
+  assert.equal(media[0].poster, base + "wedding-moments-88.mp4/ik-thumbnail.jpg");
+  assert.equal(media.some(item => item.id === "wedding-moments-55"), true,
+    "include newly uploaded Wedding Moments photo 55");
 });
 
 test("real client media renders as one gallery with sixteen visible square tiles", () => {
@@ -66,14 +69,14 @@ test("real client media renders as one gallery with sixteen visible square tiles
   const loadMore = nodes.find(n => n.attrs["data-wedding-load-more"] !== undefined);
   assert.equal(WEDDING_MOMENTS_PAGE_SIZE, 16);
   assert.equal(grid.children.length, 16);
-  assert.equal(template.children.length, 71);
+  assert.equal(template.children.length, 74);
   const counter = nodes.find(n => n.attrs["data-wedding-count"] !== undefined);
   assert(counter);
-  assert.deepEqual(counter.children, ["Showing 16 of 87 wedding moments"]);
-  assert.equal(counter.attrs["data-wedding-total"], "87");
+  assert.deepEqual(counter.children, ["Showing 16 of 90 wedding moments"]);
+  assert.equal(counter.attrs["data-wedding-total"], "90");
   assert.equal(counter.attrs.role, "status");
   assert.equal(counter.attrs["aria-live"], "polite");
-  assert.equal(nodes.filter(n => n.attrs["data-wedding-moment-id"] !== undefined).length, 87);
+  assert.equal(nodes.filter(n => n.attrs["data-wedding-moment-id"] !== undefined).length, 90);
   assert.equal(nodes.filter(n => ["h2", "h3", "figcaption"].includes(n.tag)).length, 0);
   assert.equal(loadMore.tag, "button");
   assert.equal(loadMore.attrs["aria-controls"], "redcarpert-wedding-grid");
@@ -151,7 +154,7 @@ test("Wedding Moments page has only its heading, subtitle and single client gall
   assert.equal(inner.filter(n => ["h2", "h3", "figcaption"].includes(n.tag)).length, 0);
   assert.deepEqual(root.children[0].children, ["The love, the laughter, the unforgettable moments."]);
   assert.equal(inner.filter(n => n.attrs["data-wedding-moments-grid"] !== undefined).length, 1);
-  assert.equal(inner.filter(n => n.attrs["data-wedding-moment-id"] !== undefined).length, 87);
+  assert.equal(inner.filter(n => n.attrs["data-wedding-moment-id"] !== undefined).length, 90);
   assert.equal(inner.filter(n => n.attrs["data-bride-card"] !== undefined).length, 0);
   assert.doesNotMatch(JSON.stringify(root), /Stock wedding photography|Pexels stock|not Redcarpert client events/);
   const menu = allNodes(adaptNavigation(source).nodes);
