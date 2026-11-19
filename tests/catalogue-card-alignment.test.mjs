@@ -25,8 +25,9 @@ test('each of the five collections uses the same editorial name, divider and num
       const visibleCategory=route.endsWith('/modern_tradition')?'modern_tradition':product.category;
       const category = catalogueCategories.find(c => c.id === visibleCategory);
       const name = category.name.replace(/ Dresses$/, '');
-      const number = product.name.match(/(\d{2})$/)?.[1] ??
-        product.name.replace(/^(?:Mermaid|2 in 1) /,'');
+      const number = visibleCategory==='modern_tradition'
+        ? String(catalogueProducts.filter(p=>p.collections.includes('modern_tradition')).findIndex(p=>p.id===product.id)+1).padStart(2,'0')
+        : product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
       const title = all([card]).find(n => n.tag === 'h2');
       const image = all([card]).find(n => n.tag === 'img');
       const link = all([card]).find(n => n.tag === 'a');
