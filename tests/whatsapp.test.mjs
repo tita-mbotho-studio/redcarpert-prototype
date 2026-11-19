@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
-import { dressPageUrl, generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
+import { dressPageUrl, generalFittingMessage, dressFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
 test('client-authorized South African WhatsApp number is formatted correctly',()=>{
   assert.equal(WHATSAPP_NUMBER,'27680458811');
