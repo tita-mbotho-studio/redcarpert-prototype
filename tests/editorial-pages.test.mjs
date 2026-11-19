@@ -228,7 +228,7 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }
-  assert.equal(placements.length,51);
+  assert.equal(placements.length,56);
   assert.equal((online.match(/data-book-category="modern_tradition"/g)||[]).length,4);
   for (const placement of placements.filter(p=>p.isModernTradition)) {
     assert(online.includes('data-book-entry-id="'+placement.id+'" data-book-category="modern_tradition"'));
