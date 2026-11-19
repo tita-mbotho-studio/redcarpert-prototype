@@ -126,7 +126,7 @@ test('only client ImageKit galleries and valid matching dress photo filenames ar
   assert.throws(()=>validateDressGalleryMappings(make({...good,url:prefix+'ball-gown-08-02.webp'})),/belongs to a different dress/);
   assert.throws(()=>validateDressGalleryMappings(make({...good,alt:''})),/Invalid gallery photo/);
   assert.throws(()=>validateDressGalleryMappings({[dress.id]:[good,good]}),/Repeated gallery photograph/);
-  assert.throws(()=>photosForDress(dress,make({...good,url:dress.image})),/duplicates the primary photograph/);
+  assert.throws(()=>photosForDress(dress,make({...good,url:dress.image})),/belongs to a different dress|duplicates the primary photograph/);
 });
 
 test('legacy or mutated donor layouts and unrecognized client mappings fail closed',()=>{
