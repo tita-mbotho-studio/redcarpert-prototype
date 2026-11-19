@@ -64,12 +64,12 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
 
   try{
     initializeCatalogueFilter();
-    assert.equal(visibleStatus.textContent,'Showing 47 of 47 wedding dresses');
+    assert.equal(visibleStatus.textContent,'Showing 51 of 51 wedding dresses');
     const click=id=>onClick({target:buttons.find(b=>b.dataset.filterCategory===id)});
     click('modern_tradition');
     const shown=records.filter(r=>!r.card.hidden);
     assert.equal(shown.length,4);
-    assert.equal(visibleStatus.textContent,'Showing 4 of 47 wedding dresses');
+    assert.equal(visibleStatus.textContent,'Showing 4 of 51 wedding dresses');
     for(const [i,r] of shown.entries()){
       const ordinal=String(i+1).padStart(2,'0');
       assert.equal(r.header.textContent,'Modern Tradition');
@@ -82,8 +82,8 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
     click('ball_gown');
     assert.equal(records.filter(r=>!r.card.hidden).length,12);
     click('all');
-    assert.equal(records.filter(r=>!r.card.hidden).length,47);
-    assert.equal(visibleStatus.textContent,'Showing 47 of 47 wedding dresses');
+    assert.equal(records.filter(r=>!r.card.hidden).length,51);
+    assert.equal(visibleStatus.textContent,'Showing 51 of 51 wedding dresses');
     for(const r of records){
       assert.equal(r.header.textContent,r.original.collection);
       assert.equal(r.label.textContent,r.original.number);
