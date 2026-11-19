@@ -2,61 +2,51 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {catalogueProducts} from '../src/data/catalogue.ts';
 import {validateCatalogue} from '../src/lib/validate-catalogue.ts';
-const clone = () => structuredClone(catalogueProducts);
 
-test('51 dresses validate: four client dress groups and four Modern Tradition samples', () => {
- const records=clone(), original=JSON.stringify(records);
+const clone=()=>structuredClone(catalogueProducts);
+const changeOne=(id,changes)=>clone().map(p=>p.id===id?{...p,...changes}:p);
+
+test('only 47 client dresses are present in the approved source collections',()=>{
+ const records=clone(),before=JSON.stringify(records);
  assert.doesNotThrow(()=>validateCatalogue(records));
- assert.equal(JSON.stringify(records),original);
- assert.equal(records.length,51);
- assert.equal(records.filter(p=>p.status==='client'&&p.category==='ball_gown').length,12);
- assert.equal(records.filter(p=>p.status==='sample').length,4);
- assert.equal(records.filter(p=>p.category==='mermaid').length,2);
- assert.equal(records.filter(p=>p.category==='modern_tradition').length,4);
- assert.equal(records.filter(p=>p.category==='two_in_one').length,21);
- assert.equal(records.filter(p=>p.category==='ruffled').length,12);
- assert.equal(records.filter(p=>p.status==='client').length,47);
- assert(records.every(p=>Number.isSafeInteger(p.priceZar) && p.priceZar>0));
+ assert.equal(JSON.stringify(records),before,'validation must not mutate source records');
+ assert.equal(records.length,47);
+ assert.deepEqual(Object.fromEntries(['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']
+   .map(category=>[category,records.filter(p=>p.category===category).length])),
+   {mermaid:2,ball_gown:12,ruffled:12,modern_tradition:0,two_in_one:21});
+ assert.equal(records.filter(p=>p.collections.includes('modern_tradition')).length,8);
+ assert(records.every(p=>p.image.startsWith('https://ik.imagekit.io/')&&!Object.hasOwn(p,'status')&&
+   p.imageCredit.provenance==='client-supplied'));
+ assert(records.every(p=>Number.isSafeInteger(p.priceZar)&&p.priceZar>0));
 });
 
-test('duplicate IDs, image URLs and routes fail before generation',()=>{
+test('invalid client identity, source photo, category, prices and membership fail before generation',()=>{
+ const records=clone(),id='ball-gown-01',first=records[0];
+ assert.throws(()=>validateCatalogue(records.slice(0,7)),/Catalogue must contain 47 dresses/);
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,id:first.id}:p)),/Duplicate or invalid product ID/);
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,previewRoute:first.previewRoute}:p)),/Duplicate or invalid preview route/);
+ assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,image:first.image}:p)),/Duplicate primary photograph/);
+ for(const [change,expected] of [
+   [{detailReference:'/product/other'},/Unverified catalogue status/],
+   [{image:'https://images.pexels.com/photos/1/pexels-photo-1.jpeg'},/Invalid client photo metadata/],
+   [{image:'https://ik.imagekit.io/kw8awoqvwi/wrong/photo.webp'},/Invalid client photo metadata/],
+   [{imageAlt:'Incorrect client asset'},/Invalid client photo metadata/],
+   [{imageCredit:{photographer:'Unknown',sourceUrl:first.image,provenance:'legacy'}},/Invalid client photo metadata/],
+   [{name:'Unknown Dress'},/Incorrect client dress mapping/],
+   [{category:'other'},/Unapproved category/],
+   [{priceZar:-1},/Invalid catalogue price/],
+   [{priceZar:3499.99},/Invalid catalogue price/],
+   [{collections:['ball_gown','modern_tradition']},/Invalid multi-collection membership/],
+ ]){
+   assert.throws(()=>validateCatalogue(changeOne(id,change)),expected);
+ }
+});
+
+test('Modern Tradition is always a client-only secondary colour collection',()=>{
  const records=clone();
- assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,id:records[0].id}:p)),/Duplicate or invalid product ID/);
- assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,previewRoute:records[0].previewRoute}:p)),/Duplicate or invalid preview route/);
- assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,image:records[0].image}:p)),/Duplicate primary photograph/);
- assert.throws(()=>validateCatalogue(records.slice(0,7)),/Catalogue must contain 51 dresses/);
-});
-
-test('Pexels samples reject bad hosts, missing attribution and status claims',()=>{
- const products=clone();
- const sampleIndex=products.findIndex(p=>p.status==='sample');
- assert(sampleIndex>=0);
- for(const [change,message] of [
-  [{status:'confirmed'},/Unverified catalogue status/],
-  [{detailReference:'/product/real'},/Unverified catalogue status/],
-  [{image:'https://example.com/bad.jpg'},/Unapproved Pexels image/],
-  [{priceZar:-1},/Invalid catalogue price/],
-  [{priceZar:3499.99},/Invalid catalogue price/],
-  [{image:'https://images.pexels.com.evil.com/photos/1/pexels-photo-1.jpeg'},/Unapproved Pexels image/],
-  [{image:'/redcarpert/../bad.webp'},/Unapproved Pexels image/],
-  [{category:'other'},/Unapproved category/],
-  [{name:''},/Missing descriptive bridal photograph alt text/],
-  [{imageAlt:'missing'},/Missing descriptive bridal photograph alt text/],
-  [{imageCredit:{...products[sampleIndex].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
- ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===sampleIndex?{...p,...change}:p)),message);
-});
-
-test('client mapping rejects wrong URLs, names and invalid prices',()=>{
- const products=clone();
- const index=products.findIndex(p=>p.id==='ball-gown-01');
- assert(index>=0);
- for(const change of [
-  {image:'https://example.com/bad.webp'},
-  {image:'https://ik.imagekit.io/kw8awoqvwi/wrong/ball-gown-01-main.webp'},
-  {priceZar:0},
-  {name:'Sample 01'},
-  {imageAlt:'Not a valid client photo'},
-  {imageCredit:{...products[index].imageCredit,photographer:'Unknown'}},
- ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===index?{...p,...change}:p)),
-   /Incorrect client dress mapping|Invalid client photo metadata|Invalid catalogue price/);
+ const featured=records.filter(p=>p.collections.includes('modern_tradition'));
+ assert.equal(featured.length,8);
+ assert(featured.every(p=>p.category!=='modern_tradition'&&p.collections.length===2));
+ assert.throws(()=>validateCatalogue(changeOne('mermaid-lefa-dress',
+   {collections:['mermaid','modern_tradition']})),/Invalid multi-collection membership/);
 });
