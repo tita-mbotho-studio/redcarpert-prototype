@@ -2,7 +2,6 @@ import clientMermaidDresses from "../data/client-mermaid-dresses.json" with { ty
 import clientBallGowns from "../data/client-ball-gowns.json" with { type: "json" };
 import clientTwoInOneDresses from "../data/client-two-in-one-dresses.json" with { type: "json" };
 import clientRuffledDresses from "../data/client-ruffled-dresses.json" with { type: "json" };
-import extraGalleryImages from "../data/dress-gallery-images.json" with { type: "json" };
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 
 export interface DressGalleryPhoto {
@@ -17,7 +16,6 @@ export interface DressGalleryPhoto {
  * added to src/data/dress-gallery-images.json.
  */
 export const additionalDressPhotos: Readonly<Record<string, readonly DressGalleryPhoto[]>> = {
-  ...extraGalleryImages,
   ...Object.fromEntries([...clientMermaidDresses, ...clientBallGowns,
     ...clientRuffledDresses, ...clientTwoInOneDresses]
     .map(dress => [dress.id, dress.photos.slice(1)])),
@@ -27,7 +25,7 @@ const approvedPhotoUrl = (value: string): boolean => {
   try {
     const url = new URL(value);
     return url.protocol === "https:" &&
-      (url.hostname === "ik.imagekit.io" || url.hostname === "images.pexels.com") &&
+      url.hostname === "ik.imagekit.io" &&
       !url.username && !url.password;
   } catch {
     return false;
@@ -48,7 +46,7 @@ export function validateDressGalleryMappings(
         throw new Error("Invalid gallery photo or alternative text for " + productId);
       }
       const product = catalogueProducts.find(item=>item.id===productId);
-      if (product?.status === 'client') {
+      if (product) {
         const folder = {
           mermaid:'mermaid-dresses',ball_gown:'ball-gown-dresses',
           ruffled:'ruffled-dresses',two_in_one:'2-in-1-dresses',
