@@ -53,7 +53,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
       const source=product.image.toLowerCase();
       if (product.image!==first.url || product.imageAlt!==first.alt ||
           !source.startsWith(prefix.toLowerCase()) ||
-          !/[-]01[.]webp(?:[?]updatedAt=\d{13})?$/.test(source) ||
+          !/[-]01[.]webp(?:[?]updatedat=\d{13})?$/.test(source) ||
           product.imageCredit.sourceUrl!==product.image ||
           product.imageCredit.photographer!=='Client supplied' ||
           product.imageCredit.provenance!=='client-supplied') {
