@@ -120,6 +120,20 @@
   padding-left: .22em;
   text-align: center;
 }
+/* Named client dresses use the same centered card, with readable name
+   tracking rather than treating long names as two-digit dress numbers. */
+#main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-number[data-catalogue-named] {
+  font-size: clamp(11px, 1.05vw, 13px);
+  letter-spacing: .035em;
+  padding: 0 7px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  #main-container ul.products[data-catalogue-preview] .redcarpert-catalogue-number[data-catalogue-named] {
+    font-size: 11px;
+    letter-spacing: .015em;
+  }
+}
 /* Keep the already-approved square photo crop unchanged. */
 .woocommerce ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img,
 .woocommerce-page ul.products[data-catalogue-preview] li.product a.woocommerce-LoopProduct-link > img {
