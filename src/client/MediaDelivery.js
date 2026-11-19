@@ -68,9 +68,57 @@ export function initializeMediaDelivery() {
   }
 }
 
+/** Browser-decoded gallery photos are shared between neighbouring preloads and navigation.
+ * The ImageKit URL (including updatedAt when present) is the cache key, so a
+ * newer client upload uses a new entry automatically. No service worker or
+ * second copy of the photograph is needed. */
+const galleryPreloads = new Map();
+const MAX_PRELOADED_GALLERY_IMAGES = 12;
+
+export function preloadMediaImage(original, preset = 'detail') {
+  const transformed = mediaDeliveryUrl(original, preset);
+  const key = preset + '|' + original;
+  const existing = galleryPreloads.get(key);
+  if (existing) return existing;
+
+  const attempt = src => new Promise((resolve, reject) => {
+    const probe = new Image();
+    probe.decoding = 'async';
+    // Never change the visible photograph until this candidate is loaded.
+    probe.onload = async () => {
+      try {
+        if (typeof probe.decode === 'function') await probe.decode();
+        if (!probe.naturalWidth) throw new Error('Empty decoded photograph');
+        resolve(src);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    probe.onerror = () => reject(new Error('Gallery photograph failed to load'));
+    probe.src = src;
+  });
+
+  // A failed ImageKit derivative gets one attempt at the approved original;
+  // never cache a rejected promise or show a mismatched placeholder photo.
+  const prepared = attempt(transformed).catch(error =>
+    transformed !== original ? attempt(original) : Promise.reject(error));
+  galleryPreloads.set(key, prepared);
+  prepared.catch(() => {
+    if (galleryPreloads.get(key) === prepared) galleryPreloads.delete(key);
+  });
+  if (galleryPreloads.size > MAX_PRELOADED_GALLERY_IMAGES) {
+    // Browsers own decoded image memory; this bounds our promise bookkeeping.
+    const oldestKey = galleryPreloads.keys().next().value;
+    if (oldestKey !== undefined && oldestKey !== key) galleryPreloads.delete(oldestKey);
+  }
+  return prepared;
+}
+
 /** For all interactive image galleries: original is kept for fallback/zoom. */
-export function setMediaImage(image, original, preset) {
-  const delivery = mediaDeliveryUrl(original, preset);
+export function setMediaImage(image, original, preset, readyUrl) {
+  const optimized = mediaDeliveryUrl(original, preset);
+  // Accept only the approved original or its context-specific derivative.
+  const delivery = readyUrl === original || readyUrl === optimized ? readyUrl : optimized;
   if (delivery !== original) image.dataset.mediaOriginal = original;
   else image.removeAttribute('data-media-original');
   image.removeAttribute('srcset');
