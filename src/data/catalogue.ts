@@ -123,5 +123,5 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
   ...modernProducts,
   ...sourceCatalogueProducts.filter(product=>product.category==="two_in_one"),
 ];
-if(catalogueProducts.length!==56||new Set(catalogueProducts.map(product=>product.id)).size!==51)
+if(catalogueProducts.length!==56||new Set(catalogueProducts.map(product=>product.id)).size!==56)
   throw new Error("Catalogue requires exactly 56 distinct dress identities");
