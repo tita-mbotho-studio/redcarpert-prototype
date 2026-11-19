@@ -10,7 +10,7 @@ export interface LookbookPlacement {
   readonly isModernTradition: boolean;
 }
 
-/** Both editions display 51 unique records, grouped into the same five collections. */
+/** Both editions display one page per unique client dress record, grouped into the same five collections. */
 export function lookbookPlacements(products: readonly CatalogueProduct[]): readonly LookbookPlacement[] {
   const ids = new Set(products.map(product => product.id));
   if (ids.size !== products.length) throw new Error("Book contains duplicate dress IDs");
