@@ -259,7 +259,7 @@ test('release readiness: all public pages have Redcarpert metadata and safe outb
           assert.equal(outbound.search,'',route+' social profile URL must not contain tracking parameters');
           continue;
         }
-        assert(['images.pexels.com','ik.imagekit.io','wa.me'].includes(host),
+        assert(['ik.imagekit.io','wa.me'].includes(host),
           route+' links to an unapproved external site: '+href);
         if(outbound.hostname==='wa.me') {
           assert.equal(outbound.pathname,'/27680458811');
