@@ -117,11 +117,11 @@ const modernProducts: readonly CatalogueProduct[] = featuredModernTradition.feat
   };
 });
 
-/** 2 Mermaid + 12 Ball Gown + 12 Ruffled + 4 Modern Tradition + 21 2 in 1. */
+/** 2 Mermaid + 12 Ball Gown + 17 Ruffled + 4 Modern Tradition + 21 2 in 1. */
 export const catalogueProducts: readonly CatalogueProduct[] = [
   ...sourceCatalogueProducts.filter(product=>product.category!=="two_in_one"),
   ...modernProducts,
   ...sourceCatalogueProducts.filter(product=>product.category==="two_in_one"),
 ];
-if(catalogueProducts.length!==51||new Set(catalogueProducts.map(product=>product.id)).size!==51)
-  throw new Error("Catalogue requires exactly 51 distinct dress identities");
+if(catalogueProducts.length!==56||new Set(catalogueProducts.map(product=>product.id)).size!==51)
+  throw new Error("Catalogue requires exactly 56 distinct dress identities");
