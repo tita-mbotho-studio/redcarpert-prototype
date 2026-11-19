@@ -19,7 +19,8 @@ test('interactive Bridal Edit shows full prices and no preview or temporary word
   assert.doesNotMatch(visible(html),banned);
   assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
   assert.equal((html.match(/data-book-rental-price=/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,51);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length,
+    'each canonical client dress should have exactly one rental condition note');
 });
 
 test('PDF source contains no development copy, fictional ownership claims or separate WhatsApp text',()=>{
@@ -28,7 +29,8 @@ test('PDF source contains no development copy, fictional ownership claims or sep
   assert.equal((html.match(/<section class="page /g)||[]).length,59);
   assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,47);
   assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,51);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length,
+    'each canonical client dress should have exactly one rental condition note');
   assert.doesNotMatch(visible(html),banned);
   assert.doesNotMatch(visible(html),/Photo on Pexels|client[- ]owned/i);
   assert.match(html,/Your Fitting Journey/);
