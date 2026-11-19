@@ -73,9 +73,10 @@ export async function downloadLookbookClientImage(
       if(buffer.length===0)throw new Error("Empty lookbook photograph: "+id);
       return buffer;
     } catch(error) {
+      const errorName=error && typeof error==="object" && "name" in error
+        ? String(error.name) : "";
       const retryable=error instanceof TransientImageRequestError ||
-        error instanceof TypeError ||
-        (error instanceof Error && (error.name==="TimeoutError" || error.name==="AbortError"));
+        error instanceof TypeError || errorName==="TimeoutError" || errorName==="AbortError";
       if(!retryable || attempt===timeouts.length-1)
         throw new Error("Cannot obtain lookbook photograph "+id+
           " after "+(attempt+1)+" attempt(s): "+String(error),{cause:error});
