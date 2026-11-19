@@ -45,8 +45,9 @@ const assertGalleryArrowsCentered=async (gallery,width,label)=>{
 const source=readFileSync('src/client/dress-gallery.js','utf8')
   // The isolated navigation fixture mocks the shared media transport; the
   // production page below exercises the actual imported delivery module.
-  .replace("import { setMediaImage } from './MediaDelivery.js';",
-    "const setMediaImage=(image,original,preset)=>{image.dataset.mediaOriginal=original;image.src=original+'?tr='+(preset==='preview'?'w-1920,h-1920,c-at_max,q-82,f-auto':'w-1280,h-1800,c-at_max,q-82,f-auto');};")
+  .replace("import { setMediaImage, preloadMediaImage } from './MediaDelivery.js';",
+    "const setMediaImage=(image,original,preset,ready)=>{image.dataset.mediaOriginal=original;image.src=ready??(original+'?tr='+(preset==='preview'?'w-1920,h-1920,c-at_max,q-82,f-auto':'w-1280,h-1800,c-at_max,q-82,f-auto'));};"+
+    "const preloadMediaImage=(original,preset)=>window.testGalleryLoad?window.testGalleryLoad(original,preset):Promise.resolve(original+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');")
   .replace('export function initializeDressGalleries()', 'function initializeDressGalleries()')
   + '\nwindow.testInitializeDressGalleries = initializeDressGalleries;';
 const photos=[
@@ -85,6 +86,7 @@ try {
   assert.equal(await current(),0);
   assert.equal(await counter.textContent(),'01 / 03');
   await gallery.locator('[data-gallery-next]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='1');
   assert.equal(await current(),1);
   assert.equal(await image.getAttribute('src'),photos[1].url+'?tr=w-1280,h-1800,c-at_max,q-82,f-auto');
   assert.equal(await image.getAttribute('data-media-original'),photos[1].url);
@@ -102,16 +104,21 @@ try {
     'focus must return to the photograph');
   assert.equal(await counter.textContent(),'02 / 03');
   await gallery.locator('[data-gallery-index="2"]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='2');
   assert.equal(await current(),2);
   assert.deepEqual(await gallery.locator('[data-gallery-index]').evaluateAll(dots=>dots.map(dot=>dot.getAttribute('aria-pressed'))),['false','false','true']);
   await gallery.locator('[data-gallery-next]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
   assert.equal(await current(),0,'gallery loops to first view');
   await gallery.locator('[data-gallery-previous]').click();
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='2');
   assert.equal(await current(),2,'gallery loops to last view');
   await gallery.focus();
   await page.keyboard.press('ArrowLeft');
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='1');
   assert.equal(await current(),1,'left keyboard navigation works');
   await page.keyboard.press('ArrowRight');
+   await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='2');
   assert.equal(await current(),2,'right keyboard navigation works');
   if(width===390){
     await page.evaluate(()=>{
@@ -120,6 +127,7 @@ try {
       frame.dispatchEvent(new TouchEvent('touchstart',{touches:[point(250,160)],bubbles:true}));
       frame.dispatchEvent(new TouchEvent('touchend',{changedTouches:[point(70,155)],bubbles:true}));
     });
+    await page.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
     assert.equal(await current(),0,'mobile horizontal swipe changes photo');
   }
   assert.deepEqual(errors,[]);
@@ -248,6 +256,7 @@ try {
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 03');
  assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/2-in-1-kwena-dress-01[.]webp/);
  await liveGallery.locator('[data-gallery-next]').click();
+ await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='1');
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'02 / 03');
  assert.match(await liveGallery.locator('[data-gallery-active-image]').getAttribute('src'),/2-in-1-kwena-dress-02[.]webp/);
  assert.equal(await liveGallery.locator('[data-gallery-enlarge],[data-fancybox]').count(),0);
@@ -260,6 +269,7 @@ try {
  await liveModal.waitFor({state:'hidden'});
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'02 / 03');
  await liveGallery.locator('[data-gallery-previous]').click();
+ await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 03');
  // Verify actual client Ball Gown 03: four unique photos, no sample pricing.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-03/',{waitUntil:'domcontentloaded'});
@@ -270,6 +280,7 @@ try {
  assert.equal(await gown.getAttribute('data-gallery-origin'),'client');
   assert.equal(imagePath(await gown.locator('[data-gallery-active-image]').getAttribute('src')),imagePath(ballGown03Photos[0]));
  await gown.locator('[data-gallery-next]').click();
+ await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='1');
  assert.equal(await gown.locator('[data-gallery-counter]').textContent(),'02 / 04');
   assert.equal(imagePath(await gown.locator('[data-gallery-active-image]').getAttribute('src')),imagePath(ballGown03Photos[1]));
   await gown.locator('[data-gallery-active-image]').click();
@@ -321,8 +332,10 @@ try {
    await assertGalleryArrowsCentered(modernGallery,width,'Modern Tradition 03');
  }
  await modernGallery.locator('[data-gallery-next]').click();
+ await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='1');
  assert.equal(await modernGallery.locator('[data-gallery-counter]').textContent(),'02 / 04');
  await modernGallery.locator('[data-gallery-previous]').click();
+ await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
  assert.equal(await modernGallery.locator('[data-gallery-counter]').textContent(),'01 / 04');
  await actual.setViewportSize({width:1280,height:900});
  // Single-photo client gowns still show the full silhouette without empty arrows.
