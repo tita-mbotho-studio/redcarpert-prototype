@@ -5,6 +5,40 @@ import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_
 const ballGown03Photos=JSON.parse(readFileSync('src/data/client-ball-gowns.json','utf8'))
   .find(gown=>gown.id==='ball-gown-03').photos.map(photo=>photo.url);
 const imagePath=url=>new URL(url).pathname;
+/** Confirm both chevrons overlay the photo, not the detail card below. */
+const assertGalleryArrowsCentered=async (gallery,width,label)=>{
+  const geometry=await gallery.evaluate(element=>{
+    const frame=element.querySelector('[data-dress-frame]');
+    const photo=frame?.querySelector('[data-gallery-active-image]');
+    const previous=frame?.querySelector('[data-gallery-previous]');
+    const next=frame?.querySelector('[data-gallery-next]');
+    if(!frame||!photo||!previous||!next)return null;
+    const rect=node=>{
+      const box=node.getBoundingClientRect();
+      return {left:box.left,right:box.right,top:box.top,bottom:box.bottom,
+        centerY:box.top+box.height/2,width:box.width,height:box.height};
+    };
+    return {framePosition:getComputedStyle(frame).position,
+      previousPosition:getComputedStyle(previous).position,
+      nextPosition:getComputedStyle(next).position,
+      photo:rect(photo),previous:rect(previous),next:rect(next)};
+  });
+  assert(geometry,width+'px '+label+' gallery controls must exist');
+  assert.equal(geometry.framePosition,'relative',width+'px '+label+' frame must anchor arrows');
+  assert.equal(geometry.previousPosition,'absolute');
+  assert.equal(geometry.nextPosition,'absolute');
+  assert(geometry.photo.height>100,width+'px '+label+' photo should have real height');
+  for(const side of ['previous','next']){
+    const arrow=geometry[side],photo=geometry.photo;
+    assert(Math.abs(arrow.centerY-photo.centerY)<=12,
+      width+'px '+label+' '+side+' arrow must be vertically centred over image: '+JSON.stringify(geometry));
+    assert(arrow.top>=photo.top-8 && arrow.bottom<=photo.bottom+8,
+      width+'px '+label+' '+side+' arrow must stay inside image height');
+    assert(arrow.left>=photo.left-8 && arrow.right<=photo.right+8,
+      width+'px '+label+' '+side+' arrow must stay inside image width');
+  }
+};
+
 
 // Exercise the production controller against a synthetic three-angle dress.
 // This avoids representing unrelated placeholder dresses as multiple views of one gown.
@@ -92,8 +126,7 @@ try {
   await page.close();
  }
  console.log('Three-photo dress gallery PASS: arrows, dots, direct photo modal, keyboard and touch');
- // Check the actual generated Sample 17 page, which now has two Pexels photographs
- // of one gown rather than just our synthetic isolated controller fixture.
+ // Check the real published Kwena client detail page and its live photo gallery.
  const actual=await browser.newPage({viewport:{width:1280,height:900}});
  const liveErrors=[];
  actual.on('pageerror',error=>liveErrors.push(error.message));
@@ -107,6 +140,7 @@ try {
  // collection, dress name, price label and ZAR price above Book a Fitting.
  for(const width of [1920,1440,1280,1100,1051,1050,900,768,640,390,320]){
    await actual.setViewportSize({width,height:900});
+   await assertGalleryArrowsCentered(liveGallery,width,'2 in 1 Kwena');
    const alignment=await actual.locator('.redcarpert-detail-card').evaluate(card=>{
      const selectors=['.redcarpert-detail-collection','h1.redcarpert-detail-name',
        '.redcarpert-detail-price-label','.redcarpert-detail-price-value'];
@@ -274,6 +308,23 @@ try {
  assert.equal(await actual.locator('[data-related-dress="ball-gown-03"]').count(),0);
  assert.equal(await actual.locator('.redcarpert-related-grid a').count(),4);
  assert.equal(await actual.locator('.obsolete-detail-notice').count(),0,'client gown has no provenance notice');
+ // Regression: the pictured Modern Tradition 03 gown must keep both arrows
+ // at the image's vertical midpoint across phones, tablets and desktop.
+ await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/modern-tradition-03/',{
+   waitUntil:'domcontentloaded',timeout:30000,
+ });
+ const modernGallery=actual.locator('[data-detail-gallery="modern-tradition-03"]');
+ await modernGallery.locator('[data-gallery-next]').waitFor({timeout:20000});
+ assert.equal(await modernGallery.locator('[data-gallery-index]').count(),4);
+ for(const width of [320,390,640,768,1024,1440,1920]){
+   await actual.setViewportSize({width,height:900});
+   await assertGalleryArrowsCentered(modernGallery,width,'Modern Tradition 03');
+ }
+ await modernGallery.locator('[data-gallery-next]').click();
+ assert.equal(await modernGallery.locator('[data-gallery-counter]').textContent(),'02 / 04');
+ await modernGallery.locator('[data-gallery-previous]').click();
+ assert.equal(await modernGallery.locator('[data-gallery-counter]').textContent(),'01 / 04');
+ await actual.setViewportSize({width:1280,height:900});
  // Single-photo client gowns still show the full silhouette without empty arrows.
  await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
  const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
@@ -292,7 +343,7 @@ try {
  for(const width of [1280,390]){
    await actual.setViewportSize({width,height:900});
    const cards=actual.locator('ul.products[data-catalogue-preview] li.product');
-   assert.equal(await cards.count(),47);
+   assert.equal(await cards.count(),51);
    const alignment=await cards.evaluateAll(items=>items.map(card=>{
      const title=card.querySelector('.woocommerce-loop-product__title');
      const note=card.querySelector('.obsolete-catalogue-note');
