@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY_NUMBER, buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { catalogueProducts,catalogueCategories } from '../src/data/catalogue.ts';
-import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
 import { dressPageUrl, generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 
@@ -22,13 +21,13 @@ test('live WhatsApp link encodes the full multiline message and does not automat
   assert.throws(()=>buildWhatsAppUrl('   '),/empty WhatsApp message/);
 });
 
-test('all 51 dress enquiries use one readable template with fixed sale prices and rental price ranges',()=>{
-  assert.equal(catalogueProducts.length,51);
+test('all 47 dress enquiries use one readable template with fixed sale prices and rental price ranges',()=>{
+  assert.equal(catalogueProducts.length,47);
   for(const dress of catalogueProducts){
-    const message=sampleFittingMessage(dress);
+    const message=dressFittingMessage(dress);
     const url=new URL(buildWhatsAppUrl(message));
     assert.equal(url.searchParams.get('text'),message);
-    const name=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
+    const name=dress.name;
     const category=catalogueCategories.find(c=>c.id===dress.category);
     assert(category);
     assert(message.includes('*Dress:* '+name),dress.id+' missing dress name');
