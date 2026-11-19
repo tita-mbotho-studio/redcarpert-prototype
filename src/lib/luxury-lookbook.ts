@@ -149,20 +149,27 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
     const dresses=products.filter(p=>p.category===category.id);
+    // One page per gown: cross-listed looks are indexed, not duplicated.
+    const crossListed=products.filter(p=>p.category!==category.id && p.collections.includes(category.id));
     if(!dresses.length || sectionStarts.get(category.id)!==pageNumber)
       throw new Error("Collection page alignment failed for "+category.id);
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
-        : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
+        : category.id==="modern_tradition"
+          ? "Discover "+(dresses.length+crossListed.length)+" Modern Tradition looks, including "+crossListed.length+
+            " colourful gowns also featured in other collections."
+          : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
     for (const dress of dresses) {
       const look=dress.status==="client"?dress.name:dress.name.replace(/^Sample /,"Look ");
       const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
       pages.push(page(pageNumber++,"dress","look-"+dress.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom">'+(dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
+        '<div class="dress-bottom">'+(dress.category!=="modern_tradition" && dress.collections.includes("modern_tradition")
+           ? '<span class="kind">Also in Modern Tradition</span>'
+           : dress.status==="client"?"":'<span class="kind">'+esc(category.name)+'</span>')+
         '<h3>'+esc(look)+'</h3>'+
         '<div class="price-pair" aria-label="Sale and rental prices">'+
         '<div class="price-item"><p class="amount-label" data-pdf-sale-label="'+esc(dress.id)+'">'+esc(salePriceLabelForDress(dress.id))+'</p>'+
