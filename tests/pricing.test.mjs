@@ -11,16 +11,16 @@ import {createNodeRenderer} from '../scripts/lib/markup.ts';
 import {lookbookEntries} from '../src/client/lookbook.js';
 import {lookbookPlacements} from '../src/lib/lookbook-placements.ts';
 
-test('all 47 dresses have editable positive fixed sale and ascending rental prices',()=>{
+test('all 51 dresses have editable positive fixed sale and ascending rental prices',()=>{
   assert.equal(products.currency,'ZAR');
   assert.equal(products.priceStatus,'draft');
   assert.equal(products.rentalPriceStatus,'draft');
   assert.equal(products.priceApproval,'pending-client-review');
-  assert.equal(products.dresses.length,47);
-  assert.equal(new Set(products.dresses.map(d=>d.id)).size,47);
+  assert.equal(products.dresses.length,51);
+  assert.equal(new Set(products.dresses.map(d=>d.id)).size,51);
   assert.deepEqual(products.dresses.map(d=>d.id).sort(),catalogueProducts.map(p=>p.id).sort());
   assert.equal(products.dresses.filter(d=>d.id.startsWith('ball-gown-')).length,12);
-  assert.equal(Object.keys(products.priceRangesZar).length,47,'keep legacy data separate');
+  assert.equal(Object.keys(products.priceRangesZar).length,51,'keep legacy data separate');
   for(const d of products.dresses){
     assert(Number.isSafeInteger(d.priceZar)&&d.priceZar>0,d.id+' needs a fixed sale price');
     const r=d.rentalPriceRangeZar;
