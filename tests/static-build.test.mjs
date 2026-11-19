@@ -8,8 +8,7 @@ import {catalogueProducts} from '../src/data/catalogue.ts';
 import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
-import {sampleFittingMessage} from '../src/lib/product-detail-preview.ts';
-import {generalFittingMessage} from '../src/lib/whatsapp-messages.ts';
+import {generalFittingMessage,dressFittingMessage} from '../src/lib/whatsapp-messages.ts';
 import {buildWhatsAppUrl} from '../src/config/whatsapp.ts';
 import {OFFICIAL_SOCIAL_LINKS} from '../src/config/social-links.ts';
 const walk = dir => readdirSync(dir,{withFileTypes:true}).flatMap(file=>file.isDirectory()?walk(path.join(dir,file.name)):[path.join(dir,file.name)]);
@@ -33,7 +32,7 @@ test('static deployment contains complete approved pages, local paths and no app
   const handoffs=[...html.matchAll(/<a\b[^>]*\bdata-whatsapp-send\b[^>]*\bhref="([^"]+)"[^>]*>/gi)];
   assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
   const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
-  const expectedMessage=product ? sampleFittingMessage(product) : generalFittingMessage();
+  const expectedMessage=product ? dressFittingMessage(product) : generalFittingMessage();
   const expectedUrl=buildWhatsAppUrl(expectedMessage);
   for(const [,href] of handoffs){
     const linkUrl=new URL(href.replaceAll('&amp;','&'));
@@ -55,8 +54,8 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 63/);
- assert.deepEqual(pdf,readFileSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'old PDF URL remains available');
+ assert.match(pdf.toString('latin1'),/\/Count 59/);
+ assert(!existsSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'obsolete sample PDF must not be published');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
  const audit=JSON.parse(readFileSync('.generated/lookbook-image-audit.json','utf8'));
@@ -135,7 +134,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
  assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length);
- assert.equal((book.match(/<img src="https:\/\/images\.pexels\.com\/photos\//g)||[]).length,4);
+  assert.doesNotMatch(book,/images\.pexels\.com|data-sample-id=/,'client-only digital book');
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
  assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,catalogueProducts.length);
@@ -144,8 +143,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
    'interactive book should contain exactly twelve new client Ruffled photographs');
  assert(routes.includes('/product/preview/ruffled-dress-12'),'twelfth Ruffled detail route must exist');
- assert(!routes.some(route=>/\/sample-\d+-ruffled$/.test(route)),
-   'retired sample Ruffled pages must not remain active');
+ assert(!routes.some(route=>route.includes('/sample-')),'no retired sample dress routes');
 
  assert.doesNotMatch(book,/Client-supplied photographs/);
  assert.doesNotMatch(book,/To be confirmed|provisional|illustrative sale|example sale price/i);
@@ -160,32 +158,24 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
   assert.match(html,/data-rental-price=""/);
   const product=catalogueProducts.find(p=>p.previewRoute===route);
   assert(product,'unknown dress detail route: '+route);
-  if(product.status==='client'){
-    assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
-    assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
-    assert.doesNotMatch(html,/ILLUSTRATIVE PRICE|Sample imagery and indicative pricing only/);
-    assert.match(html,/SALE PRICE/);
-    assert.match(html,/RENTAL PRICE RANGE/);
-    assert.doesNotMatch(html,/price disclaimer|Example sale price/i);
-  }else{
-    assert.match(html,/https:\/\/images\.pexels\.com\/photos\//);
-    assert.doesNotMatch(html,/not confirmed as available|EXAMPLE SALE PRICE|Inspiration photo/i);
-    assert.match(html,/SALE PRICE/);
-    assert.match(html,/Look \d{2}/);
-  }
-  assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
+  assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
+   assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
+   assert.match(html,/SALE PRICE/);
+   assert.match(html,/RENTAL PRICE RANGE/);
+   assert.doesNotMatch(html,/price disclaimer|Example sale price|images\.pexels\.com/i);
+   assert(html.includes('data-detail-gallery="'+product.id+'"'),'product detail must contain a reusable photo gallery');
   assert.match(html,/data-gallery-photos="/,'gallery metadata must be emitted by static HTML');
   assert.match(html,/data-gallery-active-image=""/,'one active photograph must be present');
   const mappedPhotos=photosForDress(product);
   if(mappedPhotos.length>1){
-    assert.match(html,/data-gallery-next=""/,'multi-photo demo must show next button');
-    assert.match(html,/data-gallery-previous=""/,'multi-photo demo must show previous button');
+    assert.match(html,/data-gallery-next=""/,'multi-photo client dress must show next button');
+    assert.match(html,/data-gallery-previous=""/,'multi-photo client dress must show previous button');
     assert.equal((html.match(/data-gallery-index="/g)||[]).length,mappedPhotos.length,
       'the gallery should render a dot for each photograph');
-    assert.match(html, /data-gallery-counter=""/,'multi-photo demo shows photo counter');
+    assert.match(html, /data-gallery-counter=""/,'multi-photo client dress shows photo counter');
   }else{
-    assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo samples must not expose misleading gallery controls');
-    assert.doesNotMatch(html,/data-gallery-index="/,'single-photo samples must not expose misleading dots');
+    assert.doesNotMatch(html,/data-gallery-next=""/,'single-photo client dresses must not expose misleading gallery controls');
+    assert.doesNotMatch(html,/data-gallery-index="/,'single-photo client dresses must not expose misleading dots');
   }
   assert(html.includes('data-sale-price="">'+displaySalePriceForDress(product.id)+'</p>'),
     'detail sale price does not match products.json for '+route);
@@ -470,12 +460,6 @@ test('future HTML image additions inherit provider-safe media delivery defaults'
    if(url.hostname==='ik.imagekit.io'){
     assert(url.searchParams.has('tr')||url.pathname.startsWith('/tr:'),
       file+' contains an unoptimized ImageKit <img>: '+src);
-    checked++;
-   }else if(url.hostname==='images.pexels.com'){
-    assert.equal(url.searchParams.get('auto'),'compress',
-      file+' Pexels photograph must be compressed');
-    assert(Number(url.searchParams.get('w'))>0,
-      file+' Pexels photograph must have an explicit width');
     checked++;
    }
   }
