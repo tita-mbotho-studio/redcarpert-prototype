@@ -1,0 +1,38 @@
+{
+  "policy": "Clearly coloured fabric belongs to Modern Tradition irrespective of gown silhouette; do not classify white, ivory, cream, champagne or off-white dresses as colourful.",
+  "reviewedSource": "Client ImageKit -01 photographs, with additional angles checked for borderline gold and lavender dresses",
+  "featured": [
+    {
+      "id": "ball-gown-03",
+      "colour": "navy blue"
+    },
+    {
+      "id": "ball-gown-04",
+      "colour": "rose gold"
+    },
+    {
+      "id": "ball-gown-05",
+      "colour": "dusty rose"
+    },
+    {
+      "id": "ball-gown-11",
+      "colour": "lavender"
+    },
+    {
+      "id": "ruffled-dress-04",
+      "colour": "dusty rose"
+    },
+    {
+      "id": "ruffled-dress-07",
+      "colour": "rose gold"
+    },
+    {
+      "id": "2-in-1-mmematlala-dress",
+      "colour": "bronze"
+    },
+    {
+      "id": "2-in-1-moreteadi-dress",
+      "colour": "rose gold"
+    }
+  ]
+}
