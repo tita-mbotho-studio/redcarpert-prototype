@@ -1,10 +1,13 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import products from '../src/data/products.json' with { type: 'json' };
+import { catalogueProducts } from '../src/data/catalogue.ts';
+import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 
 /** Test deterministic book behaviour without relying on third-party CDN availability. */
-const pageCount=products.dresses.length+2;
+const placements=lookbookPlacements(catalogueProducts);
+const pageCount=placements.length+2;
 const browser = await chromium.launch({args:['--no-sandbox']});
 try {
  for (const width of [1440, 768, 390]) {
@@ -18,18 +21,28 @@ try {
   await page.goto('http://localhost:4173/redcarpert-prototype/digital-lookbook/',{waitUntil:'domcontentloaded'});
   await page.locator('#redcarpert-flipbook[data-engine="fallback"]').waitFor({timeout:10000});
   assert.equal(await page.locator('[data-book-page]').count(),pageCount);
-  assert.equal(await page.locator('[data-book-sale-price]').count(),products.dresses.length);
-  assert.equal(await page.locator('[data-book-rental-price]').count(),products.dresses.length);
-  assert.equal(await page.locator('[data-book-sale-label]').count(),products.dresses.length);
-  assert.equal(await page.locator('.redcarpert-book-price-pair').count(),products.dresses.length);
+  assert.equal(await page.locator('[data-book-sale-price]').count(),placements.length);
+  assert.equal(await page.locator('[data-book-rental-price]').count(),placements.length);
+  assert.equal(await page.locator('[data-book-sale-label]').count(),placements.length);
+  assert.equal(await page.locator('.redcarpert-book-price-pair').count(),placements.length);
   const displayed=await page.locator('.redcarpert-book-dress').evaluateAll(cards=>cards.map(card=>({
     id:card.getAttribute('data-book-dress-id'),
+    entryId:card.getAttribute('data-book-entry-id'),
+    category:card.getAttribute('data-book-category'),
+    href:card.querySelector('a[href*="/product/preview/"]')?.getAttribute('href'),
     sale:card.querySelector('[data-book-sale-price]')?.textContent,
     rental:card.querySelector('[data-book-rental-price]')?.textContent,
     saleLabel:card.querySelector('[data-book-sale-label]')?.textContent,
     conditionNote:card.querySelector('.redcarpert-book-condition-note')?.textContent,
   })));
   assert.equal(new Set(displayed.map(item=>item.id)).size,products.dresses.length);
+  assert.equal(new Set(displayed.map(item=>item.entryId)).size,placements.length);
+  assert.equal(displayed.filter(item=>item.category==='modern_tradition').length,4);
+  for (const item of displayed.filter(item=>item.category==='modern_tradition')) {
+    const placement=placements.find(p=>p.id===item.entryId);
+    assert(placement?.isModernTradition);
+    assert(item.href?.endsWith(placement.detailRoute+'/'));
+  }
   for(const entry of displayed){
     assert.equal(entry.sale,displaySalePriceForDress(entry.id),entry.id+' sale price mismatch');
     assert.equal(entry.rental,displayRentalPriceForDress(entry.id),entry.id+' rental price mismatch');
@@ -41,10 +54,10 @@ try {
   assert.equal(await cover.locator('img').count(),1,'minimal cover contains only Redcarpert logo');
   assert.equal(await cover.locator('.redcarpert-book-cover-photo').count(),0,'cover must not include a stock image');
   assert.match(await cover.locator('h3').textContent(),/Walking on red carpet with confidence/);
-  assert.equal(await page.locator('.redcarpert-book-dress').count(),products.dresses.length);
+  assert.equal(await page.locator('.redcarpert-book-dress').count(),placements.length);
   assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="mermaid-"]').count(),2);
-  assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="ball-gown-"]').count(),12);
-  assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),products.dresses.length);
+  assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="ball-gown-"]').count(),15);
+  assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),placements.length);
   const next = page.getByRole('button',{name:'Next page',exact:true});
   const previous = page.getByRole('button',{name:'Previous page',exact:true});
   // Accessible names remain for screen readers; visible labels are icons only.
