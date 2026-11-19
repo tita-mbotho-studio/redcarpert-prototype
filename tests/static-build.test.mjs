@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
+import {lookbookPlacements} from '../src/lib/lookbook-placements.ts';
 import {modernTraditionPages,modernTraditionPageForRoute,modernTraditionPageForDress} from '../src/lib/modern-tradition.ts';
 import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
@@ -56,7 +57,7 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 59/);
+ assert.match(pdf.toString('latin1'),/\/Count 63/);
  assert(!existsSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'obsolete sample PDF must not be published');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
@@ -82,12 +83,12 @@ test('copied classic scripts remain valid and every page uses modern Font Awesom
 
 test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresses',{skip:!available},()=>{
  const book=readFileSync('dist/digital-lookbook/index.html','utf8');
- assert.equal((book.match(/data-book-page=/g)||[]).length,catalogueProducts.length+2);
- assert.equal((book.match(/data-book-sale-price=/g)||[]).length,catalogueProducts.length);
- assert.equal((book.match(/data-book-rental-price=/g)||[]).length,catalogueProducts.length);
- assert.equal((book.match(/data-book-sale-label=/g)||[]).length,catalogueProducts.length);
- assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,catalogueProducts.length);
- assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
+ assert.equal((book.match(/data-book-page=/g)||[]).length,lookbookPlacements(catalogueProducts).length+2);
+ assert.equal((book.match(/data-book-sale-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal((book.match(/data-book-rental-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal((book.match(/data-book-sale-label=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal((book.match(/class="redcarpert-book-condition-note"/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal(book.split(RENTAL_CONDITION_NOTE).length-1,lookbookPlacements(catalogueProducts).length);
  assert.doesNotMatch(book,/Inspiration photo|Example sale price|price disclaimer|not confirmed|To be confirmed/i);
  for(const product of catalogueProducts){
   assert(book.includes('data-book-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'),
@@ -110,7 +111,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
  assert.doesNotMatch(prevArrow,/>Previous</);
  assert.doesNotMatch(nextArrow,/>Next</);
  const gallery=readFileSync('dist/product/index.html','utf8');
- assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,catalogueProducts.length);
+ assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
  const listingPages=[gallery];
  for(const category of ['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
@@ -135,12 +136,12 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length+modernTraditionPages.length);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,lookbookPlacements(catalogueProducts).length+modernTraditionPages.length);
   assert.doesNotMatch(book,/images\.pexels\.com|data-sample-id=/,'client-only digital book');
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
- assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,catalogueProducts.length);
- assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,12);
+ assert.equal((book.match(/class="redcarpert-book-photo"/g)||[]).length,lookbookPlacements(catalogueProducts).length);
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,15);
 
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
    'interactive book should contain exactly twelve new client Ruffled photographs');
