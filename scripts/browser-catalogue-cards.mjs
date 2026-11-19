@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
-import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
 
 /** Production-browser coverage for editorial listing cards on all six routes. */
 const origin = 'http://localhost:4173/redcarpert-prototype';
@@ -13,7 +13,8 @@ try {
       for (const route of routes) {
         await page.goto(origin + route + '/', { waitUntil: 'domcontentloaded' });
         const expected = route === '/product' ? catalogueProducts :
-          catalogueProducts.filter(p => route.endsWith('/' + p.category));
+          catalogueProducts.filter(p=>catalogueCategories.some(c=>
+            route===c.route.replace(/\/$/,'') && dressAppearsInCollection(p,c.id)));
         const cards = await page.locator('ul.products[data-catalogue-preview] li.product').evaluateAll(nodes => nodes.map(card => {
           const img = card.querySelector('img');
           const link = card.querySelector('a.woocommerce-LoopProduct-link');
@@ -29,6 +30,7 @@ try {
           };
           return {
             id: card.getAttribute('data-catalogue-id'),
+            collections: card.getAttribute('data-catalogue-collections'),
             name: collection.textContent.trim(),
             number: number.textContent.trim(),
             link: link.getAttribute('href'),
@@ -51,6 +53,7 @@ try {
           const number = product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
           assert(!card.invalid, width + 'px ' + route + ' missing editorial card components');
           assert.equal(card.id, product.id);
+          assert.equal(card.collections, product.collections.join(' '));
           assert.equal(card.name, name);
           assert.equal(card.number, number);
           assert.equal(card.hiddenRule, 'true');
@@ -88,7 +91,7 @@ try {
           for (const filter of ['all', ...catalogueCategories.map(c => c.id)]) {
             await page.locator('[data-filter-category="' + filter + '"]').click();
             const matching = filter === 'all' ? catalogueProducts :
-              catalogueProducts.filter(product => product.category === filter);
+              catalogueProducts.filter(product => product.collections.includes(filter));
             const layout = await page.locator('ul.products[data-catalogue-preview]').evaluate(grid => {
               const rect = el => {
                 const box = el.getBoundingClientRect();
