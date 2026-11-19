@@ -1,6 +1,6 @@
 import { catalogueProducts, type CatalogueProduct } from "../data/catalogue.ts";
 
-/** A collection-specific view of an existing client dress; never a second product record. */
+/** Four standalone Modern Tradition products with independent catalogue IDs. */
 export interface ModernTraditionPage {
   readonly product: CatalogueProduct;
   readonly number: string;
@@ -10,7 +10,7 @@ export interface ModernTraditionPage {
 
 /** Stable, contiguous numbers for the approved Modern Tradition selection. */
 export const modernTraditionPages: readonly ModernTraditionPage[] = catalogueProducts
-  .filter(product => product.collections.includes("modern_tradition"))
+  .filter(product => product.category === "modern_tradition")
   .map((product, index) => {
     const number = String(index + 1).padStart(2, "0");
     return {
