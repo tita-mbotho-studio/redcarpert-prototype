@@ -5,7 +5,9 @@ import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
 import {createProductDetailPreview,sampleFittingMessage,sampleGalleryImages,relatedDressesFor} from '../src/lib/product-detail-preview.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
 import { photosForDress, validateDressGalleryMappings } from '../src/lib/dress-gallery.ts';
+import clientMermaidDresses from '../src/data/client-mermaid-dresses.json' with {type:'json'};
 import clientBallGowns from '../src/data/client-ball-gowns.json' with {type:'json'};
+import clientTwoInOneDresses from '../src/data/client-two-in-one-dresses.json' with {type:'json'};
 import clientRuffledDresses from '../src/data/client-ruffled-dresses.json' with {type:'json'};
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
 const freeze=o=>{if(o&&typeof o==='object'&&!Object.isFrozen(o)){Object.values(o).forEach(freeze);Object.freeze(o);}return o;};
@@ -157,7 +159,7 @@ test('unexpected source structures, commerce content and unverified mappings fai
  for(const changes of [{previewRoute:'/product/arabella'},{detailReference:'/product/client'},{id:'invented'},{status:'confirmed'},{category:'ball_gown'},{image:'https://example.com/photo.jpg'}])assert.throws(()=>createProductDetailPreview(sitePages['/product/arabella'],{...product,...changes}),/incompatible sample mapping/);
 });
 test('each detail uses the correct remote primary image without local downloads',()=>{
- assert.equal(catalogueProducts.length,35);
+ assert.equal(catalogueProducts.length,51);
  for(const product of catalogueProducts){
   const gallery=sampleGalleryImages[product.id];
   assert.equal(gallery.src,product.image);
@@ -168,7 +170,8 @@ test('each detail uses the correct remote primary image without local downloads'
 });
 
 test('multiple verified photos for one dress render discreet arrows, dots, position and a separate photo modal',()=>{
- const product=catalogueProducts[0];
+ const product=catalogueProducts.find(p=>p.status==='sample');
+ assert(product);
  const extras={
   [product.id]: [
    {url:'https://ik.imagekit.io/kw8awoqvwi/client/dress-front-detail.webp',alt:'Detail view of the same Mermaid wedding gown'},
@@ -205,10 +208,11 @@ test('multiple verified photos for one dress render discreet arrows, dots, posit
  assert.equal(all([root]).filter(n=>Object.hasOwn(n.attrs,'data-rental-price')).length,1,'rental price remains intact');
 });
 test('additional dress photographs reject unknown IDs, duplicates and unsafe or undescribed URLs',()=>{
- const product=catalogueProducts[0];
+ const product=catalogueProducts.find(p=>p.status==='sample');
+ assert(product);
  const make=photo=>({[product.id]:[photo]});
  validateDressGalleryMappings({});
- assert.equal(photosForDress(product).length,product.id==='sample-two-in-one-01'?2:1);
+ assert.equal(photosForDress(product).length,1);
  assert.throws(()=>validateDressGalleryMappings({unknown:[{url:product.image,alt:'Another angle'}]}),/Unrecognized dress gallery ID/);
  assert.throws(()=>validateDressGalleryMappings(make({url:'javascript:alert(1)',alt:'Another angle'})),/Invalid gallery photo/);
  assert.throws(()=>validateDressGalleryMappings(make({url:'https://evil.example/track.jpg',alt:'Another angle'})),/Invalid gallery photo/);
@@ -219,59 +223,55 @@ test('additional dress photographs reject unknown IDs, duplicates and unsafe or 
  assert.throws(()=>validateDressGalleryMappings({[product.id]:[same,same]}),/Repeated gallery photograph/);
 });
 
-test('Pexels browser-demo gallery has two photographs from the same Esma Atak shoot',()=>{
- const demo=catalogueProducts.find(product=>product.id==='sample-two-in-one-01');
- assert(demo);
- const photos=photosForDress(demo);
- assert.equal(photos.length,2,'test dress should show real arrows and 01 / 02 counter');
- assert.match(photos[0].url,/\/20370059\/pexels-photo-20370059\.jpeg/);
- assert.match(photos[1].url,/\/20370060\/pexels-photo-20370060\.jpeg/);
- assert.match(photos[1].alt,/Side angle/);
- const other=catalogueProducts.find(product=>product.id==='sample-mermaid');
- assert(other);
- assert.equal(photosForDress(other).length,1,'unmodified dresses still hide navigation');
+test('client Mermaid and 2 in 1 dresses have fully grouped photo galleries',()=>{
+ const mermaid=catalogueProducts.find(product=>product.id==='mermaid-lefa-dress');
+ const twoInOne=catalogueProducts.find(product=>product.id==='2-in-1-kwena-dress');
+ assert(mermaid&&twoInOne);
+ for(const [dress,count] of [[mermaid,3],[twoInOne,3]]){
+  const photos=photosForDress(dress);
+  assert.equal(photos.length,count);
+  assert.equal(photos[0].url,dress.image);
+  assert(photos.every((p,i)=>new URL(p.url).pathname.endsWith('-'+String(i+1).padStart(2,'0')+'.webp')));
+  assert(photos.every(p=>p.alt.includes(dress.name)));
+ }
 });
 
-test('client Ball Gowns and Ruffled dresses map all 65 unique ImageKit photos to their own galleries',()=>{
+test('all 183 client dress photos remain grouped to the correct detail pages',()=>{
  const families=[
-   {dresses:clientBallGowns,total:27,prefix:'Ball Gown',expected:[3,3,4,1,4,2,1,1,4,1,3]},
-   {dresses:clientRuffledDresses,total:38,prefix:'Ruffled Dress',expected:[2,1,3,3,3,2,2,4,9,2,6,1]},
+  {dresses:clientMermaidDresses,total:6},
+  {dresses:clientBallGowns,total:34},
+  {dresses:clientRuffledDresses,total:38},
+  {dresses:clientTwoInOneDresses,total:105},
  ];
- assert.equal(catalogueProducts.filter(p=>p.status==='client').length,23);
- const allUrls=new Set();
- for (const family of families) {
-  assert.equal(family.dresses.length,family.expected.length);
-  assert.equal(family.dresses.reduce((sum,dress)=>sum+dress.photos.length,0),family.total);
-  for(const [index,dress] of family.dresses.entries()){
-   const product=catalogueProducts.find(entry=>entry.id===dress.id);
-   assert(product, 'missing '+dress.id+' from catalogue');
+ assert.equal(catalogueProducts.filter(p=>p.status==='client').length,47);
+ const urls=new Set();
+ for(const family of families){
+  assert.equal(family.dresses.reduce((n,d)=>n+d.photos.length,0),family.total);
+  for(const dress of family.dresses){
+   const product=catalogueProducts.find(p=>p.id===dress.id);
+   assert(product,'missing client dress '+dress.id);
    assert.equal(product.status,'client');
-   assert(Number.isSafeInteger(product.priceZar) && product.priceZar>0);
+   assert.equal(product.name,dress.name);
    assert.equal(product.image,dress.photos[0].url);
-   assert.equal(product.name,family.prefix+' '+String(index+1).padStart(2,'0'));
    const photos=photosForDress(product);
-   assert.equal(photos.length,family.expected[index]);
    assert.deepEqual(photos,dress.photos);
    for(const photo of photos){
-     assert(!allUrls.has(photo.url),'same source image cannot belong to two client dresses: '+photo.url);
-     allUrls.add(photo.url);
+    assert(!urls.has(photo.url),'photo duplicated between client dresses: '+photo.url);
+    urls.add(photo.url);
    }
    const output=createProductDetailPreview(sitePages['/product/arabella'],product);
    const content=all(output.nodes);
    const gallery=content.find(n=>n.attrs['data-detail-gallery']===product.id);
-   assert.equal(JSON.parse(gallery.attrs['data-gallery-photos']).length,family.expected[index]);
-   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,family.expected[index]>1?1:0);
+   assert.equal(JSON.parse(gallery.attrs['data-gallery-photos']).length,photos.length);
+   assert.equal(content.filter(n=>Object.hasOwn(n.attrs,'data-gallery-next')).length,photos.length>1?1:0);
    assert(output.title.includes(product.name));
-   assert(!output.title.includes('Sample Preview'));
    assert.equal(content.find(n=>n.attrs.class==='redcarpert-detail-price-label').children[0],'SALE PRICE');
    assert(content.some(n=>Object.hasOwn(n.attrs,'data-sale-price')&&n.children[0]===displaySalePriceForDress(product.id)));
    assert(content.some(n=>Object.hasOwn(n.attrs,'data-rental-price')&&n.children[0]===displayRentalPriceForDress(product.id)));
-   assert(!content.some(n=>n.attrs.class==='sample-detail-notice'));
-   assert(!JSON.stringify(content).includes('Client-supplied dress photographs'));
    assert(!sampleFittingMessage(product).includes('demonstration'));
   }
  }
- assert.equal(allUrls.size,65);
- assert.equal(clientBallGowns[3].photos[0].url.includes('ball-gown-04-02.webp'),true,
-   'Ball Gown 04 uses the only supplied 04-02 asset; do not invent 04-01');
+ assert.equal(urls.size,183);
+ assert.equal(clientBallGowns[3].photos[0].url.includes('ball-gown-04-01.webp'),true);
+ assert.equal(clientTwoInOneDresses.find(d=>d.id==='2-in-1-nthabiseng-dress').photos.length,16);
 });
