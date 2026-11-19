@@ -1,4 +1,4 @@
-import { setMediaImage } from './MediaDelivery.js';
+import { setMediaImage, preloadMediaImage } from './MediaDelivery.js';
 
 /**
  * Dress Details: one active photograph, optional multi-photo navigation, and
@@ -33,16 +33,20 @@ export function initializeDressGalleries() {
     }
 
     let currentIndex = 0;
+    let requestedIndex = 0;
+    let navigationRequest = 0;
     let opener = null;
     let pointerOpened = false;
     let suppressClickUntil = 0;
     let pointerStart = null;
 
     const currentPhoto = () => photos[currentIndex];
-    const setActive = requestedIndex => {
-      currentIndex = (requestedIndex + photos.length) % photos.length;
+    const setActive = (index, readyUrl) => {
+      currentIndex = index;
       const photo = currentPhoto();
-      setMediaImage(image, photo.url, 'detail');
+      // readyUrl has completed loading AND decoding; swapping it cannot flash
+      // the initial photograph during a slow ImageKit network request.
+      setMediaImage(image, photo.url, 'detail', readyUrl);
       image.alt = photo.alt;
       image.setAttribute('aria-label', 'Enlarge photograph ' + (currentIndex + 1) + ' of ' + photos.length);
       gallery.dataset.activePhoto = String(currentIndex);
@@ -134,8 +138,7 @@ export function initializeDressGalleries() {
       console.error('Incomplete dress photo gallery navigation');
       continue;
     }
-    const render = requestedIndex => {
-      setActive(requestedIndex);
+    const updateIndicators = () => {
       counter.textContent = String(currentIndex + 1).padStart(2,'0') +
         ' / ' + String(photos.length).padStart(2,'0');
       dots.forEach((dot,index) => {
@@ -144,15 +147,51 @@ export function initializeDressGalleries() {
         dot.setAttribute('aria-pressed',String(active));
       });
     };
+    const preloadNeighbours = () => {
+      // Honour reduced-data connections; explicit navigation always loads.
+      if (navigator.connection?.saveData) return;
+      for (const index of new Set([
+        (currentIndex + 1) % photos.length,
+        (currentIndex - 1 + photos.length) % photos.length,
+      ])) {
+        if (index !== currentIndex) preloadMediaImage(photos[index].url, 'detail').catch(() => {});
+      }
+    };
+    const render = index => {
+      requestedIndex = (index + photos.length) % photos.length;
+      const target = requestedIndex;
+      const request = ++navigationRequest;
+      // Keep the visible photo AND its counter unchanged while the next photo
+      // loads. Rapid next/previous taps can only commit the latest selection.
+      if (target === currentIndex) {
+        gallery.removeAttribute('aria-busy');
+        return;
+      }
+      gallery.setAttribute('aria-busy', 'true');
+      preloadMediaImage(photos[target].url, 'detail').then(readyUrl => {
+        if (request !== navigationRequest || !gallery.isConnected) return;
+        setActive(target, readyUrl);
+        gallery.removeAttribute('aria-busy');
+        updateIndicators();
+        preloadNeighbours();
+      }).catch(() => {
+        if (request !== navigationRequest) return;
+        requestedIndex = currentIndex;
+        gallery.removeAttribute('aria-busy');
+        // Keep the last valid photograph and indicators, never show photo 01
+        // or a failed image as a substitute for the requested dress angle.
+        console.warn('Unable to load the selected wedding dress photograph');
+      });
+    };
     previous.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      render(currentIndex - 1);
+      render(requestedIndex - 1);
     });
     next.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
-      render(currentIndex + 1);
+      render(requestedIndex + 1);
     });
     dots.forEach((dot,index) => dot.addEventListener('click',event => {
       event.preventDefault();
@@ -164,7 +203,7 @@ export function initializeDressGalleries() {
       if (event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
       event.preventDefault();
       event.stopPropagation();
-      render(currentIndex + (event.key === 'ArrowRight' ? 1 : -1));
+      render(requestedIndex + (event.key === 'ArrowRight' ? 1 : -1));
     });
 
     // Horizontal touch gestures continue to turn only genuine gallery photos.
@@ -182,9 +221,13 @@ export function initializeDressGalleries() {
       startPoint = null;
       if (Math.hypot(deltaX,deltaY) > 10) suppressClickUntil = performance.now() + 500;
       if (Math.abs(deltaX) >= 48 && Math.abs(deltaX) > Math.abs(deltaY) * 1.25)
-        render(currentIndex + (deltaX < 0 ? 1 : -1));
+        render(requestedIndex + (deltaX < 0 ? 1 : -1));
     }, {passive:true});
     frame.addEventListener('touchcancel', () => {startPoint=null;}, {passive:true});
-    render(0);
+    // The initial HTML image is already being loaded by the browser. Replacing
+    // its src again on initialization would restart it or briefly repaint it.
+    gallery.dataset.activePhoto = '0';
+    updateIndicators();
+    preloadNeighbours();
   }
 }
