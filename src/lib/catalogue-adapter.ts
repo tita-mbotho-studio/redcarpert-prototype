@@ -83,9 +83,12 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     // detail routes and WhatsApp handoffs remain unchanged.
     const category = catalogueCategories.find(item => item.id === product.category);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
-    if (!category || !number) return fail("card collection or dress number");
+    // Named client gowns (e.g. "2 in 1 Kwena Dress") use their actual
+    // supplied dress name where legacy cards previously displayed a number.
+    const displayName = number ?? product.name.replace(/^(?:Mermaid|2 in 1) /, "");
+    if (!category || !displayName) return fail("card collection or dress name");
     const collection = category.name.replace(/ Dresses$/, "");
-    const accessibleName = `${collection} ${number}`;
+    const accessibleName = number ? `${collection} ${number}` : product.name;
     // Explicitly type the title subtree: each child has string-valued
     // attributes, including the decorative divider's aria-hidden flag.
     const editorialTitle: DocumentElement = {
@@ -94,7 +97,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       children: [
         { tag: "span", attrs: { class: "redcarpert-catalogue-collection" }, children: [collection] },
         { tag: "span", attrs: { class: "redcarpert-catalogue-divider", "aria-hidden": "true" }, children: [] },
-        { tag: "span", attrs: { class: "redcarpert-catalogue-number" }, children: [number] },
+        { tag: "span", attrs: { class: "redcarpert-catalogue-number", ...(number ? {} : { "data-catalogue-named": "" }) }, children: [displayName] },
       ],
     };
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
