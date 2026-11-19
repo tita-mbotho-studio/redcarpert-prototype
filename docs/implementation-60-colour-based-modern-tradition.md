@@ -26,6 +26,8 @@ Modern Tradition is a **colour-based bridal collection**, not an exclusive silho
 - The main catalogue filter switches the heading, 01–08 display number, image alt text and accessible link label to Modern Tradition; switching to another filter restores the original silhouette names, image descriptions and typography.
 - The interactive book contains **49 pages** and the A4 PDF contains **59 pages**, one unique dress entry each, with the cross-list labels preserved. No sample PDF alias or Pexels image is generated.
 - The gallery, link, WhatsApp and pricing values always refer to the original client dress record.
+- Five abandoned Pexels/sample WebP files under `public/redcarpert/gallery/` and `public/redcarpert/home/` have been deleted from this branch. The Pexels-only listing fixture and sample gallery helper are also removed. The production generator no longer produces the retired `Redcarpert-Sample-Lookbook.pdf` alias.
+- Old historical implementation notes remain as project history only; they are not published client dress records, executable sample data or media assets.
 
 ## Verification
 - Unit regression test `tests/modern-tradition-cross-listing.test.mjs` verifies the eight inspected gown IDs, correct two-category membership, preserved 47 unique catalogue products and sales/rental records, one lookbook page per gown and correct PDF cross-reference labels.
