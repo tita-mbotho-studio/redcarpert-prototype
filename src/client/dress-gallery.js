@@ -23,7 +23,7 @@ export function initializeDressGalleries() {
     }
 
     const image = gallery.querySelector('[data-gallery-active-image]');
-    const frame = gallery.querySelector('[data-sample-frame]');
+    const frame = gallery.querySelector('[data-dress-frame]');
     const dialog = document.querySelector('[data-dress-photo-dialog]');
     const preview = dialog?.querySelector('[data-dress-preview-photo]');
     const close = dialog?.querySelector('[data-dress-preview-close]');
