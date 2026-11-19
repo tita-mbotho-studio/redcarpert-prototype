@@ -41,36 +41,22 @@ body .redcarpert-dress-photo-dialog.redcarpert-dress-pointer-opened
   width: 100%;
   max-width: 100%;
 }
-/* The published gallery uses data-dress-frame (not the retired sample-frame
-   attribute). Anchor absolute chevrons to the image itself on every viewport;
-   don't give the frame a forced aspect ratio or alter the photo's sizing. */
+/* Anchor arrows to the real published frame and contain each client photo.
+   Both single-photo and multi-photo galleries retain the original portrait
+   ratio. Never stretch a client photograph or crop its silhouette. */
 #main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-dress-frame] {
   position: relative;
+  overflow: hidden;
+  background: #fdfbf8;
 }
-#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-dress-frame] > img[data-gallery-active-image] {
   display: block !important;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
   object-position: center;
 }
-/* Preserve single-photo presentation. Multi-angle and client photography use
-   proportional image containment; no inherited hover zoom is enabled. */
-#main-container [data-detail-preview] [data-gallery-origin="client"] .redcarpert-detail-photo-frame[data-sample-frame] {
-  background: #fdfbf8;
-  overflow: hidden;
-}
-#main-container [data-detail-preview] [data-gallery-origin="client"] .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
-  object-fit: contain;
-}
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] {
-  overflow: hidden;
-  background: #fdfbf8;
-}
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] > img:not(.zoomImg) {
-  object-fit: contain;
-}
-#main-container [data-detail-preview] .redcarpert-multi-photo-slider .redcarpert-detail-photo-frame[data-sample-frame] > .zoomImg {
+#main-container [data-detail-preview] .redcarpert-detail-photo-frame[data-dress-frame] > .zoomImg {
   display: none !important;
 }
 /* Quiet, touch-friendly controls overlay only genuine multi-photo dresses. */
