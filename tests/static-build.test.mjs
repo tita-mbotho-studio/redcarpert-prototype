@@ -5,6 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import sharp from 'sharp';
 import {catalogueProducts} from '../src/data/catalogue.ts';
+import {modernTraditionPages,modernTraditionPageForRoute,modernTraditionPageForDress} from '../src/lib/modern-tradition.ts';
 import {displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE} from '../src/lib/pricing.ts';
 import {photosForDress} from '../src/lib/dress-gallery.ts';
 import {mediaDeliveryUrl} from '../src/lib/media-delivery.ts';
@@ -16,7 +17,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,catalogueProducts.length+11);
+ assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+11);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -31,8 +32,9 @@ test('static deployment contains complete approved pages, local paths and no app
   }
   const handoffs=[...html.matchAll(/<a\b[^>]*\bdata-whatsapp-send\b[^>]*\bhref="([^"]+)"[^>]*>/gi)];
   assert(handoffs.length>=3,route+' must contain direct fitting, footer and floating WhatsApp links');
-  const product=catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
-  const expectedMessage=product ? dressFittingMessage(product) : generalFittingMessage();
+  const modernPage=modernTraditionPageForRoute(route);
+   const product=modernPage?.product ?? catalogueProducts.find(item=>item.previewRoute.replace(/\/$/,'')===route.replace(/\/$/,''));
+  const expectedMessage=product ? dressFittingMessage(product,modernPage) : generalFittingMessage();
   const expectedUrl=buildWhatsAppUrl(expectedMessage);
   for(const [,href] of handoffs){
     const linkUrl=new URL(href.replaceAll('&amp;','&'));
@@ -133,7 +135,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length+modernTraditionPages.length);
   assert.doesNotMatch(book,/images\.pexels\.com|data-sample-id=/,'client-only digital book');
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
@@ -156,8 +158,14 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
   assert.match(html,/class="redcarpert-detail-card"/);
   assert.match(html,/data-sale-price=""/);
   assert.match(html,/data-rental-price=""/);
-  const product=catalogueProducts.find(p=>p.previewRoute===route);
+  const modernPage=modernTraditionPageForRoute(route);
+   const product=modernPage?.product ?? catalogueProducts.find(p=>p.previewRoute===route);
   assert(product,'unknown dress detail route: '+route);
+   if(modernPage){
+     assert(html.includes('data-modern-tradition-number="'+modernPage.number+'"'));
+     assert(html.includes('class="product_title entry-title redcarpert-detail-name">'+modernPage.name+'</h1>'));
+     assert(html.includes('<title>'+modernPage.name+' | Redcarpert Wedding Dresses</title>'));
+   }
   assert.match(html,/https:\/\/ik\.imagekit\.io\/kw8awoqvwi\//);
    assert.doesNotMatch(html,/Client-supplied dress photographs|class="redcarpert-detail-collection"/);
    assert.match(html,/SALE PRICE/);
@@ -187,7 +195,9 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
     'related dresses must share the rental condition note');
   assert.doesNotMatch(html,/To be confirmed|EXAMPLE SALE PRICE|This photo is for inspiration/i,
     'detail page must not display temporary development disclaimers');
-  const categoryMatches=catalogueProducts.filter(d=>d.category===product.category&&d.id!==product.id);
+  const categoryMatches=modernPage
+     ? modernTraditionPages.filter(page=>page.product.id!==product.id).map(page=>page.product)
+     : catalogueProducts.filter(d=>d.category===product.category&&d.id!==product.id);
   const relatedIds=[...html.matchAll(/data-related-dress="([^"]+)"/g)].map(match=>match[1]);
   assert.equal(relatedIds.length,Math.min(4,categoryMatches.length),
     'unexpected related dress card count for '+route);
@@ -196,7 +206,8 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
   for(const id of relatedIds){
     const dress=categoryMatches.find(item=>item.id===id);
     assert(dress,'related dress must belong to the same category and exclude current gown');
-    assert(html.includes('href="/redcarpert-prototype'+dress.previewRoute+'/"'),
+    const expectedRelatedRoute=modernPage ? modernTraditionPageForDress(id).route : dress.previewRoute;
+     assert(html.includes('href="/redcarpert-prototype'+expectedRelatedRoute+'/"'),
       'related dress must link to the correct detail page');
     assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
     assert(html.includes('data-related-sale-price="'+id+'">'+displaySalePriceForDress(id)+'</span>'),
@@ -219,7 +230,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,catalogueProducts.length+11);
+  assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+11);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
