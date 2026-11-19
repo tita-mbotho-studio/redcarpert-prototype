@@ -72,7 +72,7 @@ export function photosForDress(
   mappings: Readonly<Record<string, readonly DressGalleryPhoto[]>> = additionalDressPhotos,
 ): readonly DressGalleryPhoto[] {
   validateDressGalleryMappings(mappings);
-  const extras = mappings[product.id] ?? [];
+  const extras = mappings[product.sourceDressId ?? product.id] ?? [];
   if (extras.some(photo => photo.url === product.image)) throw new Error("Gallery duplicates the primary photograph for " + product.id);
   return [{ url: product.image, alt: product.imageAlt }, ...extras];
 }
