@@ -1,4 +1,4 @@
-import { catalogueCategories, type CatalogueProduct } from '../data/catalogue.ts';
+import { catalogueCategories, collectionsForDress, modernTraditionColourByDress, type CatalogueProduct } from '../data/catalogue.ts';
 import clientMermaidDresses from '../data/client-mermaid-dresses.json' with { type: 'json' };
 import clientBallGowns from '../data/client-ball-gowns.json' with { type: 'json' };
 import clientRuffledDresses from '../data/client-ruffled-dresses.json' with { type: 'json' };
@@ -23,6 +23,12 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
   const expectedTotal = Object.values(expectedCounts).reduce((n,count)=>n+count,0);
   if (products.length !== expectedTotal) throw new Error('Catalogue must contain '+expectedTotal+' dresses matching the approved client manifests');
   const ids = new Set<string>(), routes = new Set<string>(), photos = new Set<string>();
+  for (const [id, colour] of modernTraditionColourByDress) {
+    if (!clientSource.has(id) || !colour.trim() ||
+        !['mermaid','ball_gown','ruffled','two_in_one'].includes(clientSource.get(id)!.category)) {
+      throw new Error('Modern Tradition features require a real client dress and verified fabric colour: '+id);
+    }
+  }
   const counts = Object.fromEntries(catalogueCategories.map(c=>[c.id,0])) as Record<string,number>;
   for (const product of products) {
     if (!/^[a-z0-9-]+$/.test(product.id) || ids.has(product.id))
@@ -31,6 +37,12 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     if (!catalogueCategories.some(c=>c.id===product.category))
       throw new Error('Unapproved category for '+product.id);
     counts[product.category]+=1;
+    const expectedCollections=collectionsForDress(product.id,product.category);
+    if (!Array.isArray(product.collections) ||
+        JSON.stringify(product.collections)!==JSON.stringify(expectedCollections) ||
+        new Set(product.collections).size !== product.collections.length) {
+      throw new Error('Invalid multi-collection membership for '+product.id);
+    }
     if (!Number.isSafeInteger(product.priceZar) || product.priceZar<=0)
       throw new Error('Invalid catalogue price for '+product.id);
     if (product.detailReference !== null || !['sample','client'].includes(product.status))
