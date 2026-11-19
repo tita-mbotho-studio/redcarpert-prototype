@@ -17,13 +17,18 @@ Modern Tradition is a **colour-based bridal collection**, not an exclusive silho
 - Each dress retains its **single source record and primary category**, plus derived `collections` membership. A colourful Ball Gown can be visible under both Ball Gown and Modern Tradition without duplicating its ID, images, detail page, price, WhatsApp enquiry or gallery.
 - Both the main Wedding Dresses filter and the standalone Modern Tradition route match against `product.collections`, rather than only `product.category`.
 - Original category card headings retain their silhouette (e.g., Ball Gown), while the Modern Tradition page description explains the colour-based mix.
-- One dress page and one photograph per dress remain in the **53-page interactive book** and the **63-page A4 PDF**, with a discreet "Also in Modern Tradition" caption and a Modern Tradition section summary covering its cross-listed looks. This avoids duplicating pages.
+- One dress page and one photograph per dress remain in the **49-page interactive book** and the **59-page A4 PDF**, with a discreet "Also in Modern Tradition" caption and a Modern Tradition section summary covering its cross-listed looks. This avoids duplicating pages.
 
-## Older Modern Tradition samples
-The four existing non-client Modern Tradition sample records remain intact. Image review found that two of those original source photos (`sample-modern-tradition-01` and `sample-modern-tradition-03`) appear white/neutral rather than colourful. **They are preserved for now rather than deleted or silently moved to a guessed silhouette**, pending replacement photos or explicit approval to retire them. The category therefore temporarily contains 12 looks (four legacy entries plus eight new cross-listings); the eight imported additions have been visually checked.
+## Client-only catalogue and Modern Tradition card labels
+- All four retired Modern Tradition placeholder records, Pexels photo groups and matching sample pricing entries are removed. The active catalogue is now **47 unique client dresses** with **183 client gown photographs**.
+- **Modern Tradition contains exactly eight visually reviewed colourful client gowns**; no additional sample category records remain.
+- On the standalone Modern Tradition page, cards display the **Modern Tradition** collection heading even when their source silhouette is Ball Gown, Ruffled or 2 in 1.
+- The main catalogue filter switches these same visible card labels and accessible links to Modern Tradition when selected, and restores the original silhouette label on other filters.
+- The interactive book contains **49 pages** and the A4 PDF contains **59 pages**, one unique dress entry each, with the cross-list labels preserved. No sample PDF alias or Pexels image is generated.
+- The gallery, link, WhatsApp and pricing values always refer to the original client dress record.
 
 ## Verification
-- Unit regression test `tests/modern-tradition-cross-listing.test.mjs` verifies the eight inspected gown IDs, correct two-category membership, preserved 51 unique catalogue products and sales/rental records, one lookbook page per gown and correct PDF cross-reference labels.
+- Unit regression test `tests/modern-tradition-cross-listing.test.mjs` verifies the eight inspected gown IDs, correct two-category membership, preserved 47 unique catalogue products and sales/rental records, one lookbook page per gown and correct PDF cross-reference labels.
 - Existing catalogue adapter, editorial card and distribution tests now calculate standalone category page counts from membership.
 - Responsive Chromium checks include Modern Tradition filtering across six viewports; stale imported Mermaid dress price and related-gallery assertions were corrected.
 - **Do not run Chromium until deployment, per owner instruction.** Run `npm run check` and `npm run test:dist` locally on this feature branch. GitHub Actions remain manual-only.
