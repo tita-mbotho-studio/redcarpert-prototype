@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
-import {readFileSync} from 'node:fs';
+import sharp from 'sharp';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds.ts';
 
 const origin='http://localhost:4173/redcarpert-prototype';
+// Use the real brand artwork to create a small, valid WebP in memory.
+// The loader test controls network latency, not the content of the dress photographs.
+const heroFixture=await sharp('public/redcarpert/brand/redcarpert-logo.png')
+  .resize(24,24,{fit:'contain'}).webp({quality:70}).toBuffer();
 const browser=await chromium.launch({args:['--no-sandbox']});
 try {
   for(const {width,height} of [{width:1440,height:900},{width:1024,height:768},{width:1000,height:800},{width:768,height:1024},{width:390,height:844},{width:375,height:667},{width:320,height:568}]) {
@@ -13,11 +17,6 @@ try {
     // Simulate slow ImageKit access deterministically, without depending on
     // external network availability during final CI. Keep the exact requested
     // remote URLs in rendered CSS and preload attributes.
-    const localFixtures=[
-      'brand-pexels-sample.webp',
-      'collection-pexels-sample.webp',
-      'hero-pexels-sample.webp',
-    ];
     await page.route('https://ik.imagekit.io/**',async route=>{
       const match=route.request().url().match(/home-page-(\d)\.webp/);
       const index=Number(match?.[1]??0)-1;
@@ -26,7 +25,7 @@ try {
       return route.fulfill({
         status:200,
         contentType:'image/webp',
-        body:readFileSync('public/redcarpert/home/'+localFixtures[index]),
+        body:heroFixture,
       });
     });
     await page.goto(origin+'/',{waitUntil:'domcontentloaded'});
@@ -137,7 +136,7 @@ try {
   const routes=['/product/','/wedding-moments/','/about-us/','/contact-us/','/digital-lookbook/'];
   for(const route of routes){
     const page=await browser.newPage({viewport:{width:390,height:844}});
-    await page.route('https://images.pexels.com/**',r=>r.abort());
+    await page.route('https://ik.imagekit.io/**',r=>r.abort());
     await page.goto(origin+route,{waitUntil:'domcontentloaded'});
     await page.locator('#redcarpert-page-loader').waitFor({state:'detached',timeout:11000});
     assert.equal(await page.locator('#header').isVisible(),true,route+' must remain usable');
