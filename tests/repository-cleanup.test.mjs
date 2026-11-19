@@ -29,16 +29,19 @@ test("the captured public archive has been pruned without removing Redcarpert ar
   assert.ok(paths.length <= 150, `unexpected public archive growth: ${paths.length} files`);
   assert.ok(bytes < 20 * 1024 * 1024, `unexpected public archive growth: ${bytes} bytes`);
   assert.ok(paths.every((file) => /^public[\\/](?:redcarpert|seo|site-assets)[\\/]/.test(file)), "unapproved asset directory");
-  for (const required of [
-    "public/redcarpert/brand/redcarpert-logo.png",
+  // Approved brand artwork must remain, but Implementation 60 intentionally
+  // deleted every Pexels/sample asset rather than publishing demo media.
+  assert.ok(existsSync("public/redcarpert/brand/redcarpert-logo.png"),
+    "missing approved Redcarpert logo");
+  for (const retired of [
     "public/redcarpert/gallery/sample-01-mermaid-pexels.webp",
     "public/redcarpert/gallery/sample-02-ball-gown-pexels.webp",
     "public/redcarpert/home/brand-pexels-sample.webp",
     "public/redcarpert/home/collection-pexels-sample.webp",
     "public/redcarpert/home/hero-pexels-sample.webp",
-  ]) assert.ok(existsSync(required), `missing ${required}`);
-  for (const retired of ["public/gallery-data", "public/videos", "public/images", "codex-reports"]) {
-    assert.ok(!existsSync(retired), `legacy directory still tracked: ${retired}`);
+    "public/gallery-data", "public/videos", "public/images", "codex-reports",
+  ]) {
+    assert.ok(!existsSync(retired), `retired sample asset or directory still tracked: ${retired}`);
   }
 });
 
