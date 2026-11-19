@@ -111,9 +111,12 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
  const gallery=readFileSync('dist/product/index.html','utf8');
  assert.equal((gallery.match(/data-catalogue-id=/g)||[]).length,catalogueProducts.length);
  const listingPages=[gallery];
- for(const [category,count] of [['mermaid',2],['ball_gown',12],['ruffled',12],['modern_tradition',4],['two_in_one',21]]) {
+ for(const category of ['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']) {
   const html=readFileSync('dist/product-category/'+category+'/index.html','utf8');
-  assert.equal((html.match(/data-catalogue-id=/g)||[]).length,count);
+  const expected=catalogueProducts.filter(product=>product.collections.includes(category));
+  assert.equal((html.match(/data-catalogue-id=/g)||[]).length,expected.length);
+  for(const product of expected) assert(html.includes('data-catalogue-id="'+product.id+'"'),
+    'missing '+product.id+' in '+category+' category page');
   listingPages.push(html);
  }
  for(const html of listingPages) {
