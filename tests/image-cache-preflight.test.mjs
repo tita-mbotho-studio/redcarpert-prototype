@@ -7,7 +7,8 @@ const root='https://ik.imagekit.io/kw8awoqvwi/red-carpet-wedding-dresses/';
 const client=root+'wedding-dresses/mermaid-dresses/mermaid-lefa-dress-01.webp?updatedAt=1795000000000';
 const photo2=root+'wedding-dresses/mermaid-dresses/mermaid-lefa-dress-02.webp?updatedAt=1795000000001';
 const transform=(src,preset)=>src+(src.includes('?')?'&':'?')+
-  'tr=w-640,h-640,c-at_max,q-72,f-auto';
+  'tr=w-'+({card:740,lookbook:1200,detail:1280,hero:2000,team:900,tile:640,preview:1920}[preset])+
+  ',h-640,c-at_max,q-72,f-auto';
 const plan=()=>buildImageCachePlan({
   catalogueProducts:[
     {id:'mermaid-01',image:client},
