@@ -14,16 +14,17 @@ function lookbook() {
  const dresses = catalogueProducts.map((product, i) => {
    const category = (catalogueCategories.find(c => c.id === product.category)?.name ?? 'WEDDING DRESSES').toUpperCase();
    const pageNumber = i + 2;
+   const featuredModern = product.category !== 'modern_tradition' && product.collections.includes('modern_tradition');
    const optimizedImage = mediaDeliveryUrl(product.image, "lookbook");
    const fallbackAttr = optimizedImage === product.image ? "" :
      ' data-media-original="' + escapeHtml(product.image) + '"';
-   return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '">' +
+   return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-sample-id="' + escapeHtml(product.id) + '" data-book-collections="' + escapeHtml(product.collections.join(' ')) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr +
      ' data-book-zoom-photo data-book-zoom-src="' + escapeHtml(mediaDeliveryUrl(product.image, "preview")) +
      '" data-book-zoom-original="' + escapeHtml(product.image) +
      '" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Enlarge photograph of ' + escapeHtml(product.name) +
      '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy">' + (product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
+     '<div class="redcarpert-book-copy">' + (featuredModern ? '<span class="redcarpert-book-kicker">ALSO IN MODERN TRADITION</span>' : product.status === 'client' ? '' : '<span class="redcarpert-book-kicker">' + escapeHtml(category) + '</span>') + '<h3>' + escapeHtml(product.status === 'client' ? product.name : product.name.replace(/^Sample /, 'Look ')) + '</h3>' +
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
      '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
