@@ -30,7 +30,7 @@ The CSVs did not include new sale or rental prices. Existing price records remai
 - Verified all 235 imported URLs are exactly equal to the uploaded CSV sets.
 - Verified no duplicate URLs, no missing price slots, 51 unique catalogue IDs, 183 unique client gallery photographs, contiguous `-01` to `-NN` per dress, and 90 Wedding Moments items.
 - Updated unit, static HTML, production browser and lookbook tests to exercise expanded collections and page counts.
-- Modified JavaScript and test scripts passed syntax parsing in the connector environment. **The full project `npm run check`, `npm run test:dist` and Playwright browser suite have not run yet.** The private repository cannot be cloned from the current container, and no GitHub Actions were triggered.
+- Modified JavaScript and test scripts passed syntax parsing in the connector environment. Local review on 19 November 2026: ESLint, TypeScript, production build and the distribution suite **passed** (12/12). The unit suite initially had 151/156 passes; five failing legacy assertions were subsequently corrected in the same branch. These covered a removed Mermaid sample route, older dress/PDF counts, the increased Wedding Moments count, pagination remainder, and a visible-copy brand check that incorrectly matched the digits "1980" inside an ImageKit timestamp. Updated tests passed JavaScript syntax checks. **Rerun `npm run check` locally to confirm the full updated unit suite; browser tests remain pending.** No GitHub Actions were triggered.
 
 ## Local review
 ```powershell
