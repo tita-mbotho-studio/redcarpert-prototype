@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { preparePage } from '../scripts/lib/prepare-page.ts';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
-import { sampleFittingMessage } from '../src/lib/product-detail-preview.ts';
 import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp.ts';
@@ -16,7 +15,7 @@ test('every approved page converts all on-site enquiry previews to native WhatsA
     '/product-category/ball_gown',...catalogueProducts.map(item=>item.previewRoute)]){
     const {document,product}=preparePage(route);
     const before=JSON.stringify(document);
-    const message=product?sampleFittingMessage(product):
+    const message=product?dressFittingMessage(product):
       generalFittingMessage();
     const href=buildWhatsAppUrl(message);
     const updated=directWhatsAppHandoffs(document,href);
@@ -69,7 +68,7 @@ test('static HTML renderer preserves real WhatsApp hrefs on footer, floating and
   for(const route of ['/',catalogueProducts.find(product=>product.category==='mermaid')?.previewRoute,
     '/product/preview/ball-gown-02']){
     const {document,product}=preparePage(route);
-    const message=product?sampleFittingMessage(product):
+    const message=product?dressFittingMessage(product):
       generalFittingMessage();
     const href=buildWhatsAppUrl(message);
     const converted=directWhatsAppHandoffs(document,href);
