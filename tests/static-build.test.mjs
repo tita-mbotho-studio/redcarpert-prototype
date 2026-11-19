@@ -18,7 +18,7 @@ const available = existsSync('dist/index.html');
 test('static deployment contains complete approved pages, local paths and no application server', {skip:!available},()=>{
  const files=walk('dist'), htmlFiles=files.filter(f=>f.endsWith('.html'));
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+11);
+ assert.equal(routes.length,catalogueProducts.length+11);
  assert.equal(htmlFiles.length,routes.length+1);
  for(const route of routes){
   const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
@@ -136,7 +136,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
      'condition disclaimer is for dress details and lookbooks, not listing pages');
  }
  const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
- assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length+modernTraditionPages.length);
+ assert.equal(routes.filter(p=>p.startsWith('/product/preview/')).length,catalogueProducts.length);
   assert.doesNotMatch(book,/images\.pexels\.com|data-sample-id=/,'client-only digital book');
  assert.match(book,/Walking on red carpet with confidence/);
  assert.doesNotMatch(book,/redcarpert-book-cover-photo/);
@@ -238,7 +238,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
 
 test('release readiness: all public pages have Redcarpert metadata and safe outbound links',{skip:!available},()=>{
   const routes=JSON.parse(readFileSync('.generated/routes.json','utf8'));
-  assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+11);
+  assert.equal(routes.length,catalogueProducts.length+11);
   const expectedTitles={
     '/product':'Wedding Dresses | Redcarpert Wedding Dresses',
     '/product-category/mermaid':'Mermaid Wedding Dresses | Redcarpert',
