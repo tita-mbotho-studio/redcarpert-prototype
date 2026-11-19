@@ -161,7 +161,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
         : category.id==="modern_tradition"
-          ? "Discover "+(dresses.length+crossListed.length)+" Modern Tradition looks, including "+crossListed.length+
+          ? "Discover "+dresses.length+" Modern Tradition looks, including "+crossListed.length+
             " colourful gowns also featured in other collections."
           : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
     for (const placement of dresses) {
