@@ -9,6 +9,7 @@ import { createNodeRenderer } from '../scripts/lib/markup.ts';
 import { createLuxuryLookbookHtml } from '../src/lib/luxury-lookbook.ts';
 import { lookbookEntries } from '../src/client/lookbook.js';
 import { modernTraditionPages } from '../src/lib/modern-tradition.ts';
+import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress } from '../src/lib/pricing.ts';
 
 const all=nodes=>nodes.flatMap(node=>typeof node==='string'?[]:[node,...all(node.children)]);
@@ -79,18 +80,20 @@ test('Modern Tradition listing and filter use secondary category membership with
   assert.equal(new Set(mainCards.map(c=>c.attrs['data-catalogue-id'])).size,47);
 });
 
-test('interactive and PDF lookbooks label secondary Modern Tradition without duplicating dress pages or prices',()=>{
+test('both books include four category-specific Modern Tradition spreads backed by original client dresses',()=>{
   const html=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   const images=catalogueProducts.map(p=>({id:p.id,jpeg:Buffer.from([0xff,0xd8,0xff,0xd9]),width:1200,height:1800}));
   const pdf=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
+  const placements=lookbookPlacements(catalogueProducts);
   assert.equal(lookbookEntries.length,47);
-  assert.equal((html.match(/data-book-page=/g)||[]).length,49);
+  assert.equal(placements.length,51);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,53);
   assert.equal((html.match(/ALSO IN MODERN TRADITION/g)||[]).length,4);
-  assert.equal((pdf.match(/<section class="page /g)||[]).length,59);
+  assert.equal((pdf.match(/<section class="page /g)||[]).length,63);
   assert.equal((pdf.match(/<span class="kind">Also in Modern Tradition<\/span>/g)||[]).length,4);
   assert(pdf.includes('Discover 4 Modern Tradition looks, including 4 colourful gowns'));
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
-  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,47);
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,51);
+  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,51);
   for(const product of catalogueProducts){
     const entry=lookbookEntries.find(e=>e.id===product.id);
     assert(entry);
@@ -98,5 +101,18 @@ test('interactive and PDF lookbooks label secondary Modern Tradition without dup
     assert(html.includes('data-book-dress-id="'+product.id+'" data-book-collections="'+product.collections.join(' ')+'"'));
     assert(pdf.includes('data-pdf-sale-price="'+product.id+'">'+displaySalePriceForDress(product.id)+'</p>'));
     assert(pdf.includes('data-pdf-rental-price="'+product.id+'">'+displayRentalPriceForDress(product.id)+'</p>'));
+  }
+  assert.deepEqual(placements.filter(placement=>placement.category==='modern_tradition').map(placement=>placement.displayName),
+    ['Modern Tradition 01','Modern Tradition 02','Modern Tradition 03','Modern Tradition 04']);
+  assert.equal((html.match(/data-book-category="modern_tradition"/g)||[]).length,4);
+  for(const page of modernTraditionPages){
+    assert(html.includes('data-book-entry-id="modern-tradition-'+page.number+'" data-book-category="modern_tradition"'));
+    assert(html.includes('<h3>'+page.name+'</h3>'));
+    assert(html.includes('href="'+page.route+'/">View dress details</a>'));
+    assert(pdf.includes('id="look-modern-tradition-'+page.number+'"'));
+    assert(pdf.includes('<h3>'+page.name+'</h3>'));
+    assert(pdf.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+page.route+'/">View dress details</a>'));
+    assert(html.includes('data-book-sale-price="'+page.product.id+'">'+displaySalePriceForDress(page.product.id)+'</p>'));
+    assert(pdf.includes('data-pdf-rental-price="'+page.product.id+'">'+displayRentalPriceForDress(page.product.id)+'</p>'));
   }
 });
