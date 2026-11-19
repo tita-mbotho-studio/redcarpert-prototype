@@ -13,7 +13,7 @@ export const RENTAL_CONDITION_NOTE = "Rental prices may vary depending on whethe
 /** Legacy price provenance remains internal; never expose a pricing notice in the UI. */
 const priceEntries = products.dresses;
 const expectedDressCount = clientMermaidDresses.length + clientBallGowns.length +
-  clientRuffledDresses.length + clientTwoInOneDresses.length + 4; // four remaining Modern Tradition looks
+  clientRuffledDresses.length + clientTwoInOneDresses.length;
 if (products.currency !== "ZAR" || products.priceStatus !== "draft" ||
     products.priceRangeStatus !== "illustrative" || priceEntries.length !== expectedDressCount) {
   throw new Error("products.json: expected " + expectedDressCount + " dress price slots in ZAR");
