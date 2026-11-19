@@ -9,6 +9,7 @@ import {
 } from '../src/lib/pricing.ts';
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
 import {lookbookEntries} from '../src/client/lookbook.js';
+import {lookbookPlacements} from '../src/lib/lookbook-placements.ts';
 
 test('all 47 dresses have editable positive fixed sale and ascending rental prices',()=>{
   assert.equal(products.currency,'ZAR');
@@ -51,14 +52,15 @@ test('rand amounts format cleanly and reject invalid values',()=>{
 test('digital lookbook contains the same labelled fixed sale and rental prices as all dress pages',()=>{
   const render=createNodeRenderer([]);
   const html=render({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
-  assert.equal((html.match(/data-book-page=/g)||[]).length,49);
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,47);
-  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,47);
-  assert.equal((html.match(/data-book-sale-label=/g)||[]).length,47);
-  assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,47);
-  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,47);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,47);
-  assert.equal(lookbookEntries.length,47);
+  const spreads=lookbookPlacements(catalogueProducts);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,spreads.length+2);
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,spreads.length);
+  assert.equal((html.match(/data-book-rental-price=/g)||[]).length,spreads.length);
+  assert.equal((html.match(/data-book-sale-label=/g)||[]).length,spreads.length);
+  assert.equal((html.match(/class="redcarpert-book-price-pair"/g)||[]).length,spreads.length);
+  assert.equal((html.match(/class="redcarpert-book-condition-note"/g)||[]).length,spreads.length);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,spreads.length);
+  assert.equal(lookbookEntries.length,catalogueProducts.length);
   const cover=html.match(/<article class="redcarpert-book-page redcarpert-book-cover[^"]*"[^>]*>[\s\S]*?<\/article>/)?.[0];
   assert(cover&&cover.includes('Walking on red carpet with confidence'));
   assert.equal((cover.match(/<img /g)||[]).length,1);
