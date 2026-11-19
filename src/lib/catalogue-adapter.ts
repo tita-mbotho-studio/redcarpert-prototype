@@ -48,6 +48,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   const products = catalogueProducts.filter(p=>document.route==="/product" ||
     (selectedCollection!==undefined && dressAppearsInCollection(p,selectedCollection)));
   if (!products.length || products.some(p => p.detailReference !== null)) fail("catalogue readiness");
+  const modernOrder=catalogueProducts.filter(p=>p.collections.includes("modern_tradition"));
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: [
@@ -88,9 +89,13 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const visibleCategory = selectedCollection === "modern_tradition" ? "modern_tradition" : product.category;
     const category = catalogueCategories.find(item => item.id === visibleCategory);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
-    // Named client gowns (e.g. "2 in 1 Kwena Dress") use their actual
-    // supplied dress name where legacy cards previously displayed a number.
-    const displayName = number ?? product.name.replace(/^(?:Mermaid|2 in 1) /, "");
+    const originalDisplayName = number ?? product.name.replace(/^(?:Mermaid|2 in 1) /, "");
+    const modernIndex=modernOrder.findIndex(item=>item.id===product.id);
+    const modernDisplayNumber=modernIndex>=0?String(modernIndex+1).padStart(2,"0"):null;
+    // Modern Tradition is a colour-based collection with its own 01–08 card
+    // sequence; the original dress ID, gallery and pricing remain unchanged.
+    const displayName = selectedCollection==="modern_tradition"
+      ? modernDisplayNumber : originalDisplayName;
     if (!category || !displayName) return fail("card collection or dress name");
     const collection = category.name.replace(/ Dresses$/, "");
     const accessibleName = visibleCategory === "modern_tradition"
@@ -110,7 +115,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
-    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" ") }, children: card.children.flatMap<DocumentNode>(node => {
+    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" "), ...(modernDisplayNumber ? { "data-catalogue-modern-number": modernDisplayNumber } : {}) }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
       const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${accessibleName}: view dress photographs`, style: "cursor: pointer" };
