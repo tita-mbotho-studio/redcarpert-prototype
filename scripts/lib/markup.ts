@@ -16,7 +16,6 @@ function lookbook() {
  const dresses = placements.map((placement, i) => {
    const product = placement.product;
    const pageNumber = i + 2;
-   const featuredModern = !placement.isModernTradition && product.collections.includes('modern_tradition');
    const optimizedImage = mediaDeliveryUrl(product.image, "lookbook");
    const fallbackAttr = optimizedImage === product.image ? "" :
      ' data-media-original="' + escapeHtml(product.image) + '"';
@@ -32,8 +31,7 @@ function lookbook() {
      '" alt="' + escapeHtml(placement.isModernTradition ? placement.displayName + ' photograph' : product.imageAlt) +
      '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
      '<div class="redcarpert-book-copy">' + (placement.isModernTradition
-       ? '<span class="redcarpert-book-kicker">MODERN TRADITION DRESSES</span>'
-       : featuredModern ? '<span class="redcarpert-book-kicker">ALSO IN MODERN TRADITION</span>' : '') +
+       ? '<span class="redcarpert-book-kicker">MODERN TRADITION DRESSES</span>' : '') +
      '<h3>' + escapeHtml(placement.displayName) + '</h3>' +
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
