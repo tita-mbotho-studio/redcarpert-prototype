@@ -109,10 +109,10 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       children: [
         { tag: "span", attrs: { class: "redcarpert-catalogue-collection" }, children: [collection] },
         { tag: "span", attrs: { class: "redcarpert-catalogue-divider", "aria-hidden": "true" }, children: [] },
-        { tag: "span", attrs: { class: "redcarpert-catalogue-number", ...(number ? {} : { "data-catalogue-named": "" }) }, children: [displayName] },
+        { tag: "span", attrs: { class: "redcarpert-catalogue-number", ...(number || selectedCollection==="modern_tradition" ? {} : { "data-catalogue-named": "" }) }, children: [displayName] },
       ],
     };
-    const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
+    const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: selectedCollection==="modern_tradition" ? "Modern Tradition dress "+displayName : product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
     return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" "), ...(modernDisplayNumber ? { "data-catalogue-modern-number": modernDisplayNumber } : {}) }, children: card.children.flatMap<DocumentNode>(node => {
