@@ -1,5 +1,5 @@
 import type { DocumentElement, DocumentNode, SiteDocumentData } from "@/types/site";
-import { catalogueCategories, type CatalogueProduct } from "../data/catalogue.ts";
+import { catalogueCategories, dressAppearsInCollection, type DressCategory, type CatalogueProduct } from "../data/catalogue.ts";
 
 const routes: Record<string, readonly [number, string, string]> = {
   "/product": [100, "PRODUCTS", "Wedding Dresses"],
@@ -44,7 +44,9 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     if (elements(card.children).some(n => n !== anchor && !(n.tag === "span" && n.attrs.class === "screen-reader-text"))) fail("unexpected card control");
     return { card, anchor, image, title, price };
   });
-  const products = catalogueProducts.filter(p => document.route === "/product" || document.route.endsWith(`/${p.category}`));
+  const selectedCollection = catalogueCategories.find(c=>document.route===c.route.replace(/\/$/,""))?.id as DressCategory|undefined;
+  const products = catalogueProducts.filter(p=>document.route==="/product" ||
+    (selectedCollection!==undefined && dressAppearsInCollection(p,selectedCollection)));
   if (!products.length || products.some(p => !["sample","client"].includes(p.status) || p.detailReference !== null)) fail("catalogue readiness");
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
@@ -53,7 +55,9 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
       ? "Discover our wedding dresses across five collections and find your favourite."
       : document.route.endsWith("/ball_gown")
         ? "Discover our Ball Gown wedding dresses and find your perfect look."
-        : "Explore the collection and discover your perfect wedding dress.",
+        : document.route.endsWith("/modern_tradition")
+          ? "Explore colourful wedding dresses across Mermaid, Ball Gown, Ruffled and 2 in 1 styles."
+          : "Explore the collection and discover your perfect wedding dress.",
   ] });
   // The catalogue landing page receives a working five-category filter.
   // Category pages retain the legacy ordering placeholder and unchanged layout.
@@ -103,7 +107,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const imageAttrs: Record<string, string> = { ...image.attrs, src: product.image, alt: product.imageAlt, width: "370", height: "370", loading: index < 4 ? "eager" : "lazy", decoding: "async", style: "aspect-ratio: 1 / 1; object-fit: cover; object-position: center 25%" };
     delete imageAttrs.srcset;
     delete imageAttrs.sizes;
-    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category }, children: card.children.flatMap<DocumentNode>(node => {
+    return { ...card, attrs: { class: "product", "data-catalogue-id": product.id, "data-catalogue-category": product.category, "data-catalogue-collections": product.collections.join(" ") }, children: card.children.flatMap<DocumentNode>(node => {
       if (typeof node === "string") return [node];
       if (node !== anchor) return [];
       const attrs: Record<string, string> = { ...anchor.attrs, href: product.previewRoute, "aria-label": `${accessibleName}: view dress photographs`, style: "cursor: pointer" };
