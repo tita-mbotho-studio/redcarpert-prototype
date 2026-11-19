@@ -57,7 +57,7 @@ test('static deployment contains complete approved pages, local paths and no app
  const year=new Date().getFullYear();
  const premiumPdf='dist/digital-lookbook/Redcarpert-The-Bridal-Edit-'+year+'.pdf';
  const pdf=readFileSync(premiumPdf);assert.match(pdf.subarray(0,8).toString(),/^%PDF-1\.[4-9]/);
- assert.match(pdf.toString('latin1'),/\/Count 63/);
+ assert.match(pdf.toString('latin1'),/\/Count 68/);
  assert(!existsSync('dist/digital-lookbook/Redcarpert-Sample-Lookbook.pdf'),'obsolete sample PDF must not be published');
  const downloadHtml=readFileSync('dist/digital-lookbook/index.html','utf8');
  assert(downloadHtml.includes('Redcarpert-The-Bridal-Edit-'+year+'.pdf'),'download button must use annual editorial PDF');
@@ -150,9 +150,9 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
   }
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,15);
 
- assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,12,
-   'interactive book should contain exactly twelve new client Ruffled photographs');
- assert(routes.includes('/product/preview/ruffled-dress-12'),'twelfth Ruffled detail route must exist');
+ assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ruffled-dresses\//g)||[]).length,17,
+   'interactive book should contain all seventeen client Ruffled photographs');
+ assert(routes.includes('/product/preview/ruffled-dress-17'),'seventeenth Ruffled detail route must exist');
  assert(!routes.some(route=>route.includes('/sample-')),'no retired sample dress routes');
 
  assert.doesNotMatch(book,/Client-supplied photographs/);
