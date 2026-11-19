@@ -113,9 +113,9 @@ try {
       loading: img.loading,
     })));
     assert.equal(firstTiles.length,16);
-    assert(firstTiles.every(tile => tile.source?.includes('?tr=w-640,h-640,c-at_max,q-72,f-auto')),
-      'visible tiles should request compact ImageKit versions, not original JPG files');
-    assert(firstTiles.every(tile => tile.original?.startsWith(base)),
+    assert(firstTiles.every(tile => new URL(tile.source).searchParams.get('tr') === 'w-640,h-640,c-at_max,q-72,f-auto'),
+       'visible tiles should request compact ImageKit versions and retain updatedAt timestamps');
+     assert(firstTiles.every(tile => tile.original?.startsWith(base)),
       'all client original media URLs must remain accessible as fallbacks');
     assert.equal(firstTiles.filter(tile => tile.loading === 'eager').length,4);
     assert.equal(firstTiles.filter(tile => tile.loading === 'lazy').length,12);
