@@ -11,8 +11,13 @@ export function initializeCatalogueFilter() {
   // underlying product ID, route, price or permanent source category.
   const originalCards=new Map(items.map(item=>{
     const heading=item.querySelector('.redcarpert-catalogue-collection');
+    const number=item.querySelector('.redcarpert-catalogue-number');
+    const image=item.querySelector('img');
     const link=item.querySelector('a.woocommerce-LoopProduct-link');
-    return [item,{heading,link,collection:heading?.textContent??'',aria:link?.getAttribute('aria-label')??''}];
+    return [item,{heading,number,image,link,
+      collection:heading?.textContent??'',numberLabel:number?.textContent??'',
+      named:number?.hasAttribute('data-catalogue-named')??false,
+      alt:image?.getAttribute('alt')??'',aria:link?.getAttribute('aria-label')??''}];
   }));
   const current=()=>{
     const requested=new URLSearchParams(location.search).get('category');
@@ -29,10 +34,18 @@ export function initializeCatalogueFilter() {
       if(original?.heading){
         const modern=category==='modern_tradition' && collections.includes('modern_tradition');
         original.heading.textContent=modern?'Modern Tradition':original.collection;
+        const modernNumber=item.dataset.catalogueModernNumber;
+        if(original.number){
+          original.number.textContent=modern&&modernNumber?modernNumber:original.numberLabel;
+          original.number.toggleAttribute('data-catalogue-named',!modern&&original.named);
+        }
+        if(original.image){
+          original.image.setAttribute('alt',modern&&modernNumber
+            ? 'Modern Tradition dress '+modernNumber:original.alt);
+        }
         if(original.link){
-          const dressName=item.querySelector('.redcarpert-catalogue-number')?.textContent?.trim()??'';
-          original.link.setAttribute('aria-label',modern
-            ? 'Modern Tradition '+dressName+': view dress photographs'
+          original.link.setAttribute('aria-label',modern&&modernNumber
+            ? 'Modern Tradition '+modernNumber+': view dress photographs'
             : original.aria);
         }
       }
