@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {sitePages} from '../src/data/site.ts';
-import {catalogueProducts,catalogueCategories} from '../src/data/catalogue.ts';
+import {catalogueProducts,catalogueCategories,dressAppearsInCollection} from '../src/data/catalogue.ts';
 import {adaptCatalogue} from '../src/lib/catalogue-adapter.ts';
 
 const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
@@ -40,8 +40,8 @@ test('only approved listing documents change; other routes and all protected sub
   for(const key of Object.keys(input).filter(k=>k!=='nodes'))assert.equal(input[key],output[key]);
   for(const n of all(input.nodes).filter(n=>n.attrs.id==='header'||n.tag==='footer'||n.attrs.id==='ht-ctc-chat'))assert(all(output.nodes).includes(n));
   const nodes=all(output.nodes),grid=nodes.find(n=>n.attrs['data-catalogue-preview']);assert.equal(grid.attrs.class,'products columns-4');
-  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?catalogueProducts.length:catalogueProducts.filter(p=>input.route.endsWith('/'+p.category)).length);
-  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(input.route.endsWith('/'+p.category));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);const title=n.find(n=>n.tag==='h2');const collection=catalogueCategories.find(c=>c.id===p.category)?.name.replace(/ Dresses$/,'');const number=p.name.match(/(\d{2})$/)?.[1]??p.name.replace(/^(?:Mermaid|2 in 1) /,'');
+  const items=grid.children.filter(n=>typeof n!=='string');assert.equal(items.length,input.route==='/product'?catalogueProducts.length:catalogueProducts.filter(p=>catalogueCategories.some(c=>input.route===c.route.replace(/\/$/,'')&&dressAppearsInCollection(p,c.id))).length);
+  for(const card of items){const p=catalogueProducts.find(p=>p.id===card.attrs['data-catalogue-id']);assert(p);if(input.route!=='/product')assert(catalogueCategories.some(c=>input.route===c.route.replace(/\/$/,'')&&dressAppearsInCollection(p,c.id)));const n=all([card]);const img=n.find(n=>n.tag==='img');assert.equal(img.attrs.src,p.image);assert.equal(img.attrs.width,'370');assert.equal(img.attrs.height,'370');assert.equal(card.attrs['data-catalogue-category'],p.category);assert.equal(card.attrs['data-catalogue-collections'],p.collections.join(' '));assert.equal(img.attrs.srcset,undefined);assert.match(img.attrs.style,/aspect-ratio: 1 \/ 1/);assert.equal(n.find(n=>n.tag==='a').attrs.href,p.previewRoute);assert.equal(n.find(n=>n.tag==='a').attrs['aria-disabled'],undefined);assert.equal(sitePages[p.previewRoute],undefined);const title=n.find(n=>n.tag==='h2');const collection=catalogueCategories.find(c=>c.id===p.category)?.name.replace(/ Dresses$/,'');const number=p.name.match(/(\d{2})$/)?.[1]??p.name.replace(/^(?:Mermaid|2 in 1) /,'');
     assert.equal(title.attrs.class,'woocommerce-loop-product__title redcarpert-catalogue-title');
     assert.deepEqual(title.children.map(child=>child.attrs.class),[
       'redcarpert-catalogue-collection','redcarpert-catalogue-divider','redcarpert-catalogue-number'
@@ -75,7 +75,7 @@ test('catalogue and category cards omit prices and condition notes even when pri
  for(const route of listingRoutes){
    const doc=adaptCatalogue(categorySource(route),products);
    const cards=all(doc.nodes).filter(n=>n.attrs['data-catalogue-id']);
-   assert.equal(cards.length,route==='/product'?catalogueProducts.length:catalogueProducts.filter(p=>route.endsWith('/'+p.category)).length);
+   assert.equal(cards.length,route==='/product'?catalogueProducts.length:catalogueProducts.filter(p=>catalogueCategories.some(c=>route===c.route.replace(/\/$/,'')&&dressAppearsInCollection(p,c.id))).length);
    for(const card of cards){
      const nodes=all([card]);
      assert.equal(nodes.filter(n=>Object.hasOwn(n.attrs,'data-dress-price')).length,0);
