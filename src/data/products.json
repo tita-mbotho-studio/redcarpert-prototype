@@ -210,38 +210,6 @@
       }
     },
     {
-      "id": "sample-modern-tradition-01",
-      "priceZar": 17900,
-      "rentalPriceRangeZar": {
-        "minZar": 4100,
-        "maxZar": 6400
-      }
-    },
-    {
-      "id": "sample-modern-tradition-02",
-      "priceZar": 21500,
-      "rentalPriceRangeZar": {
-        "minZar": 4900,
-        "maxZar": 7700
-      }
-    },
-    {
-      "id": "sample-modern-tradition-03",
-      "priceZar": 24900,
-      "rentalPriceRangeZar": {
-        "minZar": 5700,
-        "maxZar": 9000
-      }
-    },
-    {
-      "id": "sample-modern-tradition-04",
-      "priceZar": 28900,
-      "rentalPriceRangeZar": {
-        "minZar": 6600,
-        "maxZar": 10400
-      }
-    },
-    {
       "id": "2-in-1-kwena-dress",
       "priceZar": 21900,
       "rentalPriceRangeZar": {
@@ -515,22 +483,6 @@
     "ruffled-dress-12": {
       "minZar": 30900,
       "maxZar": 42900
-    },
-    "sample-modern-tradition-01": {
-      "minZar": 12900,
-      "maxZar": 17900
-    },
-    "sample-modern-tradition-02": {
-      "minZar": 14900,
-      "maxZar": 21500
-    },
-    "sample-modern-tradition-03": {
-      "minZar": 17900,
-      "maxZar": 24900
-    },
-    "sample-modern-tradition-04": {
-      "minZar": 19900,
-      "maxZar": 28900
     },
     "2-in-1-kwena-dress": {
       "minZar": 15900,
