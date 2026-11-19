@@ -32,7 +32,7 @@ test('all four client dress CSV batches preserve every photo and ordered gown gr
   const families=[
     {records:mermaid,category:'mermaid',group:'mermaid-dresses',count:2,total:6,query:false},
     {records:ballGowns,category:'ball_gown',group:'ball-gown-dresses',count:12,total:34,query:true},
-    {records:ruffled,category:'ruffled',group:'ruffled-dresses',count:12,total:38,query:true},
+    {records:ruffled,category:'ruffled',group:'ruffled-dresses',count:17,total:65,query:false},
     {records:twoInOne,category:'two_in_one',group:'2-in-1-dresses',count:21,total:105,query:false},
   ];
   const urls=new Set();
@@ -67,23 +67,23 @@ test('all four client dress CSV batches preserve every photo and ordered gown gr
       }
     }
   }
-  assert.equal(urls.size,183);
+  assert.equal(urls.size,210);
   assert.equal(ballGowns[3].photos.length,5);
   assert.match(ballGowns[3].photos[0].url,/ball-gown-04-01[.]webp/);
   assert.equal(twoInOne.find(x=>x.id==='2-in-1-nthabiseng-dress').photos.length,16);
   assert.doesNotThrow(()=>validateDressGalleryMappings());
 });
 
-test('the 51-dress catalogue and editable ZAR pricing stay synchronized',()=>{
-  assert.equal(catalogueProducts.length,51);
+test('the 56-dress catalogue and editable ZAR pricing stay synchronized',()=>{
+  assert.equal(catalogueProducts.length,56);
   assert(catalogueProducts.every(x=>!Object.hasOwn(x,'status')));
   assert.deepEqual(Object.fromEntries(['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']
     .map(category=>[category,catalogueProducts.filter(x=>x.category===category).length])),
-    {mermaid:2,ball_gown:12,ruffled:12,modern_tradition:4,two_in_one:21});
-  assert.equal(prices.dresses.length,51);
-  assert.equal(Object.keys(prices.priceRangesZar).length,51);
+    {mermaid:2,ball_gown:12,ruffled:17,modern_tradition:4,two_in_one:21});
+  assert.equal(prices.dresses.length,56);
+  assert.equal(Object.keys(prices.priceRangesZar).length,56);
   assert.deepEqual(catalogueProducts.map(x=>x.id).sort(),prices.dresses.map(x=>x.id).sort());
-  assert.equal(new Set(catalogueProducts.map(x=>x.image)).size,47);
+  assert.equal(new Set(catalogueProducts.map(x=>x.image)).size,52);
   for(const product of catalogueProducts){
     const record=prices.dresses.find(item=>item.id===product.id);
     assert(Number.isSafeInteger(record?.priceZar) && record.priceZar>0);
