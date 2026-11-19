@@ -39,7 +39,20 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
     }
     const content = rendered.find(n => n.attrs['data-editorial-route'] === route);
     assert(content, 'missing editorial content for ' + route);
-    assert(!/BRIDAL VANESA|bridalvanesa|Vienna|Denizli|1980/.test(JSON.stringify(content)));
+    // Search customer-visible copy, not opaque ImageKit updatedAt timestamps.
+    // An uploaded image URL can coincidentally contain "1980" as digits.
+    const contentNodes=nodes([content]);
+    const customerCopy=contentNodes.flatMap(n=>[
+      ...n.children.filter(child=>typeof child==='string'),
+      n.attrs.alt ?? '',n.attrs.title ?? '',n.attrs['aria-label'] ?? '',
+    ]).join(' ');
+    const contentUrls=contentNodes.flatMap(n=>[
+      n.attrs.src ?? '',n.attrs.href ?? '',n.attrs.poster ?? '',
+    ]).join(' ');
+    assert.doesNotMatch(customerCopy,/BRIDAL VANESA|bridalvanesa|Vienna|Denizli|1980/i,
+      route+' must not show original business wording');
+    assert.doesNotMatch(contentUrls,/bridalvanesa|bridal_vanesa/i,
+      route+' must not link to the original business');
     if (route === '/wedding-moments') {
       assert.equal(nodes(content.children).filter(n => n.tag === 'h2').length, 0,
         'minimal Wedding Moments has no category headings');
@@ -120,7 +133,7 @@ test('new Redcarpert editorial content reuses source shell and never exposes ori
   }
 });
 
-test('luxury editorial lookbook contains forty-seven A4 pages with client gowns and attributed samples', async () => {
+test('luxury editorial lookbook contains all catalogue dresses and accurate A4 pages', async () => {
   const jpeg=await sharp({create:{width:24,height:36,channels:3,background:'#eee8df'}}).jpeg().toBuffer();
   const images=catalogueProducts.map(dress=>({id:dress.id,jpeg,width:24,height:36}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from('89504e470d0a1a0a','hex')});
@@ -132,11 +145,11 @@ test('luxury editorial lookbook contains forty-seven A4 pages with client gowns 
   ]) {
     assert(online.includes(statement)&&html.includes(statement),'online/PDF edition mismatch: '+statement);
   }
-  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,35);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,35);
-  assert.equal((html.match(/<section class="page /g)||[]).length,47);
+  assert.equal((online.match(/class="redcarpert-book-photo"/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/<section class="page /g)||[]).length,catalogueProducts.length+12);
   assert.equal((html.match(/class="page divider"/g)||[]).length,5);
-  assert.equal((html.match(/class="portrait"/g)||[]).length,35);
+  assert.equal((html.match(/class="portrait"/g)||[]).length,catalogueProducts.length);
   assert.match(html,/@page\{size:A4;margin:0\}/);
   assert.match(html,/href="#collection-ruffled"/);
   assert.match(html,/href="#collection-modern_tradition"/);
@@ -152,16 +165,16 @@ test('luxury editorial lookbook contains forty-seven A4 pages with client gowns 
   assert.match(html, /\.page\.dress \.content\{left:20mm;right:20mm;/);
   assert.match(html, /\.portrait img\{[^"]*object-fit:contain/);
   assert.match(html, /\.dress-bottom\{[^"]*justify-content:center;align-items:center;[^"]*text-align:center/);
-  assert.equal((html.match(/class="detail-link"/g)||[]).length,35);
-  assert.equal((html.match(/class="amount-label"/g)||[]).length,70);
-  assert.equal((html.match(/class="price-pair"/g)||[]).length,35);
-  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,35);
-  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,35);
-  assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,35);
-  assert.equal((html.match(/class="price-condition"/g)||[]).length,35);
-  assert.equal((online.match(/class="redcarpert-book-condition-note"/g)||[]).length,35);
-  assert.equal(online.split(RENTAL_CONDITION_NOTE).length-1,35);
-  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,35);
+  assert.equal((html.match(/class="detail-link"/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/class="amount-label"/g)||[]).length,catalogueProducts.length*2);
+  assert.equal((html.match(/class="price-pair"/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/data-pdf-sale-label=/g)||[]).length,catalogueProducts.length);
+  assert.equal((html.match(/class="price-condition"/g)||[]).length,catalogueProducts.length);
+  assert.equal((online.match(/class="redcarpert-book-condition-note"/g)||[]).length,catalogueProducts.length);
+  assert.equal(online.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
+  assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,catalogueProducts.length);
   assert.doesNotMatch(html,/Inspiration photo and example price|to be confirmed|provisional pricing/i);
   const back=html.match(/<section class="page back" id="back-cover">([\s\S]*?)<\/section>/)?.[1];
   assert(back, 'PDF back cover is present');
@@ -178,12 +191,12 @@ test('luxury editorial lookbook contains forty-seven A4 pages with client gowns 
     'all PDF sale and rental figures must be populated');
   assert.doesNotMatch(html,/Indicative range|Example range/,
     'PDF must not display stale illustrative single-price ranges');
-  for(const [id,page] of [['mermaid','05'],['ball_gown','10'],['ruffled','22'],['modern_tradition','35'],['two_in_one','40']]){
+  for(const [id,page] of [['mermaid','05'],['ball_gown','08'],['ruffled','21'],['modern_tradition','34'],['two_in_one','39']]){
     assert(html.includes('href="#collection-'+id+'">'+
       (id==='ball_gown'?'Ball Gown':id==='mermaid'?'Mermaid':id==='ruffled'?'Ruffled Dresses':id==='modern_tradition'?'Modern Tradition Dresses':'2 in 1 Dresses')+
       '</a><span class="page-number">'+page+'</span>'), 'contents page mismatch for '+id);
   }
-  assert.match(html,/47 \/ 47|46 \/ 47/,'the PDF page folios should use the current page count');
+  assert.match(html,/62 \/ 63/,'the PDF page folios should use the current page count');
   for (const dress of catalogueProducts) {
     const label=dress.status==='client'?dress.name:dress.name.replace(/^Sample /,'Look ');
     assert(html.includes('<h3>'+label+'</h3>'), 'missing editorial look '+label);
@@ -206,7 +219,7 @@ test('luxury editorial lookbook contains forty-seven A4 pages with client gowns 
     assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }
-  assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/requires 35 dresses/);
+  assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/needs one photograph per dress/);
 });
 
 test('only the approved editorial fittings use label-above, icon-only WhatsApp controls', () => {
