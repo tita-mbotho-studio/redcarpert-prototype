@@ -19,7 +19,7 @@ export interface LookbookPlacement {
 export function lookbookPlacements(products: readonly CatalogueProduct[]): readonly LookbookPlacement[] {
   const byId = new Map(products.map(product => [product.id, product] as const));
   if (byId.size !== products.length) throw new Error("Book input contains duplicate canonical dresses");
-  const placements = catalogueCategories.flatMap(category => {
+  const placements = catalogueCategories.flatMap<LookbookPlacement>(category => {
     if (category.id === "modern_tradition") {
       return modernTraditionPages.map(page => {
         const product = byId.get(page.product.id);
