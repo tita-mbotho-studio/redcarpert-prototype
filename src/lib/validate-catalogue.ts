@@ -15,7 +15,7 @@ const clientSource = new Map(clientGroups.flatMap(group =>
   group.dresses.map(dress => [dress.id,{...group,dress}] as const)));
 const expectedCounts: Record<string,number> = {
   ...Object.fromEntries(clientGroups.map(group=>[group.category,group.dresses.length])),
-  modern_tradition:4, // The remaining four historic image entries.
+  modern_tradition:0, // Colour-based collection: cross-list client dresses only.
 };
 
 /** Reject mismatched identities/URLs instead of silently putting a wrong gown in a collection. */
@@ -45,7 +45,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     }
     if (!Number.isSafeInteger(product.priceZar) || product.priceZar<=0)
       throw new Error('Invalid catalogue price for '+product.id);
-    if (product.detailReference !== null || !['sample','client'].includes(product.status))
+    if (product.detailReference !== null)
       throw new Error('Unverified catalogue status for '+product.id);
     if (!/^\/product\/preview\/[a-z0-9-]+$/.test(product.previewRoute) || routes.has(product.previewRoute))
       throw new Error('Duplicate or invalid preview route: '+product.previewRoute);
@@ -53,7 +53,7 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
     if (photos.has(product.image)) throw new Error('Duplicate primary photograph for '+product.id);
     photos.add(product.image);
 
-    if (product.status==='client') {
+    {
       const expected=clientSource.get(product.id);
       if (!expected || product.category!==expected.category ||
           product.name!==expected.dress.name ||
@@ -71,21 +71,8 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
           product.imageCredit.provenance!=='client-supplied') {
         throw new Error('Invalid client photo metadata for '+product.id);
       }
-    } else {
-      // All remaining demo material belongs to Modern Tradition until those client photos arrive.
-      if (product.category!=='modern_tradition')
-        throw new Error('Unexpected sample image in client-replaced collection: '+product.id);
-      const image=/^https:\/\/images[.]pexels[.]com\/photos\/([1-9]\d+)\/pexels-photo-\1[.]jpeg[?]auto=compress&cs=tinysrgb&w=1200$/.exec(product.image);
-      if (!image) throw new Error('Unapproved Pexels image: '+product.id);
-      if (!product.imageCredit ||
-          !new RegExp('^https://www\\.pexels\\.com/photo/[a-z0-9-]+-'+image[1]+'/$').test(product.imageCredit.sourceUrl) ||
-          !product.imageCredit.photographer.trim() ||
-          product.imageCredit.provenance!=='docs/asset-credits.md')
-        throw new Error('Missing image provenance: '+product.id);
-      if (!/^Sample (1[3-6])$/.test(product.name) ||
-          !product.imageAlt.includes('wedding dress photograph'))
-        throw new Error('Missing descriptive bridal photograph alt text: '+product.id);
     }
+
   }
   for(const category of catalogueCategories) {
     if (counts[category.id]!==expectedCounts[category.id])
