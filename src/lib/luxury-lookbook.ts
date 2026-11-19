@@ -151,18 +151,15 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
     const dresses=placements.filter(placement=>placement.category===category.id);
-    // Modern Tradition has its own four editorial spreads, backed by the
-    // same client dresses and prices already shown under their silhouettes.
-    const crossListed=products.filter(p=>p.category!==category.id && p.collections.includes(category.id));
-    if((!dresses.length && !crossListed.length) || sectionStarts.get(category.id)!==pageNumber)
+    // One editorial spread per distinct dress, grouped by its own category.
+    if(!dresses.length || sectionStarts.get(category.id)!==pageNumber)
       throw new Error("Collection page alignment failed for "+category.id);
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
         : category.id==="modern_tradition"
-          ? "Discover "+dresses.length+" Modern Tradition looks, including "+crossListed.length+
-            " colourful gowns also featured in other collections."
+          ? "Discover "+dresses.length+" colourful Modern Tradition wedding dresses."
           : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
     for (const placement of dresses) {
       const dress=placement.product;
@@ -171,8 +168,8 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
       pages.push(page(pageNumber++,"dress","look-"+placement.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
         '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(placement.isModernTradition ? look+" photograph" : dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom">'+(!placement.isModernTradition && dress.collections.includes("modern_tradition")
-           ? '<span class="kind">Also in Modern Tradition</span>'
+        '<div class="dress-bottom">'+(placement.isModernTradition
+           ? '<span class="kind">Modern Tradition Dresses</span>'
            : "")+
         '<h3>'+esc(look)+'</h3>'+
         '<div class="price-pair" aria-label="Sale and rental prices">'+
@@ -190,7 +187,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h2>Found a dress?<br>Book a fitting.</h2><p>Message us on WhatsApp to ask about prices, available dresses and fittings.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">BOOK A FITTING ON WHATSAPP</a><p class="tiny">Fittings by appointment only.</p>'+
     '<a class="web" href="'+esc(website)+'">'+esc(website)+'</a>'));
-  // Additional Modern Tradition spreads reuse canonical client photos and pricing.
+  // Each dress has its own catalogue identity and price, grouped by collection.
   pages.push(page(pageNumber++,"credits","credits",tag("The Redcarpert experience")+
     '<h2>Your Fitting Journey</h2><div class="credit-columns">'+
     '<div>'+
