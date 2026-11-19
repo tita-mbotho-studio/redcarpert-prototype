@@ -22,8 +22,8 @@ Modern Tradition is a **colour-based bridal collection**, not an exclusive silho
 ## Client-only catalogue and Modern Tradition card labels
 - All four retired Modern Tradition placeholder records, Pexels photo groups and matching sample pricing entries are removed. The active catalogue is now **47 unique client dresses** with **183 client gown photographs**.
 - **Modern Tradition contains exactly eight visually reviewed colourful client gowns**; no additional sample category records remain.
-- On the standalone Modern Tradition page, cards display the **Modern Tradition** collection heading even when their source silhouette is Ball Gown, Ruffled or 2 in 1.
-- The main catalogue filter switches these same visible card labels and accessible links to Modern Tradition when selected, and restores the original silhouette label on other filters.
+- On the standalone Modern Tradition page, all eight cross-listed client dresses display **Modern Tradition** with a dedicated **01–08 display sequence** instead of their original Ball Gown/Ruffled/2 in 1 titles and numbers. Original client dress IDs and detail routes remain intact.
+- The main catalogue filter switches the heading, 01–08 display number, image alt text and accessible link label to Modern Tradition; switching to another filter restores the original silhouette names, image descriptions and typography.
 - The interactive book contains **49 pages** and the A4 PDF contains **59 pages**, one unique dress entry each, with the cross-list labels preserved. No sample PDF alias or Pexels image is generated.
 - The gallery, link, WhatsApp and pricing values always refer to the original client dress record.
 
