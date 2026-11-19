@@ -12,9 +12,9 @@ import twoInOne from '../src/data/client-two-in-one-dresses.json' with {type:'js
 
 const descendants=children=>children.flatMap(node=>typeof node==='string'?[]:[node,...descendants(node.children)]);
 
-test('only 47 unique dresses and 183 client ImageKit photographs are actively published',()=>{
-  assert.equal(catalogueProducts.length,47);
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,47);
+test('51 unique dress listings backed by 183 original client ImageKit photographs are actively published',()=>{
+  assert.equal(catalogueProducts.length,51);
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
   assert(!Object.hasOwn(imageLinks,'products'),'retired sample URL lists must not be shipped');
   assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status')&&!p.id.startsWith('sample-')));
   const groups=[mermaid,ballGowns,ruffled,twoInOne];

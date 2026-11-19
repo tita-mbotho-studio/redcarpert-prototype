@@ -10,15 +10,15 @@ const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const listingRoutes=['/product',...catalogueCategories.map(c=>c.route.replace(/\/$/,''))];
 const categorySource=route=>sitePages[route]??{...sitePages['/product-category/mermaid'],route};
-test('all 47 catalogue dresses use only verified client ImageKit photographs',()=>{
+test('all 51 catalogue dresses use only verified client ImageKit photographs',()=>{
  assert.deepEqual(catalogueCategories.map(c=>c.name),['Mermaid','Ball Gown','Ruffled Dresses','Modern Tradition Dresses','2 in 1 Dresses']);
- assert.equal(catalogueProducts.length,47);
+ assert.equal(catalogueProducts.length,51);
  assert.equal(catalogueProducts.filter(p=>p.category==='ball_gown').length,12);
  assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status')&&!p.id.startsWith('sample-')));
  for(const p of catalogueProducts){
   assert.equal(p.detailReference,null);
   assert(!('price' in p) && !('sizes' in p));
-  assert.match(p.name,/^(?:Ball Gown|Ruffled Dress) \d{2}$|^(?:Mermaid|2 in 1) .+ Dress$/);
+  assert.match(p.name,/^(?:Ball Gown|Ruffled Dress|Modern Tradition) \d{2}$|^(?:Mermaid|2 in 1) .+ Dress$/);
   assert(p.image.startsWith('https://ik.imagekit.io/kw8awoqvwi/'));
 
   assert(Number.isSafeInteger(p.priceZar) && p.priceZar>0);

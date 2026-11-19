@@ -3,34 +3,43 @@ import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelFor
 import { WHATSAPP_NUMBER } from '../../src/config/whatsapp.ts';
 import type { DocumentNode } from '../../src/types/site';
 import { mediaDeliveryUrl, mediaImageAttrs, mediaVideoAttrs } from '../../src/lib/media-delivery.ts';
+import { lookbookPlacements } from '../../src/lib/lookbook-placements.ts';
 
 export const escapeHtml = (s: string) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
 function lookbook() {
  const editionYear = new Date().getFullYear();
  const pdfName = 'Redcarpert-The-Bridal-Edit-' + editionYear + '.pdf';
- const pageCount = catalogueProducts.length + 2;
- const pdfPageCount = catalogueProducts.length + catalogueCategories.length + 7;
- const dresses = catalogueProducts.map((product, i) => {
+ const placements = lookbookPlacements(catalogueProducts);
+ const pageCount = placements.length + 2;
+ const pdfPageCount = placements.length + catalogueCategories.length + 7;
+ const dresses = placements.map((placement, i) => {
+   const product = placement.product;
    const pageNumber = i + 2;
-   const featuredModern = product.category !== 'modern_tradition' && product.collections.includes('modern_tradition');
    const optimizedImage = mediaDeliveryUrl(product.image, "lookbook");
    const fallbackAttr = optimizedImage === product.image ? "" :
      ' data-media-original="' + escapeHtml(product.image) + '"';
-   return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber + '" data-book-dress-id="' + escapeHtml(product.id) + '" data-book-collections="' + escapeHtml(product.collections.join(' ')) + '">' +
+   return '<article class="redcarpert-book-page redcarpert-book-dress" data-book-page="' + pageNumber +
+     '" data-book-dress-id="' + escapeHtml(product.id) +
+     '" data-book-entry-id="' + escapeHtml(placement.id) +
+     '" data-book-category="' + escapeHtml(placement.category) +
+     '" data-book-collections="' + escapeHtml(product.collections.join(' ')) + '">' +
      '<div class="redcarpert-book-page-inner"><div class="redcarpert-book-photo"><img src="' + escapeHtml(optimizedImage) + '"' + fallbackAttr +
      ' data-book-zoom-photo data-book-zoom-src="' + escapeHtml(mediaDeliveryUrl(product.image, "preview")) +
      '" data-book-zoom-original="' + escapeHtml(product.image) +
-     '" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Enlarge photograph of ' + escapeHtml(product.name) +
-     '" alt="' + escapeHtml(product.imageAlt) + '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
-     '<div class="redcarpert-book-copy">' + (featuredModern ? '<span class="redcarpert-book-kicker">ALSO IN MODERN TRADITION</span>' : '') + '<h3>' + escapeHtml(product.name) + '</h3>' +
+     '" role="button" tabindex="0" aria-haspopup="dialog" aria-label="Enlarge photograph of ' + escapeHtml(placement.displayName) +
+     '" alt="' + escapeHtml(placement.isModernTradition ? placement.displayName + ' photograph' : product.imageAlt) +
+     '" loading="' + (i > 1 ? 'lazy' : 'eager') + '" decoding="async"></div>' +
+     '<div class="redcarpert-book-copy">' + (placement.isModernTradition
+       ? '<span class="redcarpert-book-kicker">MODERN TRADITION DRESSES</span>' : '') +
+     '<h3>' + escapeHtml(placement.displayName) + '</h3>' +
      '<div class="redcarpert-book-price-pair" aria-label="Sale and rental prices">' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label" data-book-sale-label="' + escapeHtml(product.id) + '">' + escapeHtml(salePriceLabelForDress(product.id)) + '</span>' +
      '<p class="redcarpert-book-price" data-book-sale-price="' + escapeHtml(product.id) + '">' + escapeHtml(displaySalePriceForDress(product.id)) + '</p></div>' +
      '<div class="redcarpert-book-price-item"><span class="redcarpert-book-price-label">Rental Price Range</span>' +
      '<p class="redcarpert-book-price" data-book-rental-price="' + escapeHtml(product.id) + '">' + escapeHtml(displayRentalPriceForDress(product.id)) + '</p></div></div>' +
      '<p class="redcarpert-book-condition-note">' + escapeHtml(RENTAL_CONDITION_NOTE) + '</p>' +
-     '<a href="' + escapeHtml(product.previewRoute) + '/">View dress details</a></div>' +
+     '<a href="' + escapeHtml(placement.detailRoute) + '/">View dress details</a></div>' +
      '<span class="redcarpert-book-folio">' + String(pageNumber).padStart(2,'0') + ' / ' + String(pageCount).padStart(2,'0') + '</span></div></article>';
  }).join('');
  const logo = '/redcarpert/brand/redcarpert-logo-optimized.webp';

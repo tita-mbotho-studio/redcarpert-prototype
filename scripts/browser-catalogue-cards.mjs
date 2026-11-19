@@ -181,7 +181,7 @@ try {
           await page.locator('[data-filter-category="all"]').click();
           if(width===390){
             await page.locator('[data-filter-category="modern_tradition"]').click();
-            await page.locator('[data-catalogue-id="2-in-1-moreteadi-dress"] a.woocommerce-LoopProduct-link').click();
+            await page.locator('[data-catalogue-id="modern-tradition-04"] a.woocommerce-LoopProduct-link').click();
             await page.waitForURL('**/product/preview/modern-tradition-04/');
             assert.equal(await page.locator('h1.redcarpert-detail-name').textContent(),'Modern Tradition 04');
             const fittingUrl=new URL(await page.locator('[data-detail-preview] a.redcarpert-detail-fitting-button').getAttribute('href'));
@@ -191,7 +191,7 @@ try {
           }
         }
         if(width===390 && route.endsWith('/modern_tradition')){
-          await page.locator('li[data-catalogue-id="2-in-1-moreteadi-dress"] a.woocommerce-LoopProduct-link').click();
+          await page.locator('li[data-catalogue-id="modern-tradition-04"] a.woocommerce-LoopProduct-link').click();
           await page.waitForURL('**/product/preview/modern-tradition-04/');
           assert.equal(await page.locator('h1.redcarpert-detail-name').textContent(),'Modern Tradition 04');
           assert.equal(await page.locator('[data-related-dress]').count(),3);
@@ -202,5 +202,5 @@ try {
       }
     } finally { await page.close(); }
   }
-  console.log('Luxury catalogue cards PASS: five collections, 47 labels, six viewports');
+  console.log('Luxury catalogue cards PASS: five collections, 51 unique dress labels, six viewports');
 } finally { await browser.close(); }

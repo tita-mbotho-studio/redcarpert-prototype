@@ -1,17 +1,18 @@
 import {chromium} from 'playwright'; import fs from 'node:fs'; import assert from 'node:assert/strict';
-import products from '../src/data/products.json' with {type:'json'};
+import { catalogueProducts } from '../src/data/catalogue.ts';
+import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 (async()=>{let browser=await chromium.launch({headless:true,args:['--no-sandbox']});let results=[];const routes=JSON.parse(fs.readFileSync('.generated/routes.json'));
 for(let width of [1440,768,390])for(let route of routes){let page=await browser.newPage({viewport:{width,height:900}}),errors=[],failed=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400 && r.url().startsWith('http://localhost:4173'))failed.push(r.status()+' '+r.url())});page.on('requestfailed',r=>{if(r.url().startsWith('http://localhost:4173'))failed.push(r.url()+': '+r.failure().errorText)});await page.goto('http://localhost:4173/redcarpert-prototype'+(route==='/'?'/':route+'/'),{waitUntil:'domcontentloaded'});await page.waitForTimeout(1600);
 let metrics=await page.evaluate(()=>({title:document.title,html:document.documentElement.outerHTML.length,transfer:performance.getEntriesByType('resource').reduce((a,r)=>a+r.transferSize,0),load:performance.getEntriesByType('navigation')[0].loadEventEnd,header:document.querySelector('#header')?.getBoundingClientRect().toJSON(),bodyWidth:document.body.scrollWidth,broken:[...document.images].filter(i=>i.getClientRects().length&&i.complete&&!i.naturalWidth&&i.src.startsWith(location.origin)).map(i=>i.src)}));
 if(['/','/product','/digital-lookbook'].includes(route)){await page.waitForTimeout(600);await page.screenshot({path:'/tmp/after-'+width+'-'+(route.split('/')[1]||'home')+'.png'});}
 if(route==='/digital-lookbook'){
- assert.equal(await page.locator('[data-book-page]').count(),products.dresses.length+2);
+ assert.equal(await page.locator('[data-book-page]').count(),lookbookPlacements(catalogueProducts).length+2);
  await page.getByRole('button',{name:'Next page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 2 of '+(products.dresses.length+2)));
+ assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 2 of '+(lookbookPlacements(catalogueProducts).length+2)));
  await page.getByRole('button',{name:'Previous page',exact:true}).click();
  await page.waitForTimeout(1100);
- assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 1 of '+(products.dresses.length+2)));
+ assert.match(await page.locator('[data-book-status]').textContent(),new RegExp('Page 1 of '+(lookbookPlacements(catalogueProducts).length+2)));
 }
 // The approved direct WhatsApp handoff has no on-site enquiry preview.
 const fitting=page.locator('#footer .redcarpert-footer-book');

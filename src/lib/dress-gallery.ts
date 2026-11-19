@@ -72,7 +72,12 @@ export function photosForDress(
   mappings: Readonly<Record<string, readonly DressGalleryPhoto[]>> = additionalDressPhotos,
 ): readonly DressGalleryPhoto[] {
   validateDressGalleryMappings(mappings);
-  const extras = mappings[product.id] ?? [];
-  if (extras.some(photo => photo.url === product.image)) throw new Error("Gallery duplicates the primary photograph for " + product.id);
+  const sourceExtras = mappings[product.sourceDressId ?? product.id] ?? [];
+  if (sourceExtras.some(photo => photo.url === product.image)) throw new Error("Gallery duplicates the primary photograph for " + product.id);
+  // Reused original client photos belong to the Modern Tradition listing's own
+  // accessible gallery, so do not label its angles as another dress category.
+  const extras = product.category === "modern_tradition"
+    ? sourceExtras.map((photo,index)=>({url:photo.url,alt:product.name+" photograph "+(index+2)}))
+    : sourceExtras;
   return [{ url: product.image, alt: product.imageAlt }, ...extras];
 }

@@ -12,7 +12,7 @@ const all=nodes=>nodes.flatMap(node=>typeof node==='string'?[]:[node,...all(node
 
 test('the four selected Modern Tradition dresses have contiguous, unique detail routes',()=>{
   assert.deepEqual(modernTraditionPages.map(page=>page.product.id),[
-    'ball-gown-03','ball-gown-04','ball-gown-05','2-in-1-moreteadi-dress']);
+    'modern-tradition-01','modern-tradition-02','modern-tradition-03','modern-tradition-04']);
   assert.deepEqual(modernTraditionPages.map(page=>page.name),[
     'Modern Tradition 01','Modern Tradition 02','Modern Tradition 03','Modern Tradition 04']);
   const excluded=['ball-gown-11','ruffled-dress-04','ruffled-dress-07','2-in-1-mmematlala-dress'];
@@ -23,16 +23,17 @@ test('the four selected Modern Tradition dresses have contiguous, unique detail 
     assert.equal(modernTraditionPageForDress(id),undefined);
   }
   const routes=publicStaticRoutes(sitePages,[
-    ...catalogueProducts.map(product=>product.previewRoute),
-    ...modernTraditionPages.map(page=>page.route)
+    ...catalogueProducts.map(product=>product.previewRoute)
   ]);
-  assert.equal(routes.length,catalogueProducts.length+modernTraditionPages.length+10);
+  assert.equal(routes.length,catalogueProducts.length+10);
   assert.equal(new Set(routes).size,routes.length);
   for(const page of modernTraditionPages){
     assert.equal(modernTraditionPageForDress(page.product.id),page);
     assert.equal(modernTraditionPageForRoute(page.route),page);
     assert(routes.includes(page.route));
-    assert(routes.includes(page.product.previewRoute),'original silhouette page stays available');
+    const source=catalogueProducts.find(product=>product.id===page.product.sourceDressId);
+    assert(source && source.id!==page.product.id);
+    assert(routes.includes(source.previewRoute),'source silhouette page stays available');
   }
 });
 
@@ -47,7 +48,7 @@ test('every Modern Tradition detail page uses its own identity and shared price/
     assert(document.description.includes(page.name));
     const nodes=all(document.nodes);
     const root=nodes.find(node=>node.attrs['data-detail-preview']===page.product.id);
-    assert(root,'the canonical gown must back its Modern Tradition page');
+    assert(root,'the unique Modern Tradition gown must back its own detail page');
     assert.equal(root.attrs['data-modern-tradition-number'],page.number);
     const content=all([root]);
     const title=content.find(node=>node.tag==='h1'&&node.attrs.class?.includes('redcarpert-detail-name'));
@@ -75,11 +76,16 @@ test('every Modern Tradition detail page uses its own identity and shared price/
     assert(dressPageUrl(product,page).endsWith(page.route+'/'));
     assert(message.includes('*Sale Price:* '));
     assert(message.includes('*Rental Price Range:* '));
-    // The native silhouette entry still has its original route and identity.
-    const original=createProductDetailPreview(donor,product);
-    assert.equal(original.route,page.product.previewRoute);
-    assert.equal(all(original.nodes).find(node=>node.attrs.class?.includes('redcarpert-detail-name'))?.children[0],page.product.name);
-    assert.equal(dressFittingMessage(product).includes('*Collection:* Modern Tradition Dresses'),false);
+    // Modern Tradition and its source silhouette are two different catalogue records.
+    const source=catalogueProducts.find(p=>p.id===page.product.sourceDressId);
+    assert(source);
+    const sourceDetail=createProductDetailPreview(donor,source);
+    assert.equal(sourceDetail.route,source.previewRoute);
+    assert.equal(all(sourceDetail.nodes).find(node=>node.attrs.class?.includes('redcarpert-detail-name'))?.children[0],source.name);
+    assert.equal(dressFittingMessage(source).includes('*Collection:* Modern Tradition Dresses'),false);
+    assert(dressFittingMessage(product).includes('*Collection:* Modern Tradition Dresses'));
+    assert.notEqual(source.id,product.id);
+    assert.equal(source.image,product.image);
   }
 });
 

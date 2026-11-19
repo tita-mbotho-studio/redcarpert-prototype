@@ -85,7 +85,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   }
   const children = products.map((product, index): DocumentElement => {
     const { card, anchor, image, title, price } = cardParts[index];
-    // Product IDs stay canonical; Modern Tradition has its own detail URL.
+    // Every dress has its own product ID and detail URL.
     const visibleCategory = selectedCollection === "modern_tradition" ? "modern_tradition" : product.category;
     const category = catalogueCategories.find(item => item.id === visibleCategory);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
@@ -93,8 +93,8 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const modernPage=modernTraditionPageForDress(product.id);
     const modernDisplayNumber=modernPage?.number ?? null;
     if (selectedCollection==="modern_tradition" && !modernPage) return fail("Modern Tradition detail route");
-    // The four Modern Tradition cards use their own 01–04 labels and links;
-    // each route still renders the original gown's photographs and prices.
+    // The four Modern Tradition cards use their own 01–04 identities, prices
+    // and routes; their client photographs come from approved source uploads.
     const displayName = selectedCollection==="modern_tradition"
       ? modernDisplayNumber : originalDisplayName;
     if (!category || !displayName) return fail("card collection or dress name");

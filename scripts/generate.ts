@@ -3,7 +3,6 @@ import path from 'node:path';
 import sharp from 'sharp';
 import { sitePages } from '../src/data/site';
 import { catalogueProducts } from '../src/data/catalogue';
-import { modernTraditionPages } from '../src/lib/modern-tradition';
 import { publicStaticRoutes } from '../src/lib/public-routes';
 import { createLuxuryLookbookPdf } from '../src/lib/luxury-lookbook';
 import { prepareLookbookImages } from './lib/lookbook-assets';
@@ -24,7 +23,7 @@ const root = '.generated';
 // Validate all catalogue records and public routes before clearing prior generated files.
 validateCatalogue(catalogueProducts);
 validateDressGalleryMappings();
-const routes = ['/',...publicStaticRoutes(sitePages,[...catalogueProducts.map(p=>p.previewRoute),...modernTraditionPages.map(page=>page.route)])];
+const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
 const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css','src/components/LookbookZoom.css'];

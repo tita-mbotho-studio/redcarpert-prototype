@@ -2,11 +2,12 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 import type { CatalogueProduct } from "../data/catalogue.ts";
 import { catalogueCategories } from "../data/catalogue.ts";
+import { lookbookPlacements } from "./lookbook-placements.ts";
 import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelForDress, RENTAL_CONDITION_NOTE } from "./pricing.ts";
 import { generalFittingMessage } from "./whatsapp-messages.ts";
 import { buildWhatsAppUrl } from "../config/whatsapp.ts";
 
-/** A4 luxury editorial PDF: cover + three front-matter pages + five collection openers + one page per dress + three closing pages. */
+/** A4 editorial PDF: five category dividers and one spread for each of 51 distinct dress records. */
 export interface LuxuryLookbookImage {
   readonly id: string;
   readonly jpeg: Buffer;
@@ -123,12 +124,13 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     if (!item || !item.jpeg.subarray(0,2).equals(Buffer.from([0xff,0xd8])) || item.width<=0||item.height<=0) throw new Error("Invalid PDF photo "+id);
     return imageData(item.jpeg,"image/jpeg");
   };
-  const totalPages=products.length+catalogueCategories.length+7;
+  const placements=lookbookPlacements(products);
+  const totalPages=placements.length+catalogueCategories.length+7;
   const sectionStarts=new Map<string,number>();
   let nextStart=5;
   for (const category of catalogueCategories) {
     sectionStarts.set(category.id,nextStart);
-    nextStart+=1+products.filter(p=>p.category===category.id).length;
+    nextStart+=1+placements.filter(placement=>placement.category===category.id).length;
   }
   const logo = imageData(options.logo,"image/png");
   const pages: string[] = [];
@@ -148,27 +150,26 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<p class="tiny" style="margin-top:15mm">'+products.length+' wedding dress looks across five collections.</p>'));
   let pageNumber=5;
   for (const [index,category] of catalogueCategories.entries()) {
-    const dresses=products.filter(p=>p.category===category.id);
-    // One page per gown: cross-listed looks are indexed, not duplicated.
-    const crossListed=products.filter(p=>p.category!==category.id && p.collections.includes(category.id));
-    if((!dresses.length && !crossListed.length) || sectionStarts.get(category.id)!==pageNumber)
+    const dresses=placements.filter(placement=>placement.category===category.id);
+    // One editorial spread per distinct dress, grouped by its own category.
+    if(!dresses.length || sectionStarts.get(category.id)!==pageNumber)
       throw new Error("Collection page alignment failed for "+category.id);
     pages.push(page(pageNumber++,"divider","collection-"+category.id,
       tag("Collection "+two(index+1)+" / 05")+'<p class="number">'+two(index+1)+'</p><h2>'+esc(category.name)+'</h2>'+
       '<div class="goldline"></div><p class="intro">'+(category.id==="ball_gown"
         ? "Explore "+dresses.length+" Ball Gown wedding dresses and find a style you love."
         : category.id==="modern_tradition"
-          ? "Discover "+(dresses.length+crossListed.length)+" Modern Tradition looks, including "+crossListed.length+
-            " colourful gowns also featured in other collections."
+          ? "Discover "+dresses.length+" colourful Modern Tradition wedding dresses."
           : "Explore "+dresses.length+" wedding dresses and discover a look that feels like you.")+'</p>'));
-    for (const dress of dresses) {
-      const look=dress.name;
-      const detailUrl=website.replace(/\/$/,"")+dress.previewRoute+"/";
-      pages.push(page(pageNumber++,"dress","look-"+dress.id,
+    for (const placement of dresses) {
+      const dress=placement.product;
+      const look=placement.displayName;
+      const detailUrl=website.replace(/\/$/,"")+placement.detailRoute+"/";
+      pages.push(page(pageNumber++,"dress","look-"+placement.id,
         '<div class="dress-top">'+tag("REDCARPERT WEDDING DRESSES")+'</div><div class="fine-rule"></div>'+
-        '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(dress.imageAlt)+'"></div>'+
-        '<div class="dress-bottom">'+(dress.category!=="modern_tradition" && dress.collections.includes("modern_tradition")
-           ? '<span class="kind">Also in Modern Tradition</span>'
+        '<div class="portrait"><img src="'+photograph(dress.id)+'" alt="'+esc(placement.isModernTradition ? look+" photograph" : dress.imageAlt)+'"></div>'+
+        '<div class="dress-bottom">'+(placement.isModernTradition
+           ? '<span class="kind">Modern Tradition Dresses</span>'
            : "")+
         '<h3>'+esc(look)+'</h3>'+
         '<div class="price-pair" aria-label="Sale and rental prices">'+
@@ -186,7 +187,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
     '<h2>Found a dress?<br>Book a fitting.</h2><p>Message us on WhatsApp to ask about prices, available dresses and fittings.</p>'+
     '<a class="button" href="'+esc(enquiry)+'">BOOK A FITTING ON WHATSAPP</a><p class="tiny">Fittings by appointment only.</p>'+
     '<a class="web" href="'+esc(website)+'">'+esc(website)+'</a>'));
-  // Keep one client dress spread each; the closing pages support the fitting journey.
+  // Each dress has its own catalogue identity and price, grouped by collection.
   pages.push(page(pageNumber++,"credits","credits",tag("The Redcarpert experience")+
     '<h2>Your Fitting Journey</h2><div class="credit-columns">'+
     '<div>'+
@@ -241,7 +242,7 @@ export async function createLuxuryLookbookPdf(products: readonly CatalogueProduc
     });
     if(clipped.length)throw new Error("Lookbook PDF content clipped: "+clipped.join(", "));
     const count=await tab.locator("section.page").count();
-    if(count!==products.length+catalogueCategories.length+7)throw new Error("Wrong rendered book page count "+count);
+    if(count!==lookbookPlacements(products).length+catalogueCategories.length+7)throw new Error("Wrong rendered book page count "+count);
     if(process.env.REDCARPERT_BOOK_PREVIEW==="1") {
       const folder=".generated/lookbook-previews";
       await mkdir(folder,{recursive:true});

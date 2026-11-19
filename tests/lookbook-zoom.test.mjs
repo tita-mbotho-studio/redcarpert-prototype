@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createNodeRenderer} from '../scripts/lib/markup.ts';
 import {catalogueProducts} from '../src/data/catalogue.ts';
+import {lookbookPlacements} from '../src/lib/lookbook-placements.ts';
 import {getRenderedPhotoBounds, pointIsOnPhoto} from '../src/client/lookbook-zoom.js';
 
 const bookMarkup = () =>
@@ -10,11 +11,11 @@ const bookMarkup = () =>
 
 test('the lookbook photograph itself is the only zoom target: no icon, button or overlay', () => {
   const html = bookMarkup();
-  assert.equal((html.match(/data-book-zoom-photo(?= )/g) ?? []).length,catalogueProducts.length);
-  assert.equal((html.match(/role="button" tabindex="0" aria-haspopup="dialog"/g) ?? []).length,catalogueProducts.length);
-  assert.equal((html.match(/data-book-zoom-original="https:\/\//g) ?? []).length,catalogueProducts.length);
-  assert.equal((html.match(/data-book-zoom-src="https:\/\//g) ?? []).length,catalogueProducts.length);
-  assert.equal((html.match(/class="redcarpert-book-photo"/g) ?? []).length,catalogueProducts.length);
+  assert.equal((html.match(/data-book-zoom-photo(?= )/g) ?? []).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/role="button" tabindex="0" aria-haspopup="dialog"/g) ?? []).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/data-book-zoom-original="https:\/\//g) ?? []).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/data-book-zoom-src="https:\/\//g) ?? []).length,lookbookPlacements(catalogueProducts).length);
+  assert.equal((html.match(/class="redcarpert-book-photo"/g) ?? []).length,lookbookPlacements(catalogueProducts).length);
   assert.doesNotMatch(html,/data-book-zoom-trigger|redcarpert-book-zoom-trigger|redcarpert-book-zoom-controls|data-book-zoom-stage/);
   assert.doesNotMatch(html,/data-book-zoom-in|data-book-zoom-out|data-book-zoom-reset|data-book-zoom-percent/);
   assert.doesNotMatch(html,/<button[^>]*class="redcarpert-book-zoom/);
