@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
+import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
 import { adaptCatalogue } from '../src/lib/catalogue-adapter.ts';
 import { sitePages } from '../src/data/site.ts';
 
@@ -15,10 +15,12 @@ test('each of the five collections uses the same editorial name, divider and num
     const document = adaptCatalogue(source(route), catalogueProducts);
     const cards = all(document.nodes).filter(n => Object.hasOwn(n.attrs, 'data-catalogue-id'));
     const expected = route === '/product' ? catalogueProducts :
-      catalogueProducts.filter(p => route.endsWith('/' + p.category));
+      catalogueProducts.filter(p => catalogueCategories.some(c =>
+        c.route.replace(/\/$/,'')===route && dressAppearsInCollection(p,c.id)));
     assert.equal(cards.length, expected.length, route);
     for (const [index,card] of cards.entries()) {
       const product = expected[index];
+      assert.equal(card.attrs['data-catalogue-collections'],product.collections.join(' '));
       observed.add(product.category);
       const category = catalogueCategories.find(c => c.id === product.category);
       const name = category.name.replace(/ Dresses$/, '');
