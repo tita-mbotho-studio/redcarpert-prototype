@@ -42,7 +42,7 @@ test('all four client dress CSV batches preserve every photo and ordered gown gr
     for(const dress of family.records){
       const product=catalogueProducts.find(item=>item.id===dress.id);
       assert(product,'missing client dress '+dress.id);
-      assert.equal(product.status,'client');
+      assert(!Object.hasOwn(product,'status'));
       assert.equal(product.category,family.category);
       assert.equal(product.name,dress.name);
       assert.equal(product.image,dress.photos[0].url);
@@ -74,17 +74,16 @@ test('all four client dress CSV batches preserve every photo and ordered gown gr
   assert.doesNotThrow(()=>validateDressGalleryMappings());
 });
 
-test('the 51-dress catalogue and editable ZAR pricing stay synchronized',()=>{
-  assert.equal(catalogueProducts.length,51);
-  assert.equal(catalogueProducts.filter(x=>x.status==='client').length,47);
-  assert.equal(catalogueProducts.filter(x=>x.status==='sample').length,4);
+test('the 47-dress catalogue and editable ZAR pricing stay synchronized',()=>{
+  assert.equal(catalogueProducts.length,47);
+  assert(catalogueProducts.every(x=>!Object.hasOwn(x,'status')));
   assert.deepEqual(Object.fromEntries(['mermaid','ball_gown','ruffled','modern_tradition','two_in_one']
     .map(category=>[category,catalogueProducts.filter(x=>x.category===category).length])),
-    {mermaid:2,ball_gown:12,ruffled:12,modern_tradition:4,two_in_one:21});
-  assert.equal(prices.dresses.length,51);
-  assert.equal(Object.keys(prices.priceRangesZar).length,51);
+    {mermaid:2,ball_gown:12,ruffled:12,modern_tradition:0,two_in_one:21});
+  assert.equal(prices.dresses.length,47);
+  assert.equal(Object.keys(prices.priceRangesZar).length,47);
   assert.deepEqual(catalogueProducts.map(x=>x.id).sort(),prices.dresses.map(x=>x.id).sort());
-  assert.equal(new Set(catalogueProducts.map(x=>x.image)).size,51);
+  assert.equal(new Set(catalogueProducts.map(x=>x.image)).size,47);
   for(const product of catalogueProducts){
     const record=prices.dresses.find(item=>item.id===product.id);
     assert(Number.isSafeInteger(record?.priceZar) && record.priceZar>0);
