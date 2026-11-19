@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { preparePage } from '../scripts/lib/prepare-page.ts';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { displaySalePriceForDress, displayRentalPriceForDress, RENTAL_CONDITION_NOTE } from '../src/lib/pricing.ts';
-import { generalFittingMessage } from '../src/lib/whatsapp-messages.ts';
+import { generalFittingMessage, dressFittingMessage } from '../src/lib/whatsapp-messages.ts';
 import { buildWhatsAppUrl } from '../src/config/whatsapp.ts';
 import { directWhatsAppHandoffs } from '../src/lib/direct-whatsapp.ts';
 import { createNodeRenderer } from '../scripts/lib/markup.ts';
