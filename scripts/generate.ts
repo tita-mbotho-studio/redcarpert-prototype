@@ -24,7 +24,7 @@ const root = '.generated';
 // Validate all catalogue records and public routes before clearing prior generated files.
 validateCatalogue(catalogueProducts);
 validateDressGalleryMappings();
-const routes = ['/',...publicStaticRoutes(sitePages,[...catalogueProducts.map(p=>p.previewRoute),...modernTraditionPages.map(page=>page.route)])];
+const routes = ['/',...publicStaticRoutes(sitePages,catalogueProducts.map(p=>p.previewRoute))];
 await rm(root, {recursive:true,force:true});
 await mkdir(root,{recursive:true});
 const cssFiles = ['src/styles/globals.css',...['FooterBranding','CatalogueListing','ProductDetailPreview','EditorialPages','HomepageExperience'].map(n=>'src/components/'+n+'.css'),'src/components/CatalogueFilter.css','src/components/WeddingMoments.css','src/components/ModernIcons.css','src/components/LookbookZoom.css'];
