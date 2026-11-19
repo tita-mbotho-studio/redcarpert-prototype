@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readFileSync } from 'node:fs';
 import { sitePages } from '../src/data/site.ts';
 import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts';
 import { createProductDetailPreview, dressImageDimensions, dressDetailTitle, relatedDressesFor } from '../src/lib/product-detail-preview.ts';
@@ -83,6 +84,25 @@ test('all 51 client dress pages preserve the approved gallery, price and fitting
     assert(!content.some(n=>n.attrs.class==='tabs wc-tabs'||n.attrs.class==='related products'));
   }
   assert.equal(JSON.stringify(source),original,'client previews must never mutate the donor template');
+});
+
+test('published multi-photo gallery arrows anchor to the dress image at every responsive width',()=>{
+  const css=readFileSync('src/components/ProductDetailPreview.css','utf8');
+  assert.match(css,
+    /#main-container \[data-detail-preview\] \.redcarpert-detail-photo-frame\[data-dress-frame\] \{\s*position:\s*relative;/,
+    'the real data-dress-frame must establish the arrow positioning context');
+  assert.match(css,
+    /#main-container \[data-detail-preview\] \.redcarpert-gallery-arrow \{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*50%;[\s\S]*?transform:\s*translateY\(-50%\);/,
+    'arrows must be vertically centred inside that photo frame');
+  const gown=catalogueProducts.find(product=>product.id==='modern-tradition-03');
+  assert(gown,'the approved Modern Tradition multi-photo dress must exist');
+  const doc=createProductDetailPreview(sitePages['/product/arabella'],gown);
+  const frame=find(doc.nodes,node=>node.attrs['data-dress-frame']==='true');
+  assert(frame,'published page must use the CSS-anchored photo frame');
+  assert.equal(frame.children.filter(node=>typeof node!=='string' &&
+    (node.attrs['data-gallery-previous']!==undefined ||
+     node.attrs['data-gallery-next']!==undefined)).length,2,
+    'both navigation buttons must remain inside the photo frame');
 });
 
 test('all multi-photo client galleries retain every real photo in original dress order',()=>{
