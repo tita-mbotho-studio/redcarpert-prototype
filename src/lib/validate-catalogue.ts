@@ -23,6 +23,8 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
   const expectedTotal = Object.values(expectedCounts).reduce((n,count)=>n+count,0);
   if (products.length !== expectedTotal) throw new Error('Catalogue must contain '+expectedTotal+' dresses matching the approved client manifests');
   const ids = new Set<string>(), routes = new Set<string>(), photos = new Set<string>();
+  const approvedSharedPhotos = new Set([...modernTraditionSourceByDress.values()].map(sourceId=>
+    clientSource.get(sourceId)?.dress.photos[0].url));
   if(modernTraditionSourceByDress.size !== 4)
     throw new Error('Modern Tradition requires four distinct dress IDs');
   for (const [id, colour] of modernTraditionColourByDress) {
@@ -58,7 +60,8 @@ export function validateCatalogue(products: readonly CatalogueProduct[]): void {
       throw new Error('Incorrect Modern Tradition source mapping: '+product.id);
     if(!isModern && product.sourceDressId!==undefined)
       throw new Error('Unexpected source alias for '+product.id);
-    if (photos.has(product.image) && !isModern) throw new Error('Duplicate primary photograph for '+product.id);
+    if (photos.has(product.image) && !approvedSharedPhotos.has(product.image))
+      throw new Error('Duplicate primary photograph for '+product.id);
     photos.add(product.image);
 
     {
