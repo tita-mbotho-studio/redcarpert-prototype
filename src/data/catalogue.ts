@@ -11,11 +11,13 @@ export interface CatalogueProduct {
   readonly id: string;
   readonly name: string;
   readonly category: DressCategory;
-  /** Visible collections; colourful silhouettes also feature in Modern Tradition. */
+  /** A dress belongs to exactly one displayed collection. */
   readonly collections: readonly DressCategory[];
   readonly priceZar: PriceZar;
   readonly image: string;
   readonly imageAlt: string;
+  /** Original client photo group when a Modern Tradition record uses a previously supplied photograph. */
+  readonly sourceDressId?: string;
   readonly detailReference: null;
   readonly previewRoute: `/product/preview/${string}`;
   readonly imageCredit: { readonly photographer: string; readonly sourceUrl: string; readonly provenance: string };
@@ -28,23 +30,24 @@ export const catalogueCategories = [
   { id: "two_in_one", name: "2 in 1 Dresses", route: "/product-category/two_in_one/" },
 ] as const;
 
-/** One product can be browsed in several collections without duplicating its
- * detail page, gallery, images, prices, WhatsApp link or book spread. */
+/** Colour selection is recorded against the approved client photo source.
+ * Modern Tradition gowns have their own independent product IDs and prices. */
 export const modernTraditionColourByDress: ReadonlyMap<string,string> =
   new Map(featuredModernTradition.featured.map(item=>[item.id,item.colour] as const));
 if (modernTraditionColourByDress.size !== featuredModernTradition.featured.length)
   throw new Error("Duplicate Modern Tradition cross-list dress");
-export function collectionsForDress(id: string, primary: DressCategory): readonly DressCategory[] {
-  return modernTraditionColourByDress.has(id) && primary !== "modern_tradition"
-    ? [primary, "modern_tradition"]
-    : [primary];
+export const modernTraditionSourceByDress: ReadonlyMap<string,string> =
+  new Map(featuredModernTradition.featured.map((entry,index)=>
+    [`modern-tradition-${String(index+1).padStart(2,"0")}`,entry.id] as const));
+export function collectionsForDress(_id: string, primary: DressCategory): readonly DressCategory[] {
+  return [primary];
 }
 export function dressAppearsInCollection(product: CatalogueProduct, category: DressCategory): boolean {
   return product.collections.includes(category);
 }
 
 /** Primary photographs for all client dress groups come from their CSV imports. */
-export const catalogueProducts: readonly CatalogueProduct[] = [
+const sourceCatalogueProducts: readonly CatalogueProduct[] = [
   ...clientMermaidDresses.map(dress => ({
     id: dress.id, name: dress.name, category: "mermaid" as const,
     collections: collectionsForDress(dress.id,"mermaid"),
@@ -91,3 +94,33 @@ export const catalogueProducts: readonly CatalogueProduct[] = [
   })),
 
 ];
+
+/** Four distinct Modern Tradition catalogue records with their own IDs, prices and routes.
+ * Their photographs are linked to the client's existing approved source uploads. */
+const sourceById = new Map(sourceCatalogueProducts.map(product=>[product.id,product] as const));
+const modernProducts: readonly CatalogueProduct[] = featuredModernTradition.featured.map((entry,index)=>{
+  const source=sourceById.get(entry.id);
+  if(!source || source.category==="modern_tradition") throw new Error("Invalid Modern Tradition source photo: "+entry.id);
+  const number=String(index+1).padStart(2,"0");
+  const id="modern-tradition-"+number;
+  return {
+    id,name:"Modern Tradition "+number,category:"modern_tradition" as const,
+    collections: collectionsForDress(id,"modern_tradition"),
+    sourceDressId: source.id,
+    priceZar: priceForDress(id),
+    image: source.image,
+    imageAlt: "Modern Tradition "+number+" wedding dress photograph",
+    detailReference: null,
+    previewRoute: `/product/preview/${id}` as const,
+    imageCredit: source.imageCredit,
+  };
+});
+
+/** 2 Mermaid + 12 Ball Gown + 12 Ruffled + 4 Modern Tradition + 21 2 in 1. */
+export const catalogueProducts: readonly CatalogueProduct[] = [
+  ...sourceCatalogueProducts.filter(product=>product.category!=="two_in_one"),
+  ...modernProducts,
+  ...sourceCatalogueProducts.filter(product=>product.category==="two_in_one"),
+];
+if(catalogueProducts.length!==51||new Set(catalogueProducts.map(product=>product.id)).size!==51)
+  throw new Error("Catalogue requires exactly 51 distinct dress identities");
