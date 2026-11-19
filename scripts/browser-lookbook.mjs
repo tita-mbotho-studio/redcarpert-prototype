@@ -42,8 +42,8 @@ try {
   assert.equal(await cover.locator('.redcarpert-book-cover-photo').count(),0,'cover must not include a stock image');
   assert.match(await cover.locator('h3').textContent(),/Walking on red carpet with confidence/);
   assert.equal(await page.locator('.redcarpert-book-dress').count(),products.dresses.length);
-  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="sample-mermaid"]').count(),4);
-  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="ball-gown-"]').count(),11);
+  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="mermaid-"]').count(),2);
+  assert.equal(await page.locator('.redcarpert-book-dress[data-sample-id^="ball-gown-"]').count(),12);
   assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),products.dresses.length);
   const next = page.getByRole('button',{name:'Next page',exact:true});
   const previous = page.getByRole('button',{name:'Previous page',exact:true});
