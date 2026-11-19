@@ -18,7 +18,7 @@ test('all 51 catalogue dresses use only verified client ImageKit photographs',()
  for(const p of catalogueProducts){
   assert.equal(p.detailReference,null);
   assert(!('price' in p) && !('sizes' in p));
-  assert.match(p.name,/^(?:Ball Gown|Ruffled Dress) \d{2}$|^(?:Mermaid|2 in 1) .+ Dress$/);
+  assert.match(p.name,/^(?:Ball Gown|Ruffled Dress|Modern Tradition) \d{2}$|^(?:Mermaid|2 in 1) .+ Dress$/);
   assert(p.image.startsWith('https://ik.imagekit.io/kw8awoqvwi/'));
 
   assert(Number.isSafeInteger(p.priceZar) && p.priceZar>0);
