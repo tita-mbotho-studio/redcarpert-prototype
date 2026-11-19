@@ -27,7 +27,7 @@ test('interactive Bridal Edit shows full prices and no preview or temporary word
 test('PDF source contains no development copy, fictional ownership claims or separate WhatsApp text',()=>{
   const images=catalogueProducts.map(p=>({id:p.id,jpeg:Buffer.from([0xff,0xd8,0xff,0xd9]),width:1200,height:1800}));
   const html=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
-  assert.equal((html.match(/<section class="page /g)||[]).length,63);
+  assert.equal((html.match(/<section class="page /g)||[]).length,68);
   assert.equal((html.match(/data-pdf-sale-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
   assert.equal((html.match(/data-pdf-rental-price=/g)||[]).length,lookbookPlacements(catalogueProducts).length);
   assert.equal(html.split(RENTAL_CONDITION_NOTE).length-1,lookbookPlacements(catalogueProducts).length,

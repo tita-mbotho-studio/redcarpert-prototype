@@ -7,7 +7,7 @@ import { displaySalePriceForDress, displayRentalPriceForDress, salePriceLabelFor
 import { generalFittingMessage } from "./whatsapp-messages.ts";
 import { buildWhatsAppUrl } from "../config/whatsapp.ts";
 
-/** A4 editorial PDF: five category dividers and one spread for each of 51 distinct dress records. */
+/** A4 editorial PDF: five category dividers and one spread for each of 56 distinct dress records. */
 export interface LuxuryLookbookImage {
   readonly id: string;
   readonly jpeg: Buffer;

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { setTimeout as pause } from "node:timers/promises";
 import path from "node:path";
 import sharp from "sharp";
 import type { CatalogueProduct } from "../../src/data/catalogue.ts";
@@ -40,6 +41,54 @@ export function estimateLookbookPrintDpi(width:number,height:number):number {
   return Math.round(25.4/Math.min(targetPhotoWidthMm/width,targetPhotoHeightMm/height));
 }
 
+/** The PDF embeds original client photographs to preserve their full detail.
+ * Transient ImageKit timeouts, throttling and network failures are retried;
+ * invalid responses, missing photos and image corruption remain hard failures. */
+class TransientImageRequestError extends Error {}
+
+export async function downloadLookbookClientImage(
+  url: string,
+  id: string,
+  fetchImage: typeof fetch = fetch,
+  delay: (milliseconds:number) => Promise<void> = milliseconds => pause(milliseconds).then(()=>{}),
+): Promise<Buffer> {
+  approvedClientPhoto(url);
+  const timeouts=[20000,40000,60000];
+  for(let attempt=0;attempt<timeouts.length;attempt++) {
+    try {
+      const response=await fetchImage(url,{
+        signal:AbortSignal.timeout(timeouts[attempt]),
+        headers:{"Accept":"image/webp,image/*"},
+      });
+      if(!response.ok) {
+        const reason="ImageKit HTTP "+response.status+" for "+id;
+        if(response.status===408 || response.status===429 || response.status>=500)
+          throw new TransientImageRequestError(reason);
+        throw new Error(reason);
+      }
+      const declared=Number(response.headers.get("content-length")||0);
+      if(declared>25_000_000)throw new Error("Photo exceeds 25 MB: "+id);
+      const buffer=Buffer.from(await response.arrayBuffer());
+      if(buffer.length>25_000_000)throw new Error("Photo exceeds 25 MB: "+id);
+      if(buffer.length===0)throw new Error("Empty lookbook photograph: "+id);
+      return buffer;
+    } catch(error) {
+      const errorName=error && typeof error==="object" && "name" in error
+        ? String(error.name) : "";
+      const retryable=error instanceof TransientImageRequestError ||
+        error instanceof TypeError || errorName==="TimeoutError" || errorName==="AbortError";
+      if(!retryable || attempt===timeouts.length-1)
+        throw new Error("Cannot obtain lookbook photograph "+id+
+          " after "+(attempt+1)+" attempt(s): "+String(error),{cause:error});
+      const backoff=1000*(attempt+1);
+      console.warn("[Bridal Edit] "+id+": temporary image download error; retry "+
+        (attempt+2)+"/"+timeouts.length+" after "+backoff+" ms ("+String(error)+")");
+      await delay(backoff);
+    }
+  }
+  throw new Error("Cannot obtain lookbook photograph "+id);
+}
+
 async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookbookImage;audit:ImageAuditEntry}> {
   approvedClientPhoto(product.image);
   const name=product.id+"-"+createHash("sha256").update(product.image).digest("hex").slice(0,10);
@@ -51,25 +100,9 @@ async function cachedJpeg(product: CatalogueProduct): Promise<{image:LuxuryLookb
     image=await readFile(file);
     audit=JSON.parse(await readFile(record,"utf8")) as ImageAuditEntry;
   } catch {
-    const possibleSources=[product.image];
-    let original:Buffer|undefined;
-    let lastError:unknown;
-    for(const url of possibleSources) {
-      try {
-        const response=await fetch(url,{signal:AbortSignal.timeout(20000),headers:{"Accept":"image/jpeg,image/*"}});
-        if(!response.ok)throw new Error("ImageKit HTTP "+response.status+" for "+url);
-        const size=Number(response.headers.get("content-length")||0);
-        if(size>25_000_000)throw new Error("Photo exceeds 25 MB: "+product.id);
-        const buffer=Buffer.from(await response.arrayBuffer());
-        if(buffer.length>25_000_000)throw new Error("Photo exceeds 25 MB: "+product.id);
-        const info=await sharp(buffer).metadata();
-        validateLookbookPhotoDimensions(info,product.id);
-        original=buffer;
-        break;
-      } catch(error){lastError=error;}
-    }
-    if(!original)throw new Error("Cannot obtain lookbook photograph "+product.id+": "+String(lastError));
+    const original=await downloadLookbookClientImage(product.image,product.id);
     const meta=await sharp(original).metadata();
+    validateLookbookPhotoDimensions(meta,product.id);
     if(!meta.width||!meta.height)throw new Error("Unrecognizable lookbook photo "+product.id);
     // Cache source dimensions and a JPEG suitable for the embedded PDF.
     // Do not upscale smaller client photographs: this cannot add real detail.

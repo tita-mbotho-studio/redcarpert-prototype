@@ -10,9 +10,9 @@ const all=n=>n.flatMap(x=>typeof x==='string'?[]:[x,...all(x.children)]);
 const freeze=x=>{if(x&&typeof x==='object'&&!Object.isFrozen(x)){Object.values(x).forEach(freeze);Object.freeze(x);}return x;};
 const listingRoutes=['/product',...catalogueCategories.map(c=>c.route.replace(/\/$/,''))];
 const categorySource=route=>sitePages[route]??{...sitePages['/product-category/mermaid'],route};
-test('all 51 catalogue dresses use only verified client ImageKit photographs',()=>{
+test('all 56 catalogue dresses use only verified client ImageKit photographs',()=>{
  assert.deepEqual(catalogueCategories.map(c=>c.name),['Mermaid','Ball Gown','Ruffled Dresses','Modern Tradition Dresses','2 in 1 Dresses']);
- assert.equal(catalogueProducts.length,51);
+ assert.equal(catalogueProducts.length,56);
  assert.equal(catalogueProducts.filter(p=>p.category==='ball_gown').length,12);
  assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status')&&!p.id.startsWith('sample-')));
  for(const p of catalogueProducts){

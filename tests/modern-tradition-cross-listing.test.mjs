@@ -22,10 +22,10 @@ const clientColours={
 const modernIds=['modern-tradition-01','modern-tradition-02','modern-tradition-03','modern-tradition-04'];
 const sources=Object.keys(clientColours);
 
-test('all 51 catalogue dresses have independent IDs, category and price records',()=>{
+test('all 56 catalogue dresses have independent IDs, category and price records',()=>{
   assert.deepEqual(Object.fromEntries(modernTraditionColourByDress),clientColours);
-  assert.equal(catalogueProducts.length,51);
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
+  assert.equal(catalogueProducts.length,56);
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,56);
   assert.deepEqual([...modernTraditionSourceByDress.entries()],modernIds.map((id,i)=>[id,sources[i]]));
   assert.deepEqual(catalogueProducts.filter(p=>p.category==='modern_tradition').map(p=>p.id),modernIds);
   for(const product of catalogueProducts){
@@ -78,22 +78,22 @@ test('Modern Tradition listing and main filter present four independently identi
   }
   const main=adaptCatalogue(sitePages['/product'],catalogueProducts);
   const mainCards=all(main.nodes).filter(n=>n.attrs['data-catalogue-id']!==undefined);
-  assert.equal(mainCards.length,51);
-  assert.equal(new Set(mainCards.map(c=>c.attrs['data-catalogue-id'])).size,51);
+  assert.equal(mainCards.length,56);
+  assert.equal(new Set(mainCards.map(c=>c.attrs['data-catalogue-id'])).size,56);
 });
 
-test('the 53-page Digital Lookbook and 63-page PDF include 51 unique priced dresses',()=>{
+test('the 58-page Digital Lookbook and 68-page PDF include 56 unique priced dresses',()=>{
   const html=createNodeRenderer([])({tag:'div',attrs:{'data-lookbook-viewer':'true'},children:[]});
   const images=catalogueProducts.map(p=>({id:p.id,jpeg:Buffer.from([0xff,0xd8,0xff,0xd9]),width:1200,height:1800}));
   const pdf=createLuxuryLookbookHtml(catalogueProducts,images,{year:2026,logo:Buffer.from([0x89,0x50,0x4e,0x47])});
   const placements=lookbookPlacements(catalogueProducts);
-  assert.equal(lookbookEntries.length,51);
-  assert.equal(placements.length,51);
-  assert.equal(new Set(placements.map(p=>p.id)).size,51);
-  assert.equal((html.match(/data-book-page=/g)||[]).length,53);
-  assert.equal((pdf.match(/<section class="page /g)||[]).length,63);
-  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,51);
-  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,51);
+  assert.equal(lookbookEntries.length,56);
+  assert.equal(placements.length,56);
+  assert.equal(new Set(placements.map(p=>p.id)).size,56);
+  assert.equal((html.match(/data-book-page=/g)||[]).length,58);
+  assert.equal((pdf.match(/<section class="page /g)||[]).length,68);
+  assert.equal((html.match(/data-book-sale-price=/g)||[]).length,56);
+  assert.equal((pdf.match(/data-pdf-sale-price=/g)||[]).length,56);
   assert.equal((html.match(/data-book-category="modern_tradition"/g)||[]).length,4);
   assert(pdf.includes('Discover 4 colourful Modern Tradition wedding dresses.'));
   assert(!pdf.includes('Also in Modern Tradition'));

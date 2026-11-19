@@ -4,16 +4,16 @@ import { catalogueProducts, catalogueCategories } from '../src/data/catalogue.ts
 import { modernTraditionPages } from '../src/lib/modern-tradition.ts';
 import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 
-test('both books include all 51 unique catalogue dresses grouped into five collections', () => {
+test('both books include all 56 unique catalogue dresses grouped into five collections', () => {
   const placements=lookbookPlacements(catalogueProducts);
-  assert.equal(catalogueProducts.length,51);
-  assert.equal(placements.length,51);
-  assert.equal(new Set(placements.map(p=>p.id)).size,51);
-  assert.equal(new Set(placements.map(p=>p.product.id)).size,51);
+  assert.equal(catalogueProducts.length,56);
+  assert.equal(placements.length,56);
+  assert.equal(new Set(placements.map(p=>p.id)).size,56);
+  assert.equal(new Set(placements.map(p=>p.product.id)).size,56);
   assert.deepEqual([...new Set(placements.map(p=>p.category))],
     catalogueCategories.map(c=>c.id));
   assert.deepEqual(catalogueCategories.map(category=>
-    placements.filter(p=>p.category===category.id).length),[2,12,12,4,21]);
+    placements.filter(p=>p.category===category.id).length),[2,12,17,4,21]);
   let index=0;
   for(const category of catalogueCategories){
     const group=placements.filter(p=>p.category===category.id);
@@ -46,7 +46,7 @@ test('Modern Tradition has four separate dress identities and individual detail 
     assert.equal(feature.product.image,source.product.image,'reuse approved client image URL');
     assert.notStrictEqual(feature.product,source.product,'independent product identity');
   }
-  assert.equal(placements.length+2,53,'interactive book leaf count');
-  assert.equal(placements.length+catalogueCategories.length+7,63,'A4 editorial page count');
+  assert.equal(placements.length+2,58,'interactive book leaf count');
+  assert.equal(placements.length+catalogueCategories.length+7,68,'A4 editorial page count');
   assert.throws(()=>lookbookPlacements([...catalogueProducts,catalogueProducts[0]]),/duplicate dress IDs/);
 });

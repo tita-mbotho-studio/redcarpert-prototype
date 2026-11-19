@@ -15,11 +15,11 @@ import clientTwoInOneDresses from '../src/data/client-two-in-one-dresses.json' w
 const all=nodes=>nodes.flatMap(n=>typeof n==='string'?[]:[n,...all(n.children)]);
 const find=(nodes,predicate)=>all(nodes).find(predicate);
 
-test('all 51 client dress pages preserve the approved gallery, price and fitting layout',()=>{
+test('all 56 client dress pages preserve the approved gallery, price and fitting layout',()=>{
   const source=sitePages['/product/arabella'];
   const original=JSON.stringify(source);
-  assert.equal(catalogueProducts.length,51);
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
+  assert.equal(catalogueProducts.length,56);
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,56);
   assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status') && !p.id.startsWith('sample-')));
   const routes=new Set();
   for(const dress of catalogueProducts){
@@ -126,8 +126,8 @@ test('all multi-photo client galleries retain every real photo in original dress
     assert.equal(JSON.parse(gallery.attrs['data-gallery-photos']).length,photos.length);
     count+=photos.length;
   }
-  assert.equal(count,183);
-  assert.equal(urls.size,183);
+  assert.equal(count,210);
+  assert.equal(urls.size,210);
   assert.equal(photosForDress(catalogueProducts.find(d=>d.id==='2-in-1-nthabiseng-dress')).length,16);
 });
 

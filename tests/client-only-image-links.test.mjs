@@ -12,17 +12,17 @@ import twoInOne from '../src/data/client-two-in-one-dresses.json' with {type:'js
 
 const descendants=children=>children.flatMap(node=>typeof node==='string'?[]:[node,...descendants(node.children)]);
 
-test('51 unique dress listings backed by 183 original client ImageKit photographs are actively published',()=>{
-  assert.equal(catalogueProducts.length,51);
-  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,51);
+test('56 unique dress listings backed by 210 original client ImageKit photographs are actively published',()=>{
+  assert.equal(catalogueProducts.length,56);
+  assert.equal(new Set(catalogueProducts.map(p=>p.id)).size,56);
   assert(!Object.hasOwn(imageLinks,'products'),'retired sample URL lists must not be shipped');
   assert(catalogueProducts.every(p=>!Object.hasOwn(p,'status')&&!p.id.startsWith('sample-')));
   const groups=[mermaid,ballGowns,ruffled,twoInOne];
   const records=groups.flat();
-  assert.equal(records.length,47);
+  assert.equal(records.length,52);
   const urls=records.flatMap(record=>record.photos.map(p=>p.url));
-  assert.equal(urls.length,183);
-  assert.equal(new Set(urls).size,183);
+  assert.equal(urls.length,210);
+  assert.equal(new Set(urls).size,210);
   for(const record of records){
     const product=catalogueProducts.find(p=>p.id===record.id);
     assert(product);
