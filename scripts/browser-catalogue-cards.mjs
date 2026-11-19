@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from '../src/data/catalogue.ts';
+import { modernTraditionPageForDress } from '../src/lib/modern-tradition.ts';
 
 /** Production-browser coverage for editorial listing cards on all six routes. */
 const origin = 'http://localhost:4173/redcarpert-prototype';
@@ -49,7 +50,7 @@ try {
         for (const [index, card] of cards.entries()) {
           const product = expected[index];
           const category = catalogueCategories.find(c => c.id === product.category);
-          const name = category.name.replace(/ Dresses$/, '');
+          const name = route.endsWith('/modern_tradition') ? 'Modern Tradition' : category.name.replace(/ Dresses$/, '');
           const number = route.endsWith('/modern_tradition')
             ? String(catalogueProducts.filter(p=>p.collections.includes('modern_tradition')).findIndex(p=>p.id===product.id)+1).padStart(2,'0')
             : product.name.match(/(\d{2})$/)?.[1] ?? product.name.replace(/^(?:Mermaid|2 in 1) /,'');
@@ -64,7 +65,9 @@ try {
             'redcarpert-catalogue-divider',
             'redcarpert-catalogue-number',
           ]);
-          assert(card.link?.endsWith(product.previewRoute + '/'), product.id + ' detail link must stay intact');
+          const expectedRoute = route.endsWith('/modern_tradition')
+             ? modernTraditionPageForDress(product.id).route : product.previewRoute;
+           assert(card.link?.endsWith(expectedRoute + '/'), product.id + ' must link to its displayed category');
           assert.equal(card.label, (route.endsWith('/modern_tradition')?'Modern Tradition '+number:product.name.match(/(\d{2})$/)?name+' '+number:product.name) + ': view dress photographs');
           assert.equal(card.titleAlignment, 'center');
           assert.match(card.collectionFont, /Cormorant Garamond/);
@@ -113,6 +116,7 @@ try {
                   collection:card.querySelector('.redcarpert-catalogue-collection')?.textContent.trim(),
                   number:card.querySelector('.redcarpert-catalogue-number')?.textContent.trim(),
                   label:card.querySelector('a.woocommerce-LoopProduct-link')?.getAttribute('aria-label'),
+                   href:card.querySelector('a.woocommerce-LoopProduct-link')?.getAttribute('href'),
                   alt:card.querySelector('img')?.getAttribute('alt'),
                   box:rect(card),
                   float:getComputedStyle(card).float,
@@ -138,11 +142,15 @@ try {
                 assert.equal(item.number,serial,prefix+' unique Modern Tradition numbering');
                 assert.equal(item.label,'Modern Tradition '+serial+': view dress photographs');
                 assert.equal(item.alt,'Modern Tradition dress '+serial);
+                 assert(item.href?.endsWith(modernTraditionPageForDress(dress.id).route+'/'),
+                   prefix+' filtered dress must link to its Modern Tradition detail page');
               }else{
                 const primary=catalogueCategories.find(c=>c.id===dress.category).name.replace(/ Dresses$/,'');
                 const original=dress.name.match(/(\d{2})$/)?.[1]??dress.name.replace(/^(?:Mermaid|2 in 1) /,'');
                 assert.equal(item.collection,primary,prefix+' switching filters must restore silhouette');
                 assert.equal(item.number,original,prefix+' switching filters must restore original dress name');
+                 assert(item.href?.endsWith(dress.previewRoute+'/'),
+                   prefix+' switching filters must restore original dress link');
               }
             }
             const left = layout.items[0].box.left;
