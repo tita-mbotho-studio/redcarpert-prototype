@@ -94,6 +94,11 @@ test('published multi-photo gallery arrows anchor to the dress image at every re
   assert.match(css,
     /#main-container \[data-detail-preview\] \.redcarpert-gallery-arrow \{[\s\S]*?position:\s*absolute;[\s\S]*?top:\s*50%;[\s\S]*?transform:\s*translateY\(-50%\);/,
     'arrows must be vertically centred inside that photo frame');
+  assert.match(css,
+    /\.redcarpert-detail-photo-frame\[data-dress-frame\] > img\[data-gallery-active-image\] \{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*auto;[\s\S]*?object-fit:\s*contain;/,
+    'live single-photo and multi-photo client galleries must preserve the whole photograph');
+  assert.doesNotMatch(css,/data-sample-frame/,
+    'retired sample-frame CSS cannot style the published dress gallery');
   const gown=catalogueProducts.find(product=>product.id==='modern-tradition-03');
   assert(gown,'the approved Modern Tradition multi-photo dress must exist');
   const doc=createProductDetailPreview(sitePages['/product/arabella'],gown);
