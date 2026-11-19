@@ -51,7 +51,7 @@ export function initializeLookbookReader() {
     for (const entry of lookbookEntries) {
       const matches = book.querySelectorAll('[' + attribute + '="' + entry.id + '"]');
       if (!matches.length) throw new Error('Lookbook ' + attribute + ' missing for ' + entry.id);
-      // Repeated collection spreads share one price source with the original gown.
+      // Every uniquely identified dress uses its own central sale/rental schedule.
       for (const element of matches) {
         if (element.textContent !== entry[field]) element.textContent = entry[field];
       }
