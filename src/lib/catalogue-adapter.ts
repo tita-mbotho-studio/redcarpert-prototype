@@ -47,7 +47,7 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
   const selectedCollection = catalogueCategories.find(c=>document.route===c.route.replace(/\/$/,""))?.id as DressCategory|undefined;
   const products = catalogueProducts.filter(p=>document.route==="/product" ||
     (selectedCollection!==undefined && dressAppearsInCollection(p,selectedCollection)));
-  if (!products.length || products.some(p => !["sample","client"].includes(p.status) || p.detailReference !== null)) fail("catalogue readiness");
+  if (!products.length || products.some(p => p.detailReference !== null)) fail("catalogue readiness");
   const replacements = new Map<DocumentElement, DocumentElement>();
   replacements.set(heading, { ...heading, ...(document.route === "/product" ? { attrs: { ...heading.attrs, "data-catalogue-heading": "true" } } : {}), children: [newTitle] });
   replacements.set(result, { ...result, children: [
@@ -85,14 +85,17 @@ export function adaptCatalogue(document: SiteDocumentData, catalogueProducts: re
     const { card, anchor, image, title, price } = cardParts[index];
     // Cards show the collection and existing dress number. Product IDs, names,
     // detail routes and WhatsApp handoffs remain unchanged.
-    const category = catalogueCategories.find(item => item.id === product.category);
+    const visibleCategory = selectedCollection === "modern_tradition" ? "modern_tradition" : product.category;
+    const category = catalogueCategories.find(item => item.id === visibleCategory);
     const number = /(?:^|\s)(\d{2})$/.exec(product.name)?.[1];
     // Named client gowns (e.g. "2 in 1 Kwena Dress") use their actual
     // supplied dress name where legacy cards previously displayed a number.
     const displayName = number ?? product.name.replace(/^(?:Mermaid|2 in 1) /, "");
     if (!category || !displayName) return fail("card collection or dress name");
     const collection = category.name.replace(/ Dresses$/, "");
-    const accessibleName = number ? `${collection} ${number}` : product.name;
+    const accessibleName = visibleCategory === "modern_tradition"
+      ? `Modern Tradition ${displayName}`
+      : number ? `${collection} ${number}` : product.name;
     // Explicitly type the title subtree: each child has string-valued
     // attributes, including the decorative divider's aria-hidden flag.
     const editorialTitle: DocumentElement = {
