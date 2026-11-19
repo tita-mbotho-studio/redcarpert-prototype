@@ -4,17 +4,18 @@ import {catalogueProducts} from '../src/data/catalogue.ts';
 import {validateCatalogue} from '../src/lib/validate-catalogue.ts';
 const clone = () => structuredClone(catalogueProducts);
 
-test('thirty-five dresses validate: eleven Ball Gowns, twelve Ruffled dresses and twelve Pexels samples', () => {
+test('51 dresses validate: four client dress groups and four Modern Tradition samples', () => {
  const records=clone(), original=JSON.stringify(records);
  assert.doesNotThrow(()=>validateCatalogue(records));
  assert.equal(JSON.stringify(records),original);
- assert.equal(records.length,35);
- assert.equal(records.filter(p=>p.status==='client'&&p.category==='ball_gown').length,11);
- assert.equal(records.filter(p=>p.status==='sample').length,12);
- for(const category of ['mermaid','modern_tradition','two_in_one'])
-   assert.equal(records.filter(p=>p.category===category).length,4);
+ assert.equal(records.length,51);
+ assert.equal(records.filter(p=>p.status==='client'&&p.category==='ball_gown').length,12);
+ assert.equal(records.filter(p=>p.status==='sample').length,4);
+ assert.equal(records.filter(p=>p.category==='mermaid').length,2);
+ assert.equal(records.filter(p=>p.category==='modern_tradition').length,4);
+ assert.equal(records.filter(p=>p.category==='two_in_one').length,21);
  assert.equal(records.filter(p=>p.category==='ruffled').length,12);
- assert.equal(records.filter(p=>p.status==='client').length,23);
+ assert.equal(records.filter(p=>p.status==='client').length,47);
  assert(records.every(p=>Number.isSafeInteger(p.priceZar) && p.priceZar>0));
 });
 
@@ -23,11 +24,13 @@ test('duplicate IDs, image URLs and routes fail before generation',()=>{
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,id:records[0].id}:p)),/Duplicate or invalid product ID/);
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,previewRoute:records[0].previewRoute}:p)),/Duplicate or invalid preview route/);
  assert.throws(()=>validateCatalogue(records.map((p,i)=>i===1?{...p,image:records[0].image}:p)),/Duplicate primary photograph/);
- assert.throws(()=>validateCatalogue(records.slice(0,7)),/eleven Ball Gowns, twelve Ruffled dresses and twelve other dresses/);
+ assert.throws(()=>validateCatalogue(records.slice(0,7)),/Catalogue must contain 51 dresses/);
 });
 
 test('Pexels samples reject bad hosts, missing attribution and status claims',()=>{
  const products=clone();
+ const sampleIndex=products.findIndex(p=>p.status==='sample');
+ assert(sampleIndex>=0);
  for(const [change,message] of [
   [{status:'confirmed'},/Unverified catalogue status/],
   [{detailReference:'/product/real'},/Unverified catalogue status/],
@@ -39,8 +42,8 @@ test('Pexels samples reject bad hosts, missing attribution and status claims',()
   [{category:'other'},/Unapproved category/],
   [{name:''},/Missing descriptive bridal photograph alt text/],
   [{imageAlt:'missing'},/Missing descriptive bridal photograph alt text/],
-  [{imageCredit:{...products[0].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
- ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===0?{...p,...change}:p)),message);
+  [{imageCredit:{...products[sampleIndex].imageCredit,sourceUrl:'https://example.com'}},/Missing image provenance/],
+ ]) assert.throws(()=>validateCatalogue(products.map((p,i)=>i===sampleIndex?{...p,...change}:p)),message);
 });
 
 test('client mapping rejects wrong URLs, names and invalid prices',()=>{
