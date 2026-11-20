@@ -67,7 +67,7 @@ test('Modern Tradition listing and main filter present four independently identi
     const link=all([card]).find(n=>n.tag==='a');
     assert.equal(link.attrs.href,product.previewRoute);
     assert.equal(card.attrs['data-catalogue-modern-href'],
-      '/redcarpert-prototype'+product.previewRoute+'/');
+      '/redcarpert-wedding-dresses'+product.previewRoute+'/');
     const serial=String(index+1).padStart(2,'0');
     const heading=all([card]).find(n=>n.tag==='h2');
     assert.equal(heading.children[0].children[0],'Modern Tradition');
@@ -114,6 +114,6 @@ test('the 58-page Digital Lookbook and 68-page PDF include 56 unique priced dres
     assert(html.includes('href="'+page.route+'/">View dress details</a>'));
     assert(pdf.includes('id="look-'+page.product.id+'"'));
     assert(pdf.includes('<h3>'+page.name+'</h3>'));
-    assert(pdf.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+page.route+'/">View dress details</a>'));
+    assert(pdf.includes('href="https://tita-mbotho-studio.github.io/redcarpert-wedding-dresses'+page.route+'/">View dress details</a>'));
   }
 });
