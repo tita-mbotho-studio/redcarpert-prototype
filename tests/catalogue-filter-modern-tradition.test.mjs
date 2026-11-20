@@ -39,11 +39,11 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
     const label=element(number,number.match(/^\d{2}$/)?{}:{'data-catalogue-named':''});
     const image=element('',{alt:p.imageAlt});
     const link=element('',{'aria-label':(p.name.match(/(\d{2})$/)?collection+' '+number:p.name)+': view dress photographs',
-      href:'/redcarpert-prototype'+p.previewRoute+'/'});
+      href:'/redcarpert-wedding-dresses'+p.previewRoute+'/'});
     const card={
       dataset:{catalogueCategory:p.category,catalogueCollections:p.collections.join(' '),
         ...(ordinal>=0?{catalogueModernNumber:String(ordinal+1).padStart(2,'0'),
-          catalogueModernHref:'/redcarpert-prototype'+modernTraditionPageForDress(p.id).route+'/'}:{})},
+          catalogueModernHref:'/redcarpert-wedding-dresses'+modernTraditionPageForDress(p.id).route+'/'}:{})},
       hidden:false,classList:{toggle(){}},
       querySelector:selector=>selector==='.redcarpert-catalogue-collection'?header
         :selector==='.redcarpert-catalogue-number'?label
@@ -76,7 +76,7 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
       assert.equal(r.label.textContent,ordinal);
       assert.equal(r.link.getAttribute('aria-label'),'Modern Tradition '+ordinal+': view dress photographs');
       assert.equal(r.image.getAttribute('alt'),'Modern Tradition dress '+ordinal);
-      assert.equal(r.link.getAttribute('href'),'/redcarpert-prototype'+modernTraditionPageForDress(r.p.id).route+'/');
+      assert.equal(r.link.getAttribute('href'),'/redcarpert-wedding-dresses'+modernTraditionPageForDress(r.p.id).route+'/');
       assert.equal(r.label.hasAttribute('data-catalogue-named'),false);
     }
     click('ball_gown');
@@ -103,7 +103,7 @@ test('Modern Tradition filter relabels 4 cards 01–04, switches detail links an
     onPopState();
     assert.equal(records.filter(r=>!r.card.hidden).length,4);
     assert.equal(records.find(r=>r.p.id==='modern-tradition-04').link.getAttribute('href'),
-      '/redcarpert-prototype/product/preview/modern-tradition-04/');
+      '/redcarpert-wedding-dresses/product/preview/modern-tradition-04/');
   }finally{
     for(const [key,value] of Object.entries(old)){
       if(value===undefined)delete globalThis[key];

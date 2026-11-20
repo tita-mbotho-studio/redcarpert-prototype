@@ -26,10 +26,10 @@ test('public-facing WhatsApp URLs become inert local preview controls', () => {
 });
 
 test('repository URL prefix is stable and does not rewrite JavaScript slash operators', () => {
-  assert.equal(REPOSITORY_BASE,'/redcarpert-prototype/');
-  assert.equal(prefix('/product/'),'/redcarpert-prototype/product/');
-  assert.equal(prefix('/site-assets/x.css'),'/redcarpert-prototype/site-assets/x.css');
-  assert.equal(prefix('/redcarpert/gallery/a.webp'),'/redcarpert-prototype/redcarpert/gallery/a.webp');
+  assert.equal(REPOSITORY_BASE,'/redcarpert-wedding-dresses/');
+  assert.equal(prefix('/product/'),'/redcarpert-wedding-dresses/product/');
+  assert.equal(prefix('/site-assets/x.css'),'/redcarpert-wedding-dresses/site-assets/x.css');
+  assert.equal(prefix('/redcarpert/gallery/a.webp'),'/redcarpert-wedding-dresses/redcarpert/gallery/a.webp');
   assert.equal(prefix('x / y'),'x / y');
   assert.equal(prefix('https://example.com/'),'https://example.com/');
 });
