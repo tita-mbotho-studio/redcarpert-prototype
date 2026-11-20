@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
 /** Native homepage geometry and real user input at responsive viewports. */
-const url='http://localhost:4173/redcarpert-prototype/';
+const url='http://localhost:4173/redcarpert-wedding-dresses/';
 const viewports=[
   {width:1440,height:900},
   {width:1024,height:768},

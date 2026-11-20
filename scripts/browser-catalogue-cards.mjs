@@ -4,7 +4,7 @@ import { catalogueProducts, catalogueCategories, dressAppearsInCollection } from
 import { modernTraditionPageForDress } from '../src/lib/modern-tradition.ts';
 
 /** Production-browser coverage for editorial listing cards on all six routes. */
-const origin = 'http://localhost:4173/redcarpert-prototype';
+const origin = 'http://localhost:4173/redcarpert-wedding-dresses';
 const routes = ['/product', ...catalogueCategories.map(c => c.route.replace(/\/$/, ''))];
 const browser = await chromium.launch({ args: ['--no-sandbox'] });
 try {

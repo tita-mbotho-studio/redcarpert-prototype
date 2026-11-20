@@ -18,7 +18,7 @@ try {
   // Force the built-in fallback so the test never requires a remote animation vendor.
   await page.route('https://cdn.jsdelivr.net/npm/page-flip@2.0.7/**',route=>route.abort());
   await page.route('https://images.pexels.com/**',route=>route.abort());
-  await page.goto('http://localhost:4173/redcarpert-prototype/digital-lookbook/',{waitUntil:'domcontentloaded'});
+  await page.goto('http://localhost:4173/redcarpert-wedding-dresses/digital-lookbook/',{waitUntil:'domcontentloaded'});
   await page.locator('#redcarpert-flipbook[data-engine="fallback"]').waitFor({timeout:10000});
   assert.equal(await page.locator('[data-book-page]').count(),pageCount);
   assert.equal(await page.locator('[data-book-sale-price]').count(),placements.length);
@@ -85,7 +85,7 @@ try {
     };
   });
   const referencePage=await browser.newPage({viewport:{width,height:900},isMobile:mobile,hasTouch:mobile});
-  await referencePage.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-02/',{waitUntil:'domcontentloaded'});
+  await referencePage.goto('http://localhost:4173/redcarpert-wedding-dresses/product/preview/ball-gown-02/',{waitUntil:'domcontentloaded'});
   const reference=referencePage.locator('[data-gallery-next]');
   await reference.waitFor({state:'visible'});
   const expectedStyle=await appearance(reference);

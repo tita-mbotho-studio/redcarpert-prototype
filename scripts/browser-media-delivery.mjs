@@ -6,7 +6,7 @@ import { weddingMomentEvents } from '../src/lib/wedding-moments.ts';
 /** Exercise the centralized fallback with deliberately failed CDN derivatives.
  * Run after npm run preview, against http://localhost:4173. */
 const browser=await chromium.launch({args:['--no-sandbox']});
-const root='http://localhost:4173/redcarpert-prototype';
+const root='http://localhost:4173/redcarpert-wedding-dresses';
 const svg='<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><rect width="800" height="1000" fill="#d0c0b0"/></svg>';
 try {
   const page=await browser.newPage({viewport:{width:1280,height:900}});
