@@ -1,0 +1,57 @@
+name: TEMP Implementation 66 renamed Pages release
+# One-time owner-approved release for renamed Redcarpert Wedding Dresses Pages.
+# Delete this temporary trigger after the production URL is verified.
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/temp-implementation-66-renamed-pages-release.yml
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/main' && github.event.head_commit.message == 'release: deploy renamed Redcarpert Wedding Dresses Pages'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run typecheck
+      # The lookbook PDF requires Chromium during static generation.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run test:dist
+      - name: Test production pages in Chromium
+        run: |
+          npm run preview -- --port 4173 > /tmp/pages-preview.log 2>&1 &
+          pages_preview_pid=$!
+          trap 'kill "$pages_preview_pid"' EXIT
+          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://localhost:4173/redcarpert-wedding-dresses/ > /dev/null
+          npm run test:browser
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    # Publish only main after the complete build and browser checks succeed.
+    # Feature branches and pull requests never deploy.
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy verified main artifact
+        id: deployment
+        uses: actions/deploy-pages@v4
