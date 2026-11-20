@@ -134,7 +134,7 @@ export function createLuxuryLookbookHtml(products: readonly CatalogueProduct[], 
   }
   const logo = imageData(options.logo,"image/png");
   const pages: string[] = [];
-  const website="https://tita-mbotho-studio.github.io/redcarpert-prototype/";
+  const website="https://tita-mbotho-studio.github.io/redcarpert-wedding-dresses/";
   pages.push(page(1,"cover","cover",
     '<img class="logo" src="'+logo+'" alt="Redcarpert Wedding Dresses logo">'+
     '<div class="goldline" aria-hidden="true"></div>'+
