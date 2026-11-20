@@ -3,7 +3,7 @@ import {chromium} from 'playwright';
 import {OFFICIAL_SOCIAL_LINKS} from '../src/config/social-links.ts';
 
 const browser=await chromium.launch({args:['--no-sandbox']});
-const base='http://localhost:4173/redcarpert-prototype';
+const base='http://localhost:4173/redcarpert-wedding-dresses';
 try {
   for (const width of [320,375,390,768,1440]) {
     for (const route of ['/','/wedding-moments/','/about-us/']) {
