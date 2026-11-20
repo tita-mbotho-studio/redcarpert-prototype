@@ -60,7 +60,7 @@ test('dress links use the public Pages path and preserve the same dress referenc
   for(const product of catalogueProducts){
     const url=new URL(dressPageUrl(product));
     assert.equal(url.origin,'https://tita-mbotho-studio.github.io');
-    assert.equal(url.pathname,'/redcarpert-prototype'+product.previewRoute+'/');
+    assert.equal(url.pathname,'/redcarpert-wedding-dresses'+product.previewRoute+'/');
     assert(!url.search && !url.hash);
   }
 });

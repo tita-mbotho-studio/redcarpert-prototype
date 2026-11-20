@@ -12,7 +12,7 @@ const htmlFiles = (root, prefix = '') => readdirSync(path.join(root,prefix), {wi
 const baseline = htmlFiles(baselineDir);
 const candidate = htmlFiles(candidateDir);
 assert.deepEqual(candidate,baseline,'The approved page set or 404 changed');
-const normalize = html => html.replace(/\/redcarpert-prototype\/assets\/main-[A-Za-z0-9_-]+\.js/g, '/redcarpert-prototype/assets/main-[BUNDLE].js');
+const normalize = html => html.replace(/\/redcarpert-wedding-dresses\/assets\/main-[A-Za-z0-9_-]+\.js/g, '/redcarpert-wedding-dresses/assets/main-[BUNDLE].js');
 for (const file of baseline) {
  const before=normalize(readFileSync(path.join(baselineDir,file),'utf8'));
  const after=normalize(readFileSync(path.join(candidateDir,file),'utf8'));

@@ -23,7 +23,7 @@ try {
       const page = await browser.newPage({viewport:{width,height}});
       const errors=[];
       page.on('pageerror',error=>errors.push(error.message));
-      await page.goto('http://localhost:4173/redcarpert-prototype'+route,{waitUntil:'domcontentloaded'});
+      await page.goto('http://localhost:4173/redcarpert-wedding-dresses'+route,{waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>document.querySelector('#header #logo-container img')
         && document.querySelector('#footer[data-redcarpert-footer] .wp-image-13926')
         && document.querySelectorAll('#footer[data-redcarpert-footer] .redcarpert-footer-columns > .col').length===3);
@@ -189,7 +189,7 @@ try {
   const future=await browser.newPage({viewport:{width:375,height:667}});
   try {
     await future.clock.setFixedTime(new Date('2035-02-01T12:00:00Z'));
-    await future.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
+    await future.goto('http://localhost:4173/redcarpert-wedding-dresses/product/',{waitUntil:'domcontentloaded'});
     await future.waitForFunction(()=>document.querySelector('[data-copyright-year]')?.textContent==='2035');
     assert.equal(await future.locator('#footer[data-redcarpert-footer] .copyrights').innerText(),
       '© 2035 Redcarpert Wedding Dresses');

@@ -3,7 +3,7 @@ import {chromium} from 'playwright';
 import sharp from 'sharp';
 import { homepageBackgrounds } from '../src/lib/homepage-backgrounds.ts';
 
-const origin='http://localhost:4173/redcarpert-prototype';
+const origin='http://localhost:4173/redcarpert-wedding-dresses';
 // Use the real brand artwork to create a small, valid WebP in memory.
 // The loader test controls network latency, not the content of the dress photographs.
 const heroFixture=await sharp('public/redcarpert/brand/redcarpert-logo.png')

@@ -51,7 +51,7 @@ try {
       });
     });
 
-    await page.goto("http://localhost:4173/redcarpert-prototype/wedding-moments/",
+    await page.goto("http://localhost:4173/redcarpert-wedding-dresses/wedding-moments/",
       { waitUntil: "domcontentloaded" });
     await page.locator("[data-wedding-moments-grid] button").first().waitFor();
     assert.equal(await page.title(), "Wedding Moments | Redcarpert Wedding Dresses");

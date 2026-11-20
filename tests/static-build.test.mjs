@@ -27,8 +27,8 @@ test('static deployment contains complete approved pages, local paths and no app
     route+' must not include the old website-based WhatsApp preview');
   assert.doesNotMatch(html,/__NEXT_DATA__|self\.__next|\/_next\/|data-settings=/);
   for(const [,url] of html.matchAll(/(?:href|src)="(\/[^"#?]*)/g)){
-   assert(url.startsWith('/redcarpert-prototype/'),url);
-   const local=path.join('dist',url.slice('/redcarpert-prototype/'.length));
+   assert(url.startsWith('/redcarpert-wedding-dresses/'),url);
+   const local=path.join('dist',url.slice('/redcarpert-wedding-dresses/'.length));
    assert(existsSync(local)||existsSync(path.join(local,'index.html')),url);
   }
   const handoffs=[...html.matchAll(/<a\b[^>]*\bdata-whatsapp-send\b[^>]*\bhref="([^"]+)"[^>]*>/gi)];
@@ -146,7 +146,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
   for(const entry of modernSpreads){
     assert(book.includes('data-book-entry-id="'+entry.id+'" data-book-category="modern_tradition"'));
     assert(book.includes('<h3>'+entry.displayName+'</h3>'));
-    assert(book.includes('href="/redcarpert-prototype'+entry.detailRoute+'/">View dress details</a>'));
+    assert(book.includes('href="/redcarpert-wedding-dresses'+entry.detailRoute+'/">View dress details</a>'));
   }
  assert.equal((book.match(/<img src="https:\/\/ik\.imagekit\.io\/kw8awoqvwi\/red-carpet-wedding-dresses\/wedding-dresses\/ball-gown-/g)||[]).length,15);
 
@@ -215,7 +215,7 @@ test('the expanded book contains all client Mermaid, Ball Gown and 2 in 1 dresse
     const dress=categoryMatches.find(item=>item.id===id);
     assert(dress,'related dress must belong to the same category and exclude current gown');
     const expectedRelatedRoute=modernPage ? modernTraditionPageForDress(id).route : dress.previewRoute;
-     assert(html.includes('href="/redcarpert-prototype'+expectedRelatedRoute+'/"'),
+     assert(html.includes('href="/redcarpert-wedding-dresses'+expectedRelatedRoute+'/"'),
       'related dress must link to the correct detail page');
     assert(html.includes('data-related-dress="'+id+'"'),'related dress marker must be present');
     assert(html.includes('data-related-sale-price="'+id+'">'+displaySalePriceForDress(id)+'</span>'),
@@ -343,11 +343,11 @@ test('Redcarpert browser-tab and touch icons are generated from the new bridal m
   for(const route of routes){
    const html=readFileSync(path.join('dist',route,'index.html'),'utf8');
    assert(html.includes('rel="'+rel+'"'),route+' must declare '+rel);
-   assert(html.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),route+' must point to current branded icon '+name);
+   assert(html.includes('href="/redcarpert-wedding-dresses/redcarpert/brand/'+name+'"'),route+' must point to current branded icon '+name);
    assert(!html.includes('cropped-logo-2-1'),route+' must not reference the old reference-site tab icon');
   }
   const missing=readFileSync('dist/404.html','utf8');
-  assert(missing.includes('href="/redcarpert-prototype/redcarpert/brand/'+name+'"'),'404 page must use the current '+rel);
+  assert(missing.includes('href="/redcarpert-wedding-dresses/redcarpert/brand/'+name+'"'),'404 page must use the current '+rel);
  }
 });
 
@@ -392,7 +392,7 @@ test('Implementation 22: every static page starts with a bounded, branded global
    assert(html.includes('data-hero-url="'+heroDelivery+'"'),
      'homepage loader should wait for first client photograph');
    for(const url of imagekitUrls)assert(html.includes(url),'homepage missing approved photo '+url);
-   assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-prototype\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
+   assert(html.indexOf('rel="preload"')<html.indexOf('src="\/redcarpert-wedding-dresses\/redcarpert\/brand\/redcarpert-logo-optimized.webp"'),
     'hero preload should be declared before loading logo');
   } else {
    assert(!html.includes('data-hero-url='),route+' must not load the homepage hero');
@@ -427,9 +427,9 @@ test('Wedding Moments production HTML uses CDN thumbnails, preserves originals a
  assert(html.includes('Showing 16 of 90 wedding moments'), 'initial gallery counter missing');
  assert(html.includes('data-wedding-moments-remaining'), 'deferred media template missing');
  assert(html.includes('data-wedding-load-more'), 'pagination control missing');
- assert(!html.includes(base.replace('/wedding-moments/','/redcarpert-prototype/wedding-moments/')),
+ assert(!html.includes(base.replace('/wedding-moments/','/redcarpert-wedding-dresses/wedding-moments/')),
    'external CDN URLs must never contain the GitHub Pages base');
- assert(!html.includes('red-carpet-wedding-dresses/redcarpert-prototype/wedding-moments/'),
+ assert(!html.includes('red-carpet-wedding-dresses/redcarpert-wedding-dresses/wedding-moments/'),
    'prefix must not be inserted inside an ImageKit media URL');
 });
 
@@ -509,7 +509,7 @@ test('only the three approved published CTAs use label-above, icon-only actions'
    assert(link[1].includes('target="_blank"'));
   }else{
    assert(link[1].includes('aria-label="Download The Bridal Edit (PDF)"'));
-   assert.match(link[1],/href="\/redcarpert-prototype\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf"/);
+   assert.match(link[1],/href="\/redcarpert-wedding-dresses\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf"/);
    assert.match(link[1],/download="Redcarpert-The-Bridal-Edit-\d{4}\.pdf"/);
   }
  }

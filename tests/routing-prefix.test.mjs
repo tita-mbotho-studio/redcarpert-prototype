@@ -8,7 +8,7 @@ import { approvedCapturedRoutes, authoredPrototypeRoutes }
 
 test("every public navigation route gets the GitHub Pages / Codespaces base prefix", () => {
   const publicRoutes = [...approvedCapturedRoutes, ...authoredPrototypeRoutes];
-  assert.equal(REPOSITORY_BASE, "/redcarpert-prototype/");
+  assert.equal(REPOSITORY_BASE, "/redcarpert-wedding-dresses/");
   for (const route of publicRoutes) {
     const url = route === "/" ? "/" : route + "/";
     const output = prefix('<a href="' + url + '">View</a>');
@@ -23,9 +23,9 @@ test("Wedding Moments navigation works from home and nested pages, including mob
     '<div class="mob-nav-menu"><a href="/wedding-moments/">Wedding Moments</a></div>',
   ]) {
     const output = prefix(markup);
-    assert(output.includes('href="/redcarpert-prototype/wedding-moments/"'));
+    assert(output.includes('href="/redcarpert-wedding-dresses/wedding-moments/"'));
     assert(!output.includes('href="/wedding-moments/"'));
-    assert(!output.includes('/redcarpert-prototype/redcarpert-prototype/'));
+    assert(!output.includes('/redcarpert-wedding-dresses/redcarpert-wedding-dresses/'));
   }
 });
 
@@ -52,20 +52,20 @@ test("ImageKit wedding photos, videos and thumbnails are never rewritten inside 
     '<button data-wedding-src="' + video + '">Play</button>',
   ].join("");
   const rewritten = prefix(html);
-  assert(rewritten.includes('href="/redcarpert-prototype/wedding-moments/"'));
+  assert(rewritten.includes('href="/redcarpert-wedding-dresses/wedding-moments/"'));
   for (const url of [...photos, video, poster]) {
     assert(rewritten.includes(url), "external media URL changed: " + url);
   }
-  assert(!rewritten.includes("/redcarpert-prototype/wedding-moments/wedding-moments-56.jpg"));
-  assert(!rewritten.includes("/redcarpert-prototype/wedding-moments/wedding-moments-88.mp4"));
+  assert(!rewritten.includes("/redcarpert-wedding-dresses/wedding-moments/wedding-moments-56.jpg"));
+  assert(!rewritten.includes("/redcarpert-wedding-dresses/wedding-moments/wedding-moments-88.mp4"));
   assert.equal(prefix(rewritten), rewritten, "prefixing must be idempotent");
 });
 
 test("root relative CSS assets still receive the repository prefix", () => {
   assert.equal(prefix('url(/site-assets/example.png)'),
-    'url(/redcarpert-prototype/site-assets/example.png)');
+    'url(/redcarpert-wedding-dresses/site-assets/example.png)');
   assert.equal(prefix('background:url("/redcarpert/brand/logo.png")'),
-    'background:url("/redcarpert-prototype/redcarpert/brand/logo.png")');
+    'background:url("/redcarpert-wedding-dresses/redcarpert/brand/logo.png")');
 });
 
 
@@ -91,6 +91,6 @@ test("editorial route metadata is not mistaken for a local hyperlink", () => {
     '<a href="/wedding-moments/">Open</a></div>';
   const output = prefix(html);
   assert(output.includes('data-editorial-route="/wedding-moments"'));
-  assert(output.includes('href="/redcarpert-prototype/wedding-moments/"'));
-  assert(!output.includes('data-editorial-route="/redcarpert-prototype/wedding-moments"'));
+  assert(output.includes('href="/redcarpert-wedding-dresses/wedding-moments/"'));
+  assert(!output.includes('data-editorial-route="/redcarpert-wedding-dresses/wedding-moments"'));
 });

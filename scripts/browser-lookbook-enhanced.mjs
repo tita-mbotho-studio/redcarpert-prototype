@@ -7,7 +7,7 @@ const pageCount=lookbookPlacements(catalogueProducts).length+2;
 /** Real StPageFlip regression, not the CDN-blocked fallback test.
  * Isolate flipping from the externally hosted Pexels image availability. */
 const browser = await chromium.launch({args:['--no-sandbox']});
-const root = 'http://localhost:4173/redcarpert-prototype/digital-lookbook/';
+const root = 'http://localhost:4173/redcarpert-wedding-dresses/digital-lookbook/';
 try {
   for (const width of [1440, 768, 390]) {
     const mobile = width === 390;

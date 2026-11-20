@@ -20,7 +20,7 @@ try {
       body:'<!doctype html><html><head><title>WhatsApp test handoff</title></head><body>Offline intercepted handoff</body></html>',
     }));
     const page=await context.newPage();
-    await page.goto('http://localhost:4173/redcarpert-prototype'+route,{waitUntil:'domcontentloaded'});
+    await page.goto('http://localhost:4173/redcarpert-wedding-dresses'+route,{waitUntil:'domcontentloaded'});
     if(width<=640)assert(await page.locator('#redcarpert-floating-whatsapp').isHidden(),name+' floating widget must be hidden on phones');
     else assert(await page.locator('#redcarpert-floating-whatsapp [data-whatsapp-send]').isVisible(),name+' floating CTA must be visible');
 
@@ -62,7 +62,7 @@ try {
       await close.click();
       assert(await page.locator('#redcarpert-floating-whatsapp').isHidden());
       assert.equal(await page.evaluate(()=>sessionStorage.getItem('redcarpert-floating-whatsapp-dismissed')),'1');
-      await page.goto('http://localhost:4173/redcarpert-prototype/about-us/',{waitUntil:'domcontentloaded'});
+      await page.goto('http://localhost:4173/redcarpert-wedding-dresses/about-us/',{waitUntil:'domcontentloaded'});
       assert(await page.locator('#redcarpert-floating-whatsapp').isHidden(),'dismissal must persist across pages');
       const footer=page.locator('#footer .redcarpert-footer-social-whatsapp');
       const [footerPopup]=await Promise.all([context.waitForEvent('page'),footer.click()]);

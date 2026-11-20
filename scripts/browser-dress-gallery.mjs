@@ -170,7 +170,7 @@ try {
  const actual=await browser.newPage({viewport:{width:1280,height:900}});
  const liveErrors=[];
  actual.on('pageerror',error=>liveErrors.push(error.message));
- await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/2-in-1-kwena-dress/',{
+ await actual.goto('http://localhost:4173/redcarpert-wedding-dresses/product/preview/2-in-1-kwena-dress/',{
    waitUntil:'domcontentloaded',
    timeout:30000,
  });
@@ -304,7 +304,7 @@ try {
  await actual.waitForFunction(()=>document.querySelector('[data-detail-gallery]').dataset.activePhoto==='0');
  assert.equal(await liveGallery.locator('[data-gallery-counter]').textContent(),'01 / 03');
  // Verify actual client Ball Gown 03: four unique photos, no sample pricing.
- await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-03/',{waitUntil:'domcontentloaded'});
+ await actual.goto('http://localhost:4173/redcarpert-wedding-dresses/product/preview/ball-gown-03/',{waitUntil:'domcontentloaded'});
  const gown=actual.locator('[data-detail-gallery="ball-gown-03"]');
  await gown.locator('[data-gallery-next]').waitFor({timeout:20000});
  assert.equal(await gown.locator('[data-gallery-index]').count(),4);
@@ -353,7 +353,7 @@ try {
  assert.equal(await actual.locator('.obsolete-detail-notice').count(),0,'client gown has no provenance notice');
  // Regression: the pictured Modern Tradition 03 gown must keep both arrows
  // at the image's vertical midpoint across phones, tablets and desktop.
- await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/modern-tradition-03/',{
+ await actual.goto('http://localhost:4173/redcarpert-wedding-dresses/product/preview/modern-tradition-03/',{
    waitUntil:'domcontentloaded',timeout:30000,
  });
  const modernGallery=actual.locator('[data-detail-gallery="modern-tradition-03"]');
@@ -371,7 +371,7 @@ try {
  assert.equal(await modernGallery.locator('[data-gallery-counter]').textContent(),'01 / 04');
  await actual.setViewportSize({width:1280,height:900});
  // Single-photo client gowns still show the full silhouette without empty arrows.
- await actual.goto('http://localhost:4173/redcarpert-prototype/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
+ await actual.goto('http://localhost:4173/redcarpert-wedding-dresses/product/preview/ball-gown-07/',{waitUntil:'domcontentloaded'});
  const singleClient=actual.locator('[data-detail-gallery="ball-gown-07"]');
  assert.equal(await singleClient.locator('[data-gallery-next]').count(),0);
  assert.equal(await singleClient.locator('[data-gallery-index]').count(),0);
@@ -384,7 +384,7 @@ try {
  await actual.keyboard.press('Escape');
  await singleModal.waitFor({state:'hidden'});
  // Wedding Dresses listing cards are intentionally price-free.
- await actual.goto('http://localhost:4173/redcarpert-prototype/product/',{waitUntil:'domcontentloaded'});
+ await actual.goto('http://localhost:4173/redcarpert-wedding-dresses/product/',{waitUntil:'domcontentloaded'});
  for(const width of [1280,390]){
    await actual.setViewportSize({width,height:900});
    const cards=actual.locator('ul.products[data-catalogue-preview] li.product');

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { catalogueProducts } from '../src/data/catalogue.ts';
 import { lookbookPlacements } from '../src/lib/lookbook-placements.ts';
 
-const base = 'http://localhost:4173/redcarpert-prototype';
+const base = 'http://localhost:4173/redcarpert-wedding-dresses';
 const routes = ['/digital-lookbook/', '/about-us/', '/contact-us/'];
 const viewports = [
   {width: 1440, height: 900},
@@ -165,7 +165,7 @@ try {
         assert.equal(cta.label,'Download The Bridal Edit (PDF)');
         assert.equal(cta.ariaLabel,cta.label);
         assert(cta.icon?.includes('fa-solid fa-file-arrow-down'));
-        assert.match(cta.href,/^\/redcarpert-prototype\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf$/);
+        assert.match(cta.href,/^\/redcarpert-wedding-dresses\/digital-lookbook\/Redcarpert-The-Bridal-Edit-\d{4}\.pdf$/);
         assert(cta.download?.endsWith('.pdf'),'PDF button must keep its download attribute');
       }else{
         assert.equal(cta.kind,'fitting');

@@ -225,7 +225,7 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
       'PDF rental price must match the dress detail page for '+label);
     assert(html.includes('data-pdf-sale-label="'+dress.id+'">'+saleLabel+'</p>'),
       'PDF must distinguish fixed example sale prices from unconfirmed sale prices for '+label);
-    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+dress.previewRoute+'/"'),
+    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-wedding-dresses'+dress.previewRoute+'/"'),
       'missing link to '+label+' preview');
   }
   assert.equal(placements.length,56);
@@ -236,7 +236,7 @@ test('luxury editorial lookbook contains all catalogue dresses and accurate A4 p
     assert(online.includes('href="'+placement.detailRoute+'/">View dress details</a>'));
     assert(html.includes('id="look-'+placement.id+'"'));
     assert(html.includes('<h3>'+placement.displayName+'</h3>'));
-    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-prototype'+placement.detailRoute+'/">View dress details</a>'));
+    assert(html.includes('href="https://tita-mbotho-studio.github.io/redcarpert-wedding-dresses'+placement.detailRoute+'/">View dress details</a>'));
   }
   assert.throws(()=>createLuxuryLookbookHtml(catalogueProducts.slice(0,19),images,{year:2026,logo:Buffer.alloc(20)}),/needs one photograph per dress/);
 });
