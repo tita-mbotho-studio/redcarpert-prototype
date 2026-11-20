@@ -1,11 +1,11 @@
 {
-  "name": "redcarpert-prototype",
+  "name": "redcarpert-wedding-dresses",
   "version": "0.3.0",
   "private": true,
-  "description": "Static Redcarpert Wedding Dresses prototype",
+  "description": "Official Redcarpert Wedding Dresses bridal catalogue",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tita-mbotho-templates/redcarpert-prototype.git"
+    "url": "git+https://github.com/tita-mbotho-studio/redcarpert-wedding-dresses.git"
   },
   "engines": {
     "node": ">=22.12.0"
