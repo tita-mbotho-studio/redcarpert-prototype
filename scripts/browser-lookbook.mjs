@@ -56,7 +56,10 @@ try {
   assert.match(await cover.locator('h3').textContent(),/Walking on red carpet with confidence/);
   assert.equal(await page.locator('.redcarpert-book-dress').count(),placements.length);
   assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="mermaid-"]').count(),2);
-  assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="ball-gown-"]').count(),15);
+  assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="ball-gown-"]').count(),12,
+    'the Digital Lookbook must include exactly twelve Ball Gown dress entries');
+  assert.equal(await page.locator('.redcarpert-book-dress[data-book-dress-id^="ruffled-"]').count(),17,
+    'the Digital Lookbook must include all seventeen client Ruffled dresses');
   assert.equal(await page.locator('.redcarpert-book-dress a[href*="/product/preview/"]').count(),placements.length);
   const next = page.getByRole('button',{name:'Next page',exact:true});
   const previous = page.getByRole('button',{name:'Previous page',exact:true});
